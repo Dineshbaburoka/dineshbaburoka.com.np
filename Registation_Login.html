@@ -1,37 +1,3 @@
-<?php
-	$id = $_POST['id'];
-	$mrn = $_POST['mrn'];
-	$cn = $_POST['cn'];
-	$pass = $_POST['pass'];
-	$error ="";
-	$succeess ="";
-
-if(isset($_POST['submit'])){
-	if( $id = "2078"){
-	if($mrn = "7801"){
-	if($cn = "Triangle pvt.ltd"){
-	if($pass = "123"){
-	$error = "";
-	$success ="Welcome!!!";
-    }
-	else{
-	$error = "Invalid id";
-	$success ="";
-	}
-	else{
-	$error = "Invalid Registration No";
-	$success ="";
-   }
-	else{
-	$error = "Invalid Consult Name";
-	$success ="";
-  }
-	else{
-	$error = " Invalid password";
-	$success ="";
- }
-}
-?>
 <!DOCTYPE >
 <html>
 <head>
@@ -39,25 +5,25 @@ if(isset($_POST['submit'])){
 	<title>Registration and Login</title>
 	<link rel="stylesheet" type="text/css" href="style1.css">
 </head>
-<p class = "error"><?php echo $error; ?></p><p class = "success"><?php echo $success; ?></p>
-<form method="POST">
+
+<form method="POST" action="#">
 <fieldset>
 <legend><div class="Login"> 
 <img src="Logo.jpg" class="Logo">
 </legend>
 <br>
 <br>
-User ID <br><input type="text" name ="id" value="" required>
+User ID <br><input type="text">
 <br><br>
 
-Municipality <br>Registration No.<br><input type="number" name ="mrn" value="" required>
+Municipality <br>Registration No.<br><input type="number">
 <br><br>
-Consult Name <br><input type="text" name ="cn" value="" required>
+Consult Name <br><input type="text">
 <br><br>
-Password <br><input type="text" name ="pass" value="" required>
+Password <br><input type="text">
 <br>
 <br>
-<input type="submit" name ="submit" value="Login">
+<input type= "submit" name= "sumit" value = "Login"<a href="Application_Form.html">
 </fieldset>
 </form>
 
