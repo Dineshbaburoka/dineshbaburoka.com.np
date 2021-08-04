@@ -1,35 +1,28 @@
 <?php
-	$host= "localhost";
-	$user="root";
-	$password="";
-	$db="login";
+	$id = $_POST['id'];
+	$mrn = $_POST['mrn'];
+	$cn = $_POST['cn'];
+	$pass = $_POST['pass'];
+	$error ="";
+	$succeess ="";
 
-	mysql_connect($host,$user,$password);
-	mysql_select_db($db)
-
-	if (isset([Email])) {
-		$Email=$_POST['Email']
-		$Municipality Registration No.=$_POST['Municipality Registration No.']
-		$Consult Name=$_POST['Consult Name']
-		$password=$_POST['password']
-
-		$sql="select * login where Email ='".$Email."'& Municipality Registration No='".$Municipality Registration No."'&Consult Name='".$Consult Name."'&password='"$password"' limit 1";
-
-		$result=mysql_query($sql);
-
-	if (mysql_num_rows($result)==1) {
-		echo "<a href = "Application_Form.html"></a>";
-		# code...
-	}
+if(isset($_POST['submit'])){
+	if( $id = "2078"){
+	if($mrn = "7801"){
+	if($cn = "Triangle pvt.ltd"){
+	if($pass = "123"){
+	$error = "";
+	$success ="Welcome!!!";
+    }
 	else{
-		echo echo "<a href = "Login.php"></a>";
-		# code...
+	$error = "Invalid detail";
+	$success ="";
 	}
-	}
-
+   }
+  }
+ }
+}
 ?>
-
-
 <!DOCTYPE >
 <html>
 <head>
@@ -38,21 +31,21 @@
 	<link rel="stylesheet" type="text/css" href="style1.css">
 </head>
 
-<form method="POST" action="#">
+<form method="POST">
 <fieldset>
 <legend><div class="Login"> 
 <img src="Logo.jpg" class="Logo">
 </legend>
 <br>
 <br>
-User ID <br><input type="text">
+User ID <br><input type="text" name ="id" value="" required>
 <br><br>
 
-Municipality <br>Registration No.<br><input type="number">
+Municipality <br>Registration No.<br><input type="number" name ="mrn" value="" required>
 <br><br>
-Consult Name <br><input type="text">
+Consult Name <br><input type="text" name ="cn" value="" required>
 <br><br>
-Password <br><input type="text">
+Password <br><input type="text" name ="pass" value="" required>
 <br>
 <br>
 <button><a href="Application_Form.html">Login</a></button>
