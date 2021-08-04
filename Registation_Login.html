@@ -1,0 +1,66 @@
+<?php
+	$host= "localhost";
+	$user="root";
+	$password="";
+	$db="login";
+
+	mysql_connect($host,$user,$password);
+	mysql_select_db($db)
+
+	if (isset([Email])) {
+		$Email=$_POST['Email']
+		$Municipality Registration No.=$_POST['Municipality Registration No.']
+		$Consult Name=$_POST['Consult Name']
+		$password=$_POST['password']
+
+		$sql="select * login where Email ='".$Email."'& Municipality Registration No='".$Municipality Registration No."'&Consult Name='".$Consult Name."'&password='"$password"' limit 1";
+
+		$result=mysql_query($sql);
+
+	if (mysql_num_rows($result)==1) {
+		echo "<a href = "Application_Form.html"></a>";
+		# code...
+	}
+	else{
+		echo echo "<a href = "Login.php"></a>";
+		# code...
+	}
+	}
+
+?>
+
+
+<!DOCTYPE >
+<html>
+<head>
+	
+	<title>Registration and Login</title>
+	<link rel="stylesheet" type="text/css" href="style1.css">
+</head>
+
+<form method="POST" action="#">
+<fieldset>
+<legend><div class="Login"> 
+<img src="Logo.jpg" class="Logo">
+</legend>
+<br>
+<br>
+User ID <br><input type="text">
+<br><br>
+
+Municipality <br>Registration No.<br><input type="number">
+<br><br>
+Consult Name <br><input type="text">
+<br><br>
+Password <br><input type="text">
+<br>
+<br>
+<button><a href="Application_Form.html">Login</a></button>
+</fieldset>
+</form>
+
+</div>
+<body>
+
+</body>
+</html>

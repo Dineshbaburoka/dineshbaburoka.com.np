@@ -1,0 +1,17 @@
+Form{
+	background-color: sandybrown;
+	color: whitesmoke;
+	padding:15px;
+	text-align: left;
+	border-radius:7PX;
+}
+
+h2{
+	color:greenyellow;
+}
+
+body{
+	background-color:blueviolet;
+	text-align: center;
+	background-image: url(building.jpg);
+}
