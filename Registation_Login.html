@@ -15,11 +15,20 @@ if(isset($_POST['submit'])){
 	$success ="Welcome!!!";
     }
 	else{
-	$error = "Invalid detail";
+	$error = "Invalid id";
 	$success ="";
 	}
+	else{
+	$error = "Invalid Registration No";
+	$success ="";
    }
+	else{
+	$error = "Invalid Consult Name";
+	$success ="";
   }
+	else{
+	$error = " Invalid password";
+	$success ="";
  }
 }
 ?>
@@ -30,7 +39,7 @@ if(isset($_POST['submit'])){
 	<title>Registration and Login</title>
 	<link rel="stylesheet" type="text/css" href="style1.css">
 </head>
-
+<p class = "error"><?php echo $error; ?></p><p class = "success"><?php echo $success; ?></p>
 <form method="POST">
 <fieldset>
 <legend><div class="Login"> 
