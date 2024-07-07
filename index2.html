@@ -65,12 +65,13 @@
 
 <script>
     const scriptURL = 'https://script.google.com/macros/s/AKfycbyW0a6G7NDM51ENA55Hc8tILld0kajcze-CdELaIRPgcfcpLe15IRsvS4j6jfnQP-Ze/exec';
-    const form = document.forms['myForm'];
+    const form = document.getElementById('myForm');
 
     form.addEventListener('submit', e => {
         e.preventDefault();
-        fetch(scriptURL, { method: 'POST', body: new FormData(form)})
-            .then(response => document.getElementById('message').innerHTML = 'Form submitted successfully!')
+        fetch(scriptURL, { method: 'POST', body: new FormData(form) })
+            .then(response => response.text())
+            .then(result => document.getElementById('message').innerHTML = 'Form submitted successfully!')
             .catch(error => document.getElementById('message').innerHTML = 'Error! ' + error.message);
     });
 </script>
