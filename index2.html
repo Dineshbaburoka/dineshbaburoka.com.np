@@ -22,7 +22,7 @@
             display: block;
             margin-bottom: 5px;
         }
-        .form-group input {
+        .form-group input, .form-group select {
             width: 100%;
             padding: 8px;
             box-sizing: border-box;
@@ -45,16 +45,53 @@
 <div class="form-container">
     <form id="myForm">
         <div class="form-group">
-            <label for="name">जग्गा धनीको नाम:</label>
-            <input type="text" id="name" name="name" required>
+            <label for="jaggaName">जग्गा धनीको नाम:</label>
+            <input type="text" id="jaggaName" name="jaggaName" required>
         </div>
         <div class="form-group">
-            <label for="age">उमेर:</label>
-            <input type="number" id="age" name="age" required>
+            <label for="gaawis">गाविस:</label>
+            <select id="gaawis" name="gaawis" required>
+                <option value="">Select...</option>
+                <option value="दुदिलाभाटी">दुदिलाभाटी</option>
+                <option value="नरेठाँटी">नरेठाँटी</option>
+                <option value="हटिया">हटिया</option>
+                <option value="हरिचौँर">हरिचौँर</option>
+                <option value="मल्म">मल्म</option>
+                <option value="काँडेबास">काँडेबास</option>
+                <option value="पाण्डबखानी">पाण्डबखानी</option>
+                <option value="रिघा">रिघा</option>
+            </select>
         </div>
         <div class="form-group">
-            <label for="mobile">मोबाइल नं.:</label>
-            <input type="text" id="mobile" name="mobile" required>
+            <label for="wardNum">वार्ड नं.:</label>
+            <select id="wardNum" name="wardNum" required>
+                <option value="">Select...</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="kittaNum">कित्ता नं.:</label>
+            <input type="text" id="kittaNum" name="kittaNum" required>
+        </div>
+        <div class="form-group">
+            <label for="gridSheetNum">ग्रिड सिट नं.:</label>
+            <input type="text" id="gridSheetNum" name="gridSheetNum" required>
+        </div>
+        <div class="form-group">
+            <label for="classificationArea">वर्गीकरण क्षेत्र:</label>
+            <input type="text" id="classificationArea" name="classificationArea" required>
+        </div>
+        <div class="form-group">
+            <label for="remarks">कैफियत:</label>
+            <input type="text" id="remarks" name="remarks">
         </div>
         <div class="form-group">
             <button type="submit">Submit</button>
@@ -64,7 +101,7 @@
 </div>
 
 <script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbxPiTMpIo7uxIf9-5BKe8K9YzemvKnyLuCWGIh07P1_by24uxXPRNjVgQ19c731i4qX/exec';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbyqL1-zort9etQlHy8PDSPrBN9V8_8zMbKQMT3OJQ1mbp-u6O8YBzqD_03ihV_RTy-j/exec';
     const form = document.getElementById('myForm');
 
     form.addEventListener('submit', e => {
