@@ -38,6 +38,12 @@
         .form-group button:hover {
             background-color: #218838;
         }
+        #message {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 16px;
+            color: #28a745;
+        }
     </style>
 </head>
 <body>
@@ -101,15 +107,20 @@
 </div>
 
 <script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbyqL1-zort9etQlHy8PDSPrBN9V8_8zMbKQMT3OJQ1mbp-u6O8YBzqD_03ihV_RTy-j/exec';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbx8t3Wpb5yj8jMWJTycSf8ptFjMNajZbbHz0wQxaVWh4yfUugyqf9_i4NBQ64MN5zvS/exec';
     const form = document.getElementById('myForm');
 
     form.addEventListener('submit', e => {
         e.preventDefault();
         fetch(scriptURL, { method: 'POST', body: new FormData(form) })
             .then(response => response.text())
-            .then(result => document.getElementById('message').innerHTML = 'Form submitted successfully!')
-            .catch(error => document.getElementById('message').innerHTML = 'Error! ' + error.message);
+            .then(result => {
+                document.getElementById('message').innerHTML = 'Form submitted successfully!';
+                form.reset();
+            })
+            .catch(error => {
+                document.getElementById('message').innerHTML = 'Error! ' + error.message;
+            });
     });
 </script>
 
