@@ -37,37 +37,79 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-direction: column;
             margin-top: 20px;
         }
         .profile img {
-            margin-right: 20px;
+            margin-top: 20px;
             max-width: 150px; /* Adjust the size of the image */
             border-radius: 50%; /* Optional: to make the image circular */
         }
-        .biodata-table {
+        .table-container {
+            width: 100%;
+            margin-top: 20px;
+            text-align: left;
+        }
+        .table-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #ffffff; /* White text color */
+        }
+        .biodata-table, .experience-table {
             color: #ffffff; /* White text color */
             border-collapse: collapse;
             width: 100%;
         }
-        .biodata-table th, .biodata-table td {
+        .biodata-table th, .biodata-table td, .experience-table th, .experience-table td {
             border: 1px solid #ffffff;
             padding: 8px;
             text-align: left;
         }
-        .biodata-table th {
+        .biodata-table th, .experience-table th {
             background-color: #007bff;
+        }
+        .land-details-button, .classification-button {
+            background-color: #007bff;
+            color: #ffffff;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        .land-details-button:hover, .classification-button:hover {
+            background-color: #0056b3;
+        }
+        .top-left-buttons {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
         }
     </style>
 </head>
 <body id="page-top">
     <!-- Admin Login Button -->
     <a href="index2.html" class="admin-login">Admin Login</a>
+    <!-- Top Left Buttons -->
+    <div class="top-left-buttons">
+        <a href="indexupdate.html" class="classification-button">गलकोट नगरपालिकाको जग्गा वर्गीकरणको विवरण</a>
+        <a href="land-details.html" class="land-details-button">आफ्नो जग्गाको विवरण र जग्गाको अवस्थिति हेर्नुहोस</a>
+    </div>
     <!-- Masthead-->
     <header class="masthead bg-primary text-white text-center">
         <div class="container d-flex align-items-center flex-column">
-            <!-- Profile Section with Image and Biodata Table -->
-            <div class="profile">
-                <img class="masthead-avatar mb-5" src="brp.jpg" alt="Dinesh Babu Roka" />
+            <!-- Masthead Heading-->
+            <h1 class="masthead-heading text-uppercase mb-0">Dinesh Babu Roka</h1>
+            <!-- Masthead Subheading-->
+            <p class="masthead-subheading font-weight-light mb-0">Surveyor</p>
+            <!-- Profile Image-->
+            <img class="masthead-avatar mb-5" src="brp.jpg" alt="Dinesh Babu Roka" />
+            
+            <!-- Academic Qualification Table -->
+            <div class="table-container">
+                <div class="table-title">Academic Qualification</div>
                 <table class="biodata-table">
                     <tr>
                         <th>S.N</th>
@@ -106,18 +148,38 @@
                     </tr>
                 </table>
             </div>
-            <!-- Masthead Heading-->
-            <h1 class="masthead-heading text-uppercase mb-0">Dinesh Babu Roka</h1>
-            <!-- Masthead Subheading-->
-            <p class="masthead-subheading font-weight-light mb-0">Surveyor</p>
-            <nav>
-                <a href="https://www.youtube.com/channel/surveying nepal"><i class="fab fa-youtube"></i></a>
-                <br><br>
-                <a href="indexupdate.html">गलकोट नगरपालिकाको जग्गा वर्गीकरणको विवरण</a>
-                <br><br>
-                <h1></h1><a href="indexupdate1.html">आफ्नो जग्गाको विवरण र जग्गाको अवस्थिति हेर्नुहोस</a></h1>
-               
-            </nav>
+            
+            <!-- Work Experience Table -->
+            <div class="table-container">
+                <div class="table-title">Work Experience</div>
+                <table class="experience-table">
+                    <tr>
+                        <th>S.N</th>
+                        <th>Company/Office Name</th>
+                        <th>Work Start Date</th>
+                        <th>Work End Date</th>
+                        <th>Post/Position</th>
+                        <th>Remarks</th>
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td>Galkot Municipality</td>
+                        <td>BS 2076-11-28</td>
+                        <td>-</td>
+                        <td>Surveyor</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td></td>
+                    </tr>
+                    <!-- Add more rows as needed -->
+                </table>
+            </div>
         </div>
     </header>
     <!-- Copyright Section-->
