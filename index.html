@@ -33,6 +33,30 @@
         .admin-login:hover {
             background-color: #218838; /* Darker green on hover */
         }
+        .profile {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .profile img {
+            margin-right: 20px;
+            max-width: 150px; /* Adjust the size of the image */
+            border-radius: 50%; /* Optional: to make the image circular */
+        }
+        .biodata-table {
+            color: #ffffff; /* White text color */
+            border-collapse: collapse;
+            width: 100%;
+        }
+        .biodata-table th, .biodata-table td {
+            border: 1px solid #ffffff;
+            padding: 8px;
+            text-align: left;
+        }
+        .biodata-table th {
+            background-color: #007bff;
+        }
     </style>
 </head>
 <body id="page-top">
@@ -41,8 +65,47 @@
     <!-- Masthead-->
     <header class="masthead bg-primary text-white text-center">
         <div class="container d-flex align-items-center flex-column">
-            <!-- Masthead Avatar Image-->
-            <img class="masthead-avatar mb-5" src="brp.jpg" alt="..." />
+            <!-- Profile Section with Image and Biodata Table -->
+            <div class="profile">
+                <img class="masthead-avatar mb-5" src="brp.jpg" alt="Dinesh Babu Roka" />
+                <table class="biodata-table">
+                    <tr>
+                        <th>S.N</th>
+                        <th>Pass Year(BS)</th>
+                        <th>Percentage/GPA</th>
+                        <th>Pass Level</th>
+                        <th>School/Institute/University</th>
+                        <th>Remarks</th>
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td>2073</td>
+                        <td>2.90 GPA</td>
+                        <td>SEE</td>
+                        <td>Shree Balkalyan Secondary School
+                         Triveni 10, Rukum West</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>2076</td>
+                        <td>2.67 GPA</td>
+                        <td>SLC</td>
+                        <td>Shree Balkalyan Secondary School
+                         Triveni 10, Rukum West</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>2076</td>
+                        <td>89.63%</td>
+                        <td>TSLC Survey Engineering</td>
+                        <td>Yeti Technical Education and Multiple College
+                         Laxmi Bazar, Gorkha</td>
+                        <td></td>
+                    </tr>
+                </table>
+            </div>
             <!-- Masthead Heading-->
             <h1 class="masthead-heading text-uppercase mb-0">Dinesh Babu Roka</h1>
             <!-- Masthead Subheading-->
@@ -51,14 +114,15 @@
                 <a href="https://www.youtube.com/channel/surveying nepal"><i class="fab fa-youtube"></i></a>
                 <br><br>
                 <a href="indexupdate.html">गलकोट नगरपालिकाको जग्गा वर्गीकरणको विवरण</a>
-              <br><br>
+                <br><br>
                 <h1></h1><a href="indexupdate1.html">आफ्नो जग्गाको विवरण र जग्गाको अवस्थिति हेर्नुहोस</a></h1>
-                </nav>
+               
+            </nav>
         </div>
     </header>
     <!-- Copyright Section-->
     <div class="copyright py-4 text-center text-white">
-        <div class="container"><small>Copyright &copy; 2024 Dinesh Babu Roka</small></div>
+        <div class="container"><small>Copyright &copy; 2020 Dinesh Babu Roka</small></div>
     </div>
     <!-- Bootstrap core JS-->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
