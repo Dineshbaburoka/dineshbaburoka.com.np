@@ -8,15 +8,14 @@
     <title>Dinesh Babu Roka Official Website</title>
     <!-- Favicon-->
     <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <!-- Font Awesome icons (free version)-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <script src="https://use.fontawesome.com/releases/v5.15.3/js/all.js" crossorigin="anonymous"></script>
     <!-- Google fonts-->
-    <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
-    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css" />
     <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css" />
     <!-- Core theme CSS (includes Bootstrap)-->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
     <link href="css/styles.css" rel="stylesheet" />
     <style>
         .admin-login {
@@ -32,13 +31,6 @@
         }
         .admin-login:hover {
             background-color: #218838; /* Darker green on hover */
-        }
-        .profile {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            margin-top: 20px;
         }
         .profile img {
             margin-top: 20px;
@@ -110,40 +102,49 @@
             <!-- Work Experience Table -->
             <div class="table-container">
                 <div class="table-title">Work Experience</div>
-                <table class="experience-table">
-                    <tr>
-                        <th>S.N</th>
-                        <th>Company/Office Name</th>
-                        <th>Work Start Date</th>
-                        <th>Work End Date</th>
-                        <th>Post/Position</th>
-                        <th>Remarks</th>
-                    </tr>
-                    <tr>
-                        <td>1</td>
-                        <td>Galkot Municipality</td>
-                        <td>BS 2076-11-28</td>
-                        <td>-</td>
-                        <td>Surveyor</td>
-                        <td>Permanent</td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td></td>
-                    </tr>
-                    <!-- Add more rows as needed -->
-                </table>
+                <div class="table-responsive">
+                    <table class="experience-table table table-striped">
+                        <thead>
+                            <tr>
+                                <th>S.N</th>
+                                <th>Company/Office Name</th>
+                                <th>Work Start Date</th>
+                                <th>Work End Date</th>
+                                <th>Post/Position</th>
+                                <th>Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>Galkot Municipality</td>
+                                <td>BS 2076-11-28</td>
+                                <td>-</td>
+                                <td>Surveyor</td>
+                                <td>Permanent</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>-</td>
+                            </tr>
+                            <!-- Add more rows as needed -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </header>
     <!-- Copyright Section-->
     <div class="copyright py-4 text-center text-white">
-         <div class="container"><small>Contact me Mobile No: +9779857626542 and Email: dineshbaburoka82@gmail.com</small></div>
-        <div class="container"><small>Copyright &copy; 2024 Dinesh Babu Roka</small></div>
+        <div class="container">
+            <small>Contact me Mobile No: +9779857626542 and Email: dineshbaburoka82@gmail.com</small>
+        </div>
+        <div class="container">
+            <small>Copyright &copy; 2024 Dinesh Babu Roka</small>
+        </div>
     </div>
     <!-- Bootstrap core JS-->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
