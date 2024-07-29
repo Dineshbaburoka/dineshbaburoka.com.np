@@ -82,9 +82,11 @@
         .image-gallery {
             margin-top: 20px;
         }
-        .image-gallery img {
+        .image-gallery .image-box {
             width: 100%;
-            height: auto;
+            height: 200px; /* Adjust height as needed */
+            background-size: cover;
+            background-position: center;
             margin-bottom: 15px;
         }
     </style>
@@ -137,7 +139,6 @@
                                 <td>-</td>
                                 <td>-</td>
                                 <td>-</td>
-                                <td>-</td>
                             </tr>
                             <!-- Add more rows as needed -->
                         </tbody>
@@ -148,19 +149,19 @@
             <!-- Image Gallery -->
             <div class="image-gallery row">
                 <div class="col-md-4 col-sm-6">
-                    <img src="d1.jpg" alt=घान्द्रुकको पोशाकमा">
+                    <div class="image-box" style="background-image: url('d1.jpg');"></div>
                 </div>
                 <div class="col-md-4 col-sm-6">
-                    <img src="d2.jpg" alt="Image">
+                    <div class="image-box" style="background-image: url('d2.jpg');"></div>
                 </div>
                 <div class="col-md-4 col-sm-6">
-                    <img src="d3.jpg" alt="Image">
+                    <div class="image-box" style="background-image: url('d3.jpg');"></div>
                 </div>
                 <div class="col-md-4 col-sm-6">
-                    <img src="d4.jpg" alt="Image">
+                    <div class="image-box" style="background-image: url('d4.jpg');"></div>
                 </div>
                 <div class="col-md-4 col-sm-6">
-                    <img src="d5.jpg" alt="Image">
+                    <div class="image-box" style="background-image: url('d5.jpg');"></div>
                 </div>
             </div>
         </div>
