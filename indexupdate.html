@@ -1,11 +1,46 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ne">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>गलकोट नगरपालिका </title>
+    <title>गलकोट नगरपालिका</title>
     <link rel="icon" type="image/x-icon" href="brp.ico" />
     <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Modal styling */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4); /* Black with opacity */
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 50%;
+            text-align: center;
+        }
+
+        .modal h3 {
+            color: #333;
+        }
+
+        #loadingProgress {
+            background-color: #4caf50;
+            height: 30px;
+            width: 0%;
+            text-align: center;
+            color: white;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -45,11 +80,31 @@
             <input type="text" id="kittaNamInput" placeholder="कित्ता नं. (Kitta Number)">
             <button onclick="searchData()">Search</button>
         </div>
+
+        <!-- Modal for loading -->
+        <div id="loadingModal" class="modal">
+            <div class="modal-content">
+                <h3>खोजि कार्य भइरहेको छ...</h3>
+                <div id="loadingProgress"></div>
+            </div>
+        </div>
+
+        <!-- Modal for no results found -->
+        <div id="noResultsModal" class="modal">
+            <div class="modal-content">
+                <h3>विवरण फेला परेन!</h3>
+                <p>तपाईले खोजेको विवरणमा फरक छ। सुधारका लागि 9857626542 फोन गरेर आवश्यक प्रकृया बारे जानकारी लिनुहोला।</p>
+                <button onclick="closeNoResultsModal()">Close</button>
+            </div>
+        </div>
+
         <div id="resultsContainer">
             <!-- Results will be displayed here dynamically -->
         </div>
     </div>
-<h5>यो वर्गीकरण विवरण नापी कार्यालयको जिर्ण नक्सा डाटाबाट निर्माण गरिएको हुनाले कुनै त्रुटी भेटिएमा सुधार गर्न सकिनेछ साथै त्यस्तो त्रुटी फेला परेमा तुरुन्त गलकोट नगर कार्यपालिकाको कार्यालयमा जानकारी गराउनुहुन गलकोट नगरपालिका अनुरोध गर्दछ।</h5>
+
+    <h5>यो वर्गीकरण विवरण नापी कार्यालयको जिर्ण नक्सा डाटाबाट निर्माण गरिएको हुनाले कुनै त्रुटी भेटिएमा सुधार गर्न सकिनेछ...</h5>
+
     <script src="script.js"></script>
 </body>
 </html>
