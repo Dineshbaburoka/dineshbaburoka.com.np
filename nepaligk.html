@@ -5,15 +5,83 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>क्विज प्रतियोगिता</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; }
-        .container { max-width: 600px; margin: auto; }
-        .question { margin: 20px 0; font-size: 18px; }
-        .answer { margin-top: 10px; font-size: 16px; font-weight: bold; display: none; }
+        /* General Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        h1 {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-top: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            font-size: 1rem;
+            margin-right: 10px;
+            color: #555;
+        }
+        select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        .btn-primary {
+            background-color: #3498db;
+            color: #fff;
+        }
+        .btn-secondary {
+            background-color: #2ecc71;
+            color: #fff;
+        }
+        .btn-translate {
+            background-color: #e74c3c;
+            color: #fff;
+        }
+        .question {
+            margin: 20px 0;
+            font-size: 1.2rem;
+            color: #2c3e50;
+        }
+        .answer {
+            margin-top: 10px;
+            font-size: 1rem;
+            font-weight: bold;
+            display: none;
+            color: #34495e;
+        }
+        .loader {
+            font-size: 1.2rem;
+            color: #888;
+        }
     </style>
 </head>
 <body>
-    <h1>सामान्य ज्ञान क्विज प्रतियोगिता </h1>
-    <h3>यसमा कुनै प्रश्न सेट गरिएको छैन यसले Wikipedia मा भएको विवरणका आधारमा प्रश्न तयार पारी हरेक Time मा एउटै प्रश्नमा नम्बरमा फरक फरक प्रश्न आउछ।</h3>
+    <h1>सामान्य ज्ञान क्विज प्रतियोगिता</h1>
     <div class="container">
         <label for="level">स्तर छान्नुहोस्:</label>
         <select id="level">
@@ -23,7 +91,7 @@
                 }
             </script>
         </select>
-        
+
         <label for="questionNumber">प्रश्न नम्बर छान्नुहोस्:</label>
         <select id="questionNumber">
             <script>
@@ -32,48 +100,46 @@
                 }
             </script>
         </select>
-        
-        <button onclick="loadQuestion()">प्रश्न खोजी गर्नुहोस्</button>
-        <div id="quiz"></div>
-        <br>
-        <button onclick="translateToEnglish()">अंग्रेजीमा अनुवाद गर्नुहोस्</button>
-        <br>
-        <button onclick="translateToNepali()">नेपालीमा अनुवाद गर्नुहोस्</button>
-    </div>
 
+        <button class="btn-primary" onclick="loadQuestion()">प्रश्न खोजी गर्नुहोस्</button>
+        <div id="quiz"></div>
+        <button class="btn-secondary" onclick="translateToEnglish()">अंग्रेजीमा अनुवाद गर्नुहोस्</button>
+        <button class="btn-translate" onclick="translateToNepali()">नेपालीमा अनुवाद गर्नुहोस्</button>
+    </div>
     <script>
         async function loadQuestion() {
-            document.getElementById('quiz').innerHTML = "लोड हुँदैछ...";
+            document.getElementById('quiz').innerHTML = '<div class="loader">लोड हुँदैछ...</div>';
             try {
                 let response = await fetch('https://ne.wikipedia.org/api/rest_v1/page/random/summary');
                 let data = await response.json();
-                
+
                 let questionText = `"${data.title}" सम्बन्धी जानकारी दिनुहोस्।`;
                 let answerText = data.extract;
-                
+
                 displayQuestion({ question: questionText, answer: answerText });
             } catch (error) {
-                document.getElementById('quiz').innerHTML = "प्रश्न लोड गर्न सकिएन, कृपया पुन: प्रयास गर्नुहोस्!";
+                document.getElementById('quiz').innerHTML = '<div class="loader">प्रश्न लोड गर्न सकिएन, कृपया पुन: प्रयास गर्नुहोस्!</div>';
             }
         }
 
         function displayQuestion(q) {
             let quizDiv = document.getElementById('quiz');
             quizDiv.innerHTML = "";
-            
+
             let questionDiv = document.createElement('div');
             questionDiv.className = "question";
             questionDiv.innerHTML = `<b id="questionText">${q.question}</b>`;
-            
+
             let answerDiv = document.createElement('div');
             answerDiv.className = "answer";
             answerDiv.id = "answerText";
             answerDiv.innerHTML = `सही उत्तर: ${q.answer}`;
-            
+
             let showAnsBtn = document.createElement('button');
             showAnsBtn.innerHTML = "उत्तर देखाउनुहोस्";
+            showAnsBtn.className = "btn-primary";
             showAnsBtn.onclick = () => { answerDiv.style.display = "block"; };
-            
+
             quizDiv.appendChild(questionDiv);
             quizDiv.appendChild(showAnsBtn);
             quizDiv.appendChild(answerDiv);
@@ -90,12 +156,12 @@
         async function translateText(fromLang, toLang) {
             let questionText = document.getElementById("questionText").innerText;
             let answerText = document.getElementById("answerText").innerText;
-            
+
             let apiUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(questionText)}&langpair=${fromLang}|${toLang}`;
             let response = await fetch(apiUrl);
             let data = await response.json();
             document.getElementById("questionText").innerText = data.responseData.translatedText;
-            
+
             apiUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(answerText)}&langpair=${fromLang}|${toLang}`;
             response = await fetch(apiUrl);
             data = await response.json();
