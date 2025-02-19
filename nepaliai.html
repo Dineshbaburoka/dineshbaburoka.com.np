@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>नेपाली एआई</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        .container { max-width: 800px; margin: auto; padding: 20px; }
+        .question { margin: 20px 0; font-size: 18px; }
+        .answer { margin-top: 10px; font-size: 16px; font-weight: bold; display: none; }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        button {
+            padding: 10px 15px;
+            font-size: 16px;
+            margin: 10px;
+            cursor: pointer;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #loading-animation {
+            display: none;
+            margin: 20px auto;
+            width: 100px;
+            height: 100px;
+            background: url('https://media.tenor.com/hlKEXPvlX48AAAAC/loading.gif') no-repeat center center;
+            background-size: contain;
+        }
+        #loading-text {
+            display: none;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>तपाईलाई आवश्यक परेको जिज्ञासा सोध्नुहोला</h1>
+    <div class="container">
+        <label for="query"> मलाई सिकाएको जानकारी मात्र भन्न सक्छु।</label>
+        <input type="text" id="query" placeholder="नेपालीमा प्रश्न लेख्नुहोस्">
+        <button onclick="searchQuestion()">उत्तर खोजी गर्नुहोस्</button>
+        <div id="loading-animation"></div>
+        <div id="loading-text">पर्खिनुहोस्, सोच्दैछु...</div>
+        <div id="quiz"></div>
+        <button onclick="translateToEnglish()">अंग्रेजीमा अनुवाद गर्नुहोस्</button>
+        <button onclick="translateToNepali()">नेपालीमा अनुवाद गर्नुहोस्</button>
+    </div>
+
+    <script>
+        async function searchQuestion() {
+            let query = document.getElementById('query').value;
+            if (!query) {
+                alert("कृपया प्रश्न लेख्नुहोस्!");
+                return;
+            }
+            
+            document.getElementById('quiz').innerHTML = "";
+            document.getElementById('loading-animation').style.display = "block";
+            document.getElementById('loading-text').style.display = "block";
+            
+            setTimeout(async () => {
+                try {
+                    let responses = await Promise.all([
+                        fetch(`https://ne.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(query)}`),
+                        fetch(`https://www.googleapis.com/customsearch/v1?q=${encodeURIComponent(query)}&key=YOUR_GOOGLE_API_KEY&cx=YOUR_SEARCH_ENGINE_ID`),
+                        fetch(`https://graph.facebook.com/search?q=${encodeURIComponent(query)}&type=post&access_token=YOUR_FACEBOOK_ACCESS_TOKEN`)
+                    ]);
+                    
+                    let results = await Promise.all(responses.map(res => res.json()));
+                    document.getElementById('loading-animation').style.display = "none";
+                    document.getElementById('loading-text').style.display = "none";
+                    
+                    let answerText = "";
+                    results.forEach(result => {
+                        if (result.extract) {
+                            answerText += result.extract + "\n\n";
+                        }
+                        if (result.items) {
+                            answerText += result.items.map(item => item.snippet).join("\n\n");
+                        }
+                        if (result.data) {
+                            answerText += result.data.map(post => post.message).join("\n\n");
+                        }
+                    });
+                    
+                    if (answerText) {
+                        displayQuestion({ question: query, answer: answerText });
+                    } else {
+                        document.getElementById('quiz').innerHTML = "यस प्रश्नको उत्तर फेला परेन।";
+                    }
+                } catch (error) {
+                    document.getElementById('loading-animation').style.display = "none";
+                    document.getElementById('loading-text').style.display = "none";
+                    document.getElementById('quiz').innerHTML = "उत्तर लोड गर्न सकिएन, कृपया पुन: प्रयास गर्नुहोस्!";
+                }
+            }, 3000); // 3 seconds delay
+        }
+
+        function displayQuestion(q) {
+            let quizDiv = document.getElementById('quiz');
+            quizDiv.innerHTML = "";
+            
+            let questionDiv = document.createElement('div');
+            questionDiv.className = "question";
+            questionDiv.innerHTML = `<b id="questionText">${q.question}</b>`;
+            
+            let answerDiv = document.createElement('div');
+            answerDiv.className = "answer";
+            answerDiv.id = "answerText";
+            answerDiv.innerHTML = `सही उत्तर: ${q.answer}`;
+            answerDiv.style.display = "block";
+            
+            quizDiv.appendChild(questionDiv);
+            quizDiv.appendChild(answerDiv);
+        }
+
+        async function translateToEnglish() {
+            await translateText('ne', 'en');
+        }
+
+        async function translateToNepali() {
+            await translateText('en', 'ne');
+        }
+
+        async function translateText(fromLang, toLang) {
+            let questionText = document.getElementById("questionText").innerText;
+            let answerText = document.getElementById("answerText").innerText;
+            
+            let apiUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(questionText)}&langpair=${fromLang}|${toLang}`;
+            let response = await fetch(apiUrl);
+            let data = await response.json();
+            document.getElementById("questionText").innerText = data.responseData.translatedText;
+            
+            apiUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(answerText)}&langpair=${fromLang}|${toLang}`;
+            response = await fetch(apiUrl);
+            data = await response.json();
+            document.getElementById("answerText").innerText = data.responseData.translatedText;
+        }
+    </script>
+</body>
+</html>
