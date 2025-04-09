@@ -1,163 +1,232 @@
 <!DOCTYPE html>
 <html lang="ne">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <title>Dinesh Babu Roka Official Website</title>
-    <link rel="icon" type="image/x-icon" href="brp.ico" />
-    <!-- Inline CSS for styling -->
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background: #f4f7f6;
-        }
-        header {
-            background: linear-gradient(90deg, #007bff, #28a745);
-            color: white;
-            text-align: center;
-            padding: 50px 20px;
-        }
-        header h1 {
-            font-size: 2.5rem;
-            font-weight: bold;
-        }
-        header p {
-            font-size: 1.2rem;
-            margin-top: 10px;
-        }
-        .main-buttons a {
-            margin: 10px;
-            padding: 12px 20px;
-            border-radius: 30px;
-            color: #fff;
-            text-decoration: none;
-            font-weight: bold;
-            background: #007bff;
-            transition: background 0.3s ease-in-out;
-        }
-        .main-buttons a:hover {
-            background: #0056b3;
-        }
-        .profile img {
-            margin-top: 20px;
-            max-width: 150px;
-            border-radius: 50%;
-            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
-        }
-        .table-container {
-            margin: 50px auto;
-            padding: 20px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-        }
-        table th, table td {
-            border: 1px solid #ddd;
-            padding: 10px;
-        }
-        table th {
-            background-color: #007bff;
-            color: white;
-        }
-        .footer {
-            background: #333;
-            color: white;
-            text-align: center;
-            padding: 20px 10px;
-        }
-        .footer a {
-            color: #007bff;
-            text-decoration: none;
-        }
-        .footer a:hover {
-            text-decoration: underline;
-        }
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            header h1 {
-                font-size: 2rem;
-            }
-            .main-buttons a {
-                padding: 10px 15px;
-                font-size: 14px;
-            }
-        }
-        @media (max-width: 480px) {
-            .main-buttons a {
-                display: block;
-                margin-bottom: 10px;
-            }
-        }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <title>Dinesh Babu Roka Official Website</title>
+  <link rel="icon" type="image/x-icon" href="brp.ico" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f4f7f6;
+    }
+
+    /* Popup Styling */
+    .popup-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+    }
+    .popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      width: 80%;
+      max-width: 400px;
+      padding: 20px;
+      z-index: 1001;
+    }
+    .popup img {
+      width: 100px;
+      border-radius: 50%;
+      margin-bottom: 15px;
+    }
+    .popup h1 {
+      font-size: 1.5rem;
+      color: #007bff;
+    }
+    .popup p {
+      font-size: 1rem;
+      margin-bottom: 20px;
+    }
+
+    /* Header & Main Section */
+    header {
+      background: linear-gradient(90deg, #007bff, #28a745);
+      color: white;
+      text-align: center;
+      padding: 50px 20px;
+    }
+    header h1 {
+      font-size: 2.5rem;
+      font-weight: bold;
+    }
+    header p {
+      font-size: 1.2rem;
+      margin-top: 10px;
+    }
+
+    .profile {
+      text-align: center;
+    }
+    .profile img {
+      margin-top: 20px;
+      max-width: 150px;
+      border-radius: 50%;
+      box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .main-buttons {
+      margin-top: 20px;
+    }
+    .main-buttons a {
+      margin: 10px;
+      padding: 12px 20px;
+      border-radius: 30px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      background: #007bff;
+      transition: background 0.3s ease-in-out;
+    }
+    .main-buttons a:hover {
+      background: #0056b3;
+    }
+
+    /* Table Section */
+    .table-container {
+      margin: 50px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 10px;
+      max-width: 90%;
+      box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+      overflow-x: auto;
+    }
+    .table-container h2 {
+      text-align: center;
+      color: #007bff;
+      margin-bottom: 20px;
+      font-size: 1.8rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+    table th, table td {
+      border: 1px solid #ddd;
+      padding: 10px;
+    }
+    table th {
+      background-color: #007bff;
+      color: white;
+    }
+
+    /* Footer */
+    .footer {
+      background: #333;
+      color: white;
+      text-align: center;
+      padding: 30px 15px;
+      line-height: 1.6;
+    }
+    .footer a {
+      color: #007bff;
+      text-decoration: none;
+    }
+    .footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      header h1 {
+        font-size: 2rem;
+      }
+      .main-buttons a {
+        padding: 10px 15px;
+        font-size: 14px;
+      }
+    }
+    @media (max-width: 480px) {
+      .main-buttons a {
+        display: block;
+        margin-bottom: 10px;
+      }
+    }
+  </style>
 </head>
 <body>
-    <!-- Header Section -->
-    <header>
-        <h1>Dinesh Babu Roka</h1>
-        <p>Professional Surveyor & Consultant</p>
-        <img src="brp.jpg" alt="Profile Image">
-        <div class="main-buttons">
-            <a href="indexupdate.html">जग्गा वर्गीकरण</a>
-            <a href="indexupdate1.html">जग्गा विवरण</a>
-            <a href="index2121.html">वर्गीकरण सिफारिस</a>
-        </div>
-    </header>
-    
-    <!-- Work Experience Table -->
-    <main>
-        <div class="table-container">
-            <h2>Work Experience</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>S.N</th>
-                        <th>Company Name</th>
-                        <th>Start Date</th>
-                        <th>End Date</th>
-                        <th>Position</th>
-                        <th>Remarks</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>Galkot Municipality</td>
-                        <td>2076-11-28</td>
-                        <td>-</td>
-                        <td>Surveyor</td>
-                        <td>Permanent</td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </main>
+  <!-- Popup Modal -->
+  <div class="popup-overlay" id="popup-overlay">
+    <div class="popup">
+      <img src="namaste.jpg" alt="नमस्ते" />
+      <h1>नमस्ते!</h1>
+      <p>मेरो आधिकारिक वेबसाइटमा स्वागत छ! आशा छ तपाईंको अनुभव सुखद हुनेछ।</p>
+    </div>
+  </div>
 
-    <!-- Footer Section -->
-    <footer class="footer">
-        <p>Contact me at: <a href="mailto:dineshbaburoka82@gmail.com">dineshbaburoka82@gmail.com</a> | Mobile: <a href="tel:+9779857626542">+9779857626542</a></p>
-        <small>Copyright &copy; 2024 Dinesh Babu Roka. All rights reserved.</small>
-    </footer>
+  <!-- Header Section -->
+  <header>
+    <h1>Dinesh Babu Roka</h1>
+    <p>Professional Surveyor & Consultant</p>
+    <div class="profile">
+      <img src="brp.jpg" alt="Profile Image">
+    </div>
+    <div class="main-buttons">
+      <a href="indexupdate.html">जग्गा वर्गीकरण</a>
+      <a href="indexupdate1.html">जग्गा विवरण</a>
+      <a href="index2121.html">वर्गीकरण सिफारिस</a>
+    </div>
+  </header>
 
-    <!-- Inline JS for Interactivity -->
-    <script>
-        // Example JavaScript Functionality
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('Website is fully loaded and operational!');
-        });
-    </script>
+  <!-- Work Experience Table -->
+  <main>
+    <div class="table-container">
+      <h2>Work Experience</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>S.N</th>
+            <th>Company Name</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Position</th>
+            <th>Remarks</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>Galkot Municipality</td>
+            <td>2076-11-28</td>
+            <td>-</td>
+            <td>Surveyor</td>
+            <td>Permanent</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>Contact me at: <a href="mailto:dineshbaburoka82@gmail.com">dineshbaburoka82@gmail.com</a> | Mobile: <a href="tel:+9779857626542">+9779857626542</a></p>
+    <small>&copy; 2024 Dinesh Babu Roka. All rights reserved.</small>
+  </footer>
+
+  <!-- JS for Popup -->
+  <script>
+    window.onload = function () {
+      const popupOverlay = document.getElementById("popup-overlay");
+      popupOverlay.style.display = "block";
+      setTimeout(() => {
+        popupOverlay.style.display = "none";
+      }, 5000);
+    };
+  </script>
 </body>
 </html>
