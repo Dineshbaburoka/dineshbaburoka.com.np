@@ -11,223 +11,206 @@
       margin: 0;
       padding: 0;
       background: #f4f7f6;
+      overflow: hidden; /* Prevent scrollbars */
     }
 
     /* Popup Styling */
-    .popup-overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.7);
-      z-index: 1000;
-    }
-    .popup {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-      text-align: center;
-      width: 80%;
-      max-width: 400px;
-      padding: 20px;
-      z-index: 1001;
-    }
-    .popup img {
-      width: 100px;
-      border-radius: 50%;
-      margin-bottom: 15px;
-    }
-    .popup h1 {
-      font-size: 1.5rem;
-      color: #007bff;
-    }
-    .popup p {
-      font-size: 1rem;
-      margin-bottom: 20px;
-    }
+    .popup-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 1000; }
+    .popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 10px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); text-align: center; width: 80%; max-width: 400px; padding: 20px; z-index: 1001; }
+    .popup img { width: 100px; border-radius: 50%; margin-bottom: 15px; }
+    /* --- Typewriter Effect CSS --- */
+    .popup h1 { font-size: 1.5rem; color: #007bff; min-height: 1.8rem; /* Prevent jump */}
+    .popup p { font-size: 1rem; margin-bottom: 20px; min-height: 1.2rem; /* Prevent jump */}
+    /* --- End Typewriter Effect CSS --- */
 
-    /* Header & Main Section */
-    header {
-      background: linear-gradient(90deg, #007bff, #28a745);
-      color: white;
-      text-align: center;
-      padding: 50px 20px;
-    }
-    header h1 {
-      font-size: 2.5rem;
-      font-weight: bold;
-    }
-    header p {
-      font-size: 1.2rem;
-      margin-top: 10px;
-    }
+    /* Header, Main, Footer Styles (Same as before) */
+    header { background: linear-gradient(90deg, #007bff, #28a745); color: white; text-align: center; padding: 50px 20px; }
+    header h1 { font-size: 2.5rem; font-weight: bold; }
+    header p { font-size: 1.2rem; margin-top: 10px; }
+    .profile { text-align: center; }
+    .profile img { margin-top: 20px; max-width: 150px; border-radius: 50%; box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1); }
+    .main-buttons { margin-top: 20px; }
+    .main-buttons a { margin: 10px; padding: 12px 20px; border-radius: 30px; color: #fff; text-decoration: none; font-weight: bold; background: #007bff; transition: background 0.3s ease-in-out; }
+    .main-buttons a:hover { background: #0056b3; }
+    .table-container { margin: 50px auto; padding: 20px; background: white; border-radius: 10px; max-width: 90%; box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1); overflow-x: auto; }
+    .table-container h2 { text-align: center; color: #007bff; margin-bottom: 20px; font-size: 1.8rem; }
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    table th, table td { border: 1px solid #ddd; padding: 10px; }
+    table th { background-color: #007bff; color: white; }
+    .footer { background: #333; color: white; text-align: center; padding: 30px 15px; line-height: 1.6; }
+    .footer a { color: #007bff; text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
 
-    .profile {
-      text-align: center;
-    }
-    .profile img {
-      margin-top: 20px;
-      max-width: 150px;
-      border-radius: 50%;
-      box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
-    }
+    /* Balloon Styles (Same as before) */
+    .balloon { position: absolute; width: 50px; height: 65px; background-color: red; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; opacity: 0.9; z-index: 999; transform: translateY(0); transition: transform 0.3s ease-out, opacity 0.3s ease-out; animation: floatUp 8s ease-in forwards; }
+    .balloon::after { content: ""; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); width: 1px; height: 15px; background-color: rgba(0, 0, 0, 0.5); }
+    @keyframes floatUp { 0% { transform: translateY(0); opacity: 0; } 10% { opacity: 0.9; } 100% { transform: translateY(-400px); opacity: 0.9; } }
+    .balloon.popped { transform: scale(0); opacity: 0; }
 
-    .main-buttons {
-      margin-top: 20px;
-    }
-    .main-buttons a {
-      margin: 10px;
-      padding: 12px 20px;
-      border-radius: 30px;
-      color: #fff;
-      text-decoration: none;
-      font-weight: bold;
-      background: #007bff;
-      transition: background 0.3s ease-in-out;
-    }
-    .main-buttons a:hover {
-      background: #0056b3;
-    }
+    /* Style for the year text from balloon (Same as before) */
+    .year-text { position: absolute; z-index: 1003; color: gold; font-size: 1.8rem; font-weight: bold; text-shadow: 1px 1px 3px rgba(0,0,0,0.7); pointer-events: none; animation: fadeAndRise 1s ease-out forwards; }
+    @keyframes fadeAndRise { 0% { opacity: 1; transform: translateY(0) scale(1.1); } 100% { opacity: 0; transform: translateY(-40px) scale(0.7); } }
 
-    /* Table Section */
-    .table-container {
-      margin: 50px auto;
-      padding: 20px;
-      background: white;
-      border-radius: 10px;
-      max-width: 90%;
-      box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
-      overflow-x: auto;
-    }
-    .table-container h2 {
-      text-align: center;
-      color: #007bff;
-      margin-bottom: 20px;
-      font-size: 1.8rem;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: left;
-    }
-    table th, table td {
-      border: 1px solid #ddd;
-      padding: 10px;
-    }
-    table th {
-      background-color: #007bff;
-      color: white;
-    }
-
-    /* Footer */
-    .footer {
-      background: #333;
-      color: white;
-      text-align: center;
-      padding: 30px 15px;
-      line-height: 1.6;
-    }
-    .footer a {
-      color: #007bff;
-      text-decoration: none;
-    }
-    .footer a:hover {
-      text-decoration: underline;
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      header h1 {
-        font-size: 2rem;
-      }
-      .main-buttons a {
-        padding: 10px 15px;
-        font-size: 14px;
-      }
-    }
-    @media (max-width: 480px) {
-      .main-buttons a {
-        display: block;
-        margin-bottom: 10px;
-      }
-    }
+    /* Responsive Styles (Same as before) */
+    @media (max-width: 768px) { header h1 { font-size: 2rem; } .main-buttons a { padding: 10px 15px; font-size: 14px; } }
+    @media (max-width: 480px) { .main-buttons a { display: block; margin-bottom: 10px; } }
   </style>
 </head>
 <body>
-  <!-- Popup Modal -->
   <div class="popup-overlay" id="popup-overlay">
     <div class="popup">
       <img src="namaste.jpg" alt="नमस्ते" />
-    <h1>नयाँ वर्ष २०८२</h1>
-    <p>यहाँको जीवनमा नयाँ उमंग, नयाँ प्रेरणा, र अपार सफलताको शुभकामना।</p>
-    <p>नव वर्ष २०८२ को तपाईंलाई र तपाईंको परिवारलाई</p>
-    <p><strong>हार्दिक मंगलमय शुभकामना!</strong></p>
+      <h1 id="popup-h1"></h1>
+      <p id="popup-p1"></p>
+      <p id="popup-p2"></p>
+      <p id="popup-p3"></p>
     </div>
   </div>
 
-  <!-- Header Section -->
-  <header>
-    <h1>Dinesh Babu Roka</h1>
-    <p>Professional Surveyor & Consultant</p>
-    <div class="profile">
-      <img src="brp.jpg" alt="Profile Image">
-    </div>
-    <div class="main-buttons">
-      <a href="indexupdate.html">जग्गा वर्गीकरण</a>
-      <a href="indexupdate1.html">जग्गा अवस्थिति</a>
-      <a href="index2121.html">वर्गीकरण सिफारिस</a>
-    </div>
-  </header>
+  <header><h1>Dinesh Babu Roka</h1><p>Professional Surveyor & Consultant</p><div class="profile"><img src="brp.jpg" alt="Profile Image"></div><div class="main-buttons"><a href="indexupdate.html">जग्गा वर्गीकरण</a><a href="indexupdate1.html">जग्गा अवस्थिति</a><a href="index2121.html">वर्गीकरण सिफारिस</a></div></header><main><div class="table-container"><h2>Work Experience</h2><table><thead><tr><th>S.N</th><th>Company Name</th><th>Start Date</th><th>End Date</th><th>Position</th><th>Remarks</th></tr></thead><tbody><tr><td>1</td><td>Galkot Municipality</td><td>2076-11-28</td><td>-</td><td>Surveyor</td><td>Permanent</td></tr></tbody></table></div></main><footer class="footer"><p>Contact me at: <a href="mailto:dineshbaburoka82@gmail.com">dineshbaburoka82@gmail.com</a> | Mobile: <a href="tel:+9779857626542">+9779857626542</a></p><small>&copy; 2024 Dinesh Babu Roka. All rights reserved.</small></footer>
 
-  <!-- Work Experience Table -->
-  <main>
-    <div class="table-container">
-      <h2>Work Experience</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>S.N</th>
-            <th>Company Name</th>
-            <th>Start Date</th>
-            <th>End Date</th>
-            <th>Position</th>
-            <th>Remarks</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>1</td>
-            <td>Galkot Municipality</td>
-            <td>2076-11-28</td>
-            <td>-</td>
-            <td>Surveyor</td>
-            <td>Permanent</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </main>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
-  <!-- Footer -->
-  <footer class="footer">
-    <p>Contact me at: <a href="mailto:dineshbaburoka82@gmail.com">dineshbaburoka82@gmail.com</a> | Mobile: <a href="tel:+9779857626542">+9779857626542</a></p>
-    <small>&copy; 2024 Dinesh Babu Roka. All rights reserved.</small>
-  </footer>
-
-  <!-- JS for Popup -->
   <script>
     window.onload = function () {
       const popupOverlay = document.getElementById("popup-overlay");
       popupOverlay.style.display = "block";
+
+      // --- Typewriter Effect Setup ---
+      const h1Element = document.getElementById('popup-h1');
+      const p1Element = document.getElementById('popup-p1');
+      const p2Element = document.getElementById('popup-p2');
+      const p3Element = document.getElementById('popup-p3');
+
+      const h1Text = "नयाँ वर्ष २०८२";
+      const p1Text = "यहाँको जीवनमा नयाँ उमंग, नयाँ प्रेरणा, र अपार सफलताको शुभकामना।";
+      const p2Text = "नव वर्ष २०८२ को तपाईं र तपाईंको परिवारलाई";
+      const p3Html = "<strong>हार्दिक मंगलमय शुभकामना!</strong>";
+      const p3TextForTyping = "हार्दिक मंगलमय शुभकामना!";
+
+      function typewriter(element, text, interval, restoreHtml = null) {
+          return new Promise((resolve) => {
+              let index = 0;
+              element.textContent = '';
+              function typeChar() {
+                  if (index < text.length) {
+                      element.textContent += text.charAt(index);
+                      index++;
+                      setTimeout(typeChar, interval);
+                  } else {
+                      if (restoreHtml) {
+                          element.innerHTML = restoreHtml;
+                      }
+                      resolve();
+                  }
+              }
+              typeChar();
+          });
+      }
+
+      async function animatePopupText() {
+          await new Promise(resolve => setTimeout(resolve, 200));
+          await typewriter(h1Element, h1Text, 60);
+          await typewriter(p1Element, p1Text, 35);
+          await typewriter(p2Element, p2Text, 35);
+          await typewriter(p3Element, p3TextForTyping, 40, p3Html);
+      }
+
+      // Start the typewriter effect
+      animatePopupText();
+      // --- End Typewriter Effect Setup ---
+
+
+      // --- Confetti and Balloon Animations (Run concurrently) ---
+
+      // 1. Initial Confetti Burst (Reduced particle count)
+      confetti({
+          particleCount: 2000, // घटाएर २०० राखियो (पहिले २००० थियो)
+          spread: 160,
+          origin: { y: 0.5 },
+          zIndex: 1002
+       });
+
+      // 2. Periodic Falling Confetti
+      let confettiInterval;
+      function startFallingConfetti() {
+          confettiInterval = setInterval(() => {
+              confetti({ particleCount: 2, angle: 270, spread: 180, origin: { x: Math.random(), y: -0.1 }, gravity: 0.2, drift: Math.random() * 0.5 - 0.25, scalar: 0.7, zIndex: 998 });
+          }, 1000);
+      }
+      startFallingConfetti();
+
+      // 3. Balloon Animation (Reduced balloon count)
+      const numBalloons = 5000; // घटाएर १० राखियो (पहिले ५००० थियो)
+      // Expanded color list is kept, it doesn't harm performance
+      const balloonColors = ['#ff4757', '#2ed573', '#ffa502', '#1e90ff', '#ff6b81', '#7bed9f', '#f7418f', '#a55eea','#FF5733', '#C70039', '#900C3F', '#581845', '#DAF7A6', '#FFC300', '#FF5733', '#900C3F', '#A5ACAF', '#1D4E89', '#3B0A45', '#F4A300', '#88C9B8', '#4C9B8D', '#F1C40F', '#3498DB', '#9B59B6', '#2ECC71', '#E74C3C', '#16A085', '#34495E', '#95A5A6', '#8E44AD', '#2C3E50', '#F39C12', '#D35400', '#BDC3C7', '#7F8C8D', '#E67E22', '#27AE60', '#C0392B', '#7D3C98', '#2980B9', '#1ABC9C', '#F1C40F', '#D5DBDB', '#4CAF50', '#FFC107', '#E91E63', '#8B4513', '#1E90FF', '#00BFFF', '#8A2BE2', '#A52A2A', '#9ACD32', '#BDB76B', '#F08080', '#C71585', '#800000', '#FF1493', '#A9A9A9', '#000080', '#ADFF2F', '#FF4500', '#FF6347', '#00FF7F', '#D2691E', '#4B0082', '#5F9EA0', '#F0E68C', '#9ACD32', '#4682B4', '#D3D3D3', '#B0E0E6', '#FFFACD', '#DAA520', '#A0522D', '#B22222', '#FF8C00', '#FFD700', '#E0FFFF', '#87CEEB', '#20B2AA', '#C71585', '#F5F5F5', '#FDF5E6', '#FFDEAD', '#D8BFD8', '#98FB98', '#FFB6C1', '#FF69B4', '#DC143C', '#00FF00', '#FFD700', '#B0C4DE', '#8A2BE2', '#7FFF00', '#FF00FF', '#8B008B', '#800080', '#FA8072', '#F0E68C', '#D2B48C', '#98FB98', '#FFFF00', '#F0FFFF', '#D3D3D3', '#B0E0E6', '#FFF8DC', '#D2691E'];
+      const popDelay = 7000;
+      const popDuration = 300;
+      const creationInterval = 100; // बेलुन आउने अन्तराल थोरै बढाइयो (१० बेलुनको लागि)
+
+      for (let i = 0; i < numBalloons; i++) {
+        createBalloon(i * creationInterval);
+      }
+
+      function createBalloon(creationDelay) {
+        setTimeout(() => {
+          // Check if popup is still visible before creating balloon
+          if (popupOverlay.style.display !== 'block') return;
+
+          const balloon = document.createElement('div');
+          balloon.className = 'balloon';
+          const startX = Math.random() * 80 + 10;
+          const startY = window.innerHeight + 50;
+          balloon.style.left = `${startX}%`;
+          balloon.style.top = `${startY}px`;
+          balloon.style.backgroundColor = balloonColors[Math.floor(Math.random() * balloonColors.length)];
+          document.body.appendChild(balloon);
+
+          // Schedule pop only if balloon creation happened within reasonable time
+          setTimeout(() => {
+             // Check if popup is still visible before popping
+             if (popupOverlay.style.display === 'block') {
+                popBalloon(balloon);
+             } else if (balloon.parentNode) {
+                // If popup closed before pop, just remove the balloon
+                balloon.parentNode.removeChild(balloon);
+             }
+          }, popDelay + Math.random() * 1000);
+
+        }, creationDelay);
+      }
+
+      function popBalloon(balloon) {
+        if (!balloon || !document.body.contains(balloon)) return;
+        const rect = balloon.getBoundingClientRect();
+        const originX = (rect.left + rect.width / 2) / window.innerWidth;
+        let originY = (rect.top + rect.height / 2) / window.innerHeight;
+        originY = Math.max(0.01, Math.min(0.99, originY));
+        balloon.classList.add('popped');
+
+        // Show Year Text
+        const yearText = document.createElement('span');
+        yearText.textContent = 'नयाँ वर्ष २०८२ को शुभकामना!'; // Pop text
+        yearText.className = 'year-text';
+        yearText.style.left = `${rect.left + rect.width / 2 - 20}px`;
+        yearText.style.top = `${rect.top - 10}px`;
+        document.body.appendChild(yearText);
+        setTimeout(() => { if (yearText.parentNode) { yearText.parentNode.removeChild(yearText); } }, 1000);
+
+        // Trigger Confetti from Balloon
+        confetti({ particleCount: 60, angle: 90, spread: 80, origin: { x: originX, y: originY }, startVelocity: 25, gravity: 0.8, scalar: 0.8, zIndex: 1002 });
+
+        // Remove balloon element
+        setTimeout(() => { if (balloon.parentNode) { balloon.parentNode.removeChild(balloon); } }, popDuration);
+      }
+
+      // 4. Hide Popup and Stop Confetti Interval
       setTimeout(() => {
         popupOverlay.style.display = "none";
-      }, 1200);
+        clearInterval(confettiInterval);
+        // Optional: Force remove any leftover balloons/text if timings were off
+        document.querySelectorAll('.balloon, .year-text').forEach(el => el.remove());
+      }, 15000); // Total duration 10 seconds
     };
   </script>
 </body>
