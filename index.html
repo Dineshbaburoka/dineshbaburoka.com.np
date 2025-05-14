@@ -190,7 +190,7 @@
 
         // Show Year Text
         const yearText = document.createElement('span');
-        yearText.textContent = 'नयाँ वर्ष २०८२ को शुभकामना!'; // Pop text
+        yearText.textContent = 'स्वागत छ!'; // Pop text
         yearText.className = 'year-text';
         yearText.style.left = `${rect.left + rect.width / 2 - 20}px`;
         yearText.style.top = `${rect.top - 10}px`;
@@ -210,7 +210,7 @@
         clearInterval(confettiInterval);
         // Optional: Force remove any leftover balloons/text if timings were off
         document.querySelectorAll('.balloon, .year-text').forEach(el => el.remove());
-      }, 5000); // Total duration 10 seconds
+      }, 1000); // Total duration 10 seconds
     };
   </script>
 </body>
