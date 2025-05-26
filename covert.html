@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>क्षेत्रफल रूपान्तरण</title>
+
+  <!-- Google Fonts: Nepali-compatible -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Noto Sans Devanagari', sans-serif;
+      background-color: #121212;
+      color: #f0f0f0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      background-color: #1e1e1e;
+      width: 100%;
+      max-width: 500px;
+      padding: 25px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
+    }
+
+    h2 {
+      text-align: center;
+      color: #00e5ff;
+      margin-bottom: 20px;
+      font-weight: bold;
+      line-height: 1.6;
+    }
+
+    label {
+      margin-top: 15px;
+      display: block;
+      font-weight: bold;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-top: 6px;
+      font-size: 16px;
+      border-radius: 10px;
+      border: 1px solid #444;
+      background-color: #2a2a2a;
+      color: #fff;
+    }
+
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 12px;
+      background-color: #00bcd4;
+      color: #000;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background-color: #0097a7;
+    }
+
+    .result {
+      margin-top: 25px;
+      background-color: #263238;
+      padding: 15px;
+      border-left: 6px solid #00e5ff;
+      border-radius: 10px;
+      font-size: 17px;
+      color: #e0f7fa;
+    }
+
+    .print-btn {
+      margin-top: 15px;
+      background-color: #4caf50;
+      color: #fff;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px;
+      }
+
+      h2 {
+        font-size: 20px;
+      }
+
+      input, button {
+        font-size: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="print-area">
+    <h2>घरको लम्बाइ र चौडाइ <strong>हात</strong> मा भएमा क्षेत्रफल रूपान्तरण गर्नुहोस्</h2>
+
+    <label for="length">लम्बाइ (हात):</label>
+    <input type="number" id="length" placeholder="लम्बाइ लेख्नुहोस्" step="0.01">
+
+    <label for="width">चौडाइ (हात):</label>
+    <input type="number" id="width" placeholder="चौडाइ लेख्नुहोस्" step="0.01">
+
+    <button onclick="calculateArea()">रूपान्तरण गर्नुहोस्</button>
+    <div class="result" id="result"></div>
+
+    <button class="print-btn" onclick="printResult()">🖨️ प्रिन्ट / PDF डाउनलोड गर्नुहोस्</button>
+  </div>
+
+  <script>
+    function calculateArea() {
+      const length = parseFloat(document.getElementById('length').value);
+      const width = parseFloat(document.getElementById('width').value);
+
+      if (isNaN(length) || isNaN(width) || length <= 0 || width <= 0) {
+        document.getElementById('result').innerHTML = "⚠️ कृपया सहि लम्बाइ र चौडाइ प्रविष्ट गर्नुहोस्।";
+        return;
+      }
+
+      const handToFeet = 1.5;
+      const handToMeter = 0.4572;
+      const areaFeet = (length * handToFeet) * (width * handToFeet);
+      const areaMeter = (length * handToMeter) * (width * handToMeter);
+
+      document.getElementById('result').innerHTML = `
+        ✅ कुल क्षेत्रफल:<br><br>
+        👉 <strong>${areaFeet.toFixed(2)}</strong> वर्गफुट (sq. ft)<br>
+        👉 <strong>${areaMeter.toFixed(2)}</strong> वर्गमिटर (sq. meter)
+      `;
+    }
+
+    function printResult() {
+      const printContents = document.getElementById("print-area").innerHTML;
+      const originalContents = document.body.innerHTML;
+      document.body.innerHTML = printContents;
+      window.print();
+      document.body.innerHTML = originalContents;
+      location.reload(); // reload to bring back everything
+    }
+  </script>
+</body>
+</html>
