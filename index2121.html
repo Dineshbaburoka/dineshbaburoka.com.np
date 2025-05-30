@@ -362,6 +362,7 @@
                     <th>कित्ता नं.</th>
                     <th>ग्रिड सिट नं.</th>
                     <th>वर्गीकरण क्षेत्र</th>
+                    <th>कैफियत</th>
                 </tr>
             </thead>
             <tbody>
@@ -55533,6 +55534,7 @@
 { serialNumber: 6345,village:"मल्म",wardNumber:"1",kittaNam:"1259",gridSita:" 920952",classificationArea:"आवासीय क्षेत्र",remarks: "स्वीकृत विवरणमा साविक कित्ता भए बमोजिम"},
 { serialNumber: 6345,village:"मल्म",wardNumber:"1",kittaNam:"993",gridSita:"  0",classificationArea:"कृषि क्षेत्र",remarks: "स्वीकृत भू-उपयोग नक्सासँग कित्तानापी नक्सा एकआपसमा सप्टाउँदा"},
 { serialNumber: 6345,village:"मल्म",wardNumber:"1",kittaNam:"995",gridSita:"  0",classificationArea:"कृषि क्षेत्र",remarks: "स्वीकृत भू-उपयोग नक्सासँग कित्तानापी नक्सा एकआपसमा सप्टाउँदा"},
+{ serialNumber: 6345,village:"मल्म",wardNumber:"7",kittaNam:"392",gridSita:" 920914",classificationArea:"आवासीय क्षेत्र",remarks: "स्वीकृत विवरणमा साविक कित्ता नं. २९८ भए बमोजिम"},
 ];
         function searchData() {
             var gaavis = document.getElementById("gaavisSelect").value.trim();
@@ -55575,6 +55577,7 @@
                         "<td>" + kittaNam + "</td>" +
                         "<td>" + gridSita + "</td>" +
                         "<td>" + classificationArea + "</td>" +
+                        "<td>" + remarks + "</td>" +
                         "</tr>";
             selectedDataTable.innerHTML += row;
             document.getElementById("printDetailsContainer").style.display = "block"; // Show print details container
