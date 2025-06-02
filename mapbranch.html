@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+  <meta charset="UTF-8">
+  <title>गलकोट नगरपालिका नक्सा शा</title>
+
+  <!-- Nepali Font and CSS -->
+  <style>
+    @font-face {
+      font-family: 'Kalimati';
+      src: url('Kalimati.ttf') format('truetype');
+    }
+
+    body {
+      font-family: 'Kalimati', sans-serif;
+      background-color: #f4f7f8;
+      margin: 0;
+      padding: 0;
+    }
+
+    h2 {
+      text-align: center;
+      background-color: #0A0A0A;
+      color: white;
+      margin: 0;
+      padding: 12px;
+    background: linear-gradient(
+    #0A0A0A,
+    #36454F,
+    #ffed00,
+    #00ff99,
+    #0055ff,
+    #ff0057
+  );
+  }
+    form {
+      max-width: 1000px;
+      margin: 20px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .field {
+      flex: 1 1 300px;
+    }
+
+    label {
+      font-weight: bold;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 7px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    .section {
+      text-align: center;
+      width: 100%;
+      font-weight: bold;
+      font-size: 16px;
+      border-top: 1px solid #ccc;
+      padding-top: 10px;
+      margin-top: 20px;
+      background: #ecf0f1;
+      padding-left: 8px;
+    }
+
+    button {
+      background-color: #0984e3;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-size: 16px;
+      border-radius: 4px;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background-color: #0652DD;
+    }
+
+    @media print {
+      button {
+        display: none;
+      }
+      body {
+        background: white;
+      }
+    }
+  </style>
+
+  <!-- Nepali Date Picker -->
+  <link rel="stylesheet" href="nepali.datepicker.v4.0.8.min.css" />
+</head>
+<body>
+
+  <h2>नक्सा पास दर्ता फारम</h2>
+
+  <form id="smartForm" action="YOUR_SCRIPT_URL_HERE" method="post">
+    <!-- मुख्य विवरण -->
+    <div class="section">घरधनीको विवरण</div>
+    <div class="field"><label>जग्गाधनीको नाम/थर</label><input type="text" name="owner_name" required></div>
+    <div class="field"><label>बाबु/पतिको नाम थर</label><input type="text" name="owner_name" required></div>
+    <div class="field"><label>बाजे/ससुराको नाम थर</label><input type="text" name="owner_name" required></div>
+    <div class="field"><label>जग्गाधनीको नागरिकता नं.</label><input type="text" name="owner_name" required></div>
+    <div class="field"><label>नागरिकता जारी मिति</label><input type="text" id="ctz_miti" name="ctz_date" readonly></div>
+    <div class="field"><label>नागरिकता जारी गर्ने कार्यालय</label><input type="text" name="owner_name" required></div>
+<div class="field"><label>राष्ट्रिय परिचय पत्र नं.</label><input type="text" name="owner_name"></div>
+   <div class="field">
+  <label>सम्पर्क फोन नं</label>
+  <input type="text" name="phone" pattern="\d{10}" maxlength="10" title="१० अङ्कको सम्पर्क नम्बर लेख्नुहोस्" required>
+</div>
+    <div class="field"><label>प्रतिनिधिको नाम</label><input type="text" name="representative_name"></div>
+  <div class="field">
+  <label>वडा नं</label>
+  <select name="ward_no">
+    <option value="">-- छान्नुहोस् --</option>
+    <option value="1">१</option>
+    <option value="2">२</option>
+    <option value="3">३</option>
+    <option value="4">४</option>
+    <option value="5">५</option>
+    <option value="6">६</option>
+    <option value="7">७</option>
+    <option value="8">८</option>
+    <option value="9">९</option>
+    <option value="10">१०</option>
+    <option value="11">११</option>
+  </select>
+</div>
+
+ <div class="field">
+  <label>साविक गाविस</label>
+  <select name="vdc">
+    <option value="">-- छान्नुहोस् --</option>
+    <option value="दुदिलाभाटी">दुदिलाभाटी</option>
+    <option value="नरेठाँटी">नरेठाँटी</option>
+    <option value="हटिया">हटिया</option>
+    <option value="हरिचौँर">हरिचौँर</option>
+    <option value="मल्म">मल्म</option>
+    <option value="काँडेबास">काँडेबास</option>
+    <option value="पाण्डवखानी">पाण्डवखानी</option>
+    <option value="रिघा">रिघा</option>
+  </select>
+</div>
+    <div class="field">
+  <label> साविक गाविस वडा नं</label>
+  <select name="ward_no">
+    <option value="">-- छान्नुहोस् --</option>
+    <option value="1">१</option>
+    <option value="2">२</option>
+    <option value="3">३</option>
+    <option value="4">४</option>
+    <option value="5">५</option>
+    <option value="6">६</option>
+    <option value="7">७</option>
+    <option value="8">८</option>
+    <option value="9">९</option>
+  </select>
+</div>
+    <div class="field"><label>टोल मार्ग</label><input type="text" name="tole_marga"></div>
+    <div class="field"><label>कित्ता नं</label><input type="text" name="kitta_no"></div>
+    <div class="field"><label>क्षेत्रफल (sq.ft)</label><input type="number" name="area" step="any"></div>
+    <div class="field"><label>दर्ता मिति</label><input type="text" id="darta_miti" name="registration_date" readonly></div>
+    <div class="field"><label>दर्ता नं</label><input type="text" name="registration_no"></div>
+
+    <!-- सीमाना -->
+    <div class="section">सीमाना</div>
+    <div class="field"><label>पुर्व संधियाराको नाम</label><input type="text" name="east_neighbor"></div>
+    <div class="field"><label>पश्चिम संधियाराको नाम</label><input type="text" name="west_neighbor"></div>
+    <div class="field"><label>उत्तर संधियाराको नाम</label><input type="text" name="north_neighbor"></div>
+    <div class="field"><label>दक्षिण संधियाराको नाम</label><input type="text" name="south_neighbor"></div>
+
+    <!-- घर विवरण -->
+    <div class="section">घर विवरण</div>
+    <div class="field"><label>घरको लम्बाई</label><input type="text" name="house_length"></div>
+    <div class="field"><label>घरको चौडाई</label><input type="text" name="house_width"></div>
+    <div class="field"><label>घरको उचाई</label><input type="text" name="house_height"></div>
+    <div class="field"><label>घरको किसिम</label><input type="text" name="house_type_connection"></div>
+    <div class="field"><label>बाटोको चौडाई</label><input type="text" name="road_width"></div>
+    <div class="field"><label>किनाराबाट छाड्नुपर्ने दुरी</label><input type="text" name="distance_required"></div>
+    <div class="field"><label>छाडेको दुरी</label><input type="text" name="distance_left"></div>
+
+    <!-- अन्य विवरण -->
+    <div class="section">अन्य विवरण</div>
+    <div class="field"><label>दर (रु/वर्ग फिट)</label><input type="text" name="rate_per_sqft"></div>
+    <div class="field"><label>ग्राउण्ड कभरेज</label><input type="text" name="ground_coverage"></div>
+    <div class="field"><label>आर ओ डब्लु</label><input type="text" name="row"></div>
+    <div class="field"><label>सेट ब्याक</label><input type="text" name="setback"></div>
+    <div class="field"><label>विद्यूत लाइन</label><input type="text" name="electric_line"></div>
+    <div class="field"><label>नदी किनार</label><input type="text" name="river_bank"></div>
+
+    <!-- तल्ला विवरण -->
+    <div class="section">तल्ला विवरण</div>
+    <div class="field"><label>तला संख्या</label><input type="text" name="no_of_floors"></div>
+    <div class="field"><label>जम्मा तल्लाको क्षेत्रफल</label><input type="text" name="total_floor_area"></div>
+    <div class="field"><label>घरको किसिम (छाना)</label><input type="text" name="roof_type"></div>
+    <div class="field"><label>जम्मा रकम (रु)</label><input type="text" name="total_amount"></div>
+    <div class="field"><label>अक्षरुपी रकम</label><input type="text" name="amount_words"></div>
+    <div class="field"><label>छूट %</label><input type="text" name="discount_percent"></div>
+    <div class="field"><label>जरिवाना %</label><input type="text" name="fine_percent"></div>
+    <div class="field"><label>Status</label><input type="text" name="status"></div>
+
+    <div class="field" style="width: 100%;">
+      <button type="submit">पेश गर्नुहोस्</button>
+    </div>
+  </form>
+
+  <!-- Nepali Date Picker Script -->
+  <script src="nepali.datepicker.v4.0.8.min.js"></script>
+  <script>
+   window.onload = function () {
+  const ids = ["darta_miti", "ctz_miti", "nibedan_miti"]; // यहाँ आफ्ना सबै ID राख्नुहोस्
+
+  ids.forEach(function(id) {
+    const el = document.getElementById(id);
+    if (el) {
+      el.nepaliDatePicker({
+        ndpYear: true,
+        ndpMonth: true,
+        ndpYearCount: 100,
+        language: "nepali",
+        unicodeDate: true,
+        dateFormat: "YYYY-MM-DD"
+      });
+    }
+  });
+};
+
+
+    document.getElementById("smartForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const form = e.target;
+      fetch(form.action, {
+        method: "POST",
+        body: new FormData(form)
+      }).then(res => res.text())
+        .then(result => {
+          alert("फारम सफलतापूर्वक पेश गरियो!");
+          form.reset();
+        }).catch(err => {
+          alert("त्रुटि भयो। कृपया पुनः प्रयास गर्नुहोस्।");
+        });
+    });
+  </script>
+</body>
+</html>
