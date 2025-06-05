@@ -2,7 +2,7 @@
 <html lang="ne">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Dinesh Babu Roka Official Website</title>
   <link rel="icon" type="image/x-icon" href="brp.ico" />
   <style>
@@ -43,6 +43,7 @@
 
     .main-buttons {
       margin-top: 20px;
+      text-align: center;
     }
 
     .main-buttons a {
@@ -58,6 +59,26 @@
 
     .main-buttons a:hover {
       background: #0056b3;
+    }
+
+    .slider-container {
+      max-width: 90%;
+      margin: 40px auto;
+      position: relative;
+      overflow: hidden;
+      border-radius: 10px;
+      box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .slider-container img {
+      width: 100%;
+      max-height: 500px; /* Smaller height */
+      object-fit: cover;
+      display: none;
+    }
+
+    .slider-container img.active {
+      display: block;
     }
 
     .table-container {
@@ -91,6 +112,24 @@
     table th {
       background-color: #007bff;
       color: white;
+    }
+
+    .video-section {
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .video-section h2 {
+      color: #007bff;
+      font-size: 1.8rem;
+    }
+
+    .video-section video {
+      width: 90%;
+      max-width: 800px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      margin-top: 20px;
     }
 
     .footer {
@@ -135,6 +174,12 @@
     </div>
   </header>
 
+  <div class="slider-container">
+    <img src="img1.jpg" class="active" alt="Slider 1">
+    <img src="img2.jpg" alt="Slider 2">
+    <img src="img3.jpg" alt="Slider 3">
+  </div>
+
   <main>
     <div class="table-container">
       <h2>Work Experience</h2>
@@ -147,6 +192,14 @@
         </tbody>
       </table>
     </div>
+
+    <div class="video-section">
+      <h2>My Introduction Video</h2>
+      <video controls>
+        <source src="video.mp4" type="video/mp4">
+        तपाईंको ब्राउजरले भिडियो प्ले गर्न सक्दैन।
+      </video>
+    </div>
   </main>
 
   <footer class="footer">
@@ -154,31 +207,15 @@
     <small>&copy; 2024 Dinesh Babu Roka. All rights reserved.</small>
   </footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
   <script>
-    // Optional: Remove confetti if you want to keep everything simple
-    confetti({
-      particleCount: 200,
-      spread: 160,
-      origin: { y: 0.5 },
-      zIndex: 1002
-    });
+    const slides = document.querySelectorAll(".slider-container img");
+    let index = 0;
 
-    const interval = setInterval(() => {
-      confetti({
-        particleCount: 2,
-        angle: 270,
-        spread: 180,
-        origin: { x: Math.random(), y: -0.1 },
-        gravity: 0.2,
-        drift: Math.random() * 0.5 - 0.25,
-        scalar: 0.7,
-        zIndex: 998
-      });
-    }, 1000);
-
-    // Stop falling confetti after 10 seconds
-    setTimeout(() => clearInterval(interval), 10000);
+    setInterval(() => {
+      slides[index].classList.remove("active");
+      index = (index + 1) % slides.length;
+      slides[index].classList.add("active");
+    }, 3000);
   </script>
 </body>
 </html>
