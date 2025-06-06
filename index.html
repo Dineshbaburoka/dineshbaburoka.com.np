@@ -12,40 +12,33 @@
       padding: 0;
       background: #f4f7f6;
     }
-
     header {
       background: linear-gradient(90deg, #007bff, #28a745);
       color: white;
       text-align: center;
       padding: 50px 20px;
     }
-
     header h1 {
       font-size: 2.5rem;
       font-weight: bold;
     }
-
     header p {
       font-size: 1.2rem;
       margin-top: 10px;
     }
-
     .profile {
       text-align: center;
     }
-
     .profile img {
       margin-top: 20px;
       max-width: 150px;
       border-radius: 50%;
       box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
     }
-
     .main-buttons {
       margin-top: 20px;
       text-align: center;
     }
-
     .main-buttons a {
       margin: 10px;
       padding: 12px 20px;
@@ -56,73 +49,33 @@
       background: #007bff;
       transition: background 0.3s ease-in-out;
     }
-
     .main-buttons a:hover {
       background: #0056b3;
     }
-
     .slider-container {
-      position: relative;
       max-width: 90%;
-      margin: 30px auto;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    }
-
-    .slide {
-      display: none;
+      margin: 40px auto;
       position: relative;
+      overflow: hidden;
+      border-radius: 10px;
+      box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+      text-align: center;
     }
-
-    .slide img {
+    .slider-container a {
+      display: inline-block;
+      width: 100%;
+    }
+    .slider-container img {
       width: 100%;
       max-height: 500px;
       object-fit: cover;
+      display: none;
+      cursor: pointer;
       border-radius: 10px;
-      transition: opacity 1s ease-in-out;
     }
-
-    .slide.active {
+    .slider-container img.active {
       display: block;
     }
-
-    .caption {
-      position: absolute;
-      bottom: 15px;
-      left: 20px;
-      color: white;
-      background-color: rgba(0,0,0,0.5);
-      padding: 10px 20px;
-      border-radius: 5px;
-      font-size: 1rem;
-    }
-
-    .nav-buttons {
-      position: absolute;
-      top: 50%;
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      transform: translateY(-50%);
-      padding: 0 20px;
-    }
-
-    .nav-buttons button {
-      background-color: rgba(0, 0, 0, 0.5);
-      border: none;
-      color: white;
-      font-size: 2rem;
-      padding: 5px 15px;
-      cursor: pointer;
-      border-radius: 5px;
-      transition: background 0.3s ease-in-out;
-    }
-
-    .nav-buttons button:hover {
-      background-color: rgba(0, 0, 0, 0.7);
-    }
-
     .table-container {
       margin: 50px auto;
       padding: 20px;
@@ -132,41 +85,34 @@
       box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
       overflow-x: auto;
     }
-
     .table-container h2 {
       text-align: center;
       color: #007bff;
       margin-bottom: 20px;
       font-size: 1.8rem;
     }
-
     table {
       width: 100%;
       border-collapse: collapse;
       text-align: left;
     }
-
     table th, table td {
       border: 1px solid #ddd;
       padding: 10px;
     }
-
     table th {
       background-color: #007bff;
       color: white;
     }
-
     .video-section {
       text-align: center;
       padding: 40px 20px;
       position: relative;
     }
-
     .video-section h2 {
       color: #007bff;
       font-size: 1.8rem;
     }
-
     .video-section video {
       width: 90%;
       max-width: 800px;
@@ -174,7 +120,6 @@
       box-shadow: 0 4px 15px rgba(0,0,0,0.1);
       margin-top: 20px;
     }
-
     .download-video-btn {
       margin-top: 15px;
       display: inline-block;
@@ -186,11 +131,9 @@
       text-decoration: none;
       transition: background 0.3s ease-in-out;
     }
-
     .download-video-btn:hover {
       background: #0056b3;
     }
-
     .footer {
       background: #333;
       color: white;
@@ -198,28 +141,23 @@
       padding: 30px 15px;
       line-height: 1.6;
     }
-
     .footer a {
       color: #007bff;
       text-decoration: none;
     }
-
     .footer a:hover {
       text-decoration: underline;
     }
-
     @media (max-width: 768px) {
       header h1 { font-size: 2rem; }
       .main-buttons a { padding: 10px 15px; font-size: 14px; }
     }
-
     @media (max-width: 480px) {
       .main-buttons a { display: block; margin-bottom: 10px; }
     }
   </style>
 </head>
 <body>
-
   <header>
     <h1>Dinesh Babu Roka</h1>
     <p>Professional Surveyor & Consultant</p>
@@ -232,38 +170,14 @@
       <a href="mapbranch.html">नक्सा पास आवेदन</a>
     </div>
   </header>
-
   <div class="slider-container">
-    <div class="slide active">
-      <a href="img1.jpg" download><img src="img1.jpg" alt="Slider 1"></a>
-      <div class="caption">Image Caption 1</div>
-    </div>
-    <div class="slide">
-      <a href="img2.jpg" download><img src="img2.jpg" alt="Slider 2"></a>
-      <div class="caption">Image Caption 2</div>
-    </div>
-    <div class="slide">
-      <a href="img3.jpg" download><img src="img3.jpg" alt="Slider 3"></a>
-      <div class="caption">Image Caption 3</div>
-    </div>
-    <div class="slide">
-      <a href="img4.jpg" download><img src="img4.jpg" alt="Slider 4"></a>
-      <div class="caption">Image Caption 4</div>
-    </div>
-    <div class="slide">
-      <a href="img5.jpg" download><img src="img5.jpg" alt="Slider 5"></a>
-      <div class="caption">Image Caption 5</div>
-    </div>
-    <div class="slide">
-      <a href="img6.jpg" download><img src="img6.jpg" alt="Slider 6"></a>
-      <div class="caption">Image Caption 6</div>
-    </div>
-    <div class="nav-buttons">
-      <button onclick="prevSlide()">❮</button>
-      <button onclick="nextSlide()">❯</button>
-    </div>
+    <a href="img1.jpg" download><img src="img1.jpg" class="active" alt="Slider 1"></a>
+    <a href="img2.jpg" download><img src="img2.jpg" alt="Slider 2"></a>
+    <a href="img3.jpg" download><img src="img3.jpg" alt="Slider 3"></a>
+    <a href="img4.jpg" download><img src="img4.jpg" alt="Slider 4"></a>
+    <a href="img5.jpg" download><img src="img5.jpg" alt="Slider 5"></a>
+    <a href="img6.jpg" download><img src="img6.jpg" alt="Slider 6"></a>
   </div>
-
   <main>
     <div class="table-container">
       <h2>Work Experience</h2>
@@ -276,48 +190,27 @@
         </tbody>
       </table>
     </div>
-
     <div class="video-section">
       <h2>My Introduction Video</h2>
       <video id="introVideo" controls>
         <source src="video.mp4" type="video/mp4">
-        तपाईंको ब्राउजरले भिडिओ प्ले गर्न सक्कदैन।
+        तपाईंको ब्राउजरले भिडियो प्ले गर्न सक्दैन।
       </video>
       <br />
-      <a href="video.mp4" download class="download-video-btn">भिडिओ डाउनलोड गर्नुहोस्</a>
+      <a href="video.mp4" download class="download-video-btn">भिडियो डाउनलोड गर्नुहोस्</a>
     </div>
   </main>
-
   <footer class="footer">
     <p>Contact me at: <a href="mailto:dineshbaburoka82@gmail.com">dineshbaburoka82@gmail.com</a> | Mobile: <a href="tel:+9779857626542">+9779857626542</a></p>
-    <small>&copy; 2025 Dinesh Babu Roka. All rights reserved.</small>
+    <small>&copy; 2024 Dinesh Babu Roka. All rights reserved.</small>
   </footer>
-
   <script>
-    const slides = document.querySelectorAll(".slide");
-    let current = 0;
-
-    function showSlide(index) {
-      slides.forEach((slide, i) => {
-        slide.classList.remove("active");
-        if (i === index) {
-          slide.classList.add("active");
-        }
-      });
-    }
-
-    function nextSlide() {
-      current = (current + 1) % slides.length;
-      showSlide(current);
-    }
-
-    function prevSlide() {
-      current = (current - 1 + slides.length) % slides.length;
-      showSlide(current);
-    }
-
+    const slideLinks = document.querySelectorAll(".slider-container a");
+    let index = 0;
     setInterval(() => {
-      nextSlide();
+      slideLinks[index].children[0].classList.remove("active");
+      index = (index + 1) % slideLinks.length;
+      slideLinks[index].children[0].classList.add("active");
     }, 3000);
   </script>
 </body>
