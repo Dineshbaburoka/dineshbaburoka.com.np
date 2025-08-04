@@ -3,457 +3,619 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>गलकोट नगरपालिका जग्गा मूल्याङ्कन</title>
+  <title>जग्गा तथा भवन मूल्याङ्कन र कर निर्धारण प्रणाली</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari&display=swap" rel="stylesheet" />
   <style>
-    /* Reset and base */
-    * {
-      box-sizing: border-box;
-    }
     body {
       font-family: 'Noto Sans Devanagari', sans-serif;
-      background: linear-gradient(135deg, #e0f7fa, #80deea);
-      margin: 0;
+      background: #f1f8e9;
+      max-width: 800px;
+      margin: 20px auto;
       padding: 20px;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      color: #014d40;
+      color: #2e7d32;
     }
-    .container {
-      background: white;
-      max-width: 600px;
-      width: 100%;
-      padding: 30px 40px;
-      border-radius: 15px;
-      box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-      transition: box-shadow 0.3s ease;
-    }
-    .container:hover {
-      box-shadow: 0 25px 50px rgba(0,0,0,0.3);
-    }
-    h1 {
+    h2 {
       text-align: center;
-      margin-bottom: 25px;
-      font-weight: 700;
-      letter-spacing: 1.2px;
+      margin-bottom: 20px;
     }
     label {
       display: block;
-      margin: 20px 0 8px 0;
+      margin-top: 15px;
       font-weight: 600;
-      font-size: 18px;
-      color: #00796b;
     }
-    select, input[type=number] {
+    select, input[type=number], button {
       width: 100%;
-      padding: 10px 15px;
+      padding: 10px;
       font-size: 16px;
-      border-radius: 8px;
-      border: 2px solid #b2dfdb;
-      transition: border-color 0.3s ease;
-      outline: none;
-    }
-    select:focus, input[type=number]:focus {
-      border-color: #00796b;
-      box-shadow: 0 0 5px #00796baa;
-    }
-    .area-inputs {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-      margin-top: 10px;
-    }
-    .area-inputs input {
-      text-align: center;
+      margin-top: 5px;
+      border-radius: 6px;
+      border: 1px solid #a5d6a7;
+      box-sizing: border-box;
     }
     button {
-      margin-top: 25px;
-      width: 100%;
-      padding: 12px 0;
-      background: #00796b;
-      border: none;
+      background-color: #388e3c;
       color: white;
-      font-size: 20px;
-      border-radius: 12px;
       cursor: pointer;
       font-weight: 700;
-      transition: background 0.3s ease;
+      transition: background-color 0.3s ease;
     }
     button:hover {
-      background: #004d40;
+      background-color: #2e7d32;
+    }
+    .flex-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 5px;
+    }
+    .flex-row input {
+      flex: 1;
+      text-align: center;
     }
     .result {
-      margin-top: 30px;
-      padding: 20px;
-      background: #b2dfdb;
-      border-radius: 12px;
+      background: #e8f5e9;
+      margin-top: 20px;
+      padding: 15px;
+      border-left: 5px solid #43a047;
+      font-size: 18px;
       font-weight: 700;
-      font-size: 22px;
-      color: #004d40;
-      text-align: center;
-      box-shadow: inset 0 0 10px #00796baa;
     }
-    @media (max-width: 480px) {
-      .area-inputs {
-        grid-template-columns: repeat(2, 1fr);
-      }
+    .toggle-btns {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+    }
+    .toggle-btns button {
+      flex: 1;
+      background-color: #a5d6a7;
+      color: #2e7d32;
+      font-weight: 600;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .toggle-btns button.active {
+      background-color: #388e3c;
+      color: white;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>गलकोट नगरपालिका<br>जग्गा मूल्याङ्कन प्रणाली</h1>
-    <label for="ward">वडा नं. छान्नुहोस्</label>
-    <select id="ward" required>
-      <option value="">-- छान्नुहोस् --</option>
-      <option value="1">वडा १</option>
-      <option value="2">वडा २</option>
-      <option value="3">वडा ३</option>
-      <option value="4">वडा ४</option>
-      <option value="5">वडा ५</option>
-      <option value="6">वडा ६</option>
-      <option value="7">वडा ७</option>
-      <option value="8">वडा ८</option>
-      <option value="9">वडा ९</option>
-      <option value="10">वडा १०</option>
-      <option value="11">वडा ११</option>
-    </select>
+  <h2>आ.व. २०८१/०८२ भन्दा पहिलेको गलकोट नगरपालिकाको जग्गा तथा भवन मूल्याङ्कन र कर निर्धारण प्रणाली</h2>
 
-    <label for="category">क्षेत्रको प्रकार छान्नुहोस्</label>
-    <select id="category" required>
-      <option value="">-- छान्नुहोस् --</option>
-      <option value="residential">आवासीय/व्यावसायिक</option>
-      <option value="agri_road">कृषि (सडकसँग जोडिएको)</option>
-      <option value="agri_no_road">कृषि (सडक नजोडिएको)</option>
-    </select>
+  <label for="ward">वडा नं छान्नुहोस्</label>
+  <select id="ward">
+    <option value="">-- वडा छान्नुहोस् --</option>
+    <option value="1">१</option>
+    <option value="2">२</option>
+    <option value="3">३</option>
+    <option value="4">४</option>
+    <option value="5">५</option>
+    <option value="6">६</option>
+    <option value="7">७</option>
+    <option value="8">८</option>
+    <option value="9">९</option>
+    <option value="10">१०</option>
+    <option value="11">११</option>
+  </select>
 
-    <label for="detail">विशेष विवरण छान्नुहोस्</label>
-    <select id="detail" required>
-      <option value="">-- विवरण छान्नुहोस् --</option>
-    </select>
+  <label for="category">जग्गाको प्रकार</label>
+  <select id="category">
+    <option value="">-- जग्गाको प्रकार छान्नुहोस् --</option>
+    <option value="commercial">व्यावसायिक</option>
+    <option value="residential">आवासीय</option>
+    <option value="agriculture">कृषि</option>
+  </select>
 
-    <label>क्षेत्रफल दिनुहोस् (रोपनी, आना, पैसा, दाम)</label>
-    <div class="area-inputs">
+  <label for="detail">जग्गाको समुह</label>
+  <select id="detail">
+    <option value="">--जग्गाको समुह छान्नुहोस् --</option>
+  </select>
+
+  <div class="toggle-btns">
+    <button id="btnSqft" class="active" type="button">सम्पत्ति मूल्याङ्कन</button>
+    <button id="btnRAPD"  type="button">जग्गाको मात्र मूल्याङ्कन</button>
+    
+  </div>
+
+  <div id="inputRAPD" style=" display:none;margin-top: 10px;">
+    <label>क्षेत्रफल दिनुहोस् (रोपनी - आना - पैसा - दाम)</label>
+    <div class="flex-row">
       <input type="number" id="ropani" min="0" placeholder="रोपनी" />
       <input type="number" id="aana" min="0" max="15" placeholder="आना" />
       <input type="number" id="paisa" min="0" max="3" placeholder="पैसा" />
       <input type="number" id="dam" min="0" max="3" placeholder="दाम" />
     </div>
-
-    <button id="calculateBtn">मूल्याङ्कन गर्नुहोस्</button>
-
-    <div class="result" id="rateDisplay"></div>
-    <div class="result" id="valueDisplay"></div>
   </div>
 
-  <script>
-    // यहाँ तपाईंको पुरानो rateData राख्नुहोस् (तपाईंले दिएको ठूलो JSON)
-    // म छोटकरीमा राख्छु, तपाईं पुरा डेटा राख्नुहोस्
-    const rateData = {
-    1: {residential:{'लाल बहादुरखड्का (चमेरे) को घरदेखि पदम कार्की (फेदी) को घर सम्मका सडकसँग जोडिएका जग्गाहरू।':1660000,
-'लाल बहादुरखड्का (चमेरे) को घरदेखि पदम कार्की (फेदी) को घर सम्मका सडकसँग नजोडिएका जग्गाहरू।':830000,
-'मध्य-पहाडीलोकमार्गसँग जोडिएका आवासीय जग्गाहरू।':1320000,
-'मध्य-पहाडीलोक मार्गसँग नजोडिएका आवासीय जग्गाहरू।':660000,
-'अन्य सडकसँग जोडिएका क्षेत्रहरू।':960000,
-'अन्य सडकसँग नजोडिएका क्षेत्रहरू।':480000,
-},agri_road:{
-'अब्बल':180000,
-'दोयम':160000,
-'सिम':142000,
-'चाहार':124000,
-},agri_no_road:{
-'अब्बल':90000,
-'दोयम':80000,
-'सिम':71000,
-'चाहार':62000,
-}},
-    2: {residential:{'वडा नं. ४ को सिमानादेखि स्वास्थ्य चौँकी चोकसम्म मध्य पहाडी लोकमार्गसँग जोडिएको जग्गाहरू।':1920000,
-'वडा नं. ४ को सिमानादेखि स्वास्थ्य चौँकी चोकसम्म मध्य पहाडी लोकमार्गसँग नजोडिएको जग्गाहरू।':9600000,
-'मध्य पहाडी लोक मार्गनरेठाँटी बजार हुँदै कल्लेरीकोपक्कि पुलसम्म सडकसँग जोडिएका जग्गाहरू।':1240000,
-'मध्य पहाडी लोक मार्गनरेठाँटी बजार हुँदै कल्लेरीकोपक्कि पुलसम्म सडकसँग नजोडिएका जग्गाहरू।':620000,
-'ओडारको पक्कि पुलदेखि राम्चे जाने पहिलो घुम्तिसम्म सडकसँग जोडिएका जग्गाहरू।':1120000,
-'ओडारको पक्कि पुलदेखि राम्चे जाने पहिलो घुम्तिसम्म सडकसँग नजोडिएका जग्गाहरू।':560000,
-'स्वास्थ्य चौकी चोकदेखि ट्रस पुलसम्म सडकसँग जोडिएका जग्गाहरु।':1170000,
-'स्वास्थ्य चौकी चोकदेखि ट्रस पुलसम्म सडकसँग नजोडिएका जग्गाहरु।':585000,
-'नरेठाँटीकोफलाटे चोकदेखि फलाटेडाँडाँ( विद्युतकार्यालय जोड्ने झोलुङ्गे पुल) सम्म सडकसँग जोडिएका जग्गाहरू।':1240000,
-'नरेठाँटीकोफलाटे चोकदेखि फलाटेडाँडाँ( विद्युतकार्यालय जोड्ने झोलुङ्गे पुल)सम्म सडकसँग नजोडिएका जग्गाहरु।':620000,
-'नरेठाँटीको बजारदेखि बगरको पहिलो घुम्तीसम्म सडकसँग जोडिएका जग्गाहरू।':960000,
-'नरेठाँटीको बजारदेखि बगरको पहिलो घुम्तीसम्म सडकसँग नजोडिएका जग्गाहरू।':480000,
-'बजेनीखोल्सादेखि ६० मिटर उत्तर तर्फ सडकसँग जोडिएका जग्गाहरू।':840000,
-'बजेनीखोल्सादेखि ६० मिटर उत्तर तर्फ सडकसँग नजोडिएका जग्गाहरू।':420000,
-'अन्य सडकसँग जोडिएका क्षेत्रहरु।':960000,
-'अन्य सडकसँग नजोडिएका क्षेत्रहरु।':480000,
-},agri_road:{
-'अब्बल':180000,
-'दोयम':160000,
-'सिम':142000,
-'चाहार':124000,
-},agri_no_road:{
-'अब्बल':90000,
-'दोयम':80000,
-'सिम':71000,
-'चाहार':62000,
-}},
-  3: {residential:{ 'जुके खोलादेखि पश्चिम तर्फ २०० सम्म मध्य पहाडी लोक मार्गसँग जोडिएका जग्गाहरू।':3360000,
-'जुके खोलादेखि पश्चिम तर्फ २०० सम्म मध्य पहाडी लोक मार्गसँग नजोडिएका जग्गाहरू।':1680000,
-'पेट्रोल पम्पको पूर्व तर्फको खोल्सीदेखि भैँसेको पुलसम्म मध्य पहाडी लोक मार्गसँग जोडिएका जग्गाहरू।':5147000,
-'हटिया बजार क्षेत्र सहायक सडकसँग जोडिएका जग्गाहरू।':2810000,
-'हटिया बजार क्षेत्र सहायक सडकसँग नजोडिएका जग्गाहरू।':2405000,
-'लमाईबेसीफाँटको सम्पूर्ण क्षेत्र सहायक सडकसँग जोडिएका जग्गाहरू।':2520000,
-'लमाईबेसीफाँटको सम्पूर्ण क्षेत्र सहायक सडकसँग नजोडिएका जग्गाहरू।':1210000,
-'घट्टे खोलादेखि धनराज अधिकारीको घरसम्म सडकसँग जोडिएका जग्गाहरू।':3040000,
-'घट्टे खोलादेखि धनराज अधिकारीको घरसम्म सडकसँग नजोडिएका जग्गाहरू।':1520000,
-'रजंरादेखि बराह चोकसम्म सडकसँग जोडिएका जग्गाहरू।':2705000,
-'रजंरादेखि चिदारी खोला चोकसम्म सडकसँग जोडिएका जग्गाहरू।':2610000,
-'हटिया बजारदेखि कोत मैदान जाने पहिलो घुम्तीसम्म सडकसँग जोडिएका जग्गाहरू।':1440000,
-'चिया चौँतारादेखि लाकुरी बोटसम्म सडकसँग जोडिएका जग्गाहरू।':1260000,
-'चिया चौँतारादेखिलाकुरीबोटसम्म सडकसँग नजोडिएका जग्गाहरू।':630000,
-'अन्य सडकसँग जोडिएका क्षेत्रहरु।':960000,
-'अन्य सडकसँग नजोडिएका क्षेत्रहरु।':480000,
-},agri_road:{
-'अब्बल':180000,
-'दोयम':160000,
-'सिम':142000,
-'चाहार':124000,
-},agri_no_road:{
-'अब्बल':90000,
-'दोयम':80000,
-'सिम':71000,
-'चाहार':62000,
-}},
-4: {residential:{
-'मध्य पहाडी लोक मार्गसँग जोडिएका जग्गाहरू।':3360000,
-'डाँडाखेत क्षेत्रभित्र सहायक सडकसँग जोडिएका जग्गाहरू।':2880000,
-'डाँडाखेत क्षेत्रभित्र सडकसँग नजोडिएका जग्गाहरू।':1440000,
-'डिहि चोकदेखि भयरखर्क चोकसम्म सडकसँग जोडिएका जग्गाहरू।':1200000,
-'डिहि चोकदेखि भयरखर्क चोकसम्म सडकसँग नजोडिएका जग्गाहरू।':600000,
-'भयखर्क चोक बौर घुम्ती हुँदै खरुवा जाने चोक सम्म सडकसँग जोडिएका जग्गाहरू।':1630000,
-'भयखर्क चोक बौर घुम्ती हुँदै खरुवा जाने चोक सम्म सडकसँग नजोडिएका जग्गाहरू।':815000,
-'वडा कार्यालयदेखि स्वास्थ्य चौकी हुँदै भेडी खाल्टाकोडाँडासम्म सडकसँग जोडीका जग्गाहरू।':1440000,
-'वडा कार्यालयदेखि स्वास्थ्य चौकी हुँदै भेडी खाल्टाकोडाँडासम्म सडकसँग नजोडीका जग्गाहरू।':720000,
-'बुढारेको घुम्तीदेखि मिलको घुम्तीसम्म सडकसँग जोडिएका जग्गाहरू।':1120000,
-'बुढारेको घुम्तीदेखि मिलको घुम्तीसम्म सडकसँग नजोडिएका जग्गाहरू।':560000,
-'बौरको घुम्तीदेखि खरुवा चोक हुँदै चमुवा खोला चोकसम्म सडकसँग जोडिएका जग्गाहरू।':960000,
-'बौरको घुम्तीदेखि खरुवा चोक हुँदै चमुवा खोला चोकसम्म सडकसँग नजोडिएका जग्गाहरू।':480000,
-'चमुवा खोलाबाट डिही तर्फ १५० मिटरसम्म सडकसँग जोडिएका जग्गाहरू।':960000,
-'चमुवा खोलाबाट डिही तर्फ १५० मिटरसम्म सडकसँग नजोडिएका जग्गाहरू।':480000,
-'एस.बि.आईबैंकदेखि जुके खोला चोकसम्म सडकसँग जोडिएका जग्गाहरू।':1200000,
-'एस.बि.आईबैंकदेखि जुके खोला चोकसम्म सडकसँग नजोडिएका जग्गाहरू।':600000,
-'अन्य सडकसँग जोडिएका क्षेत्रहरू।':960000,
-'अन्य सडकसँग नजोडिएका क्षेत्रहरू।':480000,
-},agri_road:{
-'अब्बल':180000,
-'दोयम':160000,
-'सिम':142000,
-'चाहार':124000,
-},agri_no_road:{
-'अब्बल':90000,
-'दोयम':80000,
-'सिम':71000,
-'चाहार':62000,
-}},
-5: {residential:{
-'ठुलाथर जोड्ने पक्की पुलदेखि राजाको पुलसम्म सडकसँग जोडिएका जग्गाहरू।':4000000,
-'ठुलाथर जोड्ने पक्की पुलदेखि राजाको पुलसम्म सडकसँग नजोडिएका जग्गाहरू।':2000000,
-'बसाहा चोकदेखि वडा नं. ७ को सिमानासम्म सडकसँग जोडिएका जग्गाहरू।':2010000,
-'बसाहा चोकदेखि वडा नं. ७ को सिमानासम्म सडकसँग नजोडिएका जग्गाहरू।':1005000,
-'हरिचौँर बजार सडकसँग जोडिएका जग्गाहरू।':4000000,
-'हरिचौँर बजार सडकसँग नजोडिएका जग्गाहरू।':2000000,
-'अन्य सडकसँग जोडिएका क्षेत्रहरु।':960000,
-'अन्य सडकसँग नजोडिएका क्षेत्रहरु।':480000,
-},agri_road:{
-'अब्बल':180000,
-'दोयम':160000,
-'सिम':142000,
-'चाहार':124000,
-},agri_no_road:{
-'अब्बल':90000,
-'दोयम':80000,
-'सिम':71000,
-'चाहार':62000,
-}},
-6: {residential:{
-'राजाको पुलदेखि शिवालय घाटसम्म सडकसँग जोडिएका जग्गाहरू।':4000000,
-'पिप्ले चोकदेखि ढलेपिपल चोकसम्म सडकसँग जोडिएका जग्गाहरू।':2460000,
-'वडा नं. ५ सिमाना ठुलाथर नजिकको पक्कि पुलदेखि ताराखोलागाउँपालिकाको सिमानासम्म सडकसँग जोडिएका जग्गाहरू।':1920000,
-'वडा नं. ५ सिमाना ठुलाथर नजिकको पक्कि पुलदेखि ताराखोलागाउँपालिकाको सिमानासम्म सडकसँग न जोडिएका जग्गाहरू।':1097000,
-'सम्पूर्ण मजुवाफाँट क्षेत्र भित्र सडकसँग जोडिएका जग्गाहरू।':3000000,
-'सम्पूर्ण मजुवाफाँट क्षेत्र भित्र सडकसँग नजोडिएका जग्गाहरू।':1500000,
-'अन्य सडकसँग जोडिएका क्षेत्रहरु।':960000,
-'अन्य सडकसँग नजोडिएका क्षेत्रहरु।':480000,
-},agri_road:{
-'अब्बल':180000,
-'दोयम':160000,
-'सिम':142000,
-'चाहार':124000,
-},agri_no_road:{
-'अब्बल':90000,
-'दोयम':80000,
-'सिम':71000,
-'चाहार':62000,
-}},
-7: {residential:{
-'भैँसेको पक्कि पुलदेखि वडा नं. ९ को सिमानासम्म मध्य पहाडी लोक मार्गसँग जोडिएका जग्गाहरू।':2080000,
-'भैँसेको पक्कि पुलदेखि वडा नं. ९ को सिमानासम्म मध्य पहाडी लोक मार्गसँग नजोडिएका जग्गाहरू।':1040000,
-'आँगाखेत चोकदेखि उपल्लो म्याले चोकसम्म आँगाखेतपाण्डवखानी जोड्ने मुख्य सडकसँग जोडिएका जग्गाहरू।':1230000,
-'आँगाखेत चोकदेखि उपल्लो म्याले चोकसम्म आँगाखेतपाण्डवखानी जोड्ने मुख्य सडकसँग नजोडिएका जग्गाहरू।':615000,
-'बामियाँआँगाखेत बाह्रमुरेफाँट सानोखोला र म्यालेचौँतारा क्षेत्र सडकसँग जोडिएका जग्गाहरू।':1120000,
-'बामियाँआँगाखेत बाह्रमुरेफाँट सानोखोला र म्यालेचौँतारा क्षेत्र सडकसँग नजोडिएका जग्गाहरू।':560000,
-'अन्य सडकसँग जोडिएका क्षेत्रहरु।':960000,
-'अन्य सडकसँग नजोडिएका क्षेत्रहरु।':480000,
-},agri_road:{
-'अब्बल':180000,
-'दोयम':160000,
-'सिम':142000,
-'चाहार':124000,
-},agri_no_road:{
-'अब्बल':90000,
-'दोयम':80000,
-'सिम':71000,
-'चाहार':62000,
-}},
-8: {residential:{
-'वडा नं. ९ मसुरबारीदेखि मुसिकोट गुल्मीसम्म मुख्य सडकसँग जोडिएका जग्गाहरू।':1440000,
-'वडा नं. ९ मसुरबारीदेखि मुसिकोट गुल्मीसम्म मुख्य सडकसँग नजोडिएका जग्गाहरू।':720000,
-'काँडेवास क्षेत्र सहायक सडकसँग जोडिएका जग्गाहरू।':1260000,
-'काँडेवास क्षेत्र सहायक सडकसँग नजोडिएका जग्गाहरू।':630000,
-'पचुवा क्षेत्र भित्र सहायक सडकसँग जोडिएका जग्गाहरू।':1150000,
-'पचुवा क्षेत्र भित्र सहायक सडकसँग नजोडिएका जग्गाहरू।':575000,
-'अन्य सडकसँग जोडिएका क्षेत्रहरु।':780000,
-'अन्य सडकसँग नजोडिएका क्षेत्रहरु।':390000,
-},agri_road:{
-'अब्बल':127500,
-'दोयम':111000,
-'सिम':94500,
-'चाहार':87000,
-},agri_no_road:{
-'अब्बल':85000,
-'दोयम':74000,
-'सिम':63000,
-'चाहार':58000,
-}},
-9: {residential:{
-'वडा नं. ७ को सिमानादेखि वडा नं. ११ को सिमानासम्म मध्य पहाडी लोक मार्गसँग जोडिएका जग्गाहरू।':1910000,
-'बाँसखोला क्षेत्रमा सहायक सडकसँग जोडिएका जग्गाहरू।':1640000,
-'बाँसखोला क्षेत्रमा सहायक सडकसँग नजोडिएका जग्गाहरू।':820000,
-'टिम्मुरबोट र गल्याङ्ग क्षेत्रमा सहायक सडकसँग जोडिएका जग्गाहरू।':1230000,
-'टिम्मुरबोट र गल्याङ्ग क्षेत्रमा सहायक सडकसँग नजोडिएका जग्गाहरू।':615000,
-'रिष्मी क्षेत्रमा सहायक सडकसँग जोडिएका जग्गाहरू।':1120000,
-'रिष्मी क्षेत्रमा सहायक सडकसँग नजोडिएका जग्गाहरू।':560000,
-'अन्य सडकसँग जोडिएका क्षेत्रहरु।':960000,
-'अन्य सडकसँग नजोडिएका क्षेत्रहरु।':480000,
-},agri_road:{
-'अब्बल':180000,
-'दोयम':160000,
-'सिम':142000,
-'चाहार':124000,
-},agri_no_road:{
-'अब्बल':90000,
-'दोयम':80000,
-'सिम':71000,
-'चाहार':62000,
-}},
-10: {residential:{
-'उपल्लो सुनपानी सुनपानी कालिका मन्दिर पाण्डवखानीमा.वि. हुँदै माउखोलासम्म सडकसँग जोडिएका जग्गाहरू।':1340000,
-'उपल्लो सुनपानी सुनपानी कालिका मन्दिर पाण्डवखानीमा.वि. हुँदै माउखोलासम्म सडकसँग नजोडिएका जग्गाहरू।':670000,
-'सिद्धथान क्षेत्र सडकसँग जोडिएका जग्गाहरू।':990000,
-'सिद्धथान क्षेत्र सडकसँग नजोडिएका जग्गाहरू।':495000,
-'अन्य सडकसँग जोडिएका क्षेत्रहरु।':350000,
-'अन्य सडकसँग नजोडिएका क्षेत्रहरु।':125000,
-},agri_road:{
-'अब्बल':105000,
-'दोयम':85500,
-'सिम':72000,
-'चाहार':63000,
-},agri_no_road:{
-'अब्बल':70000,
-'दोयम':57000,
-'सिम':48000,
-'चाहार':42000,
-}},
-11: {residential:{
-'वडा नं. ९ को सिमानादेखि बडिगाडगाउपालिकासम्म मध्य पहाडी लोक मार्गसँग जोडिएका जग्गाहरू।':2220000,
-'वडा नं. ९ को सिमानादेखि बडिगाडगाउपालिकासम्म मध्य पहाडी लोक मार्गसँग नजोडिएका जग्गाहरू।':1110000,
-'उदय बुद्ध विहारदेखि सानो रिघा सम्म सडकसँग जोडिएका जग्गाहरू।':1340000,
-'बौद्वबिहारदेखि सानो रिघा सम्म सडकसँग नजोडिएका जग्गाहरू।':670000,
-'अन्य सडकसँग जोडिएका क्षेत्रहरु।':780000,
-'अन्य सडकसँग नजोडिएका क्षेत्रहरु।':390000,
-},agri_road:{
-'अब्बल':127500,
-'दोयम':111000,
-'सिम':94500,
-'चाहार':87000,
-},agri_no_road:{
-'अब्बल':85000,
-'दोयम':74000,
-'सिम':63000,
-'चाहार':58000,}},
+  <div id="inputSqft" style=" margin-top: 10px;">
+    <label for="sqft">भवनको पिलिन्थ क्षेत्रफल(Sq.Ft)</label>
+    <input type="number" id="sqft" min="0" placeholder="भवनको पिलिन्थ क्षेत्रफल(Sq.Ft)" />
+  </div>
 
-  };
+  <label>जग्गा मूल्याङ्कनको दर (प्रति रोपनी)</label>
+  <input type="number" id="rate" placeholder="दर स्वतः देखिनेछ" readonly style="background:#e0e0e0" />
+
+  <label for="buildSqft">भवन क्षेत्रफल (भवनको जम्मा तलाहरूको क्षेत्रफल जोडी एकमुष्ट Sq.Ft प्रविष्ट गर्नुहोस)</label>
+  <input type="number" id="buildSqft" min="0" placeholder="भवनको कुल Sq.Ft" />
+
+  <label for="structure"> मूल्याङ्कन गर्न खोजिएको भवनको प्रकारको हो छान्नुहोस्</label>
+  <select id="structure">
+    <option value="">-- भवनको प्रकार छान्नुहोस् --</option>
+<option value="1200">1. आर. सि.सि. फ्रेम आर सि.सि. ढलान</option>
+<option value="960.00">2. आर. सि.सि. फ्रेम जस्ताको छाना</option>
+<option value="540.00">3. माटोकोजोडाइमा ईटा ढुङ्गा ब्लकको गाह्रो जस्ता स्लेटको छाना</option>
+<option value="990.00">4. माटोकोजोडाइमा ईटा ढुङ्गाको गाह्रो आर. सि.सि.ढलान</option>
+<option value="360.00">5. माटोकोजोडाइमा ढुङ्गा गाह्रो खरको छाना</option>
+<option value="910.00">6. स्टीलस्ट्रक्चर जस्ताछाना।</option>
+<option value="1110">7. स्टीलस्ट्रक्चर ढलान।</option>
+<option value="1080">8. सिमेन्टकोजोडाईमा ईटा ढुङ्गा को गाह्रो आर.सि.सि ढलान</option>
+<option value="540.00">9. सिमेन्टकोजोडाईमा ईटा ढुङ्गा को गाह्रो जस्ता स्लेटको छाना</option>
+  </select>
+
+  <button onclick="calculateValuation()">मूल्याङ्कन गर्नुहोस्</button>
+
+  <div class="result" id="landResult"></div>
+  <div class="result" id="buildingResult"></div>
+  <div class="result" id="totalResult"></div>
+
+  <script>
+    const rateData = {
+      1: {
+        commercial: {'सानो सोहोरा देखि दुदिलाभाटि सडकको दायाँ बायाँ को जग्गा':2880000,
+                      'कटौजे बजारक्षेत्र':2640000,
+                      'झाक्रिस्थान(मध्यपहाडिलोकमार्ग सडकको दायाँबायाँ)':2400000,
+                      },
+        residential: {'गहतेदेखिबजेनि सम्म नरेठाटि दुदिलाभाटि सडकको दायाँबायाँ':1920000,
+'                     अन्य कच्चि सडकको दायाबाया':1440000
+
+        },
+        agriculture: {
+'अब्बल खेत':1000000,
+'दोयम खेत':800000,
+'सिम खेत':600000,
+'चाहार खेत':400000,
+'अब्बल पाखो':320000,
+'दोयम पाखो':300000,
+'सिम पाखो':280000,
+'चाहार पाखो':260000
+
+        }},
+            2: {
+        commercial: {'निग्राहा नरेठाँटि बजार राम्चे पुल सम्म सडकको दायाँबायाँ':5280000,
+                      'पक्कि पुलदेखि बजेनि र ओडार सम्म सडकको दायाँबायाँ':5280000},
+        residential: {'ओडार तोरिखोला रंगेनि ठान भुङखानि देखी झाक्रिस्थान जस्पुर मेलकोट पैयुडाडा घामपानि मसार सडकको दायाबाया':2160000,
+                      'अन्य कच्चि सडकको दायाबाया':1440000,},
+        agriculture: {
+'अब्बल खेत':1000000,
+'दोयम खेत':800000,
+'सिम खेत':600000,
+'चाहार खेत':400000,
+'अब्बल पाखो':320000,
+'दोयम पाखो':300000,
+'सिम पाखो':280000,
+'चाहार पाखो':260000
+}},
+            3: {
+        commercial: {'छहरे खोलादेखी खाल्लेखोला, हटिया बजार':9600000},
+        residential: {'बेसिफाट, लमाइफाट सबै':600000,
+                      'ढलेपिपल क्षेत्र':600000,
+                      'अन्य कच्चिसडकको दायाँबायाँ':1440000
+},
+        agriculture: {
+'अब्बल खेत':1000000,
+'दोयम खेत':800000,
+'सिम खेत':600000,
+'चाहार खेत':400000,
+'अब्बल पाखो':320000,
+'दोयम पाखो':300000,
+'सिम पाखो':280000,
+'चाहार पाखो':260000
+}},
+            4: {
+        commercial: {'डाडा खेतबाट ओखरबोट हुदै चमुवाफाट सडकको दायावाया तथा नुवाकोटको बेसि र नरेठाटि सम्म':600000,
+},
+        residential: {'अन्य कच्चिसडकको दायाँबायाँ':1440000
+},
+        agriculture: {
+'अब्बल खेत':1000000,
+'दोयम खेत':800000,
+'सिम खेत':600000,
+'चाहार खेत':400000,
+'अब्बल पाखो':320000,
+'दोयम पाखो':300000,
+'सिम पाखो':280000,
+'चाहार पाखो':260000
+}},
+            5: {
+        commercial: {'देउरालि बजार हुदै हरिचौर बजार विधुत सब स्टेसन सम्म सडकको दायाबाया':6720000,
+                    'देउरालि देखी राजाको पुल सम्म सडकको दायाबाया':600000
+
+},
+        residential: {'गैटिबाट ठाडोवडार सम्म सडकको दाया बाया':4800000,
+'बसाहाफाट सबै':4800000,
+'हरिचौर कल्याणीमाता एरियाको फाट सबै':1920000,
+'अन्य कच्चि सडकको दायाबाया':1440000
+
+},
+        agriculture: {
+'अब्बल खेत':1000000,
+'दोयम खेत':800000,
+'सिम खेत':600000,
+'चाहार खेत':400000,
+'अब्बल पाखो':320000,
+'दोयम पाखो':300000,
+'सिम पाखो':280000,
+'चाहार पाखो':260000
+}},
+      6: {
+        commercial: {'राजाको पुलदेखि शिवालय घाट सम्म सडकको दायाँबायाँ':7200000,
+                      'पिप्लेचोक बाट ढलेपिपल':600000,
+                    'क्रसर उधोगबाट जंगरा सम्म मोटरबाटोको दायाबाया':4800000,
+},
+        residential: {'सम्पुर्ण मजुवाफाट':600000,
+                      'अन्य कच्चि सडकको दायाबाया':1440000
+
+},
+        agriculture: {
+'अब्बल खेत':1000000,
+'दोयम खेत':800000,
+'सिम खेत':600000,
+'चाहार खेत':400000,
+'अब्बल पाखो':320000,
+'दोयम पाखो':300000,
+'सिम पाखो':280000,
+'चाहार पाखो':260000
+}},
+      7: {
+        commercial: {'बामियादेखिआगाखेतमध्यपहाडि लोकमार्गको दायाबाया':600000,
+},
+        residential: {'वामियाकोफाट':4800000,
+                      'आगाखेतको फाट':4800000,
+                      'आगाखेतको वजार क्षेत्र':4800000,
+                      'सप्ताहघाट क्षेत्र':3600000,
+                      'अन्य कच्चि सडकको दायाँबायाँ':1440000,
+},
+        agriculture: {
+'अब्बल खेत':1000000,
+'दोयम खेत':800000,
+'सिम खेत':600000,
+'चाहार खेत':400000,
+'अब्बल पाखो':320000,
+'दोयम पाखो':300000,
+'सिम पाखो':280000,
+'चाहार पाखो':260000
+}},
+      8: {
+        commercial: {'काडेवास क्षेत्र':3600000,
+},
+        residential: {'पचुवा झारमौर राजबगर क्षेत्र':3600000,
+                      'बाह्रमुरेफाट गल्याफाट क्षेत्र':2400000,
+                     'अन्य कच्चि सडकको दायाँबायाँ':1440000,
+
+},
+        agriculture: {
+'अब्बल खेत':1000000,
+'दोयम खेत':800000,
+'सिम खेत':600000,
+'चाहार खेत':400000,
+'अब्बल पाखो':320000,
+'दोयम पाखो':300000,
+'सिम पाखो':280000,
+'चाहार पाखो':260000
+}},
+      9: {
+        commercial: {'बासखोलाक्षेत्र (मध्यपहाडी सडकको दायाँबायाँ)':600000,
+
+},
+        residential: {'टिमुरबोटदेखि पैरासोतसम्म मध्यपहाडी सडकको दायाबाया':4800000,
+                      'अन्य कच्चि सडकको दायाँबायाँ':1440000,
+},
+        agriculture: {
+'अब्बल खेत':1000000,
+'दोयम खेत':800000,
+'सिम खेत':600000,
+'चाहार खेत':400000,
+'अब्बल पाखो':320000,
+'दोयम पाखो':300000,
+'सिम पाखो':280000,
+'चाहार पाखो':260000
+}},
+      10: {
+        commercial: {'काउलेवाटगैराभाटि हुदै लिङ्गुरे पाण्डवखानी मा वि सम्म सडकको दाया बाया':2400000,
+
+},
+        residential: {'सिध्धथानएरियाको सडकको दाया बाया':1680000,
+                      'अन्य कच्चि सडकको दायाँबायाँ':1440000,
+
+},
+        agriculture: {
+'अब्बल खेत':1000000,
+'दोयम खेत':800000,
+'सिम खेत':600000,
+'चाहार खेत':400000,
+'अब्बल पाखो':320000,
+'दोयम पाखो':300000,
+'सिम पाखो':280000,
+'चाहार पाखो':260000
+}},
+      11: {
+        commercial: {'काउछेअमर्छा मनेवा मध्यपहाडि सडकको दायाबाया':3600000,
+                      'गिरिङ्दि फाट':3600000,
+
+},
+        residential: {'बुध्दविहारबाट रल मा वि हुदै स्वास्थ्य चौकि देखि छिचिम्रा प्रा.वि सम्म सडकको दायाबाया':2400000,
+                      'मनेवाको फाट':2400000,
+
+                     'अन्य कच्चि सडकको दायाँबायाँ':1440000,
+
+},
+        agriculture: {
+'अब्बल खेत':1000000,
+'दोयम खेत':800000,
+'सिम खेत':600000,
+'चाहार खेत':400000,
+'अब्बल पाखो':320000,
+'दोयम पाखो':300000,
+'सिम पाखो':280000,
+'चाहार पाखो':260000
+}},
+    };
 
     const wardSel = document.getElementById('ward');
-    const catSel = document.getElementById('category');
-    const detSel = document.getElementById('detail');
-    const rateDisp = document.getElementById('rateDisplay');
-    const valDisp = document.getElementById('valueDisplay');
-    const btn = document.getElementById('calculateBtn');
+    const categorySel = document.getElementById('category');
+    const detailSel = document.getElementById('detail');
+    const rateInput = document.getElementById('rate');
+    const btnRAPD = document.getElementById('btnRAPD');
+    const btnSqft = document.getElementById('btnSqft');
+    const inputRAPD = document.getElementById('inputRAPD');
+    const inputSqft = document.getElementById('inputSqft');
 
-    wardSel.addEventListener('change', () => {
-      detSel.innerHTML = '<option value="">-- विवरण छान्नुहोस् --</option>';
-      rateDisp.textContent = '';
-      valDisp.textContent = '';
-      catSel.value = '';
-    });
+    // विवरण भरिन बाँकी छाँट्नु पर्ने बेला
+    wardSel.addEventListener('change', resetDetailAndRate);
+    categorySel.addEventListener('change', resetDetailAndRate);
 
-    catSel.addEventListener('change', () => {
-      detSel.innerHTML = '<option value="">-- विवरण छान्नुहोस् --</option>';
-      rateDisp.textContent = '';
-      valDisp.textContent = '';
+    function resetDetailAndRate() {
+      detailSel.innerHTML = '<option value="">-- विवरण छान्नुहोस् --</option>';
+      rateInput.value = '';
+      if (!wardSel.value || !categorySel.value) return;
+
+      // विवरणहरु सेट गर्ने
+      const data = rateData[wardSel.value];
+      if (!data) return;
+      const catData = data[categorySel.value];
+      if (!catData) return;
+
+      Object.keys(catData).forEach(key => {
+        const option = document.createElement('option');
+        option.value = key;
+        option.textContent = key;
+        detailSel.appendChild(option);
+      });
+    }
+
+    // विवरण छान्दा दर सेट गर्ने
+    detailSel.addEventListener('change', () => {
       const w = wardSel.value;
-      const c = catSel.value;
-      if (rateData[w] && rateData[w][c]) {
-        Object.keys(rateData[w][c]).forEach(key => {
-          const opt = document.createElement('option');
-          opt.value = key;
-          opt.textContent = key;
-          detSel.appendChild(opt);
-        });
+      const c = categorySel.value;
+      const d = detailSel.value;
+      if (w && c && d && rateData[w] && rateData[w][c] && rateData[w][c][d]) {
+        rateInput.value = rateData[w][c][d];
+      } else {
+        rateInput.value = '';
       }
     });
 
-    btn.addEventListener('click', () => {
-      const w = wardSel.value, c = catSel.value, d = detSel.value;
-      if (!w || !c || !d) {
-        alert('कृपया वडा, क्षेत्र र विवरण सबै छान्नुहोस्।');
-        return;
-      }
-      const rate = rateData[w][c][d];
+    // इनपुट मोड टगल गर्ने
+    btnRAPD.addEventListener('click', () => {
+      btnRAPD.classList.add('active');
+      btnSqft.classList.remove('active');
+      inputRAPD.style.display = 'block';
+      inputSqft.style.display = 'none';
+    });
+    btnSqft.addEventListener('click', () => {
+      btnSqft.classList.add('active');
+      btnRAPD.classList.remove('active');
+      inputSqft.style.display = 'block';
+      inputRAPD.style.display = 'none';
+    });
+
+    function calculateValuation() {
+      const rate = +rateInput.value;
       if (!rate) {
-        alert('छानिएको विवरणको दर उपलब्ध छैन।');
-        return;
-      }
-      const ro = +document.getElementById('ropani').value || 0;
-      const aa = +document.getElementById('aana').value || 0;
-      const pa = +document.getElementById('paisa').value || 0;
-      const da = +document.getElementById('dam').value || 0;
-
-      // Validation for max values
-      if(aa > 15 || pa > 3 || da > 3){
-        alert('आना ०-१५, पैसा ०-३, दाम ०-३ को बीचमा हुनुपर्छ।');
+        alert('कृपया मूल्याङ्कनको आधार छान्नुहोस्');
         return;
       }
 
-      const totalR = ro + aa/16 + pa/64 + da/256;
-      if(totalR === 0){
-        alert('क्षेत्रफल ० भन्दा ठूलो हुनुपर्छ।');
-        return;
+      let landInRopani = 0;
+      if (btnRAPD.classList.contains('active')) {
+        // RAPD बाट क्षेत्रफल गणना
+        const ro = +document.getElementById('ropani').value || 0;
+        const aa = +document.getElementById('aana').value || 0;
+        const pa = +document.getElementById('paisa').value || 0;
+        const da = +document.getElementById('dam').value || 0;
+        if(aa > 15 || pa > 3 || da > 3){
+          alert('आना ०-१५, पैसा ०-३, दाम ०-३ को बीचमा हुनुपर्छ।');
+          return;
+        }
+        landInRopani = ro + aa/16 + pa/64 + da/256;
+        if (landInRopani <= 0) {
+          alert('घरले चर्चेको जग्गाको तथा जग्गाको क्षेत्रफल प्रविष्टी गर्नेहोस।');
+          return;
+        }
+      } else {
+        // Sq.Ft बाट क्षेत्रफल रोपनीमा रूपान्तरण
+        const sqft = +document.getElementById('sqft').value || 0;
+        if (sqft <= 0) {
+          alert('घरले चर्चेको जग्गाको तथा जग्गाको क्षेत्रफल प्रविष्टी गर्नेहोस।');
+          return;
+        }
+        // 1 रोपनी = 5476.5 Sq.Ft (लगभग)
+        landInRopani = sqft / 5476.5;
       }
-      rateDisp.textContent = `दर: रू ${rate.toLocaleString('ne-NP')} प्रति रोपनी`;
-      const val = Math.round(totalR * rate);
-      valDisp.textContent = `कुल मूल्याङ्कन: रू ${val.toLocaleString('ne-NP')}`;
-    });
+
+      // जग्गाको मूल्याङ्कन
+      const landVal = Math.round(landInRopani * rate);
+      document.getElementById('landResult').textContent = `घरले चर्चेको जग्गाको तथा जग्गा मूल्याङ्कन: रू ${landVal.toLocaleString('ne-NP')}`;
+
+      // भवन मूल्याङ्कन
+      const buildSqft = +document.getElementById('buildSqft').value || 0;
+      const structureRate = +document.getElementById('structure').value || 0;
+      let buildVal = 0;
+      if (buildSqft > 0 && structureRate > 0) {
+        buildVal = Math.round(buildSqft * structureRate);
+        document.getElementById('buildingResult').textContent = `भवन मूल्याङ्कन: रू ${buildVal.toLocaleString('ne-NP')}`;
+      } else {
+        document.getElementById('buildingResult').textContent = 'भवनको मूल्याङ्कन भएको छैन कृपया भवन मूल्याङ्कनको आधार तथा भवनको क्षेत्रफल प्रविष्ट गर्नुहोस';
+      }
+
+      // कुल मूल्याङ्कन
+      const totalVal = landVal + buildVal;
+      document.getElementById('totalResult').textContent = `कुल मूल्याङ्कन: रू ${totalVal.toLocaleString('ne-NP')}`;
+    }
   </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+  <meta charset="UTF-8">
+  <title>सम्पतिकर निर्धारण तालिका</title>
+  <style>
+    body {
+      font-family: 'Noto Sans Devanagari', sans-serif;
+      background-color: #f2f2f2;
+      padding: 20px;
+    }
+    h2 {
+      text-align: center;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-bottom: 30px;
+      background-color: #fff;
+    }
+    th, td {
+      border: 1px solid #444;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background-color: #ccc;
+    }
+    input, button {
+      font-size: 16px;
+      padding: 8px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+  <h3>🔢 कर गणना:</h3>
+  <label for="amount">सम्पत्तिको मूल्य (रु): </label>
+  <input type="number" id="amount" placeholder="कुल मूल्याङ्कन रकम राख्नुहोस">
+  <button onclick="calculateTax()">कर गणना गर्नुहोस्</button>
+  <p id="result"></p>
+
+
+<body>
+  <h2>सम्पतिकर निर्धारण तालिका</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>सि.नं.</th>
+        <th>मूल्य (रु) माथि</th>
+        <th>सम्म</th>
+        <th>कर दर (रु)</th>
+      </tr>
+    </thead>
+    <tbody id="taxTable">
+      <!-- JS ले Auto Generate गर्छ -->
+    </tbody>
+  </table>
+ <script>
+    const taxBrackets = [
+      { from: 0, to: 200000, tax: 135 },
+      { from: 200001, to: 400000, tax: 270 },
+      { from: 400001, to: 600000, tax: 405 },
+      { from: 600001, to: 800000, tax: 540 },
+      { from: 800001, to: 1000000, tax: 675 },
+      { from: 1000001, to: 1200000, tax: 810 },
+      { from: 1200001, to: 1400000, tax: 945 },
+      { from: 1400001, to: 1600000, tax: 1080 },
+      { from: 1600001, to: 1800000, tax: 1215 },
+      { from: 1800001, to: 2000000, tax: 1350 },
+      { from: 2000001, to: 2200000, tax: 1485 },
+      { from: 2200001, to: 2400000, tax: 1620 },
+      { from: 2400001, to: 2600000, tax: 1755 },
+      { from: 2600001, to: 2800000, tax: 1890 },
+      { from: 2800001, to: 3000000, tax: 2025 },
+      { from: 3000001, to: 3200000, tax: 2160 },
+      { from: 3200001, to: 3400000, tax: 2295 },
+      { from: 3400001, to: 3600000, tax: 2430 },
+      { from: 3600001, to: 3800000, tax: 2565 },
+      { from: 3800001, to: 4000000, tax: 2700 },
+      { from: 4000001, to: 4200000, tax: 2835 },
+      { from: 4200001, to: 4400000, tax: 2970 },
+      { from: 4400001, to: 4600000, tax: 3105 },
+      { from: 4600001, to: 4800000, tax: 3240 },
+      { from: 4800001, to: 5000000, tax: 3375 },
+      { from: 5000001, to: 5500000, tax: 3960 },
+      { from: 5500001, to: 6000000, tax: 4320 },
+      { from: 6000001, to: 6500000, tax: 4680 },
+      { from: 6500001, to: 7000000, tax: 5040 },
+      { from: 7000001, to: 7500000, tax: 5400 },
+      { from: 7500001, to: 8000000, tax: 5760 },
+      { from: 8000001, to: 8500000, tax: 6120 },
+      { from: 8500001, to: 9000000, tax: 6480 },
+      { from: 9000001, to: 9500000, tax: 6840 },
+      { from: 9500001, to: 10000000, tax: 7200 },
+      { from: 10000001, to: 11000000, tax: 7920 },
+      { from: 11000001, to: 12000000, tax: 8640 },
+      { from: 12000001, to: 13000000, tax: 9360 },
+      { from: 13000001, to: 14000000, tax: 10080 },
+      { from: 14000001, to: 15000000, tax: 10800 },
+      { from: 15000001, to: 16000000, tax: 11520 },
+      { from: 16000001, to: 17000000, tax: 12240 },
+      { from: 17000001, to: 18000000, tax: 12960 },
+      { from: 18000001, to: 19000000, tax: 13680 },
+      { from: 19000001, to: 20000000, tax: 14400 },
+      { from: 20000001, to: 25000000, tax: 18000 },
+      { from: 25000001, to: 30000000, tax: 21600 },
+      { from: 30000001, to: 35000000, tax: 25200 },
+      { from: 35000001, to: 40000000, tax: 28800 },
+      { from: 40000001, to: 45000000, tax: 32400 },
+      { from: 45000001, to: 50000000, tax: 36000 }
+    ];
+
+
+    function fillTable() {
+      const table = document.getElementById("taxTable");
+      taxBrackets.forEach((row, index) => {
+        table.innerHTML += `<tr><td>${index + 1}</td><td>${row.from}</td><td>${row.to}</td><td>${row.tax}</td></tr>`;
+      });
+      table.innerHTML += `<tr><td>${taxBrackets.length + 1}</td><td>50000001</td><td>भन्दा माथि</td><td>प्रति हजारमा 0.45</td></tr>`;
+    }
+
+    function calculateTax() {
+      const amt = parseInt(document.getElementById("amount").value);
+      if (isNaN(amt) || amt < 0) {
+        document.getElementById("result").innerText = "कृपया मान्य सम्पत्ति मूल्य दिनुहोस्।";
+        return;
+      }
+      let tax = 0;
+      const matched = taxBrackets.find(row => amt >= row.from && amt <= row.to);
+      if (matched) {
+        tax = matched.tax;
+      } else if (amt > 50000000) {
+        tax = (amt * 0.45) / 1000;
+      }
+      document.getElementById("result").innerText = `सम्पतिकर रकम: रु ${Math.round(tax)} `;
+    }
+
+    fillTable();
+  </script>
+  फरक परेको खण्डमा गलकोट नगरपालिकाको आर्थिक ऐन अनुसार सुधार गर्न सकिनेछ।
 </body>
 </html>
