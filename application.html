@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+  <meta charset="UTF-8" />
+  <title>गलकोट नगरपालिका नक्सा फारम</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f4f7f8; }
+    form { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px #ccc; display: flex; flex-wrap: wrap; gap: 15px; }
+    .field { flex: 1 1 300px; display: flex; flex-direction: column; }
+    label { font-weight: bold; margin-bottom: 6px; }
+    input, select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+    button { background: #0984e3; color: white; border: none; padding: 12px 25px; font-size: 16px; border-radius: 4px; cursor: pointer; width: 100%; }
+    button:hover { background: #0652DD; }
+  </style>
+</head>
+<body>
+
+  <form id="applicationForm">
+    <h2>नक्सा पास दर्ता फारम</h2>
+
+    <div class="field"><label>जग्गाधनीको नाम/थर</label><input type="text" name="owner_name" required></div>
+    <div class="field"><label>बाबु/पतिको नाम थर</label><input type="text" name="father_name" required></div>
+    <div class="field"><label>बाजे/ससुराको नाम थर</label><input type="text" name="grandfather_name" required></div>
+    <div class="field"><label>जग्गाधनीको नागरिकता नं.</label><input type="text" name="citizenship_no" required></div>
+    <div class="field"><label>नागरिकता जारी मिति (BS)</label><input type="text" name="citizenship_date"></div>
+    <div class="field"><label>नागरिकता जारी गर्ने कार्यालय</label><input type="text" name="citizenship_office" required></div>
+    <div class="field"><label>सम्पर्क फोन नं</label><input type="text" name="phone" pattern="\d{10}" maxlength="10" required></div>
+    <div class="field"><label>प्रतिनिधिको नाम</label><input type="text" name="representative_name"></div>
+
+    <div class="field"><label>वडा नं</label>
+      <select name="ward_no" required>
+        <option value="">-- छान्नुहोस् --</option>
+        <option>१</option><option>२</option><option>३</option><option>४</option><option>५</option>
+        <option>६</option><option>७</option><option>८</option><option>९</option><option>१०</option><option>११</option>
+      </select>
+    </div>
+
+    <div class="field"><label>साविक गाविस</label>
+      <select name="vdc" required>
+        <option value="">-- छान्नुहोस् --</option>
+        <option>दुदिलाभाटी</option><option>नरेठाँटी</option><option>हटिया</option><option>हरिचौँर</option>
+        <option>मल्म</option><option>काँडेबास</option><option>पाण्डवखानी</option><option>रिघा</option>
+      </select>
+    </div>
+
+    <div class="field"><label>साविक गाविस वडा नं</label>
+      <select name="old_ward_no" required>
+        <option value="">-- छान्नुहोस् --</option>
+        <option>१</option><option>२</option><option>३</option><option>४</option><option>५</option>
+        <option>६</option><option>७</option><option>८</option><option>९</option>
+      </select>
+    </div>
+
+    <div class="field"><label>टोल मार्ग</label><input type="text" name="tole_marga"></div>
+    <div class="field"><label>कित्ता नं</label><input type="text" name="kitta_no"></div>
+    <div class="field"><label>क्षेत्रफल (sq.ft)</label><input type="number" name="area" step="any"></div>
+    <div class="field"><label>दर्ता मिति (BS)</label><input type="text" name="registration_date"></div>
+    <div class="field"><label>दर्ता नं</label><input type="text" name="registration_no"></div>
+
+    <div class="field"><label>पुर्व संधियाराको नाम</label><input type="text" name="east_neighbor"></div>
+    <div class="field"><label>पश्चिम संधियाराको नाम</label><input type="text" name="west_neighbor"></div>
+    <div class="field"><label>उत्तर संधियाराको नाम</label><input type="text" name="north_neighbor"></div>
+    <div class="field"><label>दक्षिण संधियाराको नाम</label><input type="text" name="south_neighbor"></div>
+
+    <div class="field"><label>घरको लम्बाई</label><input type="text" name="house_length"></div>
+    <div class="field"><label>घरको चौडाई</label><input type="text" name="house_width"></div>
+    <div class="field"><label>घरको उचाई</label><input type="text" name="house_height"></div>
+    <div class="field"><label>घरको किसिम</label><input type="text" name="house_type_connection"></div>
+    <div class="field"><label>बाटोको चौडाई</label><input type="text" name="road_width"></div>
+    <div class="field"><label>किनाराबाट छाड्नुपर्ने दुरी</label><input type="text" name="distance_required"></div>
+    <div class="field"><label>छाडेको दुरी</label><input type="text" name="distance_left"></div>
+
+    <div class="field"><label>दर (रु/वर्ग फिट)</label><input type="text" name="rate_per_sqft"></div>
+    <div class="field"><label>ग्राउण्ड कभरेज</label><input type="text" name="ground_coverage"></div>
+    <div class="field"><label>आर ओ डब्लु</label><input type="text" name="row"></div>
+    <div class="field"><label>सेट ब्याक</label><input type="text" name="setback"></div>
+    <div class="field"><label>विद्यूत लाइन</label><input type="text" name="electric_line"></div>
+    <div class="field"><label>नदी किनार</label><input type="text" name="river_bank"></div>
+
+    <div class="field"><label>तल्ला संख्या</label><input type="text" name="no_of_floors"></div>
+    <div class="field"><label>जम्मा तल्लाको क्षेत्रफल</label><input type="text" name="total_floor_area"></div>
+    <div class="field"><label>घरको किसिम (छाना)</label><input type="text" name="roof_type"></div>
+    <div class="field"><label>जम्मा रकम (रु)</label><input type="text" name="total_amount"></div>
+    <div class="field"><label>अक्षरुपी रकम</label><input type="text" name="amount_words"></div>
+    <div class="field"><label>छूट %</label><input type="text" name="discount_percent"></div>
+    <div class="field"><label>जरिवाना %</label><input type="text" name="fine_percent"></div>
+    <div class="field"><label>Status</label><input type="text" name="status"></div>
+
+    <button type="submit">पेश गर्नुहोस्</button>
+  </form>
+
+  <script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbzrJi-WsN2RXfX31C1_QoUZdRpE991f35J0Qq5v_LpYmuwdK35lt7613bV8BQeqfOBm/exec'; // यहाँ आफ्नो Apps Script Web App URL राख्नुहोस्
+
+    document.getElementById('applicationForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const form = this;
+      const formData = new FormData(form);
+
+      fetch(scriptURL, {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if(data.status === "success") {
+          alert('फारम सफलतापूर्वक पेश गरियो!');
+          form.reset();
+        } else {
+          alert('त्रुटि: ' + data.message);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('सर्भरमा समस्या भयो, कृपया पुन: प्रयास गर्नुहोस्।');
+      });
+    });
+  </script>
+</body>
+</html>
