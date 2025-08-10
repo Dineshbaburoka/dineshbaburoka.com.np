@@ -8,11 +8,29 @@
     h2 { text-align: center; background: #36454F; color: white; padding: 12px; border-radius: 6px; }
     form { max-width: 400px; margin: auto; background: white; padding: 20px; border-radius: 8px;
            box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-    .field { margin-bottom: 15px; }
+    .field { margin-bottom: 15px; position: relative; }
     label { font-weight: bold; display: block; margin-bottom: 6px; }
     input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
     button { background: #0984e3; color: white; border: none; padding: 10px; cursor: pointer; width: 100%; }
     button:hover { background: #0652DD; }
+
+    /* पासवर्ड अन/हाइड आइकनको लागि */
+    .toggle-password {
+      position: absolute;
+      top: 35px;
+      right: 10px;
+      cursor: pointer;
+      user-select: none;
+      font-size: 14px;
+      color: #555;
+      background: #eee;
+      border-radius: 4px;
+      padding: 2px 6px;
+    }
+    .toggle-password:hover {
+      background: #ccc;
+      color: #222;
+    }
   </style>
 </head>
 <body>
@@ -25,6 +43,7 @@
     <div class="field">
       <label>Password</label>
       <input type="password" id="password" required />
+      <span id="togglePassword" class="toggle-password">देखाउन</span>
     </div>
     <button type="submit">लगइन</button>
   </form>
@@ -44,11 +63,32 @@
 
       if (users[username] && users[username] === password) {
         localStorage.setItem("loggedIn", "true");
-        alert('लगइन सफल भयो!');
-        window.location.href = "application.html";
+        localStorage.setItem("username", username);
+
+        if (username === 'zenith') {
+          window.location.href = "application.html";
+        } else if (username === 'office') {
+          window.location.href = "report.html";
+        } else if (username === 'triangle') {
+          window.location.href = "application.html";
+        } else if (username === 'habil') {
+          window.location.href = "application.html";
+        } else {
+          window.location.href = "application.html";
+        }
       } else {
         alert('गलत username वा password');
       }
+    });
+
+    // पासवर्ड देखाउन/लुकाउन toggle गर्ने स्क्रिप्ट
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+
+    togglePassword.addEventListener('click', () => {
+      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+      passwordInput.setAttribute('type', type);
+      togglePassword.textContent = type === 'password' ? 'देखाउन' : 'लुकाउन';
     });
   </script>
 </body>
