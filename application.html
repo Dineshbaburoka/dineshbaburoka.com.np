@@ -12,6 +12,25 @@
     input[readonly] { background-color: #eee; }
     button { background: #0984e3; color: white; border: none; padding: 12px 25px; font-size: 16px; border-radius: 4px; cursor: pointer; width: 100%; }
     button:hover { background: #0652DD; }
+
+    /* Progress bar container */
+    #progressContainer {
+      display: none;
+      max-width: 900px;
+      margin: 15px auto;
+      background: #ddd;
+      border-radius: 4px;
+      overflow: hidden;
+      height: 20px;
+    }
+
+    /* Progress bar itself */
+    #progressBar {
+      height: 100%;
+      width: 0%;
+      background: #0984e3;
+      transition: width 0.3s ease;
+    }
   </style>
 </head>
 <body>
@@ -24,7 +43,6 @@
     <div class="field"><label>बाजे/ससुराको नाम थर</label><input type="text" name="grandfather_name" required></div>
     <div class="field"><label>जग्गाधनीको नागरिकता नं.</label><input type="text" id="citizenship_no" name="citizenship_no" required></div>
 
-    <!-- दर्ता नं readonly -->
     <div class="field"><label>दर्ता नं</label><input type="text" id="registration_no" name="registration_no" readonly></div>
 
     <div class="field"><label>नागरिकता जारी मिति (BS)</label><input type="text" name="citizenship_date"></div>
@@ -93,21 +111,26 @@
     <button type="submit">पेश गर्नुहोस्</button>
   </form>
 
+  <!-- Progress Bar -->
+  <div id="progressContainer">
+    <div id="progressBar"></div>
+  </div>
+
   <script>
-    // Session मा मात्र रहने serial number
     let serialNumber = 0;
 
     const citizenshipInput = document.getElementById('citizenship_no');
     const registrationInput = document.getElementById('registration_no');
     const form = document.getElementById('applicationForm');
+    const progressContainer = document.getElementById('progressContainer');
+    const progressBar = document.getElementById('progressBar');
 
-    // नागरिकता नं बदल्दा दर्ता नं खाली गर्छ र serial reset गर्छ
     citizenshipInput.addEventListener('input', () => {
       serialNumber = 0;
       registrationInput.value = '';
     });
 
-    form.addEventListener('submit', function(e) {
+    form.addEventListener('submit', async function(e) {
       e.preventDefault();
 
       const citizenshipNo = citizenshipInput.value.trim();
@@ -120,18 +143,35 @@
       serialNumber++;
       registrationInput.value = `${citizenshipNo}-${serialNumber}`;
 
-      // फारम डेटा तयार गर्ने
       const formData = new FormData(this);
-
-      // यहाँ आफ्नो Apps Script URL राख्नुहोस्
       const scriptURL = 'https://script.google.com/macros/s/AKfycbzrJi-WsN2RXfX31C1_QoUZdRpE991f35J0Qq5v_LpYmuwdK35lt7613bV8BQeqfOBm/exec';
 
-      fetch(scriptURL, {
-        method: 'POST',
-        body: formData
-      })
-      .then(response => response.json())
-      .then(data => {
+      // Show progress bar
+      progressContainer.style.display = 'block';
+      progressBar.style.width = '0%';
+
+      // Start fake progress animation
+      let width = 0;
+      const interval = setInterval(() => {
+        if(width < 90) { // go up to 90% until response arrives
+          width += 10;
+          progressBar.style.width = width + '%';
+        }
+      }, 100);
+
+      try {
+        const response = await fetch(scriptURL, {
+          method: 'POST',
+          body: formData
+        });
+        clearInterval(interval);
+        progressBar.style.width = '100%';
+
+        const data = await response.json();
+
+        // Hide progress bar before alert
+        progressContainer.style.display = 'none';
+
         if(data.status === "success") {
           alert(`फारम सफलतापूर्वक पेश गरियो!\nदर्ता नं: ${registrationInput.value}`);
           form.reset();
@@ -140,12 +180,14 @@
         } else {
           alert('त्रुटि: ' + data.message);
         }
-      })
-      .catch(error => {
-        console.error('Error:', error);
+      } catch (error) {
+        clearInterval(interval);
+        progressContainer.style.display = 'none';
         alert('सर्भरमा समस्या भयो, कृपया पुन: प्रयास गर्नुहोस्।');
-      });
+        console.error('Error:', error);
+      }
     });
   </script>
+
 </body>
 </html>
