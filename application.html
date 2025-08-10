@@ -3,16 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <title>गलकोट नगरपालिका नक्सा फारम</title>
-
-  <!-- Nepali Datepicker CSS -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nepali-datepicker-reactjs@2.0.1/dist/nepali-datepicker.min.css" />
-
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; background: #f4f7f8; }
     form { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px #ccc; display: flex; flex-wrap: wrap; gap: 15px; }
     .field { flex: 1 1 300px; display: flex; flex-direction: column; }
     label { font-weight: bold; margin-bottom: 6px; }
     input, select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+    input[readonly] { background-color: #eee; }
     button { background: #0984e3; color: white; border: none; padding: 12px 25px; font-size: 16px; border-radius: 4px; cursor: pointer; width: 100%; }
     button:hover { background: #0652DD; }
   </style>
@@ -25,8 +22,12 @@
     <div class="field"><label>जग्गाधनीको नाम/थर</label><input type="text" name="owner_name" required></div>
     <div class="field"><label>बाबु/पतिको नाम थर</label><input type="text" name="father_name" required></div>
     <div class="field"><label>बाजे/ससुराको नाम थर</label><input type="text" name="grandfather_name" required></div>
-    <div class="field"><label>जग्गाधनीको नागरिकता नं.</label><input type="text" name="citizenship_no" required></div>
-    <div class="field"><label>नागरिकता जारी मिति (BS)</label><input type="text" id="citizenship_date" name="citizenship_date" autocomplete="off"></div>
+    <div class="field"><label>जग्गाधनीको नागरिकता नं.</label><input type="text" id="citizenship_no" name="citizenship_no" required></div>
+
+    <!-- दर्ता नं readonly -->
+    <div class="field"><label>दर्ता नं</label><input type="text" id="registration_no" name="registration_no" readonly></div>
+
+    <div class="field"><label>नागरिकता जारी मिति (BS)</label><input type="text" name="citizenship_date"></div>
     <div class="field"><label>नागरिकता जारी गर्ने कार्यालय</label><input type="text" name="citizenship_office" required></div>
     <div class="field"><label>सम्पर्क फोन नं</label><input type="text" name="phone" pattern="\d{10}" maxlength="10" required></div>
     <div class="field"><label>प्रतिनिधिको नाम</label><input type="text" name="representative_name"></div>
@@ -58,8 +59,7 @@
     <div class="field"><label>टोल मार्ग</label><input type="text" name="tole_marga"></div>
     <div class="field"><label>कित्ता नं</label><input type="text" name="kitta_no"></div>
     <div class="field"><label>क्षेत्रफल (sq.ft)</label><input type="number" name="area" step="any"></div>
-    <div class="field"><label>दर्ता मिति (BS)</label><input type="text" id="registration_date" name="registration_date" autocomplete="off"></div>
-    <div class="field"><label>दर्ता नं</label><input type="text" name="registration_no"></div>
+    <div class="field"><label>दर्ता मिति (BS)</label><input type="text" name="registration_date"></div>
 
     <div class="field"><label>पुर्व संधियाराको नाम</label><input type="text" name="east_neighbor"></div>
     <div class="field"><label>पश्चिम संधियाराको नाम</label><input type="text" name="west_neighbor"></div>
@@ -93,35 +93,38 @@
     <button type="submit">पेश गर्नुहोस्</button>
   </form>
 
-  <!-- Nepali Datepicker JS -->
-  <script src="https://cdn.jsdelivr.net/npm/nepali-datepicker-reactjs@2.0.1/dist/nepali-datepicker.min.js"></script>
-
   <script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbzrJi-WsN2RXfX31C1_QoUZdRpE991f35J0Qq5v_LpYmuwdK35lt7613bV8BQeqfOBm/exec'; // आफ्नो Apps Script URL
+    // Session मा मात्र रहने serial number
+    let serialNumber = 0;
 
-    // Initialize Nepali Date Picker
-    window.onload = () => {
-      new NepaliDatePicker('#citizenship_date', {
-        ndpYear: true,
-        ndpMonth: true,
-        ndpYearCount: 100,
-        dateFormat: 'YYYY-MM-DD',
-        readOnlyInput: true,
-      });
-      new NepaliDatePicker('#registration_date', {
-        ndpYear: true,
-        ndpMonth: true,
-        ndpYearCount: 100,
-        dateFormat: 'YYYY-MM-DD',
-        readOnlyInput: true,
-      });
-    };
+    const citizenshipInput = document.getElementById('citizenship_no');
+    const registrationInput = document.getElementById('registration_no');
+    const form = document.getElementById('applicationForm');
 
-    // Form Submit Handler
-    document.getElementById('applicationForm').addEventListener('submit', function(e) {
+    // नागरिकता नं बदल्दा दर्ता नं खाली गर्छ र serial reset गर्छ
+    citizenshipInput.addEventListener('input', () => {
+      serialNumber = 0;
+      registrationInput.value = '';
+    });
+
+    form.addEventListener('submit', function(e) {
       e.preventDefault();
-      const form = this;
-      const formData = new FormData(form);
+
+      const citizenshipNo = citizenshipInput.value.trim();
+      if (!citizenshipNo) {
+        alert('कृपया नागरिकता नं प्रविष्ट गर्नुहोस्।');
+        citizenshipInput.focus();
+        return;
+      }
+
+      serialNumber++;
+      registrationInput.value = `${citizenshipNo}-${serialNumber}`;
+
+      // फारम डेटा तयार गर्ने
+      const formData = new FormData(this);
+
+      // यहाँ आफ्नो Apps Script URL राख्नुहोस्
+      const scriptURL = 'https://script.google.com/macros/s/AKfycbzrJi-WsN2RXfX31C1_QoUZdRpE991f35J0Qq5v_LpYmuwdK35lt7613bV8BQeqfOBm/exec';
 
       fetch(scriptURL, {
         method: 'POST',
@@ -130,8 +133,10 @@
       .then(response => response.json())
       .then(data => {
         if(data.status === "success") {
-          alert('फारम सफलतापूर्वक पेश गरियो!');
+          alert(`फारम सफलतापूर्वक पेश गरियो!\nदर्ता नं: ${registrationInput.value}`);
           form.reset();
+          registrationInput.value = '';
+          serialNumber = 0;
         } else {
           alert('त्रुटि: ' + data.message);
         }
