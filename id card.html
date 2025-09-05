@@ -101,7 +101,7 @@
         <label>कर्मचारीको परा नाम:</label><input type="text" id="name_ne" placeholder="उदाहरण: दिपक केसी" required>
         <label>कर्मचारी संकेत नं.:</label><input type="text" id="signal_no_ne" placeholder="12345" required>
         <label>पद:</label><input type="text" id="position_ne" placeholder="सहायक स्तर" required>
-        <label>नागरिकता नम्बर/जारी जिल्ला:</label><input type="text" id="citizenship_ne" placeholder="१२-०१-००१-०१२३/रुकुम पश्चिम भाग" required>
+        <label>ना.प्र.नं./जारी जिल्ला:</label><input type="text" id="citizenship_ne" placeholder="१२-०१-००१-०१२३/रुकुम पश्चिम भाग" required>
         <label>राष्ट्रिय परिचयपत्र नम्बर:</label><input type="text" id="ra_pa_no_ne" placeholder="123456789" required>
         <label>रक्त समूह:</label><input type="text" id="blood_group_ne" placeholder="ए.बि. पोजेटिभ" required>
         <label>सम्पर्क नं.:</label><input type="text" id="contact_no_ne" placeholder="९८५७६२६५४२" required>
@@ -132,10 +132,10 @@
     <div class="grid">
       <div>
         <label>Employee Name:</label><input type="text" id="name_en" placeholder="Deepak KC" required>
-        <label>Employee Symbol No.:</label><input type="text" id="signal_no_en" placeholder="12345" required>
+        <label>Employee SheetRoll No.:</label><input type="text" id="signal_no_en" placeholder="12345" required>
         <label>Position:</label><input type="text" id="position_en" placeholder="Assistant Level" required>
         <label>Citizenship No./Issued District:</label><input type="text" id="citizenship_en" placeholder="12-01-001-0123" required>
-        <label>National Identity Card Number:</label><input type="text" id="ra_pa_no_en" placeholder="123456789" required>
+        <label>NId No:</label><input type="text" id="ra_pa_no_en" placeholder="123456789" required>
         <label>Blood Group:</label><input type="text" id="blood_group_en" placeholder="O+" required>
         <label>Contact No.:</label><input type="text" id="contact_no_en" placeholder="98XXXXXXXX" required>
       </div>
@@ -284,8 +284,8 @@
             <p>नाम: ${name_ne}</p>
             <p>कर्मचारी संकेत नम्बर: ${signal_no_ne}</p>
             <p>पद: ${position_ne}</p>
-            <p>नागरिकता नम्बर/जारी जिल्ला: ${citizenship_ne}</p>
-            <p>राष्ट्रिय परिचयपत्र नम्बर: ${ra_pa_no_ne}</p>
+            <p>ना.प्र.नं./जारी जिल्ला: ${citizenship_ne}</p>
+            <p>रा.प.नं.: ${ra_pa_no_ne}</p>
             <p>रक्त समूह: ${blood_group_ne}</p>
             <p>सम्पर्क नं.: ${contact_no_ne}</p>
           </div>
@@ -313,8 +313,8 @@
             <p>Name: ${name_en}</p>
             <p>Employee Symbol Number.: ${signal_no_en}</p>
             <p>Position: ${position_en}</p>
-            <p>Citizenship Number/Issued district: ${citizenship_en}</p>
-            <p>National Identity Card Number: ${ra_pa_no_en}</p>
+            <p>Citizenship No./Issued district: ${citizenship_en}</p>
+            <p>NID No.: ${ra_pa_no_en}</p>
             <p>Blood Group: ${blood_group_en}</p>
             <p>Contact No.: ${contact_no_en}</p>
           </div>
@@ -380,10 +380,10 @@
         </div>
         <div class="content">
           <div>Name: ${name_en}</div>
-          <div>Signal Number.: ${signal_no_en}</div>
+          <div>Employee SheetRoll No.: ${signal_no_en}</div>
           <div>Position: ${position_en}</div>
-          <div>Citizenship Number/Issued district: ${citizenship_en}</div>
-          <div>National Identity Card Number: ${ra_pa_no_en}</div>
+          <div>Citizenship No./Issued district: ${citizenship_en}</div>
+          <div>NID No.: ${ra_pa_no_en}</div>
           <div>Blood Group: ${blood_group_en}</div>
           <div>Contact Number: ${contact_no_en}</div>
         </div>
@@ -404,3 +404,4 @@
 </script>
 </body>
 </html>
+
