@@ -9,12 +9,12 @@
     body {
       font-family: 'Noto Sans Devanagari', sans-serif;
       background: #f1f8e9;
-      max-width: 800px;
+      max-width: 900px;
       margin: 20px auto;
       padding: 20px;
       color: #2e7d32;
     }
-    h2 {
+    h2, h3 {
       text-align: center;
       margin-bottom: 20px;
     }
@@ -78,11 +78,30 @@
       background-color: #388e3c;
       color: white;
     }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 15px;
+      background-color: #fff;
+      min-width: 600px;
+    }
+    th, td {
+      border: 1px solid #444;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background-color: #ccc;
+    }
+    .table-container {
+      overflow-x: auto;
+    }
   </style>
 </head>
 <body>
   <h2>आ.व. २०८१/०८२ भन्दा पहिलेको गलकोट नगरपालिकाको जग्गा तथा भवन मूल्याङ्कन र कर निर्धारण प्रणाली</h2>
 
+  <!-- ======= मूल्याङ्कन भाग ======= -->
   <label for="ward">वडा नं छान्नुहोस्</label>
   <select id="ward">
     <option value="">-- वडा छान्नुहोस् --</option>
@@ -114,11 +133,10 @@
 
   <div class="toggle-btns">
     <button id="btnSqft" class="active" type="button">सम्पत्ति मूल्याङ्कन</button>
-    <button id="btnRAPD"  type="button">जग्गाको मात्र मूल्याङ्कन</button>
-    
+    <button id="btnRAPD" type="button">जग्गाको मात्र मूल्याङ्कन</button>
   </div>
 
-  <div id="inputRAPD" style=" display:none;margin-top: 10px;">
+  <div id="inputRAPD" style="display:none;margin-top: 10px;">
     <label>क्षेत्रफल दिनुहोस् (रोपनी - आना - पैसा - दाम)</label>
     <div class="flex-row">
       <input type="number" id="ropani" min="0" placeholder="रोपनी" />
@@ -128,36 +146,58 @@
     </div>
   </div>
 
-  <div id="inputSqft" style=" margin-top: 10px;">
-    <label for="sqft">भवनको पिलिन्थ क्षेत्रफल(Sq.Ft)</label>
-    <input type="number" id="sqft" min="0" placeholder="भवनको पिलिन्थ क्षेत्रफल(Sq.Ft)" />
+  <div id="inputSqft" style="margin-top: 10px;">
+    <label for="sqft">भवनको पिलिन्थ क्षेत्रफल (Sq.Ft)</label>
+    <input type="number" id="sqft" min="0" placeholder="भवनको पिलिन्थ क्षेत्रफल (Sq.Ft)" />
   </div>
 
   <label>जग्गा मूल्याङ्कनको दर (प्रति रोपनी)</label>
   <input type="number" id="rate" placeholder="दर स्वतः देखिनेछ" readonly style="background:#e0e0e0" />
 
-  <label for="buildSqft">भवन क्षेत्रफल (भवनको जम्मा तलाहरूको क्षेत्रफल जोडी एकमुष्ट Sq.Ft प्रविष्ट गर्नुहोस)</label>
+  <label for="buildSqft">भवन क्षेत्रफल (जम्मा तलाहरूको कुल Sq.Ft)</label>
   <input type="number" id="buildSqft" min="0" placeholder="भवनको कुल Sq.Ft" />
 
-  <label for="structure"> मूल्याङ्कन गर्न खोजिएको भवनको प्रकारको हो छान्नुहोस्</label>
+  <label for="structure">भवनको प्रकार</label>
   <select id="structure">
     <option value="">-- भवनको प्रकार छान्नुहोस् --</option>
-<option value="1200">1. आर. सि.सि. फ्रेम आर सि.सि. ढलान</option>
-<option value="960.00">2. आर. सि.सि. फ्रेम जस्ताको छाना</option>
-<option value="540.00">3. माटोकोजोडाइमा ईटा ढुङ्गा ब्लकको गाह्रो जस्ता स्लेटको छाना</option>
-<option value="990.00">4. माटोकोजोडाइमा ईटा ढुङ्गाको गाह्रो आर. सि.सि.ढलान</option>
-<option value="360.00">5. माटोकोजोडाइमा ढुङ्गा गाह्रो खरको छाना</option>
-<option value="910.00">6. स्टीलस्ट्रक्चर जस्ताछाना।</option>
-<option value="1110">7. स्टीलस्ट्रक्चर ढलान।</option>
-<option value="1080">8. सिमेन्टकोजोडाईमा ईटा ढुङ्गा को गाह्रो आर.सि.सि ढलान</option>
-<option value="540.00">9. सिमेन्टकोजोडाईमा ईटा ढुङ्गा को गाह्रो जस्ता स्लेटको छाना</option>
+    <option value="1200">1. आर. सि.सि. फ्रेम आर सि.सि. ढलान</option>
+    <option value="960.00">2. आर. सि.सि. फ्रेम जस्ताको छाना</option>
+    <option value="540.00">3. माटोकोजोडाइमा ईटा ढुङ्गा ब्लकको गाह्रो जस्ता स्लेटको छाना</option>
+    <option value="990.00">4. माटोकोजोडाइमा ईटा ढुङ्गाको गाह्रो आर. सि.सि.ढलान</option>
+    <option value="360.00">5. माटोकोजोडाइमा ढुङ्गा गाह्रो खरको छाना</option>
+    <option value="910.00">6. स्टीलस्ट्रक्चर जस्ताछाना।</option>
+    <option value="1110">7. स्टीलस्ट्रक्चर ढलान।</option>
+    <option value="1080">8. सिमेन्टकोजोडाईमा ईटा ढुङ्गा को गाह्रो आर.सि.सि ढलान</option>
+    <option value="540.00">9. सिमेन्टकोजोडाईमा ईटा ढुङ्गा को गाह्रो जस्ता स्लेटको छाना</option>
   </select>
 
-  <button onclick="calculateValuation()">मूल्याङ्कन गर्नुहोस्</button>
+  <button type="button" onclick="calculateValuation()">मूल्याङ्कन गर्नुहोस्</button>
 
   <div class="result" id="landResult"></div>
   <div class="result" id="buildingResult"></div>
   <div class="result" id="totalResult"></div>
+
+  <!-- ======= कर गणना ======= -->
+  <h3>🔢 कर गणना:</h3>
+  <label for="amount">सम्पत्तिको मूल्य (रु): </label>
+  <input type="number" id="amount" placeholder="कुल मूल्याङ्कन रकम राख्नुहोस">
+  <button type="button" onclick="calculateTax()">कर गणना गर्नुहोस्</button>
+  <p id="result"></p>
+
+  <h2>सम्पतिकर निर्धारण तालिका</h2>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>सि.नं.</th>
+          <th>मूल्य (रु) माथि</th>
+          <th>सम्म</th>
+          <th>कर दर (रु)</th>
+        </tr>
+      </thead>
+      <tbody id="taxTable"></tbody>
+    </table>
+  </div>
 
   <script>
     const rateData = {
@@ -371,7 +411,6 @@
     const inputRAPD = document.getElementById('inputRAPD');
     const inputSqft = document.getElementById('inputSqft');
 
-    // विवरण भरिन बाँकी छाँट्नु पर्ने बेला
     wardSel.addEventListener('change', resetDetailAndRate);
     categorySel.addEventListener('change', resetDetailAndRate);
 
@@ -379,13 +418,10 @@
       detailSel.innerHTML = '<option value="">-- विवरण छान्नुहोस् --</option>';
       rateInput.value = '';
       if (!wardSel.value || !categorySel.value) return;
-
-      // विवरणहरु सेट गर्ने
       const data = rateData[wardSel.value];
       if (!data) return;
       const catData = data[categorySel.value];
       if (!catData) return;
-
       Object.keys(catData).forEach(key => {
         const option = document.createElement('option');
         option.value = key;
@@ -394,7 +430,6 @@
       });
     }
 
-    // विवरण छान्दा दर सेट गर्ने
     detailSel.addEventListener('change', () => {
       const w = wardSel.value;
       const c = categorySel.value;
@@ -406,7 +441,6 @@
       }
     });
 
-    // इनपुट मोड टगल गर्ने
     btnRAPD.addEventListener('click', () => {
       btnRAPD.classList.add('active');
       btnSqft.classList.remove('active');
@@ -426,10 +460,8 @@
         alert('कृपया मूल्याङ्कनको आधार छान्नुहोस्');
         return;
       }
-
       let landInRopani = 0;
       if (btnRAPD.classList.contains('active')) {
-        // RAPD बाट क्षेत्रफल गणना
         const ro = +document.getElementById('ropani').value || 0;
         const aa = +document.getElementById('aana').value || 0;
         const pa = +document.getElementById('paisa').value || 0;
@@ -440,25 +472,20 @@
         }
         landInRopani = ro + aa/16 + pa/64 + da/256;
         if (landInRopani <= 0) {
-          alert('घरले चर्चेको जग्गाको तथा जग्गाको क्षेत्रफल प्रविष्टी गर्नेहोस।');
+          alert('घरले चर्चेको जग्गाको क्षेत्रफल प्रविष्टी गर्नुहोस्।');
           return;
         }
       } else {
-        // Sq.Ft बाट क्षेत्रफल रोपनीमा रूपान्तरण
         const sqft = +document.getElementById('sqft').value || 0;
         if (sqft <= 0) {
-          alert('घरले चर्चेको जग्गाको तथा जग्गाको क्षेत्रफल प्रविष्टी गर्नेहोस।');
+          alert('घरले चर्चेको जग्गाको क्षेत्रफल प्रविष्टी गर्नुहोस्।');
           return;
         }
-        // 1 रोपनी = 5476 Sq.Ft (लगभग)
         landInRopani = sqft / 5476;
       }
-
-      // जग्गाको मूल्याङ्कन
       const landVal = Math.round(landInRopani * rate);
-      document.getElementById('landResult').textContent = `घरले चर्चेको जग्गाको तथा जग्गा मूल्याङ्कन: रू ${landVal.toLocaleString('ne-NP')}`;
+      document.getElementById('landResult').textContent = `जग्गा मूल्याङ्कन: रू ${landVal.toLocaleString('ne-NP')}`;
 
-      // भवन मूल्याङ्कन
       const buildSqft = +document.getElementById('buildSqft').value || 0;
       const structureRate = +document.getElementById('structure').value || 0;
       let buildVal = 0;
@@ -466,75 +493,14 @@
         buildVal = Math.round(buildSqft * structureRate);
         document.getElementById('buildingResult').textContent = `भवन मूल्याङ्कन: रू ${buildVal.toLocaleString('ne-NP')}`;
       } else {
-        document.getElementById('buildingResult').textContent = 'भवनको मूल्याङ्कन भएको छैन कृपया भवन मूल्याङ्कनको आधार तथा भवनको क्षेत्रफल प्रविष्ट गर्नुहोस';
+        document.getElementById('buildingResult').textContent = 'भवन मूल्याङ्कन गरिएको छैन।';
       }
-
-      // कुल मूल्याङ्कन
       const totalVal = landVal + buildVal;
       document.getElementById('totalResult').textContent = `कुल मूल्याङ्कन: रू ${totalVal.toLocaleString('ne-NP')}`;
+      document.getElementById('amount').value = totalVal; // कर गणना सजिलो
     }
-  </script>
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="ne">
-<head>
-  <meta charset="UTF-8">
-  <title>सम्पतिकर निर्धारण तालिका</title>
-  <style>
-    body {
-      font-family: 'Noto Sans Devanagari', sans-serif;
-      background-color: #f2f2f2;
-      padding: 20px;
-    }
-    h2 {
-      text-align: center;
-    }
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      margin-bottom: 30px;
-      background-color: #fff;
-    }
-    th, td {
-      border: 1px solid #444;
-      padding: 8px;
-      text-align: center;
-    }
-    th {
-      background-color: #ccc;
-    }
-    input, button {
-      font-size: 16px;
-      padding: 8px;
-      margin-top: 10px;
-    }
-  </style>
-</head>
 
-  <h3>🔢 कर गणना:</h3>
-  <label for="amount">सम्पत्तिको मूल्य (रु): </label>
-  <input type="number" id="amount" placeholder="कुल मूल्याङ्कन रकम राख्नुहोस">
-  <button onclick="calculateTax()">कर गणना गर्नुहोस्</button>
-  <p id="result"></p>
-
-
-<body>
-  <h2>सम्पतिकर निर्धारण तालिका</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>सि.नं.</th>
-        <th>मूल्य (रु) माथि</th>
-        <th>सम्म</th>
-        <th>कर दर (रु)</th>
-      </tr>
-    </thead>
-    <tbody id="taxTable">
-      <!-- JS ले Auto Generate गर्छ -->
-    </tbody>
-  </table>
- <script>
+    /* ---- Tax Table ---- */
     const taxBrackets = [
       { from: 0, to: 200000, tax: 135 },
       { from: 200001, to: 400000, tax: 270 },
@@ -571,16 +537,8 @@
       { from: 8500001, to: 9000000, tax: 6480 },
       { from: 9000001, to: 9500000, tax: 6840 },
       { from: 9500001, to: 10000000, tax: 7200 },
-      { from: 10000001, to: 11000000, tax: 7920 },
-      { from: 11000001, to: 12000000, tax: 8640 },
-      { from: 12000001, to: 13000000, tax: 9360 },
-      { from: 13000001, to: 14000000, tax: 10080 },
-      { from: 14000001, to: 15000000, tax: 10800 },
-      { from: 15000001, to: 16000000, tax: 11520 },
-      { from: 16000001, to: 17000000, tax: 12240 },
-      { from: 17000001, to: 18000000, tax: 12960 },
-      { from: 18000001, to: 19000000, tax: 13680 },
-      { from: 19000001, to: 20000000, tax: 14400 },
+      { from: 10000001, to: 15000000, tax: 10800 },
+      { from: 15000001, to: 20000000, tax: 14400 },
       { from: 20000001, to: 25000000, tax: 18000 },
       { from: 25000001, to: 30000000, tax: 21600 },
       { from: 30000001, to: 35000000, tax: 25200 },
@@ -589,34 +547,39 @@
       { from: 45000001, to: 50000000, tax: 36000 }
     ];
 
-
-    function fillTable() {
+    function fillTable(brackets = taxBrackets) {
       const table = document.getElementById("taxTable");
-      taxBrackets.forEach((row, index) => {
-        table.innerHTML += `<tr><td>${index + 1}</td><td>${row.from}</td><td>${row.to}</td><td>${row.tax}</td></tr>`;
+      table.innerHTML = "";
+      brackets.forEach((row, i) => {
+        table.innerHTML += `<tr>
+          <td>${i+1}</td><td>${row.from}</td><td>${row.to}</td><td>${row.tax}</td>
+        </tr>`;
       });
-      table.innerHTML += `<tr><td>${taxBrackets.length + 1}</td><td>50000001</td><td>भन्दा माथि</td><td>प्रति हजारमा 0.45</td></tr>`;
+      if (brackets === taxBrackets) {
+        table.innerHTML += `<tr><td>${taxBrackets.length+1}</td><td>50000001</td><td>भन्दा माथि</td><td>प्रति हजारमा 0.45</td></tr>`;
+      }
     }
 
     function calculateTax() {
       const amt = parseInt(document.getElementById("amount").value);
       if (isNaN(amt) || amt < 0) {
         document.getElementById("result").innerText = "कृपया मान्य सम्पत्ति मूल्य दिनुहोस्।";
+        fillTable(); // full table देखाउने
         return;
       }
+      let matched = taxBrackets.find(row => amt >= row.from && amt <= row.to);
       let tax = 0;
-      const matched = taxBrackets.find(row => amt >= row.from && amt <= row.to);
       if (matched) {
         tax = matched.tax;
+        fillTable([matched]); // चयन भएको bracket मात्र देखाउने
       } else if (amt > 50000000) {
         tax = (amt * 0.45) / 1000;
+        document.getElementById("taxTable").innerHTML = `<tr><td>१</td><td>50000001</td><td>भन्दा माथि</td><td>प्रति हजारमा 0.45</td></tr>`;
       }
-      document.getElementById("result").innerText = `सम्पतिकर रकम: रु ${Math.round(tax)} `;
+      document.getElementById("result").innerText = `सम्पतिकर रकम: रु ${Math.round(tax)}`;
     }
 
-    fillTable();
+    fillTable(); // सुरुवातमा full table देखाउने
   </script>
-  फरक परेको खण्डमा गलकोट नगरपालिकाको आर्थिक ऐन अनुसार सुधार गर्न सकिनेछ।
 </body>
 </html>
-
