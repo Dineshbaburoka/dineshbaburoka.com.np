@@ -10,9 +10,7 @@
       margin: 10px;
     }
 
-    p {
-      margin: 4px 0;
-    }
+    p { margin: 4px 0; }
 
     .letter-head {
       position: relative;
@@ -28,43 +26,20 @@
       height: auto;
     }
 
-    .letter-head h1 {
-      font-size: 22px;
-      margin-bottom: 2px;
-    }
-
-    .letter-head h3 {
-      font-size: 18px;
-      margin: 0;
-    }
+    .letter-head h1 { font-size: 22px; margin-bottom: 2px; }
+    .letter-head h3 { font-size: 18px; margin: 0; }
 
     .header-line, .footer-line {
       border-top: 2px solid black;
       margin: 5px 0;
     }
 
-    .letter-info, .letter-body {
-      margin-top: 5px;
-    }
+    .letter-info, .letter-body { margin-top: 5px; }
 
-    .inline-text {
-      display: inline-block;
-      width: 50%;
-    }
-
-    .inline-text-left {
-      float: left;
-      text-align: left;
-    }
-
-    .inline-text-right {
-      float: right;
-      text-align: right;
-    }
-
-    .clear-float {
-      clear: both;
-    }
+    .inline-text { display: inline-block; width: 50%; }
+    .inline-text-left { float: left; text-align: left; }
+    .inline-text-right { float: right; text-align: right; }
+    .clear-float { clear: both; }
 
     .subject {
       display: flex;
@@ -73,12 +48,9 @@
       margin: 10px 0;
     }
 
-    .subject p {
-      font-weight: bold;
-      margin: 0;
-    }
+    .subject p { font-weight: bold; margin: 0; }
 
-    table{
+    table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 10px;
@@ -90,18 +62,14 @@
       margin: 0;
     }
 
-    th {
-      background-color: #f2f2f2;
-    }
+    th { background-color: #f2f2f2; }
 
     .modal {
       display: none;
       position: fixed;
       z-index: 1;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
       overflow: auto;
       background-color: rgba(0, 0, 0, 0.5);
       justify-content: center;
@@ -118,16 +86,8 @@
       border-radius: 10px;
     }
 
-    .modal-header {
-      text-align: center;
-      font-size: 18px;
-      margin-bottom: 10px;
-    }
-
-    .modal-body label {
-      font-size: 15px;
-    }
-
+    .modal-header { text-align: center; font-size: 18px; margin-bottom: 10px; }
+    .modal-body label { font-size: 15px; }
     .modal-body input {
       padding: 4px;
       font-size: 14px;
@@ -135,10 +95,7 @@
       margin-bottom: 5px;
     }
 
-    .modal-footer {
-      text-align: center;
-      margin-top: 10px;
-    }
+    .modal-footer { text-align: center; margin-top: 10px; }
 
     .modal-footer button, #detailsButton, #printButton {
       padding: 8px 16px;
@@ -147,40 +104,45 @@
       margin: 4px;
     }
 
-    .search-container {
-      margin-top: 10px;
-    }
+    .search-container { margin-top: 10px; }
 
     @media print {
-      .search-container, #printButton, #detailsButton, #resultsContainer {
-        display: none;
+      .search-container, #printButton, #detailsButton, #resultsContainer, .no-print {
+        display: none !important;
       }
 
-      #printDetailsContainer {
-        display: block;
+      #printDetailsContainer { display: block; }
+
+      body { text-align: justify; }
+
+      .footer-line {
+        position: fixed;
+        bottom: 2cm;
+        left: 0;
+        width: 100%;
+        border-top: 2px solid black;
       }
 
-      body {
-        text-align: justify;
+      .motto {
+        position: fixed;
+        bottom: 1.3cm;
+        left: 0;
+        width: 100%;
+        text-align: center;
+        font-size: 12px;
       }
     }
 
-    #printDetailsContainer {
-      display: none;
-    }
+    #printDetailsContainer { display: none; }
 
-    .footer {
+    .footer { text-align: center; margin-top: 10px; }
+
+    .motto {
       text-align: center;
+      font-weight: normal;
+      font-size: 12px;
       margin-top: 10px;
     }
-
-.motto {
-  text-align: center;
-  font-weight: normal;
-  font-size: 12px; /* छोटो आकार */
-  margin-top: 10px;
-}
-
   </style>
 </head>
 <body>
@@ -275,7 +237,8 @@
       <option value="1">1</option><option value="2">2</option>
       <option value="3">3</option><option value="4">4</option>
       <option value="5">5</option><option value="6">6</option>
-      <option value="7">7</option><option value="8">8</option><option value="9">9</option>
+      <option value="7">7</option><option value="8">8</option>
+      <option value="9">9</option>
     </select>
 
     <label for="kittaNamInput">कित्ता नं.:</label>
@@ -294,19 +257,17 @@
     </table>
   </div>
 
-   <h3 style="margin-top: 30px;">देहाय:</h3>
+  <h3 style="margin-top: 30px;">देहाय:</h3>
   <table id="selectedDataTable" style="margin-bottom: 100px;">
     <thead>
       <tr>
-        <th>क्र.स</th><th>गाविस</th><th>वार्ड नं.</th><th>कित्ता नं.</th><th>ग्रिड सिट नं.</th><th>वर्गीकरण क्षेत्र</th><th>कैफियत</th>
+        <th>क्र.स</th><th>गाविस</th><th>वार्ड नं.</th><th>कित्ता नं.</th><th>ग्रिड सिट नं.</th><th>वर्गीकरण क्षेत्र</th><th>कैफियत</th><th class="no-print">Delete</th>
       </tr>
     </thead>
     <tbody></tbody>
   </table>
 
   <div class="footer-line"></div>
-
-  <!-- ✅ Motto line added here -->
   <p class="motto">
     "कृषि, पर्यटन, जलस्रोत, स्थानीय सीप र पूर्वाधार: समृद्ध गलकोट निर्माणको मूल आधार"
   </p>
@@ -314,9 +275,10 @@
   <div class="footer">
     <button id="printButton" onclick="printDetails()">Print</button>
   </div>
-    <script>
-         var records = [
-            { serialNumber: 1,village:"दुदिलाभाटी",wardNumber:"1",kittaNam:"1",gridSita:"  920919",classificationArea:"कृषि क्षेत्र",remarks: ""},
+
+  <script>
+    var records = [
+      { serialNumber: 1,village:"दुदिलाभाटी",wardNumber:"1",kittaNam:"1",gridSita:"  920919",classificationArea:"कृषि क्षेत्र",remarks: ""},
 { serialNumber: 2,village:"दुदिलाभाटी",wardNumber:"1",kittaNam:"1",gridSita:"  920879",classificationArea:"कृषि क्षेत्र",remarks: ""},
 { serialNumber: 3,village:"दुदिलाभाटी",wardNumber:"1",kittaNam:"2",gridSita:"  920879",classificationArea:"कृषि क्षेत्र",remarks: ""},
 { serialNumber: 4,village:"दुदिलाभाटी",wardNumber:"1",kittaNam:"3",gridSita:"  920919",classificationArea:"कृषि क्षेत्र",remarks: ""},
@@ -55515,8 +55477,9 @@
 { serialNumber: 6381,village:"हरिचौँर",wardNumber:"8",kittaNam:"1314",gridSita:" 920875",classificationArea:"आवासीय क्षेत्र",remarks: ""},
 { serialNumber: 6382,village:"हरिचौँर",wardNumber:"8",kittaNam:"1288",gridSita:" 920875",classificationArea:"आवासीय क्षेत्र",remarks: ""},
 { serialNumber: 6383,village:"हरिचौँर",wardNumber:"8",kittaNam:"1312",gridSita:" 920875",classificationArea:"आवासीय क्षेत्र",remarks: ""},
-];
-      function searchData() {
+    ];
+
+    function searchData() {
       var gaavis = document.getElementById("gaavisSelect").value.trim();
       var wardNumber = document.getElementById("wardNumberSelect").value.trim();
       var kittaNam = document.getElementById("kittaNamInput").value.trim();
@@ -55539,7 +55502,7 @@
             "<td>" + record.gridSita + "</td>" +
             "<td>" + record.classificationArea + "</td>" +
             "<td>" + record.remarks + "</td>" +
-            "<td><button onclick='addToPrint(" + record.serialNumber + ", \"" + record.village + "\", \"" + record.wardNumber + "\", \"" + record.kittaNam + "\", \"" + record.gridSita + "\", \"" + record.classificationArea + "\", \"" + record.remarks + "\")'>Add</button></td>" +
+            "<td><button class='no-print' onclick='addToPrint(" + record.serialNumber + ", \"" + record.village + "\", \"" + record.wardNumber + "\", \"" + record.kittaNam + "\", \"" + record.gridSita + "\", \"" + record.classificationArea + "\", \"" + record.remarks + "\")'>Add</button></td>" +
             "</tr>";
           resultsTable.innerHTML += row;
         });
@@ -55550,7 +55513,8 @@
 
     function addToPrint(serialNumber, village, wardNumber, kittaNam, gridSita, classificationArea, remarks) {
       var selectedDataTable = document.getElementById("selectedDataTable").querySelector("tbody");
-      var row = "<tr>" +
+      var row = document.createElement("tr");
+      row.innerHTML =
         "<td>" + serialNumber + "</td>" +
         "<td>" + village + "</td>" +
         "<td>" + wardNumber + "</td>" +
@@ -55558,13 +55522,12 @@
         "<td>" + gridSita + "</td>" +
         "<td>" + classificationArea + "</td>" +
         "<td>" + remarks + "</td>" +
-        "</tr>";
-      selectedDataTable.innerHTML += row;
-      document.getElementById("printDetailsContainer").style.display = "block";
+        "<td class='no-print'><button onclick='deleteRow(this)'>Delete</button></td>";
+      selectedDataTable.appendChild(row);
     }
 
-    function printDetails() {
-      window.print();
+    function deleteRow(btn) {
+      btn.closest("tr").remove();
     }
 
     document.getElementById('detailsButton').addEventListener('click', function() {
@@ -55594,10 +55557,34 @@
       closeModal();
     }
 
-    window.onclick = function(event) {
-      if (event.target === document.getElementById('detailsModal')) {
-        closeModal();
-      }
+    // --- Number Conversion Logic ---
+    const nepaliDigits = {'0':'०','1':'१','2':'२','3':'३','4':'४','5':'५','6':'६','7':'७','8':'८','9':'९'};
+    const englishDigits = {'०':'0','१':'1','२':'2','३':'3','४':'4','५':'5','६':'6','७':'7','८':'8','९':'9'};
+
+    function convertNumbersToNepali(text) {
+      return text.replace(/\d/g, d => nepaliDigits[d]);
+    }
+    function convertNumbersToEnglish(text) {
+      return text.replace(/[०-९]/g, d => englishDigits[d]);
+    }
+
+    function convertPageNumbers(toNepali = true) {
+      const elements = document.querySelectorAll("body, body *:not(script):not(style)");
+      elements.forEach(el => {
+        if (el.childNodes.length) {
+          el.childNodes.forEach(node => {
+            if (node.nodeType === 3) {
+              node.nodeValue = toNepali ? convertNumbersToNepali(node.nodeValue) : convertNumbersToEnglish(node.nodeValue);
+            }
+          });
+        }
+      });
+    }
+
+    function printDetails() {
+      convertPageNumbers(true);
+      window.print();
+      convertPageNumbers(false);
     }
   </script>
 </body>
