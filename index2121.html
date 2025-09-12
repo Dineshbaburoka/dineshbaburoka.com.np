@@ -1,120 +1,46 @@
 <!DOCTYPE html>
 <html lang="ne">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>जग्गा वर्गीकरणको सिफारिस</title>
   <style>
-    body {
-      font-family: 'Kalimati', sans-serif;
-      margin: 10px;
-    }
-
+    body { font-family: 'Kalimati', sans-serif; margin: 10px; }
     p { margin: 4px 0; }
-
-    .letter-head {
-      position: relative;
-      text-align: center;
-      margin-bottom: 10px;
-    }
-
-    .letter-head img {
-      position: absolute;
-      top: 0px;
-      left: 0px;
-      width: 120px;
-      height: auto;
-    }
-
+    .letter-head { position: relative; text-align: center; margin-bottom: 10px; }
+    .letter-head img { position: absolute; top: 0; left: 0; width: 120px; height: auto; }
     .letter-head h1 { font-size: 22px; margin-bottom: 2px; }
     .letter-head h3 { font-size: 18px; margin: 0; }
-
-    .header-line, .footer-line {
-      border-top: 2px solid black;
-      margin: 5px 0;
-    }
-
+    .header-line, .footer-line { border-top: 2px solid black; margin: 5px 0; }
     .letter-info, .letter-body { margin-top: 5px; }
-
     .inline-text { display: inline-block; width: 50%; }
     .inline-text-left { float: left; text-align: left; }
     .inline-text-right { float: right; text-align: right; }
     .clear-float { clear: both; }
-
-    .subject {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 10px 0;
-    }
-
+    .subject { display: flex; align-items: center; justify-content: center; margin: 10px 0; }
     .subject p { font-weight: bold; margin: 0; }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
-
-    table, th, td {
-      border: 1px solid black;
-      padding: 4px;
-      margin: 0;
-    }
-
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    table, th, td { border: 1px solid black; padding: 4px; margin: 0; }
     th { background-color: #f2f2f2; }
-
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 1;
-      left: 0; top: 0;
-      width: 100%; height: 100%;
-      overflow: auto;
-      background-color: rgba(0, 0, 0, 0.5);
-      justify-content: center;
-      align-items: center;
-    }
-
-    .modal-content {
-      background-color: white;
-      margin: auto;
-      padding: 15px;
-      border: 1px solid #888;
-      width: 80%;
-      max-width: 600px;
-      border-radius: 10px;
-    }
-
+    .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
+    .modal-content { background-color: white; margin: auto; padding: 15px; border: 1px solid #888; width: 80%; max-width: 600px; border-radius: 10px; }
     .modal-header { text-align: center; font-size: 18px; margin-bottom: 10px; }
     .modal-body label { font-size: 15px; }
-    .modal-body input {
-      padding: 4px;
-      font-size: 14px;
-      width: 100%;
-      margin-bottom: 5px;
-    }
-
+    .modal-body input { padding: 4px; font-size: 14px; width: 100%; margin-bottom: 5px; }
     .modal-footer { text-align: center; margin-top: 10px; }
-
-    .modal-footer button, #detailsButton, #printButton {
-      padding: 8px 16px;
-      font-size: 14px;
-      cursor: pointer;
-      margin: 4px;
-    }
-
+    .modal-footer button, #detailsButton, #printButton { padding: 8px 16px; font-size: 14px; cursor: pointer; margin: 4px; }
     .search-container { margin-top: 10px; }
 
+    /* hide elements when printing (no-print class) */
     @media print {
       .search-container, #printButton, #detailsButton, #resultsContainer, .no-print {
         display: none !important;
       }
 
       #printDetailsContainer { display: block; }
-
       body { text-align: justify; }
 
+      /* Footer line fixed at bottom (2 cm) */
       .footer-line {
         position: fixed;
         bottom: 2cm;
@@ -129,26 +55,20 @@
         left: 0;
         width: 100%;
         text-align: center;
+        font-weight: normal;
         font-size: 12px;
       }
     }
 
     #printDetailsContainer { display: none; }
-
     .footer { text-align: center; margin-top: 10px; }
-
-    .motto {
-      text-align: center;
-      font-weight: normal;
-      font-size: 12px;
-      margin-top: 10px;
-    }
+    .motto { text-align: center; font-weight: normal; font-size: 12px; margin-top: 10px; }
   </style>
 </head>
 <body>
 
   <div class="letter-head">
-    <img src="Emblem_of_Nepal.svg.png" alt="Header Image">
+    <img src="Emblem_of_Nepal.svg.png" alt="Header Image" />
     <div>
       <h1>गलकोट नगरपालिका</h1>
       <h3 id="officeHeader">नगर कार्यपालिकाको कार्यालय</h3>
@@ -157,41 +77,27 @@
   </div>
 
   <div class="letter-info">
-    <div class="inline-text inline-text-left">
-      <p id="patraSankhya">पत्र संख्या:</p>
-    </div>
-    <div class="inline-text inline-text-right">
-      <p id="province">गण्डकी प्रदेश, नेपाल</p>
-    </div>
+    <div class="inline-text inline-text-left"><p id="patraSankhya">पत्र संख्या:</p></div>
+    <div class="inline-text inline-text-right"><p id="province">गण्डकी प्रदेश, नेपाल</p></div>
     <div class="clear-float"></div>
     <div class="header-line"></div>
-    <div class="inline-text inline-text-left">
-      <p id="chalanNo">च.नं.:</p>
-    </div>
-    <div class="inline-text inline-text-right">
-      <p id="patraMiti">मिति: २०८१/........../......</p>
-    </div>
+    <div class="inline-text inline-text-left"><p id="chalanNo">च.नं.:</p></div>
+    <div class="inline-text inline-text-right"><p id="patraMiti">मिति: २०८१/........../......</p></div>
     <div class="clear-float"></div>
-    <div class="inline-text inline-text-right">
-      <p id="neSan"></p>
-    </div>
+    <div class="inline-text inline-text-right"><p id="neSan"></p></div>
     <div class="clear-float"></div>
   </div>
 
   <div class="letter-body">
-    <div class="subject">
-      <p>बिषय: भू-उपयोग क्षेत्र वर्गीकृत सम्बन्धमा।</p>
-    </div>
+    <div class="subject"><p>बिषय: भू-उपयोग क्षेत्र वर्गीकृत सम्बन्धमा।</p></div>
     <p>श्री मालपोत कार्यालय,</p>
     <p>बागलुङ।</p>
-    <p id="formData">
-      प्रस्तुत विषयमा ……………… जिल्ला ………………. नगरपालिका/गाउँपालिका वार्ड नं. ……… ………. टोल बस्ने श्री …………………………………..को नाति/नातिनी/बुहारी श्री …………………………………..को छोरा/छोरी पत्नी श्री …………………………………को नाममा रहेको जग्गा यस नगरपालिकाको स्थानीय भू-उपयोग परिषद्‌बाट स्वीकृत बमोजिम देहायको क्षेत्र पर्ने व्यहोरा जानकारीका लागि अनुरोध छ।
-    </p>
+    <p id="formData">प्रस्तुत विषयमा ……………… जिल्ला ………………. नगरपालिका/गाउँपालिका वार्ड नं. ……… ………. टोल बस्ने श्री …………………………………..को नाति/नातिनी/बुहारी श्री …………………………………..को छोरा/छोरी पत्नी श्री …………………………………को नाममा रहेको जग्गा यस नगरपालिकाको स्थानीय भू-उपयोग परिषद्‌बाट स्वीकृत बमोजिम देहायको क्षेत्र पर्ने व्यहोरा जानकारीका लागि अनुरोध छ।</p>
   </div>
 
   <button id="detailsButton">विवरण थप गर्नुहोस</button>
 
-  <div id="detailsModal" class="modal">
+  <div id="detailsModal" class="modal" aria-hidden="true">
     <div class="modal-content">
       <div class="modal-header">विवरण थप्नुहोस्</div>
       <div class="modal-body">
@@ -219,7 +125,7 @@
   <div class="search-container">
     <h3>Search for Classified Land Information</h3>
     <label for="gaavisSelect">गाविस:</label>
-    <select id="gaavisSelect">
+    <select id="gaavisSelect" class="no-print">
       <option value="">Select गाविस...</option>
       <option value="दुदिलाभाटी">दुदिलाभाटी</option>
       <option value="नरेठाँटी">नरेठाँटी</option>
@@ -232,25 +138,24 @@
     </select>
 
     <label for="wardNumberSelect">वार्ड नं.:</label>
-    <select id="wardNumberSelect">
+    <select id="wardNumberSelect" class="no-print">
       <option value="">Select वार्ड नं....</option>
       <option value="1">1</option><option value="2">2</option>
       <option value="3">3</option><option value="4">4</option>
       <option value="5">5</option><option value="6">6</option>
-      <option value="7">7</option><option value="8">8</option>
-      <option value="9">9</option>
+      <option value="7">7</option><option value="8">8</option><option value="9">9</option>
     </select>
 
     <label for="kittaNamInput">कित्ता नं.:</label>
-    <input type="text" id="kittaNamInput" placeholder="कित्ता नं.">
-    <button onclick="searchData()">Search</button>
+    <input type="text" id="kittaNamInput" placeholder="कित्ता नं." class="no-print">
+    <button onclick="searchData()" class="no-print">Search</button>
   </div>
 
   <div id="resultsContainer">
     <table id="resultsTable">
       <thead>
         <tr>
-          <th>क्र.स</th><th>गाविस</th><th>वार्ड नं.</th><th>कित्ता नं.</th><th>ग्रिड सिट नं.</th><th>वर्गीकरण क्षेत्र</th><th>कैफियत</th><th>Action</th>
+          <th>क्र.स</th><th>गाविस</th><th>वार्ड नं.</th><th>कित्ता नं.</th><th>ग्रिड सिट नं.</th><th>वर्गीकरण क्षेत्र</th><th>कैफियत</th><th class="no-print">Action</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -268,17 +173,22 @@
   </table>
 
   <div class="footer-line"></div>
-  <p class="motto">
-    "कृषि, पर्यटन, जलस्रोत, स्थानीय सीप र पूर्वाधार: समृद्ध गलकोट निर्माणको मूल आधार"
-  </p>
+
+  <p class="motto">"कृषि, पर्यटन, जलस्रोत, स्थानीय सीप र पूर्वाधार: समृद्ध गलकोट निर्माणको मूल आधार"</p>
 
   <div class="footer">
     <button id="printButton" onclick="printDetails()">Print</button>
   </div>
 
-  <script>
-    var records = [
-      { serialNumber: 1,village:"दुदिलाभाटी",wardNumber:"1",kittaNam:"1",gridSita:"  920919",classificationArea:"कृषि क्षेत्र",remarks: ""},
+  <!-- Hidden container used only to ensure printed layout if needed -->
+  <div id="printDetailsContainer"></div>
+
+<script>
+/* --------------------------
+   Sample records (initial)
+   -------------------------- */
+var records = [
+  { serialNumber: 1,village:"दुदिलाभाटी",wardNumber:"1",kittaNam:"1",gridSita:"  920919",classificationArea:"कृषि क्षेत्र",remarks: ""},
 { serialNumber: 2,village:"दुदिलाभाटी",wardNumber:"1",kittaNam:"1",gridSita:"  920879",classificationArea:"कृषि क्षेत्र",remarks: ""},
 { serialNumber: 3,village:"दुदिलाभाटी",wardNumber:"1",kittaNam:"2",gridSita:"  920879",classificationArea:"कृषि क्षेत्र",remarks: ""},
 { serialNumber: 4,village:"दुदिलाभाटी",wardNumber:"1",kittaNam:"3",gridSita:"  920919",classificationArea:"कृषि क्षेत्र",remarks: ""},
@@ -55477,115 +55387,201 @@
 { serialNumber: 6381,village:"हरिचौँर",wardNumber:"8",kittaNam:"1314",gridSita:" 920875",classificationArea:"आवासीय क्षेत्र",remarks: ""},
 { serialNumber: 6382,village:"हरिचौँर",wardNumber:"8",kittaNam:"1288",gridSita:" 920875",classificationArea:"आवासीय क्षेत्र",remarks: ""},
 { serialNumber: 6383,village:"हरिचौँर",wardNumber:"8",kittaNam:"1312",gridSita:" 920875",classificationArea:"आवासीय क्षेत्र",remarks: ""},
-    ];
+];
 
-    function searchData() {
-      var gaavis = document.getElementById("gaavisSelect").value.trim();
-      var wardNumber = document.getElementById("wardNumberSelect").value.trim();
-      var kittaNam = document.getElementById("kittaNamInput").value.trim();
-      var resultsTable = document.getElementById("resultsTable").querySelector("tbody");
-      resultsTable.innerHTML = "";
+/* --------------------------
+   Search & Add -> Selected
+   -------------------------- */
+function searchData() {
+  var gaavis = document.getElementById("gaavisSelect").value.trim();
+  var wardNumber = document.getElementById("wardNumberSelect").value.trim();
+  var kittaNam = document.getElementById("kittaNamInput").value.trim();
+  var resultsTable = document.getElementById("resultsTable").querySelector("tbody");
+  resultsTable.innerHTML = "";
 
-      var filteredRecords = records.filter(function(record) {
-        return (record.village === gaavis &&
-          (wardNumber === "" || record.wardNumber === wardNumber) &&
-          record.kittaNam === kittaNam);
-      });
+  var filteredRecords = records.filter(function(record) {
+    return (record.village === gaavis &&
+      (wardNumber === "" || record.wardNumber === wardNumber) &&
+      (kittaNam === "" || record.kittaNam === kittaNam));
+  });
 
-      if (filteredRecords.length > 0) {
-        filteredRecords.forEach(function(record) {
-          var row = "<tr>" +
-            "<td>" + record.serialNumber + "</td>" +
-            "<td>" + record.village + "</td>" +
-            "<td>" + record.wardNumber + "</td>" +
-            "<td>" + record.kittaNam + "</td>" +
-            "<td>" + record.gridSita + "</td>" +
-            "<td>" + record.classificationArea + "</td>" +
-            "<td>" + record.remarks + "</td>" +
-            "<td><button class='no-print' onclick='addToPrint(" + record.serialNumber + ", \"" + record.village + "\", \"" + record.wardNumber + "\", \"" + record.kittaNam + "\", \"" + record.gridSita + "\", \"" + record.classificationArea + "\", \"" + record.remarks + "\")'>Add</button></td>" +
-            "</tr>";
-          resultsTable.innerHTML += row;
-        });
-      } else {
-        resultsTable.innerHTML = "<tr><td colspan='8'>No records found</td></tr>";
-      }
-    }
-
-    function addToPrint(serialNumber, village, wardNumber, kittaNam, gridSita, classificationArea, remarks) {
-      var selectedDataTable = document.getElementById("selectedDataTable").querySelector("tbody");
-      var row = document.createElement("tr");
-      row.innerHTML =
-        "<td>" + serialNumber + "</td>" +
-        "<td>" + village + "</td>" +
-        "<td>" + wardNumber + "</td>" +
-        "<td>" + kittaNam + "</td>" +
-        "<td>" + gridSita + "</td>" +
-        "<td>" + classificationArea + "</td>" +
-        "<td>" + remarks + "</td>" +
-        "<td class='no-print'><button onclick='deleteRow(this)'>Delete</button></td>";
-      selectedDataTable.appendChild(row);
-    }
-
-    function deleteRow(btn) {
-      btn.closest("tr").remove();
-    }
-
-    document.getElementById('detailsButton').addEventListener('click', function() {
-      document.getElementById('detailsModal').style.display = 'flex';
+  if (filteredRecords.length > 0) {
+    filteredRecords.forEach(function(record) {
+      var row = `<tr>
+        <td>${record.serialNumber}</td>
+        <td>${record.village}</td>
+        <td>${record.wardNumber}</td>
+        <td>${record.kittaNam}</td>
+        <td>${record.gridSita}</td>
+        <td>${record.classificationArea}</td>
+        <td>${record.remarks}</td>
+        <td class="no-print"><button onclick='addToPrint(${record.serialNumber}, "${escapeHtml(record.village)}", "${record.wardNumber}", "${record.kittaNam}", "${record.gridSita}", "${escapeHtml(record.classificationArea)}", "${escapeHtml(record.remarks)}")'>Add</button></td>
+      </tr>`;
+      resultsTable.innerHTML += row;
     });
+  } else {
+    resultsTable.innerHTML = "<tr><td colspan='8'>No records found</td></tr>";
+  }
+}
 
-    function closeModal() {
-      document.getElementById('detailsModal').style.display = 'none';
+function escapeHtml(str) {
+  // simple escape to avoid breaking quoted string in onclick (keeps Nepali text safe)
+  if (!str) return "";
+  return String(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function addToPrint(serialNumber, village, wardNumber, kittaNam, gridSita, classificationArea, remarks) {
+  var selectedDataTable = document.getElementById("selectedDataTable").querySelector("tbody");
+  var row = document.createElement("tr");
+
+  // Use dataset to store original english values (helpful if needed)
+  row.dataset.serial = serialNumber;
+
+  row.innerHTML = `
+    <td>${serialNumber}</td>
+    <td>${village}</td>
+    <td>${wardNumber}</td>
+    <td>${kittaNam}</td>
+    <td>${gridSita}</td>
+    <td>${classificationArea}</td>
+    <td>${remarks}</td>
+    <td class="no-print"><button onclick="confirmDelete(this)">Delete</button></td>
+  `;
+  selectedDataTable.appendChild(row);
+}
+
+/* --------------------------
+   Delete with popup confirm
+   -------------------------- */
+function confirmDelete(button) {
+  // show a confirmation popup — if confirmed, remove the row
+  var ok = confirm("प्रस्तुत डाटा मेटाउन चाहनुहुन्छ?");
+  if (ok) {
+    var row = button.closest("tr");
+    if (row) row.remove();
+  }
+}
+
+/* --------------------------
+   Print: convert numbers => Nepali, block if no data
+   -------------------------- */
+/* Mapping */
+const nepaliDigits = { '0':'०','1':'१','2':'२','3':'३','4':'४','5':'५','6':'६','7':'७','8':'८','9':'९' };
+
+/* Keep track of text nodes changed to restore later */
+var changedTextNodes = [];
+
+/* Helper: walk text nodes and convert digits */
+function convertDigitsInTextNodes(convert=true) {
+  // convert=true -> convert english -> nepali
+  // convert=false -> restore original texts
+  if (!convert) {
+    // restore saved originals
+    for (var i=0;i<changedTextNodes.length;i++){
+      var item = changedTextNodes[i];
+      if (item && item.node) item.node.nodeValue = item.original;
     }
+    changedTextNodes = [];
+    return;
+  }
 
-    function addDetails() {
-      document.getElementById("patraSankhya").innerText = `पत्र संख्या: ${document.getElementById("patraSankhyaInput").value}`;
-      document.getElementById("chalanNo").innerText = `च.नं.: ${document.getElementById("chalanInput").value}`;
-      document.getElementById("patraMiti").innerText = `मिति: ${document.getElementById("dateInput").value}`;
-      document.getElementById("neSan").innerText = `ने.सं: ${document.getElementById("nesanInput").value}`;
+  // TreeWalker to visit text nodes
+  var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+  var node;
+  while (node = walker.nextNode()) {
+    // skip empty/whitespace-only nodes
+    if (!node.nodeValue || !node.nodeValue.trim()) continue;
 
-      var formData = `
-        प्रस्तुत विषयमा ${document.getElementById("districtInput").value} जिल्ला 
-        ${document.getElementById("municipalityInput").value} नगरपालिका/गाउँपालिका वार्ड नं. 
-        ${document.getElementById("wardInput").value} ${document.getElementById("toleInput").value} टोल बस्ने श्री 
-        ${document.getElementById("grandfatherInput").value}को नाति/नातिनी/बुहारी श्री 
-        ${document.getElementById("fatherInput").value} को छोरा/छोरी/पत्नी श्री 
-        ${document.getElementById("nameInput").value} को नाममा रहेको जग्गा यस नगरपालिकाको स्थानीय भू-उपयोग परिषद्‌बाट स्वीकृत बमोजिम देहायको क्षेत्रमा पर्ने व्यहोरा जानकारीका लागि अनुरोध छ।`;
-
-      document.getElementById("formData").innerHTML = formData;
-      document.getElementById("officeHeader").innerText = `${document.getElementById("currentWardInput").value} नं. वडा कार्यालय`;
-      closeModal();
+    // skip nodes inside tags we don't want to modify: script, style, textarea, input, button, select
+    var parent = node.parentElement;
+    if (!parent) continue;
+    var tag = parent.tagName.toLowerCase();
+    var skipTags = ['script','style','textarea','input','button','select','option'];
+    var shouldSkip = false;
+    for (var t=0;t<skipTags.length;t++){
+      if (parent.closest(skipTags[t])) { shouldSkip = true; break; }
     }
+    if (shouldSkip) continue;
 
-    // --- Number Conversion Logic ---
-    const nepaliDigits = {'0':'०','1':'१','2':'२','3':'३','4':'४','5':'५','6':'६','7':'७','8':'८','9':'९'};
-    const englishDigits = {'०':'0','१':'1','२':'2','३':'3','४':'4','५':'5','६':'6','७':'7','८':'8','९':'9'};
+    // If text contains digits 0-9, replace them and save original
+    if (/[0-9]/.test(node.nodeValue)) {
+      changedTextNodes.push({ node: node, original: node.nodeValue });
+      node.nodeValue = node.nodeValue.replace(/[0-9]/g, function(d){ return nepaliDigits[d]; });
+    }
+  }
+}
 
-    function convertNumbersToNepali(text) {
-      return text.replace(/\d/g, d => nepaliDigits[d]);
-    }
-    function convertNumbersToEnglish(text) {
-      return text.replace(/[०-९]/g, d => englishDigits[d]);
-    }
+/* Primary print function */
+function printDetails() {
+  var selectedBody = document.getElementById("selectedDataTable").querySelector("tbody");
+  var rowsCount = selectedBody.querySelectorAll("tr").length;
+  if (rowsCount === 0) {
+    alert("प्रिन्ट गर्नको लागि कुनै डेटा चयन गरिएको छैन। कृपया कम्तीमा पनि एउटा रेकर्ड Add गर्नुस्।");
+    return;
+  }
 
-    function convertPageNumbers(toNepali = true) {
-      const elements = document.querySelectorAll("body, body *:not(script):not(style)");
-      elements.forEach(el => {
-        if (el.childNodes.length) {
-          el.childNodes.forEach(node => {
-            if (node.nodeType === 3) {
-              node.nodeValue = toNepali ? convertNumbersToNepali(node.nodeValue) : convertNumbersToEnglish(node.nodeValue);
-            }
-          });
-        }
-      });
-    }
+  // Convert digits -> Nepali and set up restore after printing
+  convertDigitsInTextNodes(true);
 
-    function printDetails() {
-      convertPageNumbers(true);
-      window.print();
-      convertPageNumbers(false);
-    }
-  </script>
+  // Use afterprint to restore original text nodes
+  function restoreAfterPrint() {
+    convertDigitsInTextNodes(false);
+    window.removeEventListener('afterprint', restoreAfterPrint);
+  }
+  window.addEventListener('afterprint', restoreAfterPrint);
+
+  // Some browsers may not fire afterprint reliably; as a fallback restore after a short timeout
+  // (this is harmless if afterprint also fires — restoration will be idempotent)
+  var fallbackRestore = setTimeout(function(){
+    convertDigitsInTextNodes(false);
+    window.removeEventListener('afterprint', restoreAfterPrint);
+  }, 2000);
+
+  // When afterprint runs it will remove itself and we cancel fallback
+  window.addEventListener('afterprint', function(){ clearTimeout(fallbackRestore); });
+
+  // Finally call print
+  window.print();
+}
+
+/* --------------------------
+   Modal, form details
+   -------------------------- */
+document.getElementById('detailsButton').addEventListener('click', function() {
+  document.getElementById('detailsModal').style.display = 'flex';
+  document.getElementById('detailsModal').setAttribute('aria-hidden','false');
+});
+function closeModal() {
+  document.getElementById('detailsModal').style.display = 'none';
+  document.getElementById('detailsModal').setAttribute('aria-hidden','true');
+}
+
+function addDetails() {
+  document.getElementById("patraSankhya").innerText = `पत्र संख्या: ${document.getElementById("patraSankhyaInput").value}`;
+  document.getElementById("chalanNo").innerText = `च.नं.: ${document.getElementById("chalanInput").value}`;
+  document.getElementById("patraMiti").innerText = `मिति: ${document.getElementById("dateInput").value}`;
+  document.getElementById("neSan").innerText = `ने.सं: ${document.getElementById("nesanInput").value}`;
+
+  var formData = `
+    प्रस्तुत विषयमा ${document.getElementById("districtInput").value} जिल्ला 
+    ${document.getElementById("municipalityInput").value} नगरपालिका/गाउँपालिका वार्ड नं. 
+    ${document.getElementById("wardInput").value} ${document.getElementById("toleInput").value} टोल बस्ने श्री 
+    ${document.getElementById("grandfatherInput").value}को नाति/नातिनी/बुहारी श्री 
+    ${document.getElementById("fatherInput").value} को छोरा/छोरी/पत्नी श्री 
+    ${document.getElementById("nameInput").value} को नाममा रहेको जग्गा यस नगरपालिकाको स्थानीय भू-उपयोग परिषद्‌बाट स्वीकृत बमोजिम देहायको क्षेत्रमा पर्ने व्यहोरा जानकारीका लागि अनुरोध छ.`;
+
+  document.getElementById("formData").innerHTML = formData;
+  document.getElementById("officeHeader").innerText = `${document.getElementById("currentWardInput").value} नं. वडा कार्यालय`;
+  closeModal();
+}
+
+/* Close modal clicking outside */
+window.onclick = function(event) {
+  if (event.target === document.getElementById('detailsModal')) {
+    closeModal();
+  }
+};
+
+</script>
 </body>
 </html>
