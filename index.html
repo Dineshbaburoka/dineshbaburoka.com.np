@@ -1,502 +1,1168 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ne">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>दिनेश बाबु रोकाको — Dinesh Babu Roka</title>
-  <meta name="description" content="Dinesh Babu Roka — Professional Surveyor & Consultant. " />
-  <meta name="keywords" content="Surveyor, Galkot, Land Classification, Nepali Survey, Jagga, Land Valuation" />
-  <meta name="author" content="Dinesh Babu Roka" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Dinesh Babu Roka | Professional Surveyor</title>
 
-  <!-- Social preview -->
-  <meta property="og:title" content="Dinesh Babu Roka — Surveyor & Consultant" />
-  <meta property="og:description" content="Professional Surveyor | Galkot Municipality" />
-  <meta property="og:image" content="brp.jpg" />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="" />
+<link rel="icon" href="brp.ico">
 
-  <!-- Icons & fonts -->
-  <link rel="icon" href="brp.ico" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
 
-  <!-- Optional: if you have Kalimati.ttf locally, un-comment and place the ttf in same folder -->
-  <style>
-    /* @font-face {
-      font-family: 'Kalimati';
-      src: url('Kalimati.ttf') format('truetype');
-      font-weight: normal;
-      font-style: normal;
-      font-display: swap;
-    } */
-    :root{
-      --bg: #f4f7f6;
-      --card: rgba(255,255,255,0.85);
-      --primary: #007bff;
-      --accent: #28a745;
-      --text: #0b2340;
-      --glass: rgba(255,255,255,0.6);
-      --muted: #657786;
-    }
-    html,body{
-      height:100%;
-      margin:0;
-      font-family: 'Kalimati', 'Noto Sans Devanagari', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-      background: linear-gradient(135deg,#f4f7f6 60%, #e0f7fa 100%);
-      color:var(--text);
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
-    }
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-    /* DARK THEME */
-    body.dark{
-      --bg: #0b0d0f;
-      --card: rgba(20,20,22,0.6);
-      --primary: #2b84ff;
-      --accent: #2ecc71;
-      --text: #e8eef6;
-      --glass: rgba(255,255,255,0.03);
-      --muted: #9aa6b2;
-      background: linear-gradient(180deg,#060607 0%, #0f1113 100%);
-    }
+<style>
 
-    /* Layout */
-    header{
-      padding:28px 20px;
-      display:flex;
-      gap:18px;
-      align-items:center;
-      justify-content:space-between;
-      position:sticky;
-      top:0;
-      z-index:100;
-      backdrop-filter: blur(6px);
-      background: linear-gradient(90deg, rgba(0,123,255,0.95), rgba(40,167,69,0.95));
-      color:#fff;
-      box-shadow:0 6px 24px rgba(0,0,0,0.12);
-    }
-    body.dark header{
-      background:linear-gradient(90deg,#0f1720,#122326);
-      color:#fff;
-    }
-    .brand{
-      display:flex;align-items:center;gap:12px;
-    }
-    .brand img{width:56px;height:56px;border-radius:50%;border:3px solid rgba(255,255,255,0.12);object-fit:cover;}
-    .brand h1{font-size:1.1rem;margin:0;font-weight:700;letter-spacing:0.6px;}
-    .brand p{margin:0;font-size:0.78rem;opacity:0.95}
+:root{
+  --primary:#0f62fe;
+  --secondary:#00b894;
+  --dark:#0d1117;
+  --light:#f5f7fb;
+  --card:#ffffff;
+  --text:#0b2239;
+  --muted:#6b7280;
+  --shadow:0 10px 35px rgba(0,0,0,.08);
+  --radius:20px;
+}
 
-    nav{
-      display:flex;align-items:center;gap:10px;
-    }
-    .nav-links{
-      display:flex;gap:10px;align-items:center;
-    }
-    .nav-links a{
-      color:inherit;text-decoration:none;padding:8px 12px;border-radius:8px;font-weight:600;
-      transition:transform .15s ease, background .15s ease;
-    }
-    .nav-links a:hover{transform:translateY(-3px);background:rgba(255,255,255,0.08)}
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
 
-    .cta{
-      margin-left:12px;
-      background:linear-gradient(90deg,var(--primary),var(--accent));
-      color:#fff;padding:8px 14px;border-radius:999px;font-weight:700;text-decoration:none;
-      box-shadow:0 8px 24px rgba(0,0,0,0.12);
-    }
+html{
+  scroll-behavior:smooth;
+}
 
-    /* mobile nav */
-    .hamburger{
-      display:none;flex-direction:column;gap:4px;cursor:pointer;padding:8px;
-    }
-    .hamburger span{width:22px;height:2px;background:#fff;border-radius:2px}
+body{
+  font-family:'Noto Sans Devanagari',sans-serif;
+  background:linear-gradient(135deg,#eef5ff,#f8fcff);
+  color:var(--text);
+  overflow-x:hidden;
+}
 
-    @media (max-width:900px){
-      .nav-links{display:none;position:fixed;top:76px;right:14px;background:var(--card);backdrop-filter:blur(6px);padding:12px;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.15);flex-direction:column;min-width:200px}
-      .nav-links.show{display:flex}
-      .hamburger{display:flex}
-      header{padding:12px 14px}
-    }
+/* DARK MODE */
 
-    /* HERO */
-    .hero{
-      max-width:1200px;margin:28px auto;padding:28px;display:grid;grid-template-columns:1fr 420px;gap:28px;align-items:center;
-    }
-    .hero-card{
-      background:var(--card);border-radius:14px;padding:22px;box-shadow:0 10px 30px rgba(2,6,23,0.06);
-      backdrop-filter: blur(6px);
-    }
-    body.dark .hero-card{box-shadow:0 8px 24px rgba(0,0,0,0.45)}
-    .hero h2{margin:0;font-size:1.6rem}
-    .hero p{color:var(--muted);margin-top:10px;line-height:1.6}
-    .hero .actions{margin-top:16px;display:flex;gap:10px;flex-wrap:wrap}
-    .btn{padding:10px 14px;border-radius:999px;text-decoration:none;font-weight:700;color:#fff}
-    .btn.primary{background:linear-gradient(90deg,var(--primary),var(--accent))}
-    .btn.ghost{background:transparent;color:var(--text);border:1px solid rgba(0,0,0,0.06);}
+body.dark{
+  --light:#060b13;
+  --card:#111827;
+  --text:#f3f6fb;
+  --muted:#aab4c3;
+  background:linear-gradient(135deg,#05070b,#101722);
+}
 
-    /* Right column profile */
-    .profile-panel{display:flex;flex-direction:column;align-items:center;gap:12px}
-    .profile-panel img{width:200px;height:200px;border-radius:14px;object-fit:cover;border:6px solid rgba(255,255,255,0.12);box-shadow:0 14px 40px rgba(2,6,23,0.08)}
-    .meta{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.container{
+  width:min(1200px,95%);
+  margin:auto;
+}
 
-    /* SERVICES */
-    .services{max-width:1200px;margin:28px auto;padding:20px;display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-    .card{background:var(--card);padding:18px;border-radius:12px;box-shadow:0 8px 30px rgba(2,6,23,0.05);transition:transform .18s ease, box-shadow .18s}
-    .card:hover{transform:translateY(-8px);box-shadow:0 20px 40px rgba(2,6,23,0.12)}
-    .card h3{margin:0 0 6px 0}
-    .card p{margin:0;color:var(--muted);font-size:0.95rem}
+/* HEADER */
 
-    @media (max-width:1000px){.services{grid-template-columns:repeat(2,1fr)}}
-    @media (max-width:640px){.hero{grid-template-columns:1fr;}.services{grid-template-columns:1fr}}
+header{
+  position:sticky;
+  top:0;
+  z-index:999;
+  backdrop-filter:blur(15px);
+  background:rgba(255,255,255,.75);
+  border-bottom:1px solid rgba(255,255,255,.3);
+}
 
-    /* Slider (simple fade with dots) */
-    .slider{
-      max-width:1200px;margin:20px auto;border-radius:14px;overflow:hidden;position:relative;
-      box-shadow:0 10px 30px rgba(2,6,23,0.06);
-      background:var(--card);
-    }
-    .slides{position:relative;height:420px}
-    .slides img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .9s ease}
-    .slides img.active{opacity:1}
-    .dots{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:8px}
-    .dot{width:12px;height:12px;border-radius:50%;background:rgba(255,255,255,0.6);border:2px solid rgba(0,0,0,0.08);cursor:pointer}
-    .dot.active{background:var(--accent);transform:scale(1.1)}
+body.dark header{
+  background:rgba(10,15,20,.7);
+}
 
-    /* Video & table & resume */
-    .content-row{max-width:1200px;margin:28px auto;padding:20px;display:grid;grid-template-columns:2fr 1fr;gap:16px}
-    .video{background:var(--card);padding:12px;border-radius:12px}
-    .video video{width:100%;border-radius:8px;display:block}
+.navbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:15px 0;
+}
 
-    .cv-card{background:var(--card);padding:18px;border-radius:12px;min-height:200px}
-    .cv-card h4{margin:6px 0}
+.logo{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
 
-    /* Footer */
-    footer{margin-top:36px;padding:26px 20px;background:linear-gradient(90deg,var(--primary),var(--accent));color:#fff;border-radius:12px;max-width:1200px;margin-left:auto;margin-right:auto}
-    footer .socials{display:flex;gap:8px;justify-content:center;margin-top:12px}
-    footer a{color:inherit;text-decoration:none;font-weight:700}
+.logo img{
+  width:58px;
+  height:58px;
+  border-radius:50%;
+  object-fit:cover;
+  border:3px solid var(--primary);
+}
 
-    /* Floating buttons */
-    .float-group{position:fixed;right:18px;bottom:18px;display:flex;flex-direction:column;gap:10px;z-index:200}
-    .float{width:52px;height:52px;border-radius:999px;background:linear-gradient(90deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;color:#fff;text-decoration:none;box-shadow:0 12px 30px rgba(2,6,23,0.2)}
-    .float.whatsapp{background:linear-gradient(90deg,#25D366,#128C7E)}
-    .float.call{background:linear-gradient(90deg,#ff6b6b,#ff3b3b)}
-    .float.msg{background:linear-gradient(90deg,#007bff,#0056d6)}
+.logo h1{
+  font-size:1.2rem;
+  font-weight:800;
+}
 
-    /* Dashboard modal (preview) */
-    .modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);z-index:300;visibility:hidden;opacity:0;transition:opacity .18s ease,visibility .18s}
-    .modal.show{visibility:visible;opacity:1}
-    .dashboard{width:min(1100px,96%);background:var(--card);border-radius:12px;padding:16px;box-shadow:0 24px 60px rgba(2,6,23,0.6)}
-    .db-header{display:flex;align-items:center;justify-content:space-between;gap:10px}
-    .db-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:12px}
-    .stat{padding:12px;border-radius:10px;background:linear-gradient(180deg,rgba(255,255,255,0.03),transparent);min-height:80px}
+.logo p{
+  color:var(--muted);
+  font-size:.82rem;
+}
 
-    /* utility */
-    .muted{color:var(--muted)}
-    .small{font-size:0.86rem}
-    .hide-print{display:block}
-    @media print{.hide-print{display:none}}
-  </style>
+.nav-links{
+  display:flex;
+  gap:10px;
+}
 
-  <!-- AdSense (place your client & slot IDs) -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
-    crossorigin="anonymous"></script>
+.nav-links a{
+  text-decoration:none;
+  color:var(--text);
+  font-weight:700;
+  padding:10px 15px;
+  border-radius:12px;
+  transition:.3s;
+}
+
+.nav-links a:hover{
+  background:linear-gradient(90deg,var(--primary),var(--secondary));
+  color:#fff;
+}
+
+.menu-btn{
+  display:none;
+  font-size:1.5rem;
+  cursor:pointer;
+}
+
+/* HERO */
+
+.hero{
+  min-height:90vh;
+  display:grid;
+  grid-template-columns:1.2fr .8fr;
+  align-items:center;
+  gap:40px;
+  padding:70px 0;
+}
+
+.hero-left h4{
+  color:var(--secondary);
+  margin-bottom:12px;
+  font-size:1rem;
+}
+
+.hero-left h2{
+  font-size:3.3rem;
+  line-height:1.2;
+  margin-bottom:18px;
+  font-weight:800;
+}
+
+.hero-left p{
+  color:var(--muted);
+  line-height:1.9;
+  font-size:1rem;
+}
+
+.hero-buttons{
+  margin-top:28px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:15px;
+}
+
+.btn{
+  text-decoration:none;
+  padding:14px 24px;
+  border-radius:999px;
+  font-weight:700;
+  transition:.3s;
+}
+
+.btn-primary{
+  background:linear-gradient(90deg,var(--primary),var(--secondary));
+  color:#fff;
+  box-shadow:0 8px 25px rgba(0,98,255,.25);
+}
+
+.btn-primary:hover{
+  transform:translateY(-4px);
+}
+
+.btn-outline{
+  border:2px solid var(--primary);
+  color:var(--primary);
+}
+
+.btn-outline:hover{
+  background:var(--primary);
+  color:#fff;
+}
+
+.hero-right{
+  position:relative;
+}
+
+.profile-card{
+  background:var(--card);
+  border-radius:30px;
+  padding:25px;
+  box-shadow:var(--shadow);
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+}
+
+.profile-card::before{
+  content:'';
+  position:absolute;
+  width:250px;
+  height:250px;
+  background:linear-gradient(90deg,var(--primary),var(--secondary));
+  border-radius:50%;
+  top:-100px;
+  right:-80px;
+  opacity:.12;
+}
+
+.profile-card img{
+  width:220px;
+  height:220px;
+  border-radius:25px;
+  object-fit:cover;
+  border:5px solid rgba(255,255,255,.3);
+  box-shadow:0 15px 40px rgba(0,0,0,.12);
+}
+
+.profile-card h3{
+  margin-top:18px;
+  font-size:1.6rem;
+}
+
+.profile-card p{
+  color:var(--muted);
+  margin-top:8px;
+}
+
+.social-icons{
+  display:flex;
+  justify-content:center;
+  gap:14px;
+  margin-top:22px;
+}
+
+.social-icons a{
+  width:48px;
+  height:48px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:linear-gradient(90deg,var(--primary),var(--secondary));
+  color:#fff;
+  text-decoration:none;
+  font-size:1.1rem;
+  transition:.3s;
+}
+
+.social-icons a:hover{
+  transform:translateY(-5px) scale(1.05);
+}
+
+/* STATS */
+
+.stats{
+  margin-top:25px;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:15px;
+}
+
+.stat-box{
+  background:rgba(255,255,255,.08);
+  padding:16px;
+  border-radius:16px;
+  backdrop-filter:blur(8px);
+}
+
+.stat-box h3{
+  font-size:1.6rem;
+}
+
+.stat-box p{
+  font-size:.85rem;
+}
+
+/* SLIDER */
+
+.slider-section{
+  padding:40px 0;
+}
+
+.slider{
+  position:relative;
+  height:500px;
+  overflow:hidden;
+  border-radius:25px;
+  box-shadow:var(--shadow);
+}
+
+.slide{
+  position:absolute;
+  width:100%;
+  height:100%;
+  opacity:0;
+  transition:1s;
+}
+
+.slide.active{
+  opacity:1;
+}
+
+.slide img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.overlay{
+  position:absolute;
+  inset:0;
+  background:linear-gradient(to top,rgba(0,0,0,.65),transparent);
+}
+
+.slide-content{
+  position:absolute;
+  left:50px;
+  bottom:50px;
+  color:#fff;
+}
+
+.slide-content h2{
+  font-size:2rem;
+  margin-bottom:10px;
+}
+
+/* SERVICES */
+
+.section-title{
+  text-align:center;
+  margin-bottom:45px;
+}
+
+.section-title h2{
+  font-size:2.5rem;
+  margin-bottom:12px;
+}
+
+.section-title p{
+  color:var(--muted);
+}
+
+.services{
+  padding:80px 0;
+}
+
+.service-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:25px;
+}
+
+.service-card{
+  background:var(--card);
+  border-radius:25px;
+  padding:30px;
+  box-shadow:var(--shadow);
+  transition:.35s;
+  position:relative;
+  overflow:hidden;
+}
+
+.service-card::before{
+  content:'';
+  position:absolute;
+  width:200px;
+  height:200px;
+  border-radius:50%;
+  background:linear-gradient(90deg,var(--primary),var(--secondary));
+  right:-120px;
+  top:-120px;
+  opacity:.08;
+}
+
+.service-card:hover{
+  transform:translateY(-10px);
+}
+
+.service-card i{
+  font-size:2rem;
+  color:var(--primary);
+  margin-bottom:20px;
+}
+
+.service-card h3{
+  margin-bottom:15px;
+}
+
+.service-card p{
+  color:var(--muted);
+  line-height:1.8;
+}
+
+.service-card a{
+  display:inline-block;
+  margin-top:18px;
+  color:var(--primary);
+  text-decoration:none;
+  font-weight:700;
+}
+
+/* VIDEO */
+
+.video-section{
+  padding:60px 0;
+}
+
+.video-card{
+  background:var(--card);
+  border-radius:25px;
+  overflow:hidden;
+  box-shadow:var(--shadow);
+  padding:20px;
+}
+
+.video-card video{
+  width:100%;
+  border-radius:20px;
+}
+
+/* EXPERIENCE */
+
+.timeline{
+  margin-top:40px;
+  position:relative;
+}
+
+.timeline::before{
+  content:'';
+  position:absolute;
+  left:25px;
+  top:0;
+  width:3px;
+  height:100%;
+  background:linear-gradient(var(--primary),var(--secondary));
+}
+
+.timeline-item{
+  position:relative;
+  padding-left:70px;
+  margin-bottom:40px;
+}
+
+.timeline-item::before{
+  content:'';
+  position:absolute;
+  width:18px;
+  height:18px;
+  border-radius:50%;
+  left:17px;
+  top:5px;
+  background:var(--secondary);
+}
+
+.timeline-card{
+  background:var(--card);
+  padding:25px;
+  border-radius:20px;
+  box-shadow:var(--shadow);
+}
+
+.timeline-card h3{
+  margin-bottom:8px;
+}
+
+.timeline-card span{
+  color:var(--primary);
+  font-weight:700;
+}
+
+/* CONTACT */
+
+.contact{
+  padding:80px 0;
+}
+
+.contact-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:30px;
+}
+
+.contact-card{
+  background:var(--card);
+  padding:35px;
+  border-radius:25px;
+  box-shadow:var(--shadow);
+}
+
+.contact-card h3{
+  margin-bottom:20px;
+}
+
+.input-group{
+  margin-bottom:18px;
+}
+
+.input-group input,
+.input-group textarea{
+  width:100%;
+  padding:15px;
+  border:none;
+  background:#eef3fb;
+  border-radius:14px;
+  font-family:inherit;
+  outline:none;
+}
+
+body.dark .input-group input,
+body.dark .input-group textarea{
+  background:#1c2430;
+  color:#fff;
+}
+
+/* FOOTER */
+
+footer{
+  margin-top:60px;
+  padding:40px 0;
+  background:linear-gradient(90deg,var(--primary),var(--secondary));
+  color:#fff;
+}
+
+.footer-content{
+  display:flex;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:20px;
+}
+
+.footer-content a{
+  color:#fff;
+  text-decoration:none;
+}
+
+/* FLOAT BUTTONS */
+
+.float-buttons{
+  position:fixed;
+  right:20px;
+  bottom:20px;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  z-index:999;
+}
+
+.float-buttons a{
+  width:60px;
+  height:60px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#fff;
+  text-decoration:none;
+  font-size:1.3rem;
+  box-shadow:0 10px 25px rgba(0,0,0,.2);
+}
+
+.whatsapp{
+  background:#25d366;
+}
+
+.call{
+  background:#ff4d4d;
+}
+
+.dark-toggle{
+  background:linear-gradient(90deg,var(--primary),var(--secondary));
+  border:none;
+  color:#fff;
+  width:60px;
+  height:60px;
+  border-radius:50%;
+  cursor:pointer;
+  font-size:1.2rem;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:950px){
+
+  .hero{
+    grid-template-columns:1fr;
+  }
+
+  .contact-grid{
+    grid-template-columns:1fr;
+  }
+
+  .hero-left{
+    text-align:center;
+  }
+
+  .hero-buttons{
+    justify-content:center;
+  }
+
+  .profile-card{
+    max-width:450px;
+    margin:auto;
+  }
+
+}
+
+@media(max-width:768px){
+
+  .nav-links{
+    position:fixed;
+    top:80px;
+    right:-100%;
+    width:280px;
+    height:calc(100vh - 80px);
+    background:var(--card);
+    flex-direction:column;
+    padding:30px;
+    transition:.4s;
+    box-shadow:var(--shadow);
+  }
+
+  .nav-links.active{
+    right:0;
+  }
+
+  .menu-btn{
+    display:block;
+  }
+
+  .hero-left h2{
+    font-size:2.3rem;
+  }
+
+  .slider{
+    height:320px;
+  }
+
+}
+
+</style>
 </head>
+
 <body>
-  <!-- HEADER -->
-  <header>
-    <div class="brand">
-      <img src="brp.jpg" alt="Dinesh Babu Roka" loading="lazy">
-      <div>
-        <h1>Dinesh Babu Roka</h1>
-        <p class="small">Professional Surveyor & Consultant — Galkot Municipality</p>
-      </div>
-    </div>
 
-    <nav>
-      <div class="nav-links" id="navLinks">
-        <a href="#home">गृहपृष्ठ</a>
-        <a href="#services">सेवा</a>
-        <a href="#work">काम</a>
-        <a href="#about">बारेमा</a>
-        <a href="#contact">सम्पर्क</a>
-        <a href="#" class="cta" id="openDashboard">Dashboard</a>
-      </div>
+<!-- HEADER -->
 
-      <div class="hamburger" id="hamburger" aria-label="मेनु खोल्नुहोस्" title="मेनु">
-        <span></span><span></span><span></span>
-      </div>
-    </nav>
-  </header>
+<header>
 
-  <!-- HERO -->
-  <section id="home" class="hero">
-    <div class="hero-card">
-      <h2 id="heroHeadline">तपाईंको जग्गा — सही मूल्य र सही सल्लाह</h2>
-      <p>म विशेषज्ञ सर्वेयर हुँ — जग्गा वर्गीकरण, मापन, सम्पत्तिकर बक्यौता निर्धारण र परियोजना म्यापिङमा  वर्षौको अनुभव।</p>
-      <div class="actions">
-        <a href="#services" class="btn primary"><i class="fa fa-clipboard-check"></i>&nbsp; सेवा हेर्नुहोस्</a>
-        <a href="#contact" class="btn ghost"><i class="fa fa-phone"></i>&nbsp; सम्पर्क गर्नुहोस्</a>
-        <a href="resume.pdf" class="btn" style="background:#333" download><i class="fa fa-download"></i>&nbsp; CV डाउनलोड</a>
-      </div>
-    </div>
+<div class="container navbar">
 
-    <aside class="profile-panel">
-      <img src="brp.jpg" alt="Profile" loading="lazy">
-      <div class="meta">
-        <div class="muted small">Surveyor • Galkot</div>
-        <div class="muted small">Permanent Employee</div>
-      </div>
-      <div style="display:flex;gap:8px">
-        <a class="btn" href="tel:+9779857626542" style="background:#0b7fd0"><i class="fa fa-phone"></i>&nbsp; फोन</a>
-        <a class="btn" href="mailto:dineshbaburoka82@gmail.com" style="background:#20a39e"><i class="fa fa-envelope"></i>&nbsp; इमेल</a>
-      </div>
-    </aside>
-  </section>
+<div class="logo">
+<img src="brp.jpg" alt="Dinesh Babu Roka">
+<div>
+<h1>Dinesh Babu Roka</h1>
+<p>Professional Surveyor & Consultant</p>
+</div>
+</div>
 
-  <!-- SLIDER -->
-  <section class="slider" aria-label="Image slider">
-    <div class="slides" id="slides">
-      <img src="img1.jpg" alt="slider1" class="active" loading="lazy">
-      <img src="img2.jpg" alt="slider2" loading="lazy">
-      <img src="img3.jpg" alt="slider3" loading="lazy">
-      <img src="img4.jpg" alt="slider3" loading="lazy">
-      <img src="img5.jpg" alt="slider3" loading="lazy">
-      <img src="img6.jpg" alt="slider3" loading="lazy">
-      <img src="img7.jpg" alt="slider3" loading="lazy">
-      <img src="img8.jpg" alt="slider3" loading="lazy">
-    </div>
-    <div class="dots" id="dots"></div>
-  </section>
+<div class="nav-links" id="navLinks">
+<a href="#home">गृहपृष्ठ</a>
+<a href="#services">सेवा</a>
+<a href="#experience">अनुभव</a>
+<a href="#contact">सम्पर्क</a>
+<a href="resume.pdf" download>CV</a>
+</div>
 
-  <!-- Services -->
-  <section id="services" class="services" aria-label="सेवाहरू">
-    <div class="card">
-      <h3><a href="indexupdate.html"><i class="fa-solid fa-layer-group"></i> जग्गा वर्गीकरणको विवरण</a></h3>
-      <p>गलकोट नगरपालिका नगर कार्यपालिकाको कार्यालय गलकोट, बागलुङको भूउयोग परिषद्बाट स्वीकृत भएको जग्गा वर्गीकरणको विवरण हेर्न।</p>
-    </div>
-    <div class="card">
-      <h3><a href="indexupdate1.html"><i class="fa-solid fa-map-location-dot"></i> जग्गा अवस्थिति</a></h3>
-      <p>यस गलकोट नगरपालिका क्षेत्रभित्र रहेका जग्गाहरुको Location हेर्न।</p>
-    </div>
-    <div class="card">
-      <h3><a href="land valuation.html"><i class="fas fa-calculator"></i> सम्पत्तिकरको बक्यौता निर्धारण</a></h3>
-      <p>यस गलकोट नगरपालिकाको आ.व. २०८१/०८२ र २०८१/०८२ भन्दा पहिले यस पालिको भित्रको सम्पत्तिकरको हिसाब गर्न(यस पालिकाको आर्थिक ऐन अनुसार)।</p>
-    </div>
-    <div class="card">
-      <h3><a href="mapbranch.html"><i class="fa-solid fa-map"></i> अफिस</a></h3>
-      <p>विविध सेवाका लागि मात्र।</p>
-    </div>
-    <div class="card">
-      <h3><a href="covert.html"><i class="fa-solid fa-ruler-combined"></i> क्षेत्रफल हिसाब</a></h3>
-      <p>हातमा लम्बाई चौडाई प्राप्त भएको खण्डमा भवनको क्षेत्रफल वर्गमिटर र वर्गफिटमा हिसाब गर्न। </p>
-    </div>
-    <div class="card">
-      <h3><a href="index2121.html"><i class="fa-solid fa-file-signature"></i> वर्गीकरण सिफारिस</a></h3>
-      <p>गलकोट नगरपालिका नगर कार्यपालिकाको कार्यालय गलकोट, बागलुङको भूउयोग परिषद्बाट स्वीकृत भएको जग्गा वर्गीकरणको विवरण अनुसार मालपोत कार्यालय बागलुङलाई सिफारिस गर्न।</p>
-    </div>
-        <div class="card">
-      <h3><a href="id card.html"><i class="fa-solid fa-id-card"></i> ID Card</a></h3>
-      <p>गलकोट नगरपालिकामा कार्यरत कर्मचारीको परिचय-पत्र जारी गर्न।</p>
-    </div>
-  </section>
+<div class="menu-btn" id="menuBtn">
+<i class="fa fa-bars"></i>
+</div>
 
-  <!-- Content row: video and CV -->
-  <section class="content-row">
-    <div class="video">
-      <h3 class="small">परिचय भिडियो</h3>
-      <video controls poster="brp.jpg" preload="metadata">
-        <source src="video.mp4" type="video/mp4">
-        तपाईँको ब्राउजरले भिडियो प्ले गर्न सकेन।
-      </video>
-      <div style="margin-top:8px">
-        <a href="video.mp4" download class="btn ghost"><i class="fa fa-download"></i>&nbsp; भिडियो डाउनलोड गर्नुहोस्</a>
-      </div>
-    </div>
+</div>
 
-    <aside class="cv-card">
-      <h4>Professional Summary</h4>
-      <p class="small muted">Surveyor at Galkot Municipality since 2076-11-28. अनुभव: जग्गा मापन, नक्सांकन, सम्पत्ति मूल्याङ्कन, प्रशासनिक रिपोर्ट।</p>
-      <hr>
-      <h4>Contact</h4>
-      <p class="small">Email: <a href="mailto:dineshbaburoka82@gmail.com">dineshbaburoka82@gmail.com</a><br>Phone: <a href="tel:+9779857626542">+9779857626542</a></p>
-      <div style="margin-top:10px">
-        <button onclick="window.print()" class="btn ghost">प्रिन्ट प्रोफाइल</button>
-      </div>
-    </aside>
-  </section>
+</header>
 
-  <!-- Work / Table -->
-  <section id="work" style="max-width:1200px;margin:10px auto;padding:20px">
-    <div style="background:var(--card);padding:16px;border-radius:12px">
-      <h3>Work Experience & Recent Projects</h3>
-      <table style="width:100%;border-collapse:collapse;margin-top:10px">
-        <thead>
-          <tr style="background:linear-gradient(90deg,var(--primary),var(--accent));color:#fff">
-            <th style="padding:10px">S.N</th>
-            <th style="padding:10px">Company</th>
-            <th style="padding:10px">Start</th>
-            <th style="padding:10px">End</th>
-            <th style="padding:10px">Position</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td style="padding:10px">1</td>
-            <td style="padding:10px">Galkot Municipality</td>
-            <td style="padding:10px">2076-11-28</td>
-            <td style="padding:10px">-</td>
-            <td style="padding:10px">Surveyor</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
+<!-- HERO -->
 
-  <!-- Contact -->
-  <section id="contact" style="max-width:1200px;margin:20px auto;padding:18px">
-    <div style="display:flex;gap:16px;flex-wrap:wrap">
-      <div style="flex:1;min-width:260px;background:var(--card);padding:16px;border-radius:12px">
-        <h3>सम्पर्क</h3>
-        <p class="small muted">दुरभाष: <a href="tel:+9779857626542">+9779857626542</a><br>इमेल: <a href="mailto:dineshbaburoka82@gmail.com">dineshbaburoka82@gmail.com</a></p>
-        <form id="contactForm" class="small" onsubmit="event.preventDefault(); alert('Message sent (demo)');">
-          <div style="margin-top:8px"><input required name="name" placeholder="नाम" style="width:100%;padding:8px;border-radius:8px;border:1px solid #ddd"></div>
-          <div style="margin-top:8px"><input required name="email" placeholder="इमेल" style="width:100%;padding:8px;border-radius:8px;border:1px solid #ddd"></div>
-          <div style="margin-top:8px"><textarea required name="msg" rows="4" placeholder="सन्देश" style="width:100%;padding:8px;border-radius:8px;border:1px solid #ddd"></textarea></div>
-          <div style="margin-top:8px"><button class="btn primary" type="submit"><i class="fa fa-paper-plane"></i>&nbsp; पठाउनुहोस्</button></div>
-        </form>
-      </div>
+<section class="hero container" id="home">
 
-      <div style="flex:1;min-width:260px;background:var(--card);padding:16px;border-radius:12px">
-        <h3>Office</h3>
-        <p class="small muted">ठेगाना: Galkot Municipality, Baglung<br></p>
-        <!-- AdSense placeholder -->
-        <div style="margin-top:12px;text-align:center">
-          <ins class="adsbygoogle"
-               style="display:block"
-               data-ad-client="ca-pub-9050877530127582"
-               data-ad-slot="REPLACE_WITH_SLOT"
-               data-ad-format="auto"
-               data-full-width-responsive="true"></ins>
-          <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-        </div>
-      </div>
-    </div>
-  </section>
+<div class="hero-left">
 
-  <!-- Footer -->
-  <footer>
-    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
-      <div>
-        <strong>Dinesh Babu Roka</strong><br>
-        <span class="small">Professional Surveyor & Consultant</span>
-      </div>
-      <div class="socials">
-        <a href="mailto:dineshbaburoka82@gmail.com"><i class="fa fa-envelope"></i>&nbsp; इमेल</a>&nbsp;&nbsp;
-        <a href="tel:+9779857626542"><i class="fa fa-phone"></i>&nbsp; फोन</a>&nbsp;&nbsp;
-        <a href="https://facebook.com" target="_blank"><i class="fa-brands fa-facebook"></i>&nbsp; Facebook</a>
-      </div>
-    </div>
-    <div style="text-align:center;margin-top:10px;font-size:0.9rem">© <span id="year"></span> Dinesh Babu Roka — सबै अधिकार सुरक्षित</div>
-  </footer>
+<h4>गलकोट नगरपालिका • Professional Surveyor</h4>
 
-  <!-- Floating buttons -->
-  <div class="float-group hide-print">
-    <a class="float whatsapp" title="WhatsApp पठाउनुहोस्" href="https://wa.me/+9779863894724" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i></a>
-    <a class="float call" title="फोन गर्नुहोस्" href="tel:+9779857626542"><i class="fa fa-phone"></i></a>
-  </div>
+<h2>
+तपाईंको जग्गाको
+<br>
+सही मूल्याङ्कन
+<br>
+र सही समाधान
+</h2>
 
-  <!-- Dashboard modal -->
-  <div class="modal" id="modal">
-    <div class="dashboard" role="dialog" aria-modal="true" aria-label="Dashboard preview">
-      <div class="db-header">
-        <h3>Admin Dashboard (Preview)</h3>
-        <div>
-          <button onclick="closeModal()" class="btn ghost">Close</button>
-        </div>
-      </div>
-      <div class="db-grid">
-        <div class="stat"><strong>549</strong><div class="small muted">Records</div></div>
-        <div class="stat"><strong>343</strong><div class="small muted">New this month</div></div>
-        <div class="stat"><strong>9</strong><div class="small muted">Users</div></div>
-      </div>
-      <div style="margin-top:12px">
-        <p class="small muted"></p>
-      </div>
-    </div>
-  </div>
+<p>
+जग्गा वर्गीकरण, नक्सांकन, सम्पत्ति मूल्याङ्कन, भवन क्षेत्रफल हिसाब,
+भूमि सम्बन्धी परामर्श तथा प्रशासनिक कार्यमा अनुभवी Professional Surveyor।
+</p>
 
-  <!-- SCRIPTS -->
-  <script>
-    // Year
-    document.getElementById('year').textContent = new Date().getFullYear();
+<div class="hero-buttons">
 
-    // Mobile nav toggle
-    const hamburger = document.getElementById('hamburger');
-    const navLinks = document.getElementById('navLinks');
-    hamburger.addEventListener('click', () => navLinks.classList.toggle('show'));
+<a href="#services" class="btn btn-primary">
+<i class="fa fa-layer-group"></i>
+सेवाहरू
+</a>
 
-    // Slider logic (auto + dots + touch)
-    const slides = document.querySelectorAll('#slides img');
-    const dotsWrap = document.getElementById('dots');
-    let current = 0, slideInterval;
-    function buildDots(){ slides.forEach((_,i)=>{ const d=document.createElement('div'); d.className='dot'+(i===0?' active':''); d.addEventListener('click',()=>goto(i)); dotsWrap.appendChild(d); }) }
-    function goto(i){ slides[current].classList.remove('active'); dotsWrap.children[current].classList.remove('active'); current = i; slides[current].classList.add('active'); dotsWrap.children[current].classList.add('active'); reset(); }
-    function next(){ goto((current+1)%slides.length); }
-    function reset(){ clearInterval(slideInterval); slideInterval = setInterval(next,3500); }
-    buildDots(); reset();
+<a href="#contact" class="btn btn-outline">
+<i class="fa fa-phone"></i>
+सम्पर्क
+</a>
 
-    // touch support
-    (function(){
-      let startX=0,dist=0,threshold=60;
-      const sliderEl = document.getElementById('slides');
-      sliderEl.addEventListener('touchstart',e=> startX = e.touches[0].clientX);
-      sliderEl.addEventListener('touchmove',e=> { dist = e.touches[0].clientX - startX; });
-      sliderEl.addEventListener('touchend',()=> {
-        if(Math.abs(dist) > threshold){
-          if(dist < 0) next(); else goto((current-1+slides.length)%slides.length);
-        }
-        startX=0; dist=0;
-      });
-    })();
+</div>
 
-    // Dark mode (saved in localStorage)
-    (function(){
-      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const saved = localStorage.getItem('site-dark');
-      if(saved === '1' || (saved===null && prefersDark)) document.body.classList.add('dark');
+</div>
 
-      // header click on brand to toggle for convenience
-      const brand = document.querySelector('.brand');
-      brand.addEventListener('dblclick', ()=> toggleDark());
+<div class="hero-right">
 
-      // add keyboard shortcut: D toggles dark
-      document.addEventListener('keydown', (e)=> { if(e.key.toLowerCase()==='d' && (e.ctrlKey || e.metaKey)){ toggleDark(); } });
+<div class="profile-card">
 
-      // expose toggle button
-      const btn = document.createElement('button');
-      btn.className='hide-print';
-      btn.textContent = 'Dark';
-      btn.style.position='fixed'; btn.style.left='18px'; btn.style.bottom='18px'; btn.style.zIndex=400;
-      btn.style.padding='8px 12px'; btn.style.borderRadius='8px'; btn.style.border='none'; btn.style.cursor='pointer';
-      btn.onclick = toggleDark;
-      document.body.appendChild(btn);
+<img src="brp.jpg" alt="Profile">
 
-      function toggleDark(){
-        document.body.classList.toggle('dark');
-        localStorage.setItem('site-dark', document.body.classList.contains('dark') ? '1' : '0');
-      }
-    })();
+<h3>Dinesh Babu Roka</h3>
 
-    // Dashboard modal open/close
-    document.getElementById('openDashboard').addEventListener('click', (e)=>{ e.preventDefault(); document.getElementById('modal').classList.add('show'); });
-    function closeModal(){ document.getElementById('modal').classList.remove('show'); }
-    document.getElementById('modal').addEventListener('click', (e)=> { if(e.target.id==='modal') closeModal(); });
+<p>Surveyor • Galkot Municipality</p>
 
-    // Accessibility: allow nav links to close mobile menu on click
-    document.querySelectorAll('#navLinks a').forEach(a=>a.addEventListener('click', ()=> navLinks.classList.remove('show')));
-  </script>
+<div class="social-icons">
+
+<a href="tel:+9779857626542">
+<i class="fa fa-phone"></i>
+</a>
+
+<a href="mailto:dineshbaburoka82@gmail.com">
+<i class="fa fa-envelope"></i>
+</a>
+
+<a href="https://facebook.com" target="_blank">
+<i class="fab fa-facebook-f"></i>
+</a>
+
+</div>
+
+<div class="stats">
+
+<div class="stat-box">
+<h3>7+</h3>
+<p>Years</p>
+</div>
+
+<div class="stat-box">
+<h3>500+</h3>
+<p>Projects</p>
+</div>
+
+<div class="stat-box">
+<h3>100%</h3>
+<p>Trusted</p>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- SLIDER -->
+
+<section class="slider-section container">
+
+<div class="slider">
+
+<div class="slide active">
+<img src="img1.jpg">
+<div class="overlay"></div>
+<div class="slide-content">
+<h2>Land Survey & Mapping</h2>
+<p>Professional Geographic Services</p>
+</div>
+</div>
+
+<div class="slide">
+<img src="img2.jpg">
+<div class="overlay"></div>
+<div class="slide-content">
+<h2>Property Valuation</h2>
+<p>Reliable & Accurate Reports</p>
+</div>
+</div>
+
+<div class="slide">
+<img src="img3.jpg">
+<div class="overlay"></div>
+<div class="slide-content">
+<h2>Digital Mapping System</h2>
+<p>Modern Survey Technology</p>
+</div>
+</div>
+
+</div>
+
+</section>
+
+<!-- SERVICES -->
+
+<section class="services" id="services">
+
+<div class="container">
+
+<div class="section-title">
+<h2>सेवाहरू</h2>
+<p>Professional Digital Land & Survey Services</p>
+</div>
+
+<div class="service-grid">
+
+<div class="service-card">
+<i class="fa-solid fa-layer-group"></i>
+<h3>जग्गा वर्गीकरण</h3>
+<p>
+गलकोट नगरपालिकाको स्वीकृत भूउपयोग वर्गीकरण विवरण हेर्न।
+</p>
+<a href="indexupdate.html">Open Service →</a>
+</div>
+
+<div class="service-card">
+<i class="fa-solid fa-map-location-dot"></i>
+<h3>जग्गा अवस्थिति</h3>
+<p>
+जग्गाको Location तथा अवस्थिति विवरण हेर्न।
+</p>
+<a href="indexupdate1.html">Open Service →</a>
+</div>
+
+<div class="service-card">
+<i class="fa-solid fa-calculator"></i>
+<h3>सम्पत्तिकर हिसाब</h3>
+<p>
+सम्पत्तिकर बक्यौता तथा मूल्याङ्कन हिसाब प्रणाली।
+</p>
+<a href="land valuation.html">Open Service →</a>
+</div>
+
+<div class="service-card">
+<i class="fa-solid fa-ruler-combined"></i>
+<h3>क्षेत्रफल हिसाब</h3>
+<p>
+भवन तथा जग्गाको क्षेत्रफल वर्गमिटर र वर्गफिटमा हिसाब।
+</p>
+<a href="covert.html">Open Service →</a>
+</div>
+
+<div class="service-card">
+<i class="fa-solid fa-file-signature"></i>
+<h3>वर्गीकरण सिफारिस</h3>
+<p>
+मालपोत कार्यालयका लागि सिफारिस प्रणाली।
+</p>
+<a href="index2121.html">Open Service →</a>
+</div>
+
+<div class="service-card">
+<i class="fa-solid fa-id-card"></i>
+<h3>ID Card System</h3>
+<p>
+नगरपालिकाका कर्मचारीहरूको परिचय पत्र प्रणाली।
+</p>
+<a href="id card.html">Open Service →</a>
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- VIDEO -->
+
+<section class="video-section container">
+
+<div class="section-title">
+<h2>परिचय भिडियो</h2>
+<p>Professional Introduction</p>
+</div>
+
+<div class="video-card">
+
+<video controls poster="brp.jpg">
+<source src="video.mp4" type="video/mp4">
+</video>
+
+</div>
+
+</section>
+
+<!-- EXPERIENCE -->
+
+<section class="container" id="experience">
+
+<div class="section-title">
+<h2>Work Experience</h2>
+<p>Professional Career Journey</p>
+</div>
+
+<div class="timeline">
+
+<div class="timeline-item">
+
+<div class="timeline-card">
+
+<h3>Surveyor — Galkot Municipality</h3>
+
+<span>२०७६-११-२८ — Present</span>
+
+<p style="margin-top:15px;color:var(--muted);line-height:1.8;">
+जग्गा मापन, GIS Mapping, सम्पत्ति मूल्याङ्कन,
+भूउपयोग वर्गीकरण तथा प्रशासनिक कार्यमा सक्रिय।
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- CONTACT -->
+
+<section class="contact" id="contact">
+
+<div class="container">
+
+<div class="section-title">
+<h2>सम्पर्क गर्नुहोस्</h2>
+<p>Need Professional Survey Services?</p>
+</div>
+
+<div class="contact-grid">
+
+<div class="contact-card">
+
+<h3>Message Form</h3>
+
+<form>
+
+<div class="input-group">
+<input type="text" placeholder="तपाईंको नाम">
+</div>
+
+<div class="input-group">
+<input type="email" placeholder="इमेल">
+</div>
+
+<div class="input-group">
+<textarea rows="5" placeholder="सन्देश"></textarea>
+</div>
+
+<button class="btn btn-primary" type="submit">
+<i class="fa fa-paper-plane"></i>
+सन्देश पठाउनुहोस्
+</button>
+
+</form>
+
+</div>
+
+<div class="contact-card">
+
+<h3>Office Information</h3>
+
+<p style="line-height:2;color:var(--muted);">
+
+<i class="fa fa-location-dot"></i>
+Galkot Municipality, Baglung
+<br><br>
+
+<i class="fa fa-phone"></i>
++9779857626542
+<br><br>
+
+<i class="fa fa-envelope"></i>
+dineshbaburoka82@gmail.com
+
+</p>
+
+<iframe
+src="https://maps.google.com/maps?q=galkot&t=&z=13&ie=UTF8&iwloc=&output=embed"
+width="100%"
+height="250"
+style="border:0;border-radius:20px;margin-top:20px;"
+loading="lazy">
+</iframe>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- FOOTER -->
+
+<footer>
+
+<div class="container footer-content">
+
+<div>
+<h3>Dinesh Babu Roka</h3>
+<p>Professional Surveyor & Consultant</p>
+</div>
+
+<div>
+<a href="mailto:dineshbaburoka82@gmail.com">
+<i class="fa fa-envelope"></i>
+Email
+</a>
+</div>
+
+<div>
+<a href="tel:+9779857626542">
+<i class="fa fa-phone"></i>
+Call
+</a>
+</div>
+
+</div>
+
+<div style="text-align:center;margin-top:30px;">
+© 2026 Dinesh Babu Roka — All Rights Reserved
+</div>
+
+</footer>
+
+<!-- FLOAT BUTTONS -->
+
+<div class="float-buttons">
+
+<a href="https://wa.me/9779857626542"
+target="_blank"
+class="whatsapp">
+<i class="fab fa-whatsapp"></i>
+</a>
+
+<a href="tel:+9779857626542"
+class="call">
+<i class="fa fa-phone"></i>
+</a>
+
+<button class="dark-toggle" id="darkToggle">
+<i class="fa fa-moon"></i>
+</button>
+
+</div>
+
+<!-- JAVASCRIPT -->
+
+<script>
+
+/* MOBILE MENU */
+
+const menuBtn = document.getElementById('menuBtn');
+const navLinks = document.getElementById('navLinks');
+
+menuBtn.onclick = () =>{
+  navLinks.classList.toggle('active');
+}
+
+/* SLIDER */
+
+const slides = document.querySelectorAll('.slide');
+
+let index = 0;
+
+function showSlide(){
+
+  slides.forEach(slide=>{
+    slide.classList.remove('active');
+  });
+
+  slides[index].classList.add('active');
+
+  index++;
+
+  if(index >= slides.length){
+    index = 0;
+  }
+
+}
+
+setInterval(showSlide,4000);
+
+/* DARK MODE */
+
+const darkToggle = document.getElementById('darkToggle');
+
+if(localStorage.getItem('theme') === 'dark'){
+  document.body.classList.add('dark');
+}
+
+darkToggle.onclick = ()=>{
+
+  document.body.classList.toggle('dark');
+
+  if(document.body.classList.contains('dark')){
+    localStorage.setItem('theme','dark');
+  }else{
+    localStorage.setItem('theme','light');
+  }
+
+}
+
+/* FORM */
+
+document.querySelector('form').addEventListener('submit',function(e){
+
+  e.preventDefault();
+
+  alert('सन्देश सफलतापूर्वक पठाइयो ।');
+
+});
+
+/* ACTIVE LINK */
+
+const sections = document.querySelectorAll("section");
+const navs = document.querySelectorAll(".nav-links a");
+
+window.addEventListener("scroll",()=>{
+
+  let current = "";
+
+  sections.forEach(section=>{
+
+    const sectionTop = section.offsetTop;
+
+    if(pageYOffset >= sectionTop - 150){
+      current = section.getAttribute("id");
+    }
+
+  });
+
+  navs.forEach(a=>{
+
+    a.classList.remove("active");
+
+    if(a.getAttribute("href") === "#" + current){
+      a.classList.add("active");
+    }
+
+  });
+
+});
+
+</script>
+
 </body>
 </html>
-
-
-
