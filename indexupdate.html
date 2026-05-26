@@ -1,70 +1,365 @@
 <!DOCTYPE html>
 <html lang="ne">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>गलकोट नगरपालिका</title>
-    <link rel="icon" type="image/x-icon" href="brp.ico" />
-    <link rel="stylesheet" href="styles.css">
-    <style>
-        /* Modal styling */
-        .modal {
-            display: none; /* Hidden by default */
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.4); /* Black with opacity */
-        }
 
-        .modal-content {
-            background-color: white;
-            margin: 15% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 50%;
-            text-align: center;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        .modal h3 {
-            color: #333;
-        }
+<title>गलकोट नगरपालिका</title>
 
-        #loadingProgress {
-            background-color: #4caf50;
-            height: 30px;
-            width: 0%;
-            text-align: center;
-            color: white;
-        }
-    </style>
+<link rel="icon" type="image/x-icon" href="brp.ico" />
+
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:'Noto Sans Devanagari', sans-serif;
+
+    background:
+    linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)),
+    url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=2070&auto=format&fit=crop')
+    center/cover fixed;
+
+    min-height:100vh;
+    padding:30px 15px;
+    color:#1e293b;
+}
+
+.container{
+    max-width:1100px;
+    margin:auto;
+    background:rgba(255,255,255,0.96);
+    backdrop-filter:blur(10px);
+    border-radius:28px;
+    padding:40px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.18);
+}
+
+h1{
+    text-align:center;
+    color:#0f766e;
+    margin-bottom:18px;
+    font-size:2rem;
+    line-height:1.7;
+    font-weight:700;
+}
+
+.notice{
+    text-align:center;
+    margin-bottom:30px;
+    background:#fff7ed;
+    color:#b45309;
+    padding:15px;
+    border-radius:14px;
+    border-left:5px solid #f59e0b;
+    font-size:15px;
+    line-height:1.8;
+}
+
+.search-container{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:22px;
+}
+
+label{
+    display:block;
+    margin-bottom:8px;
+    font-weight:600;
+    color:#334155;
+    font-size:15px;
+}
+
+select,
+input{
+    width:100%;
+    height:55px;
+    border:2px solid #dbe4ee;
+    border-radius:14px;
+    padding:0 16px;
+    font-size:16px;
+    outline:none;
+    transition:0.3s;
+    background:white;
+    font-family:'Noto Sans Devanagari', sans-serif;
+}
+
+select:focus,
+input:focus{
+    border-color:#0f766e;
+    box-shadow:0 0 0 4px rgba(15,118,110,0.15);
+}
+
+button{
+    grid-column:1/-1;
+    height:58px;
+    border:none;
+    border-radius:16px;
+    background:linear-gradient(135deg,#0f766e,#115e59);
+    color:white;
+    font-size:18px;
+    font-weight:700;
+    cursor:pointer;
+    transition:0.3s;
+    margin-top:10px;
+    box-shadow:0 8px 20px rgba(15,118,110,0.25);
+}
+
+button:hover{
+    transform:translateY(-2px);
+    box-shadow:0 12px 24px rgba(15,118,110,0.35);
+}
+
+/* TABLE */
+
+#resultsContainer{
+    margin-top:35px;
+}
+
+.table-wrapper{
+    overflow-x:auto;
+}
+
+.results-table{
+    width:100%;
+    border-collapse:collapse;
+    background:white;
+    border-radius:18px;
+    overflow:hidden;
+    box-shadow:0 6px 20px rgba(0,0,0,0.08);
+}
+
+.results-table thead{
+    background:linear-gradient(135deg,#0f766e,#115e59);
+    color:white;
+}
+
+.results-table th{
+    padding:16px;
+    text-align:left;
+    font-size:15px;
+    font-weight:600;
+}
+
+.results-table td{
+    padding:14px 16px;
+    border-bottom:1px solid #e2e8f0;
+    font-size:15px;
+    color:#334155;
+}
+
+.results-table tbody tr:hover{
+    background:#f8fafc;
+}
+
+.status{
+    background:#dcfce7;
+    color:#166534;
+    padding:6px 12px;
+    border-radius:30px;
+    font-size:13px;
+    font-weight:600;
+    display:inline-block;
+}
+
+/* MODAL */
+
+.modal{
+    display:none;
+    position:fixed;
+    z-index:999;
+    left:0;
+    top:0;
+    width:100%;
+    height:100%;
+    overflow:auto;
+    background:rgba(0,0,0,0.55);
+    backdrop-filter:blur(4px);
+}
+
+.modal-content{
+    background:white;
+    margin:10% auto;
+    padding:35px;
+    border-radius:24px;
+    width:90%;
+    max-width:450px;
+    text-align:center;
+    animation:popup 0.3s ease;
+}
+
+@keyframes popup{
+
+    from{
+        opacity:0;
+        transform:translateY(20px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+
+}
+
+.modal h3{
+    color:#333;
+    margin-bottom:20px;
+}
+
+.progress-wrapper{
+    width:100%;
+    background:#e2e8f0;
+    border-radius:50px;
+    overflow:hidden;
+}
+
+#loadingProgress{
+    background:linear-gradient(90deg,#10b981,#0f766e);
+    height:28px;
+    width:0%;
+    text-align:center;
+    color:white;
+    line-height:28px;
+    border-radius:50px;
+    transition:0.3s;
+}
+
+.close-btn{
+    margin-top:20px;
+    padding:12px 24px;
+    border:none;
+    border-radius:12px;
+    background:#ef4444;
+    color:white;
+    font-size:15px;
+    cursor:pointer;
+    font-weight:600;
+}
+
+.footer{
+    max-width:1100px;
+    margin:20px auto 0;
+    text-align:center;
+    color:white;
+    background:rgba(255,255,255,0.12);
+    padding:18px;
+    border-radius:18px;
+    line-height:1.8;
+    font-size:15px;
+    backdrop-filter:blur(8px);
+}
+
+@media(max-width:768px){
+
+    .container{
+        padding:25px;
+    }
+
+    h1{
+        font-size:1.5rem;
+    }
+
+    .search-container{
+        grid-template-columns:1fr;
+    }
+
+    .results-table th,
+    .results-table td{
+        padding:12px;
+        font-size:14px;
+    }
+
+}
+
+</style>
+
 </head>
+
 <body>
-    <div class="container">
-        <h1>गलकोट नगरपालिका भित्र रहेको तपाईको जग्गा कुन क्षेत्रमा पर्छ खोज्नुहोस्।</h1>
-        
-        <h9>कृपया कित्ता नं. अंग्रेजीमा उल्लेख गर्नुहोला(Please parcel number mention in English)</h9>
-        
-        <div class="search-container">
-            <label for="gaavisSelect">गाविस (Village):</label>
+
+<div class="container">
+
+    <h1>
+        गलकोट नगरपालिका भित्र रहेको तपाईको जग्गा कुन क्षेत्रमा पर्छ खोज्नुहोस्।
+    </h1>
+
+    <div class="notice">
+
+        कृपया कित्ता नं. अंग्रेजीमा उल्लेख गर्नुहोला
+        (Please parcel number mention in English)
+
+    </div>
+
+    <div class="search-container">
+
+        <div>
+
+            <label for="gaavisSelect">
+                गाविस (Village)
+            </label>
+
             <select id="gaavisSelect">
-                <option value="">Select गाविस...</option>
-                <option value="दुदिलाभाटी">दुदिलाभाटी</option>
-                <option value="नरेठाँटी">नरेठाँटी</option>
-                <option value="हटिया">हटिया</option>
-                <option value="हरिचौँर">हरिचौँर</option>
-                <option value="मल्म">मल्म</option>
-                <option value="काँडेवास">काँडेवास</option>
-                <option value="पाण्डवखानी">पाण्डवखानी</option>
-                <option value="रिघा">रिघा</option>
+
+                <option value="">
+                    Select गाविस...
+                </option>
+
+                <option value="दुदिलाभाटी">
+                    दुदिलाभाटी
+                </option>
+
+                <option value="नरेठाँटी">
+                    नरेठाँटी
+                </option>
+
+                <option value="हटिया">
+                    हटिया
+                </option>
+
+                <option value="हरिचौँर">
+                    हरिचौँर
+                </option>
+
+                <option value="मल्म">
+                    मल्म
+                </option>
+
+                <option value="काँडेवास">
+                    काँडेवास
+                </option>
+
+                <option value="पाण्डवखानी">
+                    पाण्डवखानी
+                </option>
+
+                <option value="रिघा">
+                    रिघा
+                </option>
+
             </select>
 
-            <label for="wardNumberSelect">वार्ड नं. (Ward Number):</label>
+        </div>
+
+        <div>
+
+            <label for="wardNumberSelect">
+                वार्ड नं. (Ward Number)
+            </label>
+
             <select id="wardNumberSelect">
-                <option value="">Select वार्ड नं....</option>
+
+                <option value="">
+                    Select वार्ड नं....
+                </option>
+
                 <option value="1">1</option>
                 <option value="2">2</option>
                 <option value="3">3</option>
@@ -74,37 +369,100 @@
                 <option value="7">7</option>
                 <option value="8">8</option>
                 <option value="9">9</option>
+
             </select>
 
-            <label>कित्ता नं. (Parcel Number):</label>
-            <input type="text" id="kittaNamInput" placeholder="कित्ता नं. (Kitta Number)">
-            <button onclick="searchData()">Search</button>
         </div>
 
-        <!-- Modal for loading -->
-        <div id="loadingModal" class="modal">
-            <div class="modal-content">
-                <h3>खोजि कार्य भइरहेको छ...</h3>
-                <div id="loadingProgress"></div>
-            </div>
+        <div style="grid-column:1/-1;">
+
+            <label>
+                कित्ता नं. (Parcel Number)
+            </label>
+
+            <input
+                type="text"
+                id="kittaNamInput"
+                placeholder="कित्ता नं. (Kitta Number)"
+            >
+
         </div>
 
-        <!-- Modal for no results found -->
-        <div id="noResultsModal" class="modal">
-            <div class="modal-content">
-                <h3>विवरण फेला परेन!</h3>
-                <p>तपाईले खोजेको विवरण भेटिएन विवरण सुधारका लागि कित्तानापी नक्सा, जग्गाधनी दर्ता प्रमाण पूर्जा सहित गलकोट नगरपालिकाको भूमि व्यवस्थापन शाखामा सम्पर्क गर्नुहोला]।</p>
-                <button onclick="closeNoResultsModal()">Close</button>
-            </div>
-        </div>
+        <button onclick="searchData()">
 
-        <div id="resultsContainer">
-            <!-- Results will be displayed here dynamically -->
-        </div>
+            🔍 Search
+
+        </button>
+
     </div>
 
-    <h5>यो वर्गीकरण विवरण नापी कार्यालयको जिर्ण नक्सा डाटाबाट निर्माण गरिएको हुनाले कुनै त्रुटी भेटिएमा सुधार गर्न सकिनेछ...</h5>
+    <!-- Loading Modal -->
 
-    <script src="script.js"></script>
+    <div id="loadingModal" class="modal">
+
+        <div class="modal-content">
+
+            <h3>
+                खोजि कार्य भइरहेको छ...
+            </h3>
+
+            <div class="progress-wrapper">
+
+                <div id="loadingProgress">
+                    0%
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- No Results Modal -->
+
+    <div id="noResultsModal" class="modal">
+
+        <div class="modal-content">
+
+            <h3>
+                विवरण फेला परेन!
+            </h3>
+
+            <p style="line-height:1.8;">
+
+                तपाईले खोजेको विवरण भेटिएन।
+                विवरण सुधारका लागि
+                कित्तानापी नक्सा,
+                जग्गाधनी दर्ता प्रमाण पूर्जा सहित
+                गलकोट नगरपालिकाको भूमि व्यवस्थापन शाखामा
+                सम्पर्क गर्नुहोला।
+
+            </p>
+
+            <button
+                class="close-btn"
+                onclick="closeNoResultsModal()"
+            >
+                Close
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- RESULTS -->
+
+    <div id="resultsContainer"></div>
+
+</div>
+
+<div class="footer">
+
+    यो वर्गीकरण विवरण नापी कार्यालयको जिर्ण नक्सा डाटाबाट निर्माण गरिएको हुनाले कुनै त्रुटी भेटिएमा सुधार गर्न सकिनेछ...
+
+</div>
+
+<script src="script.js"></script>
+
 </body>
 </html>
