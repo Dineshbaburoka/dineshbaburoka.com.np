@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>गलकोट नगरपालिकाको कर्मचारी परिचयपत्र (Portrait)</title>
+<style>
+  /* ====== Physical card size (CR80 Portrait) ====== */
+  @page { size: 54mm 85.6mm; margin: 0; }
+  html, body { height: 100%; }
+  body { margin: 0; font-family: Arial, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background:#f4f4f4; }
+
+  :root {
+    --card-w-mm: 54mm;
+    --card-h-mm: 85.6mm;
+    --card-w: 260px; /* screen preview size adjusted for portrait aspect ratio */
+    --card-h: 412px;
+    --radius: 12px;
+    --brand: #007bff;
+  }
+
+  h1 { text-align:center; margin: 16px 0 6px; }
+  .hint { text-align:center; color:#00008B; margin: 0 0 16px; }
+
+  /* Layout changes to fit Saved Records on the right */
+  .main-container { display: flex; max-width: 1300px; margin: 10px auto; gap: 20px; padding: 0 10px; }
+  form { flex: 2; background:#fff; padding: 16px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,.12); }
+  
+  /* Saved List Sidebar & Settings Styling */
+  .saved-sidebar { flex: 1; background: #fff; padding: 16px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,.12); max-height: 85vh; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+  .settings-box { background: #f8f9fa; padding: 12px; border-radius: 8px; border: 1px dashed #ccc; }
+  .saved-list { list-style: none; padding: 0; margin: 0; }
+  .saved-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; font-size: 14px; }
+  .saved-item:hover { background: #f9f9f9; }
+  .item-actions button { padding: 4px 8px; font-size: 12px; border-radius: 4px; margin-left: 4px; }
+  .btn-use { background: #28a745 !important; }
+  .btn-delete { background: #dc3545 !important; }
+
+  .grid { display:grid; grid-template-columns: repeat(2, minmax(260px,1fr)); gap: 12px 16px; }
+  h3 { margin: 14px 0 6px; text-decoration: underline; }
+  label { display:block; font-size: 13px; margin: 4px 0; font-weight: 600; }
+  input[type="text"], input[type="file"], .controls input[type="range"] { width:100%; padding:6px 8px; font-size:14px; border:1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+  .controls { display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; align-items:end; margin-top: 8px; }
+  .controls .row { display:flex; gap:4px; align-items:center; }
+  button { padding: 10px 16px; background: var(--brand); color:#fff; border:0; border-radius: 8px; font-weight:600; cursor:pointer; }
+  button.secondary { background:#444; }
+  button:hover { filter: brightness(.95); }
+
+  /* ====== Flip-able screen preview (Portrait Mode) ====== */
+  .stage { display:flex; justify-content:center; gap: 24px; flex-wrap:wrap; margin: 18px auto; }
+  .preview-card { width: var(--card-w); height: var(--card-h); border-radius: var(--radius); position:relative; transform-style: preserve-3d; transition: transform .5s ease; cursor:pointer; }
+  .preview-card:hover { transform: rotateY(180deg); }
+  .side { position:absolute; inset:0; border:2px solid #000; border-radius: var(--radius); overflow:hidden; backface-visibility:hidden; font-size: 11px; line-height: 1.2; background:#fff; display: flex; flex-direction: column; align-items: center; padding: 6px; box-sizing: border-box; }
+  .side.back { transform: rotateY(180deg); background:#eee; }
+
+  .bg-watermark { position:absolute; inset:0; z-index:0; width:100%; height:100%; object-fit: cover; object-position: center; opacity: .13; pointer-events: none; }
+  .logo { width:40px; height:40px; object-fit:contain; z-index:2; margin-bottom: 2px; }
+  .photo { width:75px; height:95px; object-fit: cover; border:1px solid #000; background:#fff; z-index:2; margin: 5px 0; }
+  .header { position:relative; z-index:2; text-align:center; width: 100%; }
+  .header h6, .header h5, .header h4 { margin:1px 0; font-weight:bold; color:red; line-height: 1.1;}
+  .header h6 { font-size: 10px; }
+  .header h5 { font-size: 11px; }
+  .header h4 { font-size:12px; text-decoration: underline; margin-top: 3px; color: #000; }
+  
+  .content { position:relative; z-index:2; width: 100%; padding: 0 4px; box-sizing: border-box; text-align: left; margin-top: 4px;}
+  .content p { margin:3px 0; word-break: break-all; }
+
+  /* Bottom Area Setup for Signatures */
+  .bottom-signatures { position: absolute; bottom: 6px; left: 6px; right: 6px; height: 65px; z-index: 2; display: flex; justify-content: space-between; align-items: flex-end; }
+
+  .emp-sign-wrap { display: flex; flex-direction: column; align-items: center; width: 48%; position: relative;}
+  .emp-sign { width:90px; height:25px; object-fit: contain; cursor: grab; user-select:none; z-index: 3;}
+  .emp-sign.dragging { cursor: grabbing; }
+  .emp-sign-label { font-size:9px; text-align: center; border-top: 1px dashed #555; width: 100%; padding-top: 2px; margin-top: 2px; color: #333;}
+
+  .official-sign-wrap { display: flex; flex-direction: column; align-items: center; width: 48%; text-align:center; }
+  .official-sign { width:90px; height:25px; object-fit: contain; display:block; margin-bottom: 2px; }
+  .official-meta { font-size:8px; line-height:1.1; width: 100%; border-top: 1px dashed #555; padding-top: 2px;}
+
+  /* ====== Print layout ====== */
+  .print-page { display:none; }
+  .print-card { width: var(--card-w-mm); height: var(--card-h-mm); position: relative; overflow:hidden; box-sizing: border-box; padding: 2mm; display: flex; flex-direction: column; align-items: center; background: #fff;}
+  .print-card .bg-watermark { opacity:.13; }
+  .print-card .logo { width:10mm; height:10mm; margin-bottom: 0.5mm;}
+  .print-card .photo { width:18mm; height:23mm; border: .3mm solid #000; margin: 1mm 0;}
+  .print-card .header { color:red; width: 100%;}
+  .print-card .header div { font-weight:700; text-align: center; line-height: 1.1;}
+  .print-card .content { margin-top: 1mm; width: 100%; padding: 0; font-size: 2.3mm; font-weight:bold; }
+  .print-card .content div { margin-bottom: 0.6mm; }
+  
+  .print-card .bottom-signatures { position: absolute; bottom: 2mm; left: 2mm; right: 2mm; height: 16mm; display: flex; justify-content: space-between; align-items: flex-end;}
+  .print-card .emp-sign-wrap { width: 47%; }
+  .print-card .emp-sign { width: 22mm; height: 7mm; }
+  .print-card .emp-sign-label { font-size: 1.8mm; padding-top: 0.5mm; margin-top: 0.5mm;}
+  
+  .print-card .official-sign-wrap { width: 47%; }
+  .print-card .official-sign { width: 22mm; height: 7mm; }
+  .print-card .official-meta { font-size: 1.6mm; padding-top: 0.5mm;}
+  
+  .border { position:absolute; inset:0; border: .4mm solid #000; border-radius: 2mm; pointer-events: none; z-index: 10;}
+
+  @media print {
+    body { background: #fff; }
+    .main-container, .stage, .controls-help { display:none !important; }
+    .print-page { display:block; break-after: page; page-break-after: always; }
+  }
+</style>
+</head>
+<body>
+
+<div class="main-container">
+  <!-- Form input section -->
+  <form id="idForm">
+    <input type="hidden" id="edit_index" value="">
+
+    <h3>नेपाली विवरण (Front - Portrait)</h3>
+    <div class="grid">
+      <div>
+        <label>कर्मचारीको पूरा नाम:</label><input type="text" id="name_ne" placeholder="उदाहरण: दिपक केसी" required>
+        <label>कर्मचारी संकेत नं.:</label><input type="text" id="signal_no_ne" placeholder="12345" required>
+        <label>पद:</label><input type="text" id="position_ne" placeholder="सहायक स्तर" required>
+        <label>ना.प्र.नं./जारी जिल्ला:</label><input type="text" id="citizenship_ne" placeholder="१२-०१-००१-०१२३/रुकुम पश्चिम" required>
+        <label>राष्ट्रिय परिचयपत्र नम्बर:</label><input type="text" id="ra_pa_no_ne" placeholder="123456789" required>
+        <label>रक्त समूह:</label><input type="text" id="blood_group_ne" placeholder="ए.बि. पोजेटिभ" required>
+        <label>सम्पर्क नं.:</label><input type="text" id="contact_no_ne" placeholder="९८५७६२६५४२" required>
+      </div>
+      <div>
+        <label>Photo Upload (कर्मचारीको फोटो):</label>
+        <input type="file" id="photo" accept="image/*">
+        <label>Employee Signature (कर्मचारी हस्ताक्षर):</label>
+        <input type="file" id="empSignature" accept="image/*">
+        <div class="controls">
+          <div class="row">
+            <input type="checkbox" id="enableDrag" />
+            <label for="enableDrag">Drag</label>
+          </div>
+          <div>
+            <label for="signSize">Size (px)</label>
+            <input type="range" id="signSize" min="50" max="150" value="90">
+          </div>
+          <div>
+            <button type="button" class="secondary" id="resetSig" style="padding: 6px 10px; font-size:12px;">Reset</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h3>English Details (Back - Portrait)</h3>
+    <div class="grid">
+      <div>
+        <label>Employee Name:</label><input type="text" id="name_en" placeholder="Deepak KC" required>
+        <label>Employee SheetRoll No.:</label><input type="text" id="signal_no_en" placeholder="12345" required>
+        <label>Position:</label><input type="text" id="position_en" placeholder="Assistant Level" required>
+        <label>Citizenship No./Issued District:</label><input type="text" id="citizenship_en" placeholder="12-01-001-0123" required>
+        <label>NId No:</label><input type="text" id="ra_pa_no_en" placeholder="123456789" required>
+        <label>Blood Group:</label><input type="text" id="blood_group_en" placeholder="O+" required>
+        <label>Contact No.:</label><input type="text" id="contact_no_en" placeholder="98XXXXXXXX" required>
+      </div>
+      <div>
+        <label>Official Name (NE):</label>
+        <input type="text" id="official_name_ne" value="सुर्य प्रसाद उपाध्याय">
+        <label>Official Title (NE):</label>
+        <input type="text" id="official_title_ne" value="प्रमुख प्रशासकीय अधिकृत">
+        <label>Official Name (EN):</label>
+        <input type="text" id="official_name_en" value="Surya Prasad Upadhyay">
+        <label>Official Title (EN):</label>
+        <input type="text" id="official_title_en" value="Chief Administrative Officer">
+        <label style="color: gray; margin-top: 10px;">Office Stamp (optional):</label>
+        <input type="file" id="officeStamp" accept="image/*">
+      </div>
+    </div>
+
+    <div style="display:flex; gap:10px; margin-top:20px;">
+      <button type="button" id="generateBtn">Generate & Auto Save</button>
+      <button type="button" id="printBtn" class="secondary">Print</button>
+    </div>
+  </form>
+
+  <!-- Sidebar section for Saved Records & Master Signature -->
+  <div class="saved-sidebar">
+    <div class="settings-box">
+      <h4 style="margin: 0 0 8px 0; color: #d9534f; font-size: 14px;">✒️ Official Signature Master (Auto-Save)</h4>
+      <p style="font-size: 11px; margin: 0 0 8px 0; color: #555;">कार्यालय प्रमुखको हस्ताक्षर यहाँ १ पटक सेभ गरेपछि सधैं स्वतः प्रयोग हुनेछ।</p>
+      <input type="file" id="masterOfficialSignature" accept="image/*" style="font-size: 12px; padding: 4px;">
+      <button type="button" id="saveMasterSigBtn" style="padding: 5px 10px; font-size: 12px; background: #333; width: 100%; margin-top: 5px;">Save Official Sign</button>
+      <div id="masterSigStatus" style="font-size:11px; color: green; margin-top: 4px; font-weight: bold;"></div>
+    </div>
+
+    <div>
+      <h3 style="margin-top: 0;">सुरक्षित विवरणहरू (Saved)</h3>
+      <ul class="saved-list" id="savedList"></ul>
+    </div>
+  </div>
+</div>
+
+<!-- Screen preview -->
+<div class="stage" id="stage"></div>
+
+<!-- Print pages -->
+<div id="printFront" class="print-page"></div>
+<div id="printBack" class="print-page"></div>
+
+<script>
+  const ASSETS = {
+    logo: 'logo.png',               
+    watermark: 'bgshadow.png',      
+    officialSignFallback: 'signature1.png' 
+  };
+
+  const $ = (sel, ctx=document) => ctx.querySelector(sel);
+  
+  const fileToDataURL = (file) => new Promise((resolve) => {
+    if (!file) return resolve(null);
+    const fr = new FileReader(); fr.onload = e => resolve(e.target.result); fr.readAsDataURL(file);
+  });
+
+  const form = $('#idForm');
+  const stage = $('#stage');
+  const printFront = $('#printFront');
+  const printBack = $('#printBack');
+  const enableDrag = $('#enableDrag');
+  const signSize = $('#signSize');
+  const resetSig = $('#resetSig');
+  const savedList = $('#savedList');
+  const editIndexInput = $('#edit_index');
+  const masterOfficialSignatureInput = $('#masterOfficialSignature');
+  const masterSigStatus = $('#masterSigStatus');
+
+  let empSigW = 90; 
+  let empFrontPos = { left: 5, top: 5 }; 
+  let empBackPos  = { left: 5, top: 5 };
+
+  let currentLoadedImages = { photo: '', empSignature: '', officeStamp: '' };
+  let globalOfficialSignDataURL = ''; 
+
+  window.onload = function() {
+    loadSavedRecords();
+    
+    const savedMasterSig = localStorage.getItem('galkot_master_official_sig');
+    if (savedMasterSig) {
+      globalOfficialSignDataURL = savedMasterSig;
+      masterSigStatus.innerText = "✓ Official Signature Loaded (Auto Mode)";
+    } else {
+      globalOfficialSignDataURL = ASSETS.officialSignFallback;
+      masterSigStatus.innerText = "⚠ Using Fallback Sign (Not saved yet)";
+    }
+  };
+
+  $('#saveMasterSigBtn').addEventListener('click', async () => {
+    const file = masterOfficialSignatureInput.files[0];
+    if (!file) {
+      alert("कृपया पहिले एउटा हस्ताक्षर फाइल छनौट गर्नुहोस्!");
+      return;
+    }
+    const dataURL = await fileToDataURL(file);
+    localStorage.setItem('galkot_master_official_sig', dataURL);
+    globalOfficialSignDataURL = dataURL;
+    masterSigStatus.innerText = "✓ Official Signature Saved & Activated!";
+    alert("कार्यालय प्रमुखको हस्ताक्षर सफलतापूर्वक सुरक्षित गरियो! अब परिचय पत्र बनाउँदा यो स्वतः बस्नेछ।");
+  });
+
+  signSize.addEventListener('input', () => {
+    empSigW = parseInt(signSize.value, 10);
+    document.querySelectorAll('.emp-sign').forEach(img => img.style.width = empSigW + 'px');
+  });
+
+  resetSig.addEventListener('click', () => {
+    empFrontPos = { left: 5, top: 5 };
+    empBackPos  = { left: 5, top: 5 };
+    const f = document.querySelector('.emp-sign.front-side');
+    const b = document.querySelector('.emp-sign.back-side');
+    if (f) { f.style.left = '0px'; f.style.top = '0px'; }
+    if (b) { b.style.left = '0px';  b.style.top = '0px'; }
+  });
+
+  function makeDraggable(img, bounds) {
+    let dragging = false, sx=0, sy=0, sl=0, st=0;
+    img.addEventListener('pointerdown', (e) => {
+      if (!enableDrag.checked) return;
+      dragging = true; img.classList.add('dragging');
+      const rect = bounds.getBoundingClientRect(); const r = img.getBoundingClientRect();
+      sx = e.clientX; sy = e.clientY; sl = r.left - rect.left; st = r.top - rect.top;
+      img.setPointerCapture(e.pointerId);
+    });
+    img.addEventListener('pointermove', (e) => {
+      if (!dragging) return; const dx = e.clientX - sx; const dy = e.clientY - sy;
+      let nl = sl + dx, nt = st + dy;
+      const rect = bounds.getBoundingClientRect(); const r = img.getBoundingClientRect();
+      const maxL = rect.width - r.width; const maxT = rect.height - r.height;
+      nl = Math.max(0, Math.min(maxL, nl)); nt = Math.max(0, Math.min(maxT, nt));
+      img.style.left = nl + 'px'; img.style.top = nt + 'px';
+      img.style.position = 'absolute';
+    });
+    const end = (e) => { if (!dragging) return; dragging = false; img.classList.remove('dragging'); img.releasePointerCapture(e.pointerId);
+      const l = parseInt(img.style.left||'0',10), t = parseInt(img.style.top||'0',10);
+      if (img.classList.contains('front-side')) empFrontPos = { left:l, top:t }; else empBackPos = { left:l, top:t };
+    };
+    img.addEventListener('pointerup', end); img.addEventListener('pointercancel', end);
+  }
+
+  function loadSavedRecords() {
+    savedList.innerHTML = '';
+    const records = JSON.parse(localStorage.getItem('galkot_id_records') || '[]');
+    
+    records.forEach((rec, index) => {
+      const li = document.createElement('li');
+      li.className = 'saved-item';
+      li.innerHTML = `
+        <div><strong>${rec.name_ne}</strong> (${rec.signal_no_ne})</div>
+        <div class="item-actions">
+          <button type="button" class="btn-use" onclick="useRecord(${index})">Use/Edit</button>
+          <button type="button" class="btn-delete" onclick="deleteRecord(${index})">Delete</button>
+        </div>
+      `;
+      savedList.appendChild(li);
+    });
+  }
+
+  window.useRecord = function(index) {
+    const records = JSON.parse(localStorage.getItem('galkot_id_records') || '[]');
+    const rec = records[index];
+    if (!rec) return;
+
+    $('#name_ne').value = rec.name_ne;
+    $('#signal_no_ne').value = rec.signal_no_ne;
+    $('#position_ne').value = rec.position_ne;
+    $('#citizenship_ne').value = rec.citizenship_ne;
+    $('#ra_pa_no_ne').value = rec.ra_pa_no_ne;
+    $('#blood_group_ne').value = rec.blood_group_ne;
+    $('#contact_no_ne').value = rec.contact_no_ne;
+
+    $('#name_en').value = rec.name_en;
+    $('#signal_no_en').value = rec.signal_no_en;
+    $('#position_en').value = rec.position_en;
+    $('#citizenship_en').value = rec.citizenship_en;
+    $('#ra_pa_no_en').value = rec.ra_pa_no_en;
+    $('#blood_group_en').value = rec.blood_group_en;
+    $('#contact_no_en').value = rec.contact_no_en;
+
+    $('#official_name_ne').value = rec.official_name_ne;
+    $('#official_title_ne').value = rec.official_title_ne;
+    $('#official_name_en').value = rec.official_name_en;
+    $('#official_title_en').value = rec.official_title_en;
+
+    currentLoadedImages.photo = rec.photoURL || '';
+    currentLoadedImages.empSignature = rec.empSigURL || '';
+    currentLoadedImages.officeStamp = rec.officeStampURL || '';
+
+    $('#photo').value = '';
+    $('#empSignature').value = '';
+    $('#officeStamp').value = '';
+
+    editIndexInput.value = index;
+    $('#generateBtn').innerText = "Update & Save";
+    
+    alert(rec.name_ne + " को विवरण लोड भयो।");
+  };
+
+  window.deleteRecord = function(index) {
+    if(!confirm("के तपाईं यो विवरण हटाउन चाहनुहुन्छ?")) return;
+    let records = JSON.parse(localStorage.getItem('galkot_id_records') || '[]');
+    records.splice(index, 1);
+    localStorage.setItem('galkot_id_records', JSON.stringify(records));
+    loadSavedRecords();
+    
+    if(editIndexInput.value == index) {
+      form.reset();
+      editIndexInput.value = '';
+      $('#generateBtn').innerText = "Generate & Auto Save";
+    }
+  };
+
+  $('#generateBtn').addEventListener('click', async () => {
+    if(!$('#name_ne').value || !$('#signal_no_ne').value) {
+      return alert("कृपया कर्मचारीको नाम र संकेत नम्बर अनिवार्य भर्नुहोस्।");
+    }
+
+    const photoFile = $('#photo').files[0];
+    if (!photoFile && !currentLoadedImages.photo) {
+      return alert('कृपया कर्मचारीको फोटो अपलोड गर्नुहोस्।');
+    }
+
+    const empSignFile = $('#empSignature').files[0] || null;
+    const officeStampFile = $('#officeStamp').files[0] || null;
+
+    const uPhoto = photoFile ? await fileToDataURL(photoFile) : currentLoadedImages.photo;
+    const uEmpSig = empSignFile ? await fileToDataURL(empSignFile) : currentLoadedImages.empSignature;
+    const uOfficeStamp = officeStampFile ? await fileToDataURL(officeStampFile) : currentLoadedImages.officeStamp;
+
+    const officialSign = globalOfficialSignDataURL;
+
+    const recordData = {
+      name_ne: $('#name_ne').value.trim(),
+      signal_no_ne: $('#signal_no_ne').value.trim(),
+      position_ne: $('#position_ne').value.trim(),
+      citizenship_ne: $('#citizenship_ne').value.trim(),
+      ra_pa_no_ne: $('#ra_pa_no_ne').value.trim(),
+      blood_group_ne: $('#blood_group_ne').value.trim(),
+      contact_no_ne: $('#contact_no_ne').value.trim(),
+      name_en: $('#name_en').value.trim(),
+      signal_no_en: $('#signal_no_en').value.trim(),
+      position_en: $('#position_en').value.trim(),
+      citizenship_en: $('#citizenship_en').value.trim(),
+      ra_pa_no_en: $('#ra_pa_no_en').value.trim(),
+      blood_group_en: $('#blood_group_en').value.trim(),
+      contact_no_en: $('#contact_no_en').value.trim(),
+      official_name_ne: $('#official_name_ne').value.trim(),
+      official_title_ne: $('#official_title_ne').value.trim(),
+      official_name_en: $('#official_name_en').value.trim(),
+      official_title_en: $('#official_title_en').value.trim(),
+      photoURL: uPhoto,
+      empSigURL: uEmpSig,
+      officeStampURL: uOfficeStamp
+    };
+
+    let records = JSON.parse(localStorage.getItem('galkot_id_records') || '[]');
+    const editIndex = editIndexInput.value;
+
+    if (editIndex !== "") {
+      records[editIndex] = recordData;
+      editIndexInput.value = ""; 
+      $('#generateBtn').innerText = "Generate & Auto Save";
+    } else {
+      records.push(recordData);
+    }
+    
+    localStorage.setItem('galkot_id_records', JSON.stringify(records));
+    loadSavedRecords(); 
+
+    // ------- Build Portrait Screen Preview Layout -------
+    stage.innerHTML = `
+      <div class="preview-card" id="previewCard">
+        <div class="side front">
+          <img class="bg-watermark" src="${ASSETS.watermark}" alt="bg">
+          <img class="logo" src="${ASSETS.logo}" alt="logo">
+          <div class="header">
+            <h6>गलकोट नगरपालिका</h6>
+            <h5>नगर कार्यपालिकाको कार्यालय</h5>
+            <h6>गलकोट, बागलुङ</h6>
+            <h4>कर्मचारी परिचय पत्र</h4>
+          </div>
+          <img class="photo" src="${uPhoto}" alt="photo">
+          <div class="content">
+            <p><strong>नाम:</strong> ${recordData.name_ne}</p>
+            <p><strong>संकेत नं.:</strong> ${recordData.signal_no_ne}</p>
+            <p><strong>पद:</strong> ${recordData.position_ne}</p>
+            <p><strong>ना.प्र.नं.:</strong> ${recordData.citizenship_ne}</p>
+            <p><strong>रा.प.नं.:</strong> ${recordData.ra_pa_no_ne}</p>
+            <p><strong>रक्त समूह:</strong> ${recordData.blood_group_ne}</p>
+            <p><strong>सम्पर्क नं.:</strong> ${recordData.contact_no_ne}</p>
+          </div>
+          <div class="bottom-signatures">
+            <div class="emp-sign-wrap" id="empSignBoundsFront">
+              ${uEmpSig ? `<img src="${uEmpSig}" class="emp-sign front-side" style="width:${empSigW}px;" alt="emp-sign">` : '<div style="height:25px;"></div>'}
+              <span class="emp-sign-label">कर्मचारी हस्ताक्षर</span>
+            </div>
+            <div class="official-sign-wrap">
+              <img class="official-sign" src="${officialSign}" alt="official">
+              <div class="official-meta">
+                <div>${recordData.official_name_ne}</div>
+                <div>${recordData.official_title_ne}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="side back">
+          <img class="bg-watermark" src="${ASSETS.watermark}" alt="bg">
+          <img class="logo" src="${ASSETS.logo}" alt="logo">
+          <div class="header">
+            <h6>Galkot Municipality</h6>
+            <h5>Office of the Municipal Executive</h5>
+            <h6>Galkot, Baglung</h6>
+            <h4>Employee Identity Card</h4>
+          </div>
+          <img class="photo" src="${uPhoto}" alt="photo">
+          <div class="content">
+            <p><strong>Name:</strong> ${recordData.name_en}</p>
+            <p><strong>Symbol No:</strong> ${recordData.signal_no_en}</p>
+            <p><strong>Position:</strong> ${recordData.position_en}</p>
+            <p><strong>Citizenship:</strong> ${recordData.citizenship_en}</p>
+            <p><strong>NID No.:</strong> ${recordData.ra_pa_no_en}</p>
+            <p><strong>Blood Group:</strong> ${recordData.blood_group_en}</p>
+            <p><strong>Contact No.:</strong> ${recordData.contact_no_en}</p>
+          </div>
+          <div class="bottom-signatures">
+            <div class="emp-sign-wrap" id="empSignBoundsBack">
+              ${uEmpSig ? `<img src="${uEmpSig}" class="emp-sign back-side" style="width:${empSigW}px;" alt="emp-sign">` : '<div style="height:25px;"></div>'}
+              <span class="emp-sign-label">Signature</span>
+            </div>
+            <div class="official-sign-wrap">
+              <img class="official-sign" src="${officialSign}" alt="official">
+              <div class="official-meta">
+                <div>${recordData.official_name_en}</div>
+                <div>${recordData.official_title_en}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+
+    // Make signature draggable safely inside its box boundary
+    const fSig = document.querySelector('.emp-sign.front-side');
+    const bSig = document.querySelector('.emp-sign.back-side');
+    if(fSig) makeDraggable(fSig, $('#empSignBoundsFront'));
+    if(bSig) makeDraggable(bSig, $('#empSignBoundsBack'));
+
+    // ------- Build Print Page Portrait Layout -------
+    const frontHTML = `
+      <div class="print-card">
+        <div class="border"></div>
+        <img class="bg-watermark" src="${ASSETS.watermark}" alt="bg">
+        <img class="logo" src="${ASSETS.logo}" alt="logo">
+        <div class="header">
+          <div style="font-size:2.8mm;">गलकोट नगरपालिका</div>
+          <div style="font-size:2.5mm;">नगर कार्यपालिकाको कार्यालय</div>
+          <div style="font-size:2.2mm;">गलकोट, बागलुङ</div>
+          <div style="font-size:2.8mm; text-decoration:underline; margin-top:1mm; color:#000;">कर्मचारी परिचय पत्र</div>
+        </div>
+        <img class="photo" src="${uPhoto}" alt="photo">
+        <div class="content">
+          <div><strong>नाम:</strong> ${recordData.name_ne}</div>
+          <div><strong>संकेत नं.:</strong> ${recordData.signal_no_ne}</div>
+          <div><strong>पद:</strong> ${recordData.position_ne}</div>
+          <div><strong>नागरिकता नं.:</strong> ${recordData.citizenship_ne}</div>
+          <div><strong>रा.प.नं.:</strong> ${recordData.ra_pa_no_ne}</div>
+          <div><strong>रक्त समूह:</strong> ${recordData.blood_group_ne}</div>
+          <div><strong>सम्पर्क नं.:</strong> ${recordData.contact_no_ne}</div>
+        </div>
+        <div class="bottom-signatures">
+          <div class="emp-sign-wrap">
+            ${uEmpSig ? `<img src="${uEmpSig}" class="emp-sign">` : '<div style="height:7mm;"></div>'}
+            <div class="emp-sign-label">कर्मचारी हस्ताक्षर</div>
+          </div>
+          <div class="official-sign-wrap">
+            <img class="official-sign" src="${officialSign}" alt="official">
+            <div class="official-meta">
+              <div>${recordData.official_name_ne}</div>
+              <div>${recordData.official_title_ne}</div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+
+    const backHTML = `
+      <div class="print-card">
+        <div class="border"></div>
+        <img class="bg-watermark" src="${ASSETS.watermark}" alt="bg">
+        <img class="logo" src="${ASSETS.logo}" alt="logo">
+        <div class="header">
+          <div style="font-size:2.8mm;">Galkot Municipality</div>
+          <div style="font-size:2.3mm;">Office of the Municipal Executive</div>
+          <div style="font-size:2.2mm;">Galkot, Baglung</div>
+          <div style="font-size:2.8mm; text-decoration:underline; margin-top:1mm; color:#000;">Employee Identity Card</div>
+        </div>
+        <img class="photo" src="${uPhoto}" alt="photo">
+        <div class="content">
+          <div><strong>Name:</strong> ${recordData.name_en}</div>
+          <div><strong>Symbol No.:</strong> ${recordData.signal_no_en}</div>
+          <div><strong>Position:</strong> ${recordData.position_en}</div>
+          <div><strong>Citizenship No:</strong> ${recordData.citizenship_en}</div>
+          <div><strong>NID No.:</strong> ${recordData.ra_pa_no_en}</div>
+          <div><strong>Blood Group:</strong> ${recordData.blood_group_en}</div>
+          <div><strong>Contact No:</strong> ${recordData.contact_no_en}</div>
+        </div>
+        <div class="bottom-signatures">
+          <div class="emp-sign-wrap">
+            ${uEmpSig ? `<img src="${uEmpSig}" class="emp-sign">` : '<div style="height:7mm;"></div>'}
+            <div class="emp-sign-label">Employee Signature</div>
+          </div>
+          <div class="official-sign-wrap">
+            <img class="official-sign" src="${officialSign}" alt="official">
+            <div class="official-meta">
+              <div>${recordData.official_name_en}</div>
+              <div>${recordData.official_title_en}</div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+
+    printFront.innerHTML = frontHTML;
+    printBack.innerHTML = backHTML;
+    
+    form.reset();
+    currentLoadedImages = { photo: '', empSignature: '', officeStamp: '' };
+    
+    alert("परिचय पत्र (Portrait) सफलतापूर्वक निर्माण भयो र विवरण स्वतः सुरक्षित भयो।");
+  });
+
+  $('#printBtn').addEventListener('click', () => {
+    if(!printFront.innerHTML || !printBack.innerHTML) {
+      alert("प्रिन्ट गर्नु अगाडि कृपया 'Generate & Auto Save' बटन थिचेर कार्ड तयार पार्नुहोस्।");
+      return;
+    }
+    window.print();
+  });
+</script>
+</body>
+</html>
