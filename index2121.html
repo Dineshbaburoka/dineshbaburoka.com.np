@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>जग्गा वर्गीकरणको सिफारिस</title>
+  <title>जग्गा वर्गीकरणको सिफारिस व्यवस्थापन प्रणाली</title>
   <style>
-    body { font-family: 'Kalimati', sans-serif; margin: 10px; }
-    p { margin: 4px 0; }
+    body { font-family: 'Kalimati', sans-serif; margin: 15px; color: #333; }
+    p { margin: 5px 0; }
     .letter-head { position: relative; text-align: center; margin-bottom: 10px; }
     .letter-head img { position: absolute; top: 0; left: 0; width: 105px; height: auto; }
     .letter-head h1 { font-size: 22px; margin-bottom: 2px; }
@@ -20,112 +20,118 @@
     .subject { display: flex; align-items: center; justify-content: center; margin: 10px 0; }
     .subject p { font-weight: bold; margin: 0; }
     table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    table, th, td { border: 1px solid black; padding: 4px; margin: 0; }
+    table, th, td { border: 1px solid black; padding: 6px; margin: 0; font-size: 14px; text-align: left; }
     th { background-color: #f2f2f2; }
-    .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
+    .modal { display: none; position: fixed; z-index: 99; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
     .modal-content { background-color: white; margin: auto; padding: 15px; border: 1px solid #888; width: 80%; max-width: 600px; border-radius: 10px; }
-    .modal-header { text-align: center; font-size: 18px; margin-bottom: 10px; }
-    .modal-body label { font-size: 15px; }
-    .modal-body input { padding: 4px; font-size: 14px; width: 100%; margin-bottom: 5px; }
+    .modal-header { text-align: center; font-size: 18px; margin-bottom: 10px; font-weight: bold;}
+    .modal-body label { font-size: 14px; font-weight: bold; display: block; margin-top: 5px; }
+    .modal-body input { padding: 4px; font-size: 14px; width: 97%; margin-bottom: 5px; }
     .modal-footer { text-align: center; margin-top: 10px; }
-    .modal-footer button, #detailsButton, #printButton { padding: 8px 16px; font-size: 14px; cursor: pointer; margin: 4px; }
-    .search-container { margin-top: 10px; }
+    
+    button { padding: 6px 14px; font-size: 14px; cursor: pointer; margin: 2px; border-radius: 4px; border: 1px solid #ccc; font-weight: bold; }
+    #detailsButton { background-color: #007bff; color: white; border: none; }
+    #printButton { background-color: #28a745; color: white; border: none; padding: 10px 24px; font-size: 16px; }
+    .btn-danger { background-color: #dc3545; color: white; border: none; }
+    .btn-warning { background-color: #ffc107; color: black; border: none; }
+    .btn-info { background-color: #17a2b8; color: white; border: none; }
+    
+    .search-container { margin-top: 15px; padding: 10px; background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 5px; }
+    .system-table-container { margin-top: 45px; padding: 15px; background-color: #f4f6f9; border: 2px solid #ced4da; border-radius: 8px; }
+    .history-search-box { margin-bottom: 15px; padding: 10px; background-color: #fff; border: 1px solid #007bff; border-radius: 5px; }
+    .history-search-box input { padding: 6px; font-size: 14px; width: 300px; border: 1px solid #ccc; border-radius: 4px; }
 
-    /* hide elements when printing (no-print class) */
     @media print {
-      .search-container, #printButton, #detailsButton, #resultsContainer, .no-print {
+      .search-container, #printButton, #detailsButton, .btn-clear, #resultsContainer, .system-table-container, .no-print {
         display: none !important;
       }
-
-      #printDetailsContainer { display: block; }
       body { text-align: justify; }
-
-      /* Footer line fixed at bottom (2 cm) */
-      .footer-line {
-        position: fixed;
-        bottom: 2cm;
-        left: 0;
-        width: 100%;
-        border-top: 2px solid black;
-      }
-
-      .motto {
-        position: fixed;
-        bottom: 1.3cm;
-        left: 0;
-        width: 100%;
-        text-align: center;
-        font-weight: normal;
-        font-size: 12px;
-      }
+      .footer-line { position: fixed; bottom: 2cm; left: 0; width: 100%; border-top: 2px solid black; }
+      .motto { position: fixed; bottom: 1.3cm; left: 0; width: 100%; text-align: center; font-weight: normal; font-size: 12px; }
     }
-
-    #printDetailsContainer { display: none; }
-    .footer { text-align: center; margin-top: 10px; }
+    .footer { text-align: center; margin-top: 15px; }
     .motto { text-align: center; font-weight: normal; font-size: 12px; margin-top: 10px; }
   </style>
 </head>
 <body>
 
-  <div class="letter-head">
-    <img src="Emblem_of_Nepal.svg.png" alt="Header Image" />
-    <div>
-      <h1>गलकोट नगरपालिका</h1>
-      <h3 id="officeHeader">नगर कार्यपालिकाको कार्यालय</h3>
-      <h3>गलकोट, बागलुङ</h3>
+  <!-- मुख्य सिफारिस पत्र ढाँचा -->
+  <div id="printableSifarisDocument">
+    <div class="letter-head">
+      <img src="Emblem_of_Nepal.svg.png" alt="नेपालको निशान छाप" />
+      <div>
+        <h1>गलकोट नगरपालिका</h1>
+        <h3 id="officeHeader">नगर कार्यपालिकाको कार्यालय</h3>
+        <h3>गलकोट, बागलुङ</h3>
+      </div>
     </div>
+
+    <div class="letter-info">
+      <div class="inline-text inline-text-left"><p id="patraSankhya">पत्र संख्या: </p></div>
+      <div class="inline-text inline-text-right"><p id="province">गण्डकी प्रदेश, नेपाल</p></div>
+      <div class="clear-float"></div>
+      <div class="header-line"></div>
+      <div class="inline-text inline-text-left"><p id="chalanNo">च.नं.: </p></div>
+      <div class="inline-text inline-text-right"><p id="patraMiti">मिति: २०८१/........../......</p></div>
+      <div class="clear-float"></div>
+      <div class="inline-text inline-text-right"><p id="neSan"></p></div>
+      <div class="clear-float"></div>
+    </div>
+
+    <div class="letter-body">
+      <div class="subject"><p>बिषय: भू-उपयोग क्षेत्र वर्गीकरण सम्बन्धमा।</p></div>
+      <p>श्री मालपोत कार्यालय,</p>
+      <p>बागलुङ।</p>
+      <p id="formData">प्रस्तुत विषयमा ……………… जिल्ला ………………. नगरपालिका/गाउँपालिका वार्ड नं. ……… ………. टोल बस्ने श्री …………………………………..को नाति/नातिनी/बुहारी श्री …………………………………..को छोरा/छोरी पत्नी श्री …………………………………को नाममा रहेको जग्गा यस नगरपालिकाको स्थानीय भू-उपयोग परिषद्‌बाट स्वीकृत बमोजिम देहायको क्षेत्र पर्ने व्यहोरा जानकारीका लागि अनुरोध छ।</p>
+    </div>
+
+    <h3 style="margin-top: 25px; margin-bottom: 5px;">देहाय:</h3>
+    <table id="selectedDataTable">
+      <thead>
+        <tr>
+          <th>क्र.स</th><th>गाविस</th><th>वार्ड नं.</th><th>कित्ता नं.</th><th>ग्रिड सिट नं.</th><th>वर्गीकरण क्षेत्र</th><th>कैफियत</th><th class="no-print">कार्य</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
   </div>
 
-  <div class="letter-info">
-    <div class="inline-text inline-text-left"><p id="patraSankhya">पत्र संख्या:</p></div>
-    <div class="inline-text inline-text-right"><p id="province">गण्डकी प्रदेश, नेपाल</p></div>
-    <div class="clear-float"></div>
-    <div class="header-line"></div>
-    <div class="inline-text inline-text-left"><p id="chalanNo">च.नं.:</p></div>
-    <div class="inline-text inline-text-right"><p id="patraMiti">मिति: २०८१/........../......</p></div>
-    <div class="clear-float"></div>
-    <div class="inline-text inline-text-right"><p id="neSan"></p></div>
-    <div class="clear-float"></div>
+  <!-- नियन्त्रण बटनहरू -->
+  <div style="margin-top: 20px;" class="no-print">
+    <button id="detailsButton" onclick="openModal()">१. सिफारिस पत्रको विवरण भर्नुहोस् / सच्याउनुहोस्</button>
+    <button class="btn-danger" onclick="resetForm()">फारम खाली गर्नुहोस</button>
   </div>
 
-  <div class="letter-body">
-    <div class="subject"><p>बिषय: भू-उपयोग क्षेत्र वर्गीकरण सम्बन्धमा।</p></div>
-    <p>श्री मालपोत कार्यालय,</p>
-    <p>बागलुङ।</p>
-    <p id="formData">प्रस्तुत विषयमा ……………… जिल्ला ………………. नगरपालिका/गाउँपालिका वार्ड नं. ……… ………. टोल बस्ने श्री …………………………………..को नाति/नातिनी/बुहारी श्री …………………………………..को छोरा/छोरी पत्नी श्री …………………………………को नाममा रहेको जग्गा यस नगरपालिकाको स्थानीय भू-उपयोग परिषद्‌बाट स्वीकृत बमोजिम देहायको क्षेत्र पर्ने व्यहोरा जानकारीका लागि अनुरोध छ।</p>
-  </div>
-
-  <button id="detailsButton">विवरण थप गर्नुहोस</button>
-
+  <!-- विवरण भर्ने पपअप (Modal) -->
   <div id="detailsModal" class="modal" aria-hidden="true">
     <div class="modal-content">
-      <div class="modal-header">विवरण थप्नुहोस्</div>
+      <div class="modal-header">सिफारिस पत्रको विवरण फारम</div>
       <div class="modal-body">
         <label>पत्र संख्या:</label><input type="text" id="patraSankhyaInput">
         <label>चलानी नं.:</label><input type="text" id="chalanInput">
-        <label>पत्रको मिति:</label><input type="text" id="dateInput">
+        <label>पत्रको मिति (नेपालीमा):</label><input type="text" id="dateInput" value="२०८१/०२/१५">
         <label>मिति ने.सं:</label><input type="text" id="nesanInput">
-        <label>हालको वडा नं:</label><input type="text" id="currentWardInput">
-        <label>जिल्ला:</label><input type="text" id="districtInput">
-        <label>गाउँपालिका/नगरपालिका:</label><input type="text" id="municipalityInput">
-        <label>वडा नं:</label><input type="text" id="wardInput">
-        <label>टोल:</label><input type="text" id="toleInput">
+        <label>कार्यालयको नाम (उदा: ९ नं. वडा कार्यालय):</label><input type="text" id="currentWardInput" placeholder="नगर कार्यपालिकाको कार्यालय वा वडा नं.">
+        <label>जिल्ला:</label><input type="text" id="districtInput" value="बागलुङ">
+        <label>गाउँपालिका/नगरपालिका:</label><input type="text" id="municipalityInput" value="गलकोट नगरपालिका">
+        <label>जग्गा रहेको वडा नं:</label><input type="text" id="wardInput">
+        <label>टोलको नाम:</label><input type="text" id="toleInput">
         <label>बाजेको नाम:</label><input type="text" id="grandfatherInput">
-        <label>बाबुको नाम:</label><input type="text" id="fatherInput">
+        <label>बाबु/पतिको नाम:</label><input type="text" id="fatherInput">
         <label>जग्गाधनीको नाम:</label><input type="text" id="nameInput">
-        <label>सिफारिश गर्नेको नाम:</label><input type="text" id="recommendationInput">
       </div>
       <div class="modal-footer">
-        <button onclick="addDetails()">Add Data</button>
-        <button onclick="closeModal()">Cancel</button>
+        <button onclick="saveCurrentDraft()" style="background-color: #28a745; color: white;">विवरण सुरक्षित गर्नुहोस</button>
+        <button onclick="closeModal()">बन्द गर्नुहोस</button>
       </div>
     </div>
   </div>
 
-  <div class="search-container">
-    <h3>Search for Classified Land Information</h3>
+  <!-- कित्ता खोज्ने इन्जिन -->
+  <div class="search-container no-print">
+    <h3>२. कित्ता सूचीबाट जग्गा छनोट गर्नुहोस</h3>
     <label for="gaavisSelect">गाविस:</label>
-    <select id="gaavisSelect" class="no-print">
+    <select id="gaavisSelect">
       <option value="">Select गाविस...</option>
       <option value="दुदिलाभाटी">दुदिलाभाटी</option>
       <option value="नरेठाँटी">नरेठाँटी</option>
@@ -138,7 +144,7 @@
     </select>
 
     <label for="wardNumberSelect">वार्ड नं.:</label>
-    <select id="wardNumberSelect" class="no-print">
+    <select id="wardNumberSelect">
       <option value="">Select वार्ड नं....</option>
       <option value="1">1</option><option value="2">2</option>
       <option value="3">3</option><option value="4">4</option>
@@ -147,46 +153,57 @@
     </select>
 
     <label for="kittaNamInput">कित्ता नं.:</label>
-    <input type="text" id="kittaNamInput" placeholder="कित्ता नं." class="no-print">
-    <button onclick="searchData()" class="no-print">Search</button>
+    <input type="text" id="kittaNamInput" placeholder="कित्ता नं." style="padding:4px; width:100px;">
+    <button onclick="searchData()" style="background-color: #17a2b8; color:white;">खोज्नुहोस</button>
   </div>
 
-  <div id="resultsContainer">
+  <div id="resultsContainer" class="no-print">
     <table id="resultsTable">
       <thead>
         <tr>
-          <th>क्र.स</th><th>गाविस</th><th>वार्ड नं.</th><th>कित्ता नं.</th><th>ग्रिड सिट नं.</th><th>वर्गीकरण क्षेत्र</th><th>कैफियत</th><th class="no-print">Action</th>
+          <th>क्र.स</th><th>गाविस</th><th>वार्ड नं.</th><th>कित्ता नं.</th><th>ग्रिड सिट नं.</th><th>वर्गीकरण क्षेत्र</th><th>कैफियत</th><th>कार्य</th>
         </tr>
       </thead>
       <tbody></tbody>
     </table>
   </div>
 
-  <h3 style="margin-top: 30px;">देहाय:</h3>
-  <table id="selectedDataTable" style="margin-bottom: 100px;">
-    <thead>
-      <tr>
-        <th>क्र.स</th><th>गाविस</th><th>वार्ड नं.</th><th>कित्ता नं.</th><th>ग्रिड सिट नं.</th><th>वर्गीकरण क्षेत्र</th><th>कैफियत</th><th class="no-print">Delete</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-
   <div class="footer-line"></div>
-
   <p class="motto">"कृषि, पर्यटन, जलस्रोत, स्थानीय सीप र पूर्वाधार: समृद्ध गलकोट निर्माणको मूल आधार"</p>
 
-  <div class="footer">
-    <button id="printButton" onclick="printDetails()">Print</button>
+  <div class="footer no-print">
+    <button id="printButton" onclick="printDetails()">३. यो डकुमेन्ट प्रिन्ट गर्नुहोस</button>
   </div>
 
-  <!-- Hidden container used only to ensure printed layout if needed -->
-  <div id="printDetailsContainer"></div>
+
+  <!-- मास्टर डेटाबेस र खोज्ने बक्स तालिका खण्ड -->
+  <div class="system-table-container no-print">
+    <h2>सम्पूर्ण रेकर्डहरूको मास्टर डेटाबेस (Saved Full Documents)</h2>
+    
+    <!-- मुख्य नयाँ खोज बक्स (History Search Input) -->
+    <div class="history-search-box">
+      <label for="historySearchInput" style="font-weight: bold; color: #0056b3;">🔍 जग्गाधनीको नामबाट रेकर्ड खोज्नुहोस्: </label>
+      <input type="text" id="historySearchInput" onkeyup="filterHistoryData()" placeholder="जग्गाधनीको नाम टाइप गर्नुहोस्...">
+    </div>
+
+    <p style="font-size: 13px; color: #555;">* यहाँ सुरक्षित रेकर्डहरू मध्ये जुनसुकै नागरिकको विवरण नामबाट तुरुन्त फिल्टर गरेर हेर्न सकिन्छ।</p>
+    <table id="masterHistoryTable">
+      <thead>
+        <tr>
+          <th>दर्ता/चलानी</th>
+          <th>सिफारिस मिति</th>
+          <th>जग्गाधनीको नाम</th>
+          <th>ठेगाना विवरण</th>
+          <th>छनोट कित्ता संख्या</th>
+          <th>उपलब्ध कार्यहरू</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 
 <script>
-/* --------------------------
-   Sample records (initial)
-   -------------------------- */
+// स्याम्पल जग्गा डाटाबेस
 var records = [
   { serialNumber: 1,village:"दुदिलाभाटी",wardNumber:"1",kittaNam:"1",gridSita:"  920919",classificationArea:"कृषि क्षेत्र",remarks: ""},
 { serialNumber: 2,village:"दुदिलाभाटी",wardNumber:"1",kittaNam:"1",gridSita:"  920879",classificationArea:"कृषि क्षेत्र",remarks: ""},
@@ -55477,15 +55494,281 @@ var records = [
 { serialNumber: 6471,village:"काँडेवास",wardNumber:"4",kittaNam:"1160",gridSita:" 920990",classificationArea:"आवासीय  क्षेत्र",remarks: "स्वीकृत विवरणमा नभेटिएको कारण कित्तानापी नक्सा र स्वीकृत भू-उपयोग नक्सालाई एकआपसमा भिडाउँदा"},
 ];
 
-/* --------------------------
-   Search & Add -> Selected
-   -------------------------- */
+
+var currentKittas = [];
+var currentForm = {};
+var masterDatabase = [];
+
+window.onload = function() {
+  loadDraft();
+  loadMasterTable();
+};
+
+function loadDraft() {
+  var savedForm = localStorage.getItem('gl_master_form_draft');
+  if (savedForm) {
+    currentForm = JSON.parse(savedForm);
+    document.getElementById("patraSankhya").innerText = `पत्र संख्या: ${currentForm.patraSankhya || ''}`;
+    document.getElementById("chalanNo").innerText = `च.नं.: ${currentForm.chalanNo || ''}`;
+    document.getElementById("patraMiti").innerText = `मिति: ${currentForm.patraMiti || '२०८१/........../......'}`;
+    document.getElementById("neSan").innerText = currentForm.neSan ? `ने.सं: ${currentForm.neSan}` : '';
+    document.getElementById("officeHeader").innerText = currentForm.officeHeader || 'नगर कार्यपालिकाको कार्यालय';
+
+    document.getElementById("formData").innerHTML = `प्रस्तुत विषयमा ${currentForm.district || '………………'} जिल्ला 
+      ${currentForm.municipality || '………………'} नगरपालिका/गाउँपालिका वार्ड नं. 
+      ${currentForm.ward || '………'} ${currentForm.tole || '…………'} टोल बस्ने श्री 
+      ${currentForm.grandfather || '………………………………'}को नाति/नातिनी/बुहारी श्री 
+      ${currentForm.father || '………………………………'} को छोरा/छोरी/पत्नी श्री 
+      ${currentForm.name || '………………………………'} को नाममा रहेको जग्गा यस नगरपालिकाको स्थानीय भू-उपयोग परिषद्‌बाट स्वीकृत बमोजिम देहायको क्षेत्रमा पर्ने व्यहोरा जानकारीका लागि अनुरोध छ।`;
+
+    document.getElementById("patraSankhyaInput").value = currentForm.patraSankhya || '';
+    document.getElementById("chalanInput").value = currentForm.chalanNo || '';
+    document.getElementById("dateInput").value = currentForm.patraMiti || '२०८१/०२/१५';
+    document.getElementById("nesanInput").value = currentForm.neSan || '';
+    document.getElementById("currentWardInput").value = currentForm.officeHeader || '';
+    document.getElementById("districtInput").value = currentForm.district || 'बागलुङ';
+    document.getElementById("municipalityInput").value = currentForm.municipality || 'गलकोट नगरपालिका';
+    document.getElementById("wardInput").value = currentForm.ward || '';
+    document.getElementById("toleInput").value = currentForm.tole || '';
+    document.getElementById("grandfatherInput").value = currentForm.grandfather || '';
+    document.getElementById("fatherInput").value = currentForm.father || '';
+    document.getElementById("nameInput").value = currentForm.name || '';
+  }
+
+  var savedKittas = localStorage.getItem('gl_master_kitta_draft');
+  if (savedKittas) {
+    currentKittas = JSON.parse(savedKittas);
+    renderSelectedTable();
+  }
+}
+
+function saveCurrentDraft() {
+  currentForm = {
+    patraSankhya: document.getElementById("patraSankhyaInput").value,
+    chalanNo: document.getElementById("chalanInput").value,
+    patraMiti: document.getElementById("dateInput").value,
+    neSan: document.getElementById("nesanInput").value,
+    officeHeader: document.getElementById("currentWardInput").value,
+    district: document.getElementById("districtInput").value,
+    municipality: document.getElementById("municipalityInput").value,
+    ward: document.getElementById("wardInput").value,
+    tole: document.getElementById("toleInput").value,
+    grandfather: document.getElementById("grandfatherInput").value,
+    father: document.getElementById("fatherInput").value,
+    name: document.getElementById("nameInput").value
+  };
+
+  localStorage.setItem('gl_master_form_draft', JSON.stringify(currentForm));
+  localStorage.setItem('gl_master_kitta_draft', JSON.stringify(currentKittas));
+  loadDraft();
+  closeModal();
+  saveFullDocumentToDatabase(false); 
+}
+
+/* ---------------------------------
+   मास्टर डेटाबेस व्यवस्थापन र खोज कार्य
+   --------------------------------- */
+function saveFullDocumentToDatabase(isFromPrint = false) {
+  if (!currentForm.name) return;
+
+  var dbData = localStorage.getItem('gl_master_global_db');
+  masterDatabase = dbData ? JSON.parse(dbData) : [];
+
+  var existingIndex = masterDatabase.findIndex(doc => doc.form.chalanNo === currentForm.chalanNo && doc.form.name === currentForm.name);
+
+  var docPayload = {
+    id: existingIndex >= 0 ? masterDatabase[existingIndex].id : Date.now(),
+    form: currentForm,
+    kittas: currentKittas,
+    savedAt: new Date().toLocaleDateString()
+  };
+
+  if (existingIndex >= 0) {
+    masterDatabase[existingIndex] = docPayload;
+  } else {
+    masterDatabase.unshift(docPayload);
+  }
+
+  localStorage.setItem('gl_master_global_db', JSON.stringify(masterDatabase));
+  loadMasterTable();
+}
+
+function loadMasterTable() {
+  var dbData = localStorage.getItem('gl_master_global_db');
+  var tbody = document.getElementById("masterHistoryTable").querySelector("tbody");
+  tbody.innerHTML = "";
+
+  if (dbData && JSON.parse(dbData).length > 0) {
+    masterDatabase = JSON.parse(dbData);
+    renderMasterRows(masterDatabase);
+  } else {
+    tbody.innerHTML = "<tr><td colspan='6' style='text-align:center; padding:15px; color:#888;'>हालसम्म मास्टर डेटाबेसमा कुनै पनि पुरा डकुमेन्ट रेकर्ड सेभ गरिएको छैन।</td></tr>";
+  }
+}
+
+// तालिकामा रेकर्डहरू देखाउने मुख्य फङ्सन
+function renderMasterRows(dataArray) {
+  var tbody = document.getElementById("masterHistoryTable").querySelector("tbody");
+  tbody.innerHTML = "";
+  
+  if(dataArray.length === 0) {
+    tbody.innerHTML = "<tr><td colspan='6' style='text-align:center; color:red; padding:10px;'>खोजिएको नामको कुनै पनि विवरण फेला परेन।</td></tr>";
+    return;
+  }
+
+  dataArray.forEach(function(doc) {
+    var row = document.createElement("tr");
+    row.innerHTML = `
+      <td><b>च.नं: ${doc.form.chalanNo || '-'}</b><br><span style="font-size:11px;color:#777;">पत्र: ${doc.form.patraSankhya || '-'}</span></td>
+      <td>${doc.form.patraMiti || '-'}</td>
+      <td><span style="color:#0056b3; font-weight:bold;">${doc.form.name}</span></td>
+      <td>${doc.form.municipality || ''}-${doc.form.ward || ''}, ${doc.form.tole || ''}</td>
+      <td><span style="background:#e1f7d5; padding:2px 8px; border-radius:10px;">${doc.kittas.length} कित्ता</span></td>
+      <td>
+        <button class="btn-warning" onclick="loadFullDocForEdit(${doc.id})">Edit/तुरुन्तै सच्याउनुहोस</button>
+        <button class="btn-info" onclick="viewAndPrintDoc(${doc.id})">View/Print डकुमेन्ट</button>
+        <button class="btn-danger" onclick="deleteFullDoc(${doc.id})">Delete</button>
+      </td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+// जग्गाधनीको नाम फिल्टर गर्ने नयाँ फङ्सन (Key-up Event)
+function filterHistoryData() {
+  var searchTxt = document.getElementById("historySearchInput").value.toLowerCase().trim();
+  
+  // यदि सर्च बक्स खाली छ भने सबै डाटाहरू देखाउने
+  if (searchTxt === "") {
+    renderMasterRows(masterDatabase);
+    return;
+  }
+
+  // नाम म्याच भएका डाटाहरूलाई मात्र छुट्ट्याउने
+  var filtered = masterDatabase.filter(function(doc) {
+    var ownerName = doc.form.name ? doc.form.name.toLowerCase() : "";
+    return ownerName.includes(searchTxt);
+  });
+
+  renderMasterRows(filtered);
+}
+
+function loadFullDocForEdit(id) {
+  var doc = masterDatabase.find(item => item.id === id);
+  if (doc) {
+    if (confirm(`${doc.form.name} को सिफारिस विवरण मुख्य फारम र कित्ता तालिकामा लोड गरी सच्याउन चाहनुहुन्छ?`)) {
+      currentForm = doc.form;
+      currentKittas = doc.kittas;
+      localStorage.setItem('gl_master_form_draft', JSON.stringify(currentForm));
+      localStorage.setItem('gl_master_kitta_draft', JSON.stringify(currentKittas));
+      loadDraft();
+      window.scrollTo({top: 0, behavior: 'smooth'});
+    }
+  }
+}
+
+function viewAndPrintDoc(id) {
+  var doc = masterDatabase.find(item => item.id === id);
+  if (doc) {
+    var printWindow = window.open('', '_blank');
+    var kittaRows = doc.kittas.map((item, index) => `
+      <tr>
+        <td>${index + 1}</td><td>${item.village}</td><td>${item.wardNumber}</td>
+        <td>${item.kittaNam}</td><td>${item.gridSita}</td><td>${item.classificationArea}</td><td>${item.remarks}</td>
+      </tr>
+    `).join('');
+
+    printWindow.document.write(`
+      <html>
+      <head>
+        <title>सिफारिस पत्र - ${doc.form.name}</title>
+        <style>
+          body { font-family: 'Kalimati', sans-serif; margin: 40px; text-align: justify; line-height: 1.5; }
+          .letter-head { text-align: center; margin-bottom: 10px; position: relative; }
+          .letter-head img { position: absolute; left:0; top:0; width:90px; }
+          .header-line, .footer-line { border-top: 2px solid black; margin: 10px 0; }
+          .subject { text-align: center; font-weight: bold; margin: 20px 0; font-size: 18px; }
+          table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+          table, th, td { border: 1px solid black; padding: 6px; font-size: 14px; }
+          th { background-color: #f2f2f2; }
+          .footer-line { margin-top: 50px; }
+          .motto { text-align: center; font-size: 11px; margin-top: 5px; font-style: italic; }
+          .inline-text-left { float: left; } .inline-text-right { float: right; } .clear-float { clear: both; }
+        </style>
+      </head>
+      <body>
+        <div class="letter-head">
+          <img src="Emblem_of_Nepal.svg.png">
+          <h2>गलकोट नगरपालिका</h2>
+          <h3>${doc.form.officeHeader || 'नगर कार्यपालिकाको कार्यालय'}</h3>
+          <h3>गलकोट, बागलुङ</h3>
+        </div>
+        <div>
+          <div class="inline-text-left">पत्र संख्या: ${doc.form.patraSankhya || ''}</div>
+          <div class="inline-text-right">गण्डकी प्रदेश, नेपाल</div>
+          <div class="clear-float"></div>
+          <div class="header-line"></div>
+          <div class="inline-text-left">च.नं.: ${doc.form.chalanNo || ''}</div>
+          <div class="inline-text-right">मिति: ${doc.form.patraMiti || ''}</div>
+          <div class="clear-float"></div>
+        </div>
+        <div class="subject">बिषय: भू-उपयोग क्षेत्र वर्गीकरण सम्बन्धमा।</div>
+        <p>श्री मालपोत कार्यालय,<br>बागलुङ।</p>
+        <p>प्रस्तुत विषयमा ${doc.form.district || 'बागलुङ'} जिल्ला ${doc.form.municipality || 'गलकोट नगरपालिका'} वार्ड नं. ${doc.form.ward || ''} ${doc.form.tole || ''} टोल बस्ने श्री ${doc.form.grandfather || ''}को नाति/नातिनी/बुहारी श्री ${doc.form.father || ''} को छोरा/छोरी/पत्नी श्री ${doc.form.name || ''} को नाममा रहेको जग्गा यस नगरपालिकाको स्थानीय भू-उपयोग परिषद्‌बाट स्वीकृत बमोजिम देहायको क्षेत्रमा पर्ने व्यहोरा जानकारीका लागि अनुरोध छ।</p>
+        
+        <h3>देहाय:</h3>
+        <table>
+          <thead>
+            <tr><th>क्र.स</th><th>गाविस</th><th>वार्ड नं.</th><th>कित्ता नं.</th><th>ग्रिड सिट नं.</th><th>वर्गीकरण क्षेत्र</th><th>कैफियत</th></tr>
+          </thead>
+          <tbody>${kittaRows}</tbody>
+        </table>
+        <div class="footer-line"></div>
+        <p class="motto">"कृषि, पर्यटन, जलस्रोत, स्थानीय सीप र पूर्वाधार: समृद्ध गलकोट निर्माणको मूल आधार"</p>
+        <script>
+          const digits = { '0':'०','1':'१','2':'२','3':'३','4':'४','5':'५','6':'६','7':'७','8':'८','9':'९' };
+          document.body.innerHTML = document.body.innerHTML.replace(/[0-9]/g, function(d) { return digits[d] || d; });
+          window.print();
+        <\/script>
+      </body>
+      </html>
+    `);
+    printWindow.document.close();
+  }
+}
+
+function deleteFullDoc(id) {
+  if (confirm("के तपाईं यो सिफारिसको सम्पूर्ण फाइल डेटाबेसबाट सधैंका लागि हटाउन चाहनुहुन्छ?")) {
+    masterDatabase = masterDatabase.filter(item => item.id !== id);
+    localStorage.setItem('gl_master_global_db', JSON.stringify(masterDatabase));
+    
+    // यदि सर्च बक्समा केही टाइप गरिएको छ भने सर्चलाई रिसेट गरेर पुनः लोड गर्ने
+    document.getElementById("historySearchInput").value = "";
+    loadMasterTable();
+  }
+}
+
+function resetForm() {
+  if (confirm("के तपाईं हालको स्क्रिन क्लियर गरी नयाँ सिफारिस बनाउन चाहनुहुन्छ? (डेटाबेसको इतिहास सुरक्षित रहनेछ)")) {
+    localStorage.removeItem('gl_master_form_draft');
+    localStorage.removeItem('gl_master_kitta_draft');
+    currentKittas = [];
+    currentForm = {};
+    location.reload();
+  }
+}
+
+/* ---------------------------------
+   खोज र छनोट कित्ता कार्यहरू
+   --------------------------------- */
 function searchData() {
   var gaavis = document.getElementById("gaavisSelect").value.trim();
   var wardNumber = document.getElementById("wardNumberSelect").value.trim();
   var kittaNam = document.getElementById("kittaNamInput").value.trim();
   var resultsTable = document.getElementById("resultsTable").querySelector("tbody");
   resultsTable.innerHTML = "";
+
+  if(!gaavis) { alert("कृपया गाविस छान्नुहोस्।"); return; }
 
   var filteredRecords = records.filter(function(record) {
     return (record.village === gaavis &&
@@ -55496,102 +55779,72 @@ function searchData() {
   if (filteredRecords.length > 0) {
     filteredRecords.forEach(function(record) {
       var row = `<tr>
-        <td>${record.serialNumber}</td>
-        <td>${record.village}</td>
-        <td>${record.wardNumber}</td>
-        <td>${record.kittaNam}</td>
-        <td>${record.gridSita}</td>
-        <td>${record.classificationArea}</td>
-        <td>${record.remarks}</td>
-        <td class="no-print"><button onclick='addToPrint(${record.serialNumber}, "${escapeHtml(record.village)}", "${record.wardNumber}", "${record.kittaNam}", "${record.gridSita}", "${escapeHtml(record.classificationArea)}", "${escapeHtml(record.remarks)}")'>Add</button></td>
+        <td>${record.serialNumber}</td><td>${record.village}</td><td>${record.wardNumber}</td>
+        <td>${record.kittaNam}</td><td>${record.gridSita}</td><td>${record.classificationArea}</td><td>${record.remarks}</td>
+        <td><button onclick='addKittaToCurrent(${JSON.stringify(record)})' style="background-color:#28a745; color:white;">Add</button></td>
       </tr>`;
       resultsTable.innerHTML += row;
     });
   } else {
-    resultsTable.innerHTML = "<tr><td colspan='8'>No records found</td></tr>";
+    resultsTable.innerHTML = "<tr><td colspan='8'>खोजिएको कित्ता फेला परेन</td></tr>";
   }
 }
 
-function escapeHtml(str) {
-  // simple escape to avoid breaking quoted string in onclick (keeps Nepali text safe)
-  if (!str) return "";
-  return String(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-}
-
-function addToPrint(serialNumber, village, wardNumber, kittaNam, gridSita, classificationArea, remarks) {
-  var selectedDataTable = document.getElementById("selectedDataTable").querySelector("tbody");
-  var row = document.createElement("tr");
-
-  // Use dataset to store original english values (helpful if needed)
-  row.dataset.serial = serialNumber;
-
-  row.innerHTML = `
-    <td>${serialNumber}</td>
-    <td>${village}</td>
-    <td>${wardNumber}</td>
-    <td>${kittaNam}</td>
-    <td>${gridSita}</td>
-    <td>${classificationArea}</td>
-    <td>${remarks}</td>
-    <td class="no-print"><button onclick="confirmDelete(this)">Delete</button></td>
-  `;
-  selectedDataTable.appendChild(row);
-}
-
-/* --------------------------
-   Delete with popup confirm
-   -------------------------- */
-function confirmDelete(button) {
-  // show a confirmation popup — if confirmed, remove the row
-  var ok = confirm("प्रस्तुत डाटा मेटाउन चाहनुहुन्छ?");
-  if (ok) {
-    var row = button.closest("tr");
-    if (row) row.remove();
+function addKittaToCurrent(record) {
+  var exists = currentKittas.some(item => item.village === record.village && item.kittaNam === record.kittaNam && item.gridSita === record.gridSita);
+  if (!exists) {
+    currentKittas.push(record);
+    localStorage.setItem('gl_master_kitta_draft', JSON.stringify(currentKittas));
+    renderSelectedTable();
+    saveFullDocumentToDatabase(false);
+  } else {
+    alert("यो कित्ता पहिल्यै थपिएको छ।");
   }
 }
 
-/* --------------------------
-   Print: convert numbers => Nepali, block if no data
-   -------------------------- */
-/* Mapping */
+function renderSelectedTable() {
+  var tbody = document.getElementById("selectedDataTable").querySelector("tbody");
+  tbody.innerHTML = "";
+  currentKittas.forEach(function(item, index) {
+    var row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${index + 1}</td><td>${item.village}</td><td>${item.wardNumber}</td>
+      <td>${item.kittaNam}</td><td>${item.gridSita}</td><td>${item.classificationArea}</td><td>${item.remarks}</td>
+      <td class="no-print"><button class="btn-danger" onclick="deleteSelectedKitta(${index})">Delete</button></td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+function deleteSelectedKitta(index) {
+  currentKittas.splice(index, 1);
+  localStorage.setItem('gl_master_kitta_draft', JSON.stringify(currentKittas));
+  renderSelectedTable();
+  saveFullDocumentToDatabase(false);
+}
+
+/* ---------------------------------
+   प्रिन्ट र अंक रूपान्तरण
+   --------------------------------- */
 const nepaliDigits = { '0':'०','1':'१','2':'२','3':'३','4':'४','5':'५','6':'६','7':'७','8':'८','9':'९' };
-
-/* Keep track of text nodes changed to restore later */
 var changedTextNodes = [];
 
-/* Helper: walk text nodes and convert digits */
 function convertDigitsInTextNodes(convert=true) {
-  // convert=true -> convert english -> nepali
-  // convert=false -> restore original texts
   if (!convert) {
-    // restore saved originals
-    for (var i=0;i<changedTextNodes.length;i++){
+    for (var i=0; i<changedTextNodes.length; i++){
       var item = changedTextNodes[i];
       if (item && item.node) item.node.nodeValue = item.original;
     }
     changedTextNodes = [];
     return;
   }
-
-  // TreeWalker to visit text nodes
   var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
   var node;
   while (node = walker.nextNode()) {
-    // skip empty/whitespace-only nodes
     if (!node.nodeValue || !node.nodeValue.trim()) continue;
-
-    // skip nodes inside tags we don't want to modify: script, style, textarea, input, button, select
     var parent = node.parentElement;
-    if (!parent) continue;
-    var tag = parent.tagName.toLowerCase();
-    var skipTags = ['script','style','textarea','input','button','select','option'];
-    var shouldSkip = false;
-    for (var t=0;t<skipTags.length;t++){
-      if (parent.closest(skipTags[t])) { shouldSkip = true; break; }
-    }
-    if (shouldSkip) continue;
+    if (!parent || parent.closest(['script','style','textarea','input','button','select','option'])) continue;
 
-    // If text contains digits 0-9, replace them and save original
     if (/[0-9]/.test(node.nodeValue)) {
       changedTextNodes.push({ node: node, original: node.nodeValue });
       node.nodeValue = node.nodeValue.replace(/[0-9]/g, function(d){ return nepaliDigits[d]; });
@@ -55599,77 +55852,37 @@ function convertDigitsInTextNodes(convert=true) {
   }
 }
 
-/* Primary print function */
 function printDetails() {
-  var selectedBody = document.getElementById("selectedDataTable").querySelector("tbody");
-  var rowsCount = selectedBody.querySelectorAll("tr").length;
-  if (rowsCount === 0) {
-    alert("प्रिन्ट गर्नको लागि कुनै डेटा चयन गरिएको छैन। कृपया कम्तीमा पनि एउटा रेकर्ड Add गर्नुस्।");
-    return;
-  }
+  if (currentKittas.length === 0) { alert("कृपया कम्तीमा एउटा कित्ता विवरण थप्नुहोस्।"); return; }
+  if (!currentForm.name) { alert("कृपया पहिले सिफारिस विवरण भर्नुहोस्।"); return; }
 
-  // Convert digits -> Nepali and set up restore after printing
+  saveFullDocumentToDatabase(true);
+
   convertDigitsInTextNodes(true);
-
-  // Use afterprint to restore original text nodes
-  function restoreAfterPrint() {
+  function restore() {
     convertDigitsInTextNodes(false);
-    window.removeEventListener('afterprint', restoreAfterPrint);
+    window.removeEventListener('afterprint', restore);
   }
-  window.addEventListener('afterprint', restoreAfterPrint);
+  window.addEventListener('afterprint', restore);
+  setTimeout(restore, 2000);
 
-  // Some browsers may not fire afterprint reliably; as a fallback restore after a short timeout
-  // (this is harmless if afterprint also fires — restoration will be idempotent)
-  var fallbackRestore = setTimeout(function(){
-    convertDigitsInTextNodes(false);
-    window.removeEventListener('afterprint', restoreAfterPrint);
-  }, 2000);
-
-  // When afterprint runs it will remove itself and we cancel fallback
-  window.addEventListener('afterprint', function(){ clearTimeout(fallbackRestore); });
-
-  // Finally call print
   window.print();
 }
 
-/* --------------------------
-   Modal, form details
-   -------------------------- */
-document.getElementById('detailsButton').addEventListener('click', function() {
+/* ---------------------------------
+   मोडल नियन्त्रण कार्य
+   --------------------------------- */
+function openModal() {
   document.getElementById('detailsModal').style.display = 'flex';
   document.getElementById('detailsModal').setAttribute('aria-hidden','false');
-});
+}
 function closeModal() {
   document.getElementById('detailsModal').style.display = 'none';
   document.getElementById('detailsModal').setAttribute('aria-hidden','true');
 }
-
-function addDetails() {
-  document.getElementById("patraSankhya").innerText = `पत्र संख्या: ${document.getElementById("patraSankhyaInput").value}`;
-  document.getElementById("chalanNo").innerText = `च.नं.: ${document.getElementById("chalanInput").value}`;
-  document.getElementById("patraMiti").innerText = `मिति: ${document.getElementById("dateInput").value}`;
-  document.getElementById("neSan").innerText = `ने.सं: ${document.getElementById("nesanInput").value}`;
-
-  var formData = `
-    प्रस्तुत विषयमा ${document.getElementById("districtInput").value} जिल्ला 
-    ${document.getElementById("municipalityInput").value} नगरपालिका/गाउँपालिका वार्ड नं. 
-    ${document.getElementById("wardInput").value} ${document.getElementById("toleInput").value} टोल बस्ने श्री 
-    ${document.getElementById("grandfatherInput").value}को नाति/नातिनी/बुहारी श्री 
-    ${document.getElementById("fatherInput").value} को छोरा/छोरी/पत्नी श्री 
-    ${document.getElementById("nameInput").value} को नाममा रहेको जग्गा यस नगरपालिकाको स्थानीय भू-उपयोग परिषद्‌बाट स्वीकृत बमोजिम देहायको क्षेत्रमा पर्ने व्यहोरा जानकारीका लागि अनुरोध छ.`;
-
-  document.getElementById("formData").innerHTML = formData;
-  document.getElementById("officeHeader").innerText = `${document.getElementById("currentWardInput").value} नं. वडा कार्यालय`;
-  closeModal();
-}
-
-/* Close modal clicking outside */
 window.onclick = function(event) {
-  if (event.target === document.getElementById('detailsModal')) {
-    closeModal();
-  }
+  if (event.target === document.getElementById('detailsModal')) closeModal();
 };
-
 </script>
 </body>
 </html>
