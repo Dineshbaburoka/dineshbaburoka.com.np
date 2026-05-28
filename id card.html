@@ -26,8 +26,9 @@
   .main-container { display: flex; max-width: 1300px; margin: 10px auto; gap: 20px; padding: 0 10px; }
   form { flex: 2; background:#fff; padding: 16px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,.12); }
   
-  /* Saved List Sidebar Styling */
-  .saved-sidebar { flex: 1; background: #fff; padding: 16px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,.12); max-height: 80vh; overflow-y: auto; }
+  /* Saved List Sidebar & Settings Styling */
+  .saved-sidebar { flex: 1; background: #fff; padding: 16px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,.12); max-height: 85vh; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+  .settings-box { background: #f8f9fa; padding: 12px; border-radius: 8px; border: 1px dashed #ccc; }
   .saved-list { list-style: none; padding: 0; margin: 0; }
   .saved-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; font-size: 14px; }
   .saved-item:hover { background: #f9f9f9; }
@@ -37,7 +38,7 @@
 
   .grid { display:grid; grid-template-columns: repeat(2, minmax(260px,1fr)); gap: 12px 16px; }
   h3 { margin: 14px 0 6px; text-decoration: underline; }
-  label { display:block; font-size: 13px; margin: 4px 0; }
+  label { display:block; font-size: 13px; margin: 4px 0; font-weight: 600; }
   input[type="text"], input[type="file"], .controls input[type="range"] { width:100%; padding:6px 8px; font-size:14px; border:1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
   .controls { display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; align-items:end; margin-top: 8px; }
   .controls .row { display:flex; gap:4px; align-items:center; }
@@ -96,7 +97,6 @@
 <div class="main-container">
   <!-- Form input section -->
   <form id="idForm">
-    <!-- थपिएको: सम्पादन (Edit) गर्दा कुन रेकर्ड हो ट्र्याक गर्न लुकेको इनपुट -->
     <input type="hidden" id="edit_index" value="">
 
     <h3>नेपाली विवरण (Front)</h3>
@@ -111,9 +111,9 @@
         <label>सम्पर्क नं.:</label><input type="text" id="contact_no_ne" placeholder="९८५७६२६५४२" required>
       </div>
       <div>
-        <label>Photo Upload (कर्मचारी):</label>
+        <label>Photo Upload (कर्मचारीको फोटो):</label>
         <input type="file" id="photo" accept="image/*">
-        <label>Employee Signature Upload (कर्मचारी हस्ताक्षर):</label>
+        <label>Employee Signature (कर्मचारी हस्ताक्षर):</label>
         <input type="file" id="empSignature" accept="image/*">
         <div class="controls">
           <div class="row">
@@ -143,33 +143,40 @@
         <label>Contact No.:</label><input type="text" id="contact_no_en" placeholder="98XXXXXXXX" required>
       </div>
       <div>
-        <label>Office Stamp (optional):</label>
-        <input type="file" id="officeStamp" accept="image/*">
-        <label>Official Signature (optional):</label>
-        <input type="file" id="officialSignature" accept="image/*">
         <label>Official Name (NE):</label>
-        <input type="text" id="official_name_ne" value="डम्बर बहादुर जि.सी.">
+        <input type="text" id="official_name_ne" value="सुर्य प्रसाद उपाध्याय">
         <label>Official Title (NE):</label>
         <input type="text" id="official_title_ne" value="प्रमुख प्रशासकीय अधिकृत">
         <label>Official Name (EN):</label>
-        <input type="text" id="official_name_en" value="Dambar Bahadur G.C.">
+        <input type="text" id="official_name_en" value="Surya Prasad Upadhyay">
         <label>Official Title (EN):</label>
         <input type="text" id="official_title_en" value="Chief Administrative Officer">
+        <label style="color: gray; margin-top: 10px;">Office Stamp (optional):</label>
+        <input type="file" id="officeStamp" accept="image/*">
       </div>
     </div>
 
-    <div style="display:flex; gap:10px; margin-top:15px;">
+    <div style="display:flex; gap:10px; margin-top:20px;">
       <button type="button" id="generateBtn">Generate & Auto Save</button>
       <button type="button" id="printBtn" class="secondary">Print</button>
     </div>
   </form>
 
-  <!-- Sidebar section for Saved Records -->
+  <!-- Sidebar section for Saved Records & Master Signature -->
   <div class="saved-sidebar">
-    <h3>जारी भएका ID कार्डहरु </h3>
-    <ul class="saved-list" id="savedList">
-      <!-- जाभास्क्रिप्टले यहाँ डेटा थप्नेछ -->
-    </ul>
+    <!-- थपिएको: Official Signature Master Auto Save Settings -->
+    <div class="settings-box">
+      <h4 style="margin: 0 0 8px 0; color: #d9534f; font-size: 14px;">✒️ Official Signature Master (Auto-Save)</h4>
+      <p style="font-size: 11px; margin: 0 0 8px 0; color: #555;">कार्यालय प्रमुखको हस्ताक्षर यहाँ १ पटक सेभ गरेपछि सधैं स्वतः प्रयोग हुनेछ।</p>
+      <input type="file" id="masterOfficialSignature" accept="image/*" style="font-size: 12px; padding: 4px;">
+      <button type="button" id="saveMasterSigBtn" style="padding: 5px 10px; font-size: 12px; background: #333; width: 100%; margin-top: 5px;">Save Official Sign</button>
+      <div id="masterSigStatus" style="font-size:11px; color: green; margin-top: 4px; font-weight: bold;"></div>
+    </div>
+
+    <div>
+      <h3 style="margin-top: 0;">सुरक्षित विवरणहरू (Saved)</h3>
+      <ul class="saved-list" id="savedList"></ul>
+    </div>
   </div>
 </div>
 
@@ -203,13 +210,44 @@
   const resetSig = $('#resetSig');
   const savedList = $('#savedList');
   const editIndexInput = $('#edit_index');
+  const masterOfficialSignatureInput = $('#masterOfficialSignature');
+  const masterSigStatus = $('#masterSigStatus');
 
   let empSigW = 120; 
   let empFrontPos = { left: 12, top: 168 }; 
   let empBackPos  = { left: 12, top: 168 };
 
-  // टेम्परेरी इमेजेज स्टोरेज (रेकर्ड 'Use' गर्दा फाइल इनपुट खाली भए पुरानै इमेज राख्न)
-  let currentLoadedImages = { photo: '', empSignature: '', officeStamp: '', officialSignature: '' };
+  let currentLoadedImages = { photo: '', empSignature: '', officeStamp: '' };
+  let globalOfficialSignDataURL = ''; // मास्टर हस्ताक्षर राख्ने ग्लोबल भेरिएबल
+
+  // पेज लोड हुँदा मास्टर हस्ताक्षर र रेकर्डहरू तान्ने
+  window.onload = function() {
+    loadSavedRecords();
+    
+    // लोकल-स्टोरेजबाट मास्टर हस्ताक्षर चेक गर्ने
+    const savedMasterSig = localStorage.getItem('galkot_master_official_sig');
+    if (savedMasterSig) {
+      globalOfficialSignDataURL = savedMasterSig;
+      masterSigStatus.innerText = "✓ Official Signature Loaded (Auto Mode)";
+    } else {
+      globalOfficialSignDataURL = ASSETS.officialSignFallback;
+      masterSigStatus.innerText = "⚠ Using Fallback Sign (Not saved yet)";
+    }
+  };
+
+  // मास्टर हस्ताक्षर सेभ गर्ने बटन
+  $('#saveMasterSigBtn').addEventListener('click', async () => {
+    const file = masterOfficialSignatureInput.files[0];
+    if (!file) {
+      alert("कृपया पहिले एउटा हस्ताक्षर फाइल छनौट गर्नुहोस्!");
+      return;
+    }
+    const dataURL = await fileToDataURL(file);
+    localStorage.setItem('galkot_master_official_sig', dataURL);
+    globalOfficialSignDataURL = dataURL;
+    masterSigStatus.innerText = "✓ Official Signature Saved & Activated!";
+    alert("कार्यालय प्रमुखको हस्ताक्षर सफलतापूर्वक सुरक्षित गरियो! अब परिचय पत्र बनाउँदा यो स्वतः बस्नेछ।");
+  });
 
   signSize.addEventListener('input', () => {
     empSigW = parseInt(signSize.value, 10);
@@ -249,7 +287,6 @@
     img.addEventListener('pointerup', end); img.addEventListener('pointercancel', end);
   }
 
-  // LocalStorage बाट डेटा लोड गर्ने र लिस्ट देखाउने फंक्शन
   function loadSavedRecords() {
     savedList.innerHTML = '';
     const records = JSON.parse(localStorage.getItem('galkot_id_records') || '[]');
@@ -268,13 +305,11 @@
     });
   }
 
-  // कुनै रेकर्डलाई फारममा ल्याउन (Use / Edit)
   window.useRecord = function(index) {
     const records = JSON.parse(localStorage.getItem('galkot_id_records') || '[]');
     const rec = records[index];
     if (!rec) return;
 
-    // सेट इनपुट भ्यालुज
     $('#name_ne').value = rec.name_ne;
     $('#signal_no_ne').value = rec.signal_no_ne;
     $('#position_ne').value = rec.position_ne;
@@ -296,34 +331,27 @@
     $('#official_name_en').value = rec.official_name_en;
     $('#official_title_en').value = rec.official_title_en;
 
-    // पुराना सुरक्षित इमेजहरू लोड गर्ने
     currentLoadedImages.photo = rec.photoURL || '';
     currentLoadedImages.empSignature = rec.empSigURL || '';
     currentLoadedImages.officeStamp = rec.officeStampURL || '';
-    currentLoadedImages.officialSignature = rec.officialSigURL || '';
 
-    // नयाँ फाइल अपलोड सफा गर्ने (ताकी युजरले चाहे मात्र नयाँ फेरोस्)
     $('#photo').value = '';
     $('#empSignature').value = '';
     $('#officeStamp').value = '';
-    $('#officialSignature').value = '';
 
-    // सम्पादन गरिरहेको रेकर्डको इन्डेक्स सेभ गर्ने
     editIndexInput.value = index;
     $('#generateBtn').innerText = "Update & Save";
     
-    alert(rec.name_ne + " को विवरण फारममा लोड भयो। सच्याएर पुनः Generate गर्न सक्नुहुन्छ।");
+    alert(rec.name_ne + " को विवरण लोड भयो।");
   };
 
-  // रेकर्ड हटाउन (Delete)
   window.deleteRecord = function(index) {
-    if(!confirm("के तपाईं यो विवरण स्थायी रूपमा हटाउन चाहनुहुन्छ?")) return;
+    if(!confirm("के तपाईं यो विवरण हटाउन चाहनुहुन्छ?")) return;
     let records = JSON.parse(localStorage.getItem('galkot_id_records') || '[]');
     records.splice(index, 1);
     localStorage.setItem('galkot_id_records', JSON.stringify(records));
     loadSavedRecords();
     
-    // यदि हाल एडिट गरिरहेकै डिलिट गरे फारम रिसेट गर्ने
     if(editIndexInput.value == index) {
       form.reset();
       editIndexInput.value = '';
@@ -331,32 +359,26 @@
     }
   };
 
-  // परिचय पत्र निर्माण र स्वचालित बचत (Generate & Save)
   $('#generateBtn').addEventListener('click', async () => {
-    // भ्यालिडेशन चेक
     if(!$('#name_ne').value || !$('#signal_no_ne').value) {
-      return alert("कृपया कर्मचारीको नाम र संकेत नम्बर अनिवार्य रूपमा भर्नुहोस्।");
+      return alert("कृपया कर्मचारीको नाम र संकेत नम्बर अनिवार्य भर्नुहोस्।");
     }
 
     const photoFile = $('#photo').files[0];
-    // यदि पहिलेको डेटा युज गरेको छ र नयाँ फोटो अपलोड छैन भने पुरानै राख्ने
     if (!photoFile && !currentLoadedImages.photo) {
-      return alert('कृपया कर्मचारीको फोटो (Photo) अपलोड गर्नुहोस्।');
+      return alert('कृपया कर्मचारीको फोटो अपलोड गर्नुहोस्।');
     }
 
     const empSignFile = $('#empSignature').files[0] || null;
     const officeStampFile = $('#officeStamp').files[0] || null;
-    const officialSignFile = $('#officialSignature').files[0] || null;
 
-    // नयाँ फाइल छ भने DataURL बनाउने, छैन भने पुरानै राख्ने
     const uPhoto = photoFile ? await fileToDataURL(photoFile) : currentLoadedImages.photo;
     const uEmpSig = empSignFile ? await fileToDataURL(empSignFile) : currentLoadedImages.empSignature;
     const uOfficeStamp = officeStampFile ? await fileToDataURL(officeStampFile) : currentLoadedImages.officeStamp;
-    const uOfficialSig = officialSignFile ? await fileToDataURL(officialSignFile) : currentLoadedImages.officialSignature;
 
-    const officialSign = uOfficialSig || ASSETS.officialSignFallback;
+    // अटो-सेभ्ड मास्टर हस्ताक्षर सिधै प्रयोग गर्ने
+    const officialSign = globalOfficialSignDataURL;
 
-    // अब्जेक्ट निर्माण (बचत गर्नका लागि)
     const recordData = {
       name_ne: $('#name_ne').value.trim(),
       signal_no_ne: $('#signal_no_ne').value.trim(),
@@ -378,26 +400,22 @@
       official_title_en: $('#official_title_en').value.trim(),
       photoURL: uPhoto,
       empSigURL: uEmpSig,
-      officeStampURL: uOfficeStamp,
-      officialSigURL: uOfficialSig
+      officeStampURL: uOfficeStamp
     };
 
-    // LOCALSTORAGE मा सुरक्षित गर्ने (Auto Save / Edit Update)
     let records = JSON.parse(localStorage.getItem('galkot_id_records') || '[]');
     const editIndex = editIndexInput.value;
 
     if (editIndex !== "") {
-      // यदि पुरानो रेकर्ड एडिट गरिएको हो भने सोहि स्थानमा अपडेट गर्ने
       records[editIndex] = recordData;
-      editIndexInput.value = ""; // रिसेट इन्डेक्स
+      editIndexInput.value = ""; 
       $('#generateBtn').innerText = "Generate & Auto Save";
     } else {
-      // नयाँ रेकर्ड हो भने थप्ने
       records.push(recordData);
     }
     
     localStorage.setItem('galkot_id_records', JSON.stringify(records));
-    loadSavedRecords(); // लिस्ट अपडेट गर्ने
+    loadSavedRecords(); 
 
     // ------- बिल्ड स्क्रीन प्रिभ्यू (Flip Card) -------
     stage.innerHTML = `
@@ -532,14 +550,13 @@
     printFront.innerHTML = frontHTML;
     printBack.innerHTML = backHTML;
     
-    // फारम रिसेट गर्ने र स्टोरेज सफा गर्ने
+    // फारम सफा गर्ने (तर मास्टर डिजिटल हस्ताक्षर यथावत रहन्छ)
     form.reset();
-    currentLoadedImages = { photo: '', empSignature: '', officeStamp: '', officialSignature: '' };
+    currentLoadedImages = { photo: '', empSignature: '', officeStamp: '' };
     
-    alert("परिचय पत्र सफलतापूर्वक निर्माण भयो र विवरण स्वतः सुरक्षित (Auto Save) गरियो।");
+    alert("परिचय पत्र सफलतापूर्वक निर्माण भयो र विवरण स्वतः सुरक्षित भयो।");
   });
 
-  // प्रिन्ट बटन कार्यन्वयन
   $('#printBtn').addEventListener('click', () => {
     if(!printFront.innerHTML || !printBack.innerHTML) {
       alert("प्रिन्ट गर्नु अगाडि कृपया 'Generate & Auto Save' बटन थिचेर कार्ड तयार पार्नुहोस्।");
@@ -547,9 +564,6 @@
     }
     window.print();
   });
-
-  // पेज लोड हुँदा पुराना डेटा लिस्टिङ गर्ने
-  window.onload = loadSavedRecords;
 </script>
 </body>
 </html>
