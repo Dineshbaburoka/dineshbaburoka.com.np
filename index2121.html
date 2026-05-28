@@ -26,7 +26,7 @@
     .modal-content { background-color: white; margin: auto; padding: 15px; border: 1px solid #888; width: 80%; max-width: 600px; border-radius: 10px; }
     .modal-header { text-align: center; font-size: 18px; margin-bottom: 10px; font-weight: bold;}
     .modal-body label { font-size: 14px; font-weight: bold; display: block; margin-top: 5px; }
-    .modal-body input { padding: 4px; font-size: 14px; width: 97%; margin-bottom: 5px; }
+    .modal-body input, .modal-body select { padding: 5px; font-size: 14px; width: 99%; margin-bottom: 5px; border: 1px solid #ccc; border-radius: 4px; }
     .modal-footer { text-align: center; margin-top: 10px; }
     
     button { padding: 6px 14px; font-size: 14px; cursor: pointer; margin: 2px; border-radius: 4px; border: 1px solid #ccc; font-weight: bold; }
@@ -72,7 +72,7 @@
       <div class="clear-float"></div>
       <div class="header-line"></div>
       <div class="inline-text inline-text-left"><p id="chalanNo">च.नं.: </p></div>
-      <div class="inline-text inline-text-right"><p id="patraMiti">मिति: २०८१/........../......</p></div>
+      <div class="inline-text inline-text-right"><p id="patraMiti">मिति: २०८२/........../......</p></div>
       <div class="clear-float"></div>
       <div class="inline-text inline-text-right"><p id="neSan"></p></div>
       <div class="clear-float"></div>
@@ -82,7 +82,7 @@
       <div class="subject"><p>बिषय: भू-उपयोग क्षेत्र वर्गीकरण सम्बन्धमा।</p></div>
       <p>श्री मालपोत कार्यालय,</p>
       <p>बागलुङ।</p>
-      <p id="formData">प्रस्तुत विषयमा ……………… जिल्ला ………………. नगरपालिका/गाउँपालिका वार्ड नं. ……… ………. टोल बस्ने श्री …………………………………..को नाति/नातिनी/बुहारी श्री …………………………………..को छोरा/छोरी पत्नी श्री …………………………………को नाममा रहेको जग्गा यस नगरपालिकाको स्थानीय भू-उपयोग परिषद्‌बाट स्वीकृत बमोजिम देहायको क्षेत्र पर्ने व्यहोरा जानकारीका लागि अनुरोध छ।</p>
+      <p id="formData">प्रस्तुत विषयमा बागलुङ जिल्ला गलकोट नगरपालिका वार्ड नं. ……… ………. टोल बस्ने श्री …………………………………..को नाति/नातिनी/बुहारी श्री …………………………………..को छोरा/छोरी पत्नी श्री …………………………………को नाममा रहेको जग्गा यस नगरपालिकाको स्थानीय भू-उपयोग परिषद्‌बाट स्वीकृत बमोजिम देहायको क्षेत्र पर्ने व्यहोरा जानकारीका लागि अनुरोध छ।</p>
     </div>
 
     <h3 style="margin-top: 25px; margin-bottom: 5px;">देहाय:</h3>
@@ -106,15 +106,40 @@
   <div id="detailsModal" class="modal" aria-hidden="true">
     <div class="modal-content">
       <div class="modal-header">सिफारिस पत्रको विवरण फारम</div>
-      <div class="modal-body">
+      <div class="modal-body" style="max-height: 400px; overflow-y: auto; padding-right: 5px;">
+        <label>कार्यालयको नाम छनोट गर्नुहोस्:</label>
+        <select id="currentWardInput">
+          <option value="नगर कार्यपालिकाको कार्यालय">नगर कार्यपालिकाको कार्यालय</option>
+          <option value="१ नं. वडा कार्यालय">१ नं. वडा कार्यालय</option>
+          <option value="२ नं. वडा कार्यालय">२ नं. वडा कार्यालय</option>
+          <option value="३ नं. वडा कार्यालय">३ नं. वडा कार्यालय</option>
+          <option value="४ नं. वडा कार्यालय">४ नं. वडा कार्यालय</option>
+          <option value="५ नं. वडा कार्यालय">५ नं. वडा कार्यालय</option>
+          <option value="६ नं. वडा कार्यालय">६ नं. वडा कार्यालय</option>
+          <option value="७ नं. वडा कार्यालय">७ नं. वडा कार्यालय</option>
+          <option value="८ नं. वडा कार्यालय">८ नं. वडा कार्यालय</option>
+          <option value="९ नं. वडा कार्यालय">९ नं. वडा कार्यालय</option>
+          <option value="१० नं. वडा कार्यालय">१० नं. वडा कार्यालय</option>
+          <option value="११ नं. वडा कार्यालय">११ नं. वडा कार्यालय</option>
+        </select>
+
         <label>पत्र संख्या:</label><input type="text" id="patraSankhyaInput">
         <label>चलानी नं.:</label><input type="text" id="chalanInput">
-        <label>पत्रको मिति (नेपालीमा):</label><input type="text" id="dateInput" value="२०८१/०२/१५">
+        <label>पत्रको मिति (नेपालीमा):</label><input type="text" id="dateInput" value="२०८३/०२/१५">
         <label>मिति ने.सं:</label><input type="text" id="nesanInput">
-        <label>कार्यालयको नाम (उदा: ९ नं. वडा कार्यालय):</label><input type="text" id="currentWardInput" placeholder="नगर कार्यपालिकाको कार्यालय वा वडा नं.">
+        
         <label>जिल्ला:</label><input type="text" id="districtInput" value="बागलुङ">
         <label>गाउँपालिका/नगरपालिका:</label><input type="text" id="municipalityInput" value="गलकोट नगरपालिका">
-        <label>जग्गा रहेको वडा नं:</label><input type="text" id="wardInput">
+        
+        <label>जग्गाधनी रहेको वडा नं. छनोट गर्नुहोस्:</label>
+        <select id="wardInput">
+          <option value="">वडा छान्नुहोस्...</option>
+          <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+          <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+          <option value="7">7</option><option value="8">8</option><option value="9">9</option>
+          <option value="10">10</option><option value="11">11</option>
+        </select>
+
         <label>टोलको नाम:</label><input type="text" id="toleInput">
         <label>बाजेको नाम:</label><input type="text" id="grandfatherInput">
         <label>बाबु/पतिको नाम:</label><input type="text" id="fatherInput">
@@ -146,10 +171,10 @@
     <label for="wardNumberSelect">वार्ड नं.:</label>
     <select id="wardNumberSelect">
       <option value="">Select वार्ड नं....</option>
-      <option value="1">1</option><option value="2">2</option>
-      <option value="3">3</option><option value="4">4</option>
-      <option value="5">5</option><option value="6">6</option>
+      <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+      <option value="4">4</option><option value="5">5</option><option value="6">6</option>
       <option value="7">7</option><option value="8">8</option><option value="9">9</option>
+      <option value="10">10</option><option value="11">11</option>
     </select>
 
     <label for="kittaNamInput">कित्ता नं.:</label>
@@ -180,7 +205,6 @@
   <div class="system-table-container no-print">
     <h2>सम्पूर्ण रेकर्डहरूको मास्टर डेटाबेस (Saved Full Documents)</h2>
     
-    <!-- मुख्य नयाँ खोज बक्स (History Search Input) -->
     <div class="history-search-box">
       <label for="historySearchInput" style="font-weight: bold; color: #0056b3;">🔍 जग्गाधनीको नामबाट रेकर्ड खोज्नुहोस्: </label>
       <input type="text" id="historySearchInput" onkeyup="filterHistoryData()" placeholder="जग्गाधनीको नाम टाइप गर्नुहोस्...">
@@ -190,7 +214,7 @@
     <table id="masterHistoryTable">
       <thead>
         <tr>
-          <th>दर्ता/चलानी</th>
+          <th>कार्यालय / चलानी</th>
           <th>सिफारिस मिति</th>
           <th>जग्गाधनीको नाम</th>
           <th>ठेगाना विवरण</th>
@@ -201,7 +225,6 @@
       <tbody></tbody>
     </table>
   </div>
-
 <script>
 // स्याम्पल जग्गा डाटाबेस
 var records = [
@@ -55498,11 +55521,17 @@ var records = [
 var currentKittas = [];
 var currentForm = {};
 var masterDatabase = [];
+const nepaliDigits = { '0':'०','1':'१','2':'२','3':'३','4':'४','5':'५','6':'६','7':'७','8':'८','9':'९' };
 
 window.onload = function() {
   loadDraft();
   loadMasterTable();
 };
+
+function toNepaliNum(num) {
+  if(!num) return '';
+  return num.toString().replace(/[0-9]/g, function(d) { return nepaliDigits[d] || d; });
+}
 
 function loadDraft() {
   var savedForm = localStorage.getItem('gl_master_form_draft');
@@ -55510,22 +55539,24 @@ function loadDraft() {
     currentForm = JSON.parse(savedForm);
     document.getElementById("patraSankhya").innerText = `पत्र संख्या: ${currentForm.patraSankhya || ''}`;
     document.getElementById("chalanNo").innerText = `च.नं.: ${currentForm.chalanNo || ''}`;
-    document.getElementById("patraMiti").innerText = `मिति: ${currentForm.patraMiti || '२०८१/........../......'}`;
+    document.getElementById("patraMiti").innerText = `मिति: ${currentForm.patraMiti || '२०८३/........../......'}`;
     document.getElementById("neSan").innerText = currentForm.neSan ? `ने.सं: ${currentForm.neSan}` : '';
     document.getElementById("officeHeader").innerText = currentForm.officeHeader || 'नगर कार्यपालिकाको कार्यालय';
 
-    document.getElementById("formData").innerHTML = `प्रस्तुत विषयमा ${currentForm.district || '………………'} जिल्ला 
-      ${currentForm.municipality || '………………'} नगरपालिका/गाउँपालिका वार्ड नं. 
-      ${currentForm.ward || '………'} ${currentForm.tole || '…………'} टोल बस्ने श्री 
+    var nepaliWard = toNepaliNum(currentForm.ward);
+
+    document.getElementById("formData").innerHTML = `प्रस्तुत विषयमा ${currentForm.district || 'बागलुङ'} जिल्ला 
+      ${currentForm.municipality || 'गलकोट नगरपालिका'} वार्ड नं. 
+      <b>${nepaliWard || '………'}</b> ${currentForm.tole || '…………'} टोल बस्ने श्री 
       ${currentForm.grandfather || '………………………………'}को नाति/नातिनी/बुहारी श्री 
       ${currentForm.father || '………………………………'} को छोरा/छोरी/पत्नी श्री 
-      ${currentForm.name || '………………………………'} को नाममा रहेको जग्गा यस नगरपालिकाको स्थानीय भू-उपयोग परिषद्‌बाट स्वीकृत बमोजिम देहायको क्षेत्रमा पर्ने व्यहोरा जानकारीका लागि अनुरोध छ।`;
+      <b>${currentForm.name || '………………………………'}</b> को नाममा रहेको जग्गा यस नगरपालिकाको स्थानीय भू-उपयोग परिषद्‌बाट स्वीकृत बमोजिम देहायको क्षेत्रमा पर्ने व्यहोरा जानकारीका लागि अनुरोध छ।`;
 
     document.getElementById("patraSankhyaInput").value = currentForm.patraSankhya || '';
     document.getElementById("chalanInput").value = currentForm.chalanNo || '';
-    document.getElementById("dateInput").value = currentForm.patraMiti || '२०८१/०२/१५';
+    document.getElementById("dateInput").value = currentForm.patraMiti || '२०८३/०२/१५';
     document.getElementById("nesanInput").value = currentForm.neSan || '';
-    document.getElementById("currentWardInput").value = currentForm.officeHeader || '';
+    document.getElementById("currentWardInput").value = currentForm.officeHeader || 'नगर कार्यपालिकाको कार्यालय';
     document.getElementById("districtInput").value = currentForm.district || 'बागलुङ';
     document.getElementById("municipalityInput").value = currentForm.municipality || 'गलकोट नगरपालिका';
     document.getElementById("wardInput").value = currentForm.ward || '';
@@ -55606,7 +55637,6 @@ function loadMasterTable() {
   }
 }
 
-// तालिकामा रेकर्डहरू देखाउने मुख्य फङ्सन
 function renderMasterRows(dataArray) {
   var tbody = document.getElementById("masterHistoryTable").querySelector("tbody");
   tbody.innerHTML = "";
@@ -55619,14 +55649,14 @@ function renderMasterRows(dataArray) {
   dataArray.forEach(function(doc) {
     var row = document.createElement("tr");
     row.innerHTML = `
-      <td><b>च.नं: ${doc.form.chalanNo || '-'}</b><br><span style="font-size:11px;color:#777;">पत्र: ${doc.form.patraSankhya || '-'}</span></td>
+      <td><b>${doc.form.officeHeader || '-'}</b><br><span style="font-size:12px;color:#444;">च.नं: ${doc.form.chalanNo || '-'}</span></td>
       <td>${doc.form.patraMiti || '-'}</td>
       <td><span style="color:#0056b3; font-weight:bold;">${doc.form.name}</span></td>
-      <td>${doc.form.municipality || ''}-${doc.form.ward || ''}, ${doc.form.tole || ''}</td>
+      <td>${doc.form.municipality || ''}-${toNepaliNum(doc.form.ward) || ''}, ${doc.form.tole || ''}</td>
       <td><span style="background:#e1f7d5; padding:2px 8px; border-radius:10px;">${doc.kittas.length} कित्ता</span></td>
       <td>
-        <button class="btn-warning" onclick="loadFullDocForEdit(${doc.id})">Edit/तुरुन्तै सच्याउनुहोस</button>
-        <button class="btn-info" onclick="viewAndPrintDoc(${doc.id})">View/Print डकुमेन्ट</button>
+        <button class="btn-warning" onclick="loadFullDocForEdit(${doc.id})">तुरुन्तै सच्याउनुहोस</button>
+        <button class="btn-info" onclick="viewAndPrintDoc(${doc.id})">View/Print</button>
         <button class="btn-danger" onclick="deleteFullDoc(${doc.id})">Delete</button>
       </td>
     `;
@@ -55634,22 +55664,16 @@ function renderMasterRows(dataArray) {
   });
 }
 
-// जग्गाधनीको नाम फिल्टर गर्ने नयाँ फङ्सन (Key-up Event)
 function filterHistoryData() {
   var searchTxt = document.getElementById("historySearchInput").value.toLowerCase().trim();
-  
-  // यदि सर्च बक्स खाली छ भने सबै डाटाहरू देखाउने
   if (searchTxt === "") {
     renderMasterRows(masterDatabase);
     return;
   }
-
-  // नाम म्याच भएका डाटाहरूलाई मात्र छुट्ट्याउने
   var filtered = masterDatabase.filter(function(doc) {
     var ownerName = doc.form.name ? doc.form.name.toLowerCase() : "";
     return ownerName.includes(searchTxt);
   });
-
   renderMasterRows(filtered);
 }
 
@@ -55714,7 +55738,7 @@ function viewAndPrintDoc(id) {
         </div>
         <div class="subject">बिषय: भू-उपयोग क्षेत्र वर्गीकरण सम्बन्धमा।</div>
         <p>श्री मालपोत कार्यालय,<br>बागलुङ।</p>
-        <p>प्रस्तुत विषयमा ${doc.form.district || 'बागलुङ'} जिल्ला ${doc.form.municipality || 'गलकोट नगरपालिका'} वार्ड नं. ${doc.form.ward || ''} ${doc.form.tole || ''} टोल बस्ने श्री ${doc.form.grandfather || ''}को नाति/नातिनी/बुहारी श्री ${doc.form.father || ''} को छोरा/छोरी/पत्नी श्री ${doc.form.name || ''} को नाममा रहेको जग्गा यस नगरपालिकाको स्थानीय भू-उपयोग परिषद्‌बाट स्वीकृत बमोजिम देहायको क्षेत्रमा पर्ने व्यहोरा जानकारीका लागि अनुरोध छ।</p>
+        <p>प्रस्तुत विषयमा बागलुङ जिल्ला गलकोट नगरपालिका वार्ड नं. ${doc.form.ward || ''} ${doc.form.tole || ''} टोल बस्ने श्री ${doc.form.grandfather || ''}को नाति/नातिनी/बुहारी श्री ${doc.form.father || ''} को छोरा/छोरी/पत्नी श्री ${doc.form.name || ''} को नाममा रहेको जग्गा यस नगरपालिकाको स्थानीय भू-उपयोग परिषद्‌बाट स्वीकृत बमोजिम देहायको क्षेत्रमा पर्ने व्यहोरा जानकारीका लागि अनुरोध छ।</p>
         
         <h3>देहाय:</h3>
         <table>
@@ -55738,11 +55762,9 @@ function viewAndPrintDoc(id) {
 }
 
 function deleteFullDoc(id) {
-  if (confirm("के तपाईं यो सिफारिसको सम्पूर्ण फाइल डेटाबेसबाट सधैंका लागि हटाउन चाहनुहुन्छ?")) {
+  if (confirm("के तपाईं यो सिफारिसको सम्पूर्ण फाइल डेटाबाट सधैंका लागि हटाउन चाहनुहुन्छ?")) {
     masterDatabase = masterDatabase.filter(item => item.id !== id);
     localStorage.setItem('gl_master_global_db', JSON.stringify(masterDatabase));
-    
-    // यदि सर्च बक्समा केही टाइप गरिएको छ भने सर्चलाई रिसेट गरेर पुनः लोड गर्ने
     document.getElementById("historySearchInput").value = "";
     loadMasterTable();
   }
@@ -55779,8 +55801,8 @@ function searchData() {
   if (filteredRecords.length > 0) {
     filteredRecords.forEach(function(record) {
       var row = `<tr>
-        <td>${record.serialNumber}</td><td>${record.village}</td><td>${record.wardNumber}</td>
-        <td>${record.kittaNam}</td><td>${record.gridSita}</td><td>${record.classificationArea}</td><td>${record.remarks}</td>
+        <td>${record.serialNumber}</td><td>${record.village}</td><td>${toNepaliNum(record.wardNumber)}</td>
+        <td>${toNepaliNum(record.kittaNam)}</td><td>${toNepaliNum(record.gridSita)}</td><td>${record.classificationArea}</td><td>${record.remarks}</td>
         <td><button onclick='addKittaToCurrent(${JSON.stringify(record)})' style="background-color:#28a745; color:white;">Add</button></td>
       </tr>`;
       resultsTable.innerHTML += row;
@@ -55808,8 +55830,8 @@ function renderSelectedTable() {
   currentKittas.forEach(function(item, index) {
     var row = document.createElement("tr");
     row.innerHTML = `
-      <td>${index + 1}</td><td>${item.village}</td><td>${item.wardNumber}</td>
-      <td>${item.kittaNam}</td><td>${item.gridSita}</td><td>${item.classificationArea}</td><td>${item.remarks}</td>
+      <td>${toNepaliNum(index + 1)}</td><td>${item.village}</td><td>${toNepaliNum(item.wardNumber)}</td>
+      <td>${toNepaliNum(item.kittaNam)}</td><td>${toNepaliNum(item.gridSita)}</td><td>${item.classificationArea}</td><td>${item.remarks}</td>
       <td class="no-print"><button class="btn-danger" onclick="deleteSelectedKitta(${index})">Delete</button></td>
     `;
     tbody.appendChild(row);
@@ -55826,7 +55848,6 @@ function deleteSelectedKitta(index) {
 /* ---------------------------------
    प्रिन्ट र अंक रूपान्तरण
    --------------------------------- */
-const nepaliDigits = { '0':'०','1':'१','2':'२','3':'३','4':'४','5':'५','6':'६','7':'७','8':'८','9':'९' };
 var changedTextNodes = [];
 
 function convertDigitsInTextNodes(convert=true) {
@@ -55857,8 +55878,8 @@ function printDetails() {
   if (!currentForm.name) { alert("कृपया पहिले सिफारिस विवरण भर्नुहोस्।"); return; }
 
   saveFullDocumentToDatabase(true);
-
   convertDigitsInTextNodes(true);
+  
   function restore() {
     convertDigitsInTextNodes(false);
     window.removeEventListener('afterprint', restore);
