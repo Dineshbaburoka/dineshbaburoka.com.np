@@ -346,8 +346,8 @@
           <td>${item.kitta}</td>
           <td><b style="color:red;">${item.tot_area || '0.00'}</b></td>
           <td>
-            <button class="action-btn btn-edit" onclick="loadRecord(${item.id})">✏️ सच्याउनुस् (Edit)</button>
-            <button class="action-btn btn-delete" onclick="deleteRecord(${item.id}, '${item.owner}')">❌ नथ्नुस्</button>
+            <button class="action-btn btn-edit" onclick="loadRecord(${item.id})">✏️ Edit (Edit)</button>
+            <button class="action-btn btn-delete" onclick="deleteRecord(${item.id}, '${item.owner}')">❌ Delete</button>
           </td>
         `;
         tbody.appendChild(row);
