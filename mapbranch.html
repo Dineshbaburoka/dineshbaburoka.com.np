@@ -1,97 +1,224 @@
 <!DOCTYPE html>
 <html lang="ne">
 <head>
-  <meta charset="UTF-8" />
-  <title>लगइन</title>
-  <style>
-    body { font-family: Arial, sans-serif; background: #f4f7f8; padding: 20px; }
-    h2 { text-align: center; background: #36454F; color: white; padding: 12px; border-radius: 6px; }
-    form { max-width: 400px; margin: auto; background: white; padding: 20px; border-radius: 8px;
-           box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-    .field { margin-bottom: 15px; position: relative; }
-    label { font-weight: bold; display: block; margin-bottom: 6px; }
-    input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
-    button { background: #0984e3; color: white; border: none; padding: 10px; cursor: pointer; width: 100%; }
-    button:hover { background: #0652DD; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>प्रणाली लगइन - गलकोट नगरपालिका</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    /* पासवर्ड अन/हाइड आइकनको लागि */
-    .toggle-password {
-      position: absolute;
-      top: 35px;
-      right: 10px;
-      cursor: pointer;
-      user-select: none;
-      font-size: 14px;
-      color: #555;
-      background: #eee;
-      border-radius: 4px;
-      padding: 2px 6px;
+  <style>
+    :root {
+      --primary-color: #0c2461;
+      --secondary-color: #1e3799;
+      --accent-color: #cf1b1b;
+      --success-color: #2ed573;
+      --bg-color: #f1f2f6;
+      --card-bg: #ffffff;
+      --border-color: #ced6e0;
     }
-    .toggle-password:hover {
-      background: #ccc;
-      color: #222;
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { 
+      font-family: 'Noto Sans Devanagari', sans-serif; 
+      background: var(--bg-color); 
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .auth-wrapper { 
+      width: 100%;
+      max-width: 400px; 
+      background: var(--card-bg); 
+      padding: 35px; 
+      border-radius: 12px; 
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1); 
+      border-top: 6px solid var(--primary-color); 
+    }
+    
+    .auth-title { 
+      text-align: center; 
+      color: var(--primary-color); 
+      font-size: 22px; 
+      font-weight: bold; 
+      margin-bottom: 25px; 
+    }
+    
+    .field { 
+      display: flex; 
+      flex-direction: column; 
+      margin-bottom: 15px; 
+    }
+    
+    .field label { 
+      font-weight: 600; 
+      margin-bottom: 5px; 
+      font-size: 14px; 
+      color: #57606f; 
+    }
+    
+    .field input { 
+      padding: 12px; 
+      border: 2px solid var(--border-color); 
+      border-radius: 6px; 
+      font-size: 14px; 
+      outline: none; 
+      transition: 0.2s; 
+    }
+    
+    .field input:focus { 
+      border-color: var(--secondary-color); 
+    }
+
+    .btn { 
+      color: white; 
+      border: none; 
+      padding: 14px; 
+      font-size: 16px; 
+      font-weight: bold; 
+      border-radius: 6px; 
+      cursor: pointer; 
+      width: 100%;
+      transition: 0.3s; 
+    }
+    .btn-login { background: var(--primary-color); }
+    .btn-login:hover { background: var(--secondary-color); }
+    .btn-reset { background: var(--success-color); }
+    .btn-reset:hover { background: #26af5f; }
+
+    .auth-toggle { 
+      text-align: center; 
+      margin-top: 20px; 
+      font-size: 14px; 
+      color: var(--accent-color); 
+      cursor: pointer; 
+      text-decoration: underline; 
+    }
+    
+    .info-text {
+      font-size: 13px; 
+      color: #666; 
+      text-align: center; 
+      margin-bottom: 20px;
     }
   </style>
 </head>
 <body>
-  <form id="loginForm">
-    <h2>लगइन गर्नुहोस्</h2>
-    <div class="field">
-      <label>Username</label>
-      <input type="text" id="username" required />
+
+  <div class="auth-wrapper">
+    <div id="loginBlock">
+      <div class="auth-title">🏛️ प्रणाली लगइन (Staff Login)</div>
+      <form id="loginForm">
+        <div class="field">
+          <label>आधिकारिक इमेल (Email)</label>
+          <input type="email" id="loginEmail" placeholder="staff@galkotmun.gov.np" required>
+        </div>
+        <div class="field">
+          <label>पासवर्ड (Password)</label>
+          <input type="password" id="loginPassword" placeholder="******" required>
+        </div>
+        <button type="submit" class="btn btn-login">🔐 लगइन गर्नुस्</button>
+      </form>
+      <div class="auth-toggle" onclick="toggleView('forgot')">पासवर्ड बिर्सिनुभयो? (सिधै नयाँ सेट गर्ने)</div>
     </div>
-    <div class="field">
-      <label>Password</label>
-      <input type="password" id="password" required />
-      <span id="togglePassword" class="toggle-password">देखाउने</span>
+
+    <div id="forgotBlock" style="display:none;">
+      <div class="auth-title">🔑 नयाँ पासवर्ड सेट गर्नुस्</div>
+      <p class="info-text">डाटाबेसमा इमेल मिलेको खण्डमा तपाईंको पासवर्ड तुरुन्तै परिवर्तन हुनेछ।</p>
+      <form id="forgotForm">
+        <div class="field">
+          <label>तपाईंको दर्ता भएको इमेल</label>
+          <input type="email" id="forgotEmail" placeholder="name@galkotmun.gov.np" required>
+        </div>
+        <div class="field">
+          <label>नयाँ बलियो पासवर्ड (New Password)</label>
+          <input type="password" id="newPassword" placeholder="नयाँ पासवर्ड" minlength="6" required>
+        </div>
+        <button type="submit" class="btn btn-reset">🔄 पासवर्ड परिवर्तन गर्नुस्</button>
+      </form>
+      <div class="auth-toggle" onclick="toggleView('login')" style="color:#57606f;">फिर्ता लगइन स्क्रिनमा जानुस्</div>
     </div>
-    <button type="submit">लगइन</button>
-  </form>
+  </div>
 
   <script>
-    const users = {
-      'zenith': 'Galkot@123',
-      'triangle': 'Galkotmun@123',
-      'habil': 'Galkot@mun',
-      'barcode': 'Barcode@123'
-    };
+    // Supabase Connect Settings
+    const SUPABASE_URL = "https://lyjokogftwtvnhwszqni.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_gxEL2-GVTVy8E0WxMBZHDQ_b5TzsDI9"; 
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
+    // स्क्रिन स्विच गर्ने (Login <-> Forgot)
+    function toggleView(view) {
+      document.getElementById('loginBlock').style.display = view === 'login' ? 'block' : 'none';
+      document.getElementById('forgotBlock').style.display = view === 'forgot' ? 'block' : 'none';
+    }
+
+    // १. लगइन प्रोसेस (कस्टम टेबल म्याच)
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const username = document.getElementById('username').value.trim();
-      const password = document.getElementById('password').value.trim();
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
 
-      if (users[username] && users[username] === password) {
-        localStorage.setItem("loggedIn", "true");
-        localStorage.setItem("username", username);
+      // `system_users` टेबलमा इमेल र पासवर्ड चेक गर्ने
+      const { data, error } = await _supabase
+        .from('system_users')
+        .select('fullname, email')
+        .eq('email', email)
+        .eq('password', password)
+        .maybeSingle();
 
-        if (username === 'zenith') {
-          window.location.href = "application.html";
-        } else if (username === 'barcode') {
-          window.location.href = "barcode.html";
-        } else if (username === 'triangle') {
-          window.location.href = "application.html";
-        } else if (username === 'habil') {
-          window.location.href = "application.html";
-        } else {
-          window.location.href = "application.html";
-        }
+      if (error) {
+        alert("❌ प्राविधिक त्रुटि: " + error.message);
+      } else if (data) {
+        // म्याच भएपछि सेसन राख्ने र सिधै mapform.html मा लैजाने
+        localStorage.setItem("userLoggedIn", "true");
+        localStorage.setItem("loggedInUserEmail", data.email);
+        window.location.href = "mapform.html"; 
       } else {
-        alert('गलत username वा password');
+        alert("❌ गलत इमेल वा पासवर्ड! कृपया पुनः जाँच्नुहोस्।");
       }
     });
 
-    // पासवर्ड देखाउन/लुकाउन toggle गर्ने स्क्रिप्ट
-    const togglePassword = document.getElementById('togglePassword');
-    const passwordInput = document.getElementById('password');
+    // २. सिधै नयाँ पासवर्ड सेट गर्ने प्रोसेस (इमेल म्याच भएमा मात्र चल्ने)
+    document.getElementById('forgotForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('forgotEmail').value.trim();
+      const newPassword = document.getElementById('newPassword').value;
 
-    togglePassword.addEventListener('click', () => {
-      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-      passwordInput.setAttribute('type', type);
-      togglePassword.textContent = type === 'password' ? 'देखाउन' : 'लुकाउन';
+      // पहिले इमेल डाटाबेसमा छ कि छैन जाँच्ने
+      const { data: userCheck, error: checkError } = await _supabase
+        .from('system_users')
+        .select('email')
+        .eq('email', email)
+        .maybeSingle();
+
+      if (checkError) {
+        alert("❌ डाटाबेस जाँच गर्न सकिएन: " + checkError.message);
+        return;
+      }
+
+      if (!userCheck) {
+        alert("❌ यो इमेल प्रणालीको डाटाबेसमा फेला परेन!");
+        return;
+      }
+
+      // यदि इमेल भेटियो भने सिधै पासवर्ड अपडेट गरिदिने
+      const { error: updateError } = await _supabase
+        .from('system_users')
+        .update({ password: newPassword })
+        .eq('email', email);
+
+      if (updateError) {
+        alert("❌ पासवर्ड अपडेट असफल भयो: " + updateError.message);
+      } else {
+        alert("🚀 पासवर्ड सफलतापूर्वक परिवर्तन भयो! अब नयाँ पासवर्ड प्रयोग गरेर लगइन गर्नुहोस्।");
+        document.getElementById('forgotForm').reset();
+        toggleView('login');
+      }
     });
   </script>
+
 </body>
 </html>
-
-
