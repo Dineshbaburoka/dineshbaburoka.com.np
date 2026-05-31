@@ -15,6 +15,7 @@
       --accent-color: #cf1b1b;
       --success-color: #2ed573;
       --danger-color: #ff4757;
+      --warning-color: #ffa502;
       --bg-color: #f1f2f6;
       --card-bg: #ffffff;
       --border-color: #ced6e0;
@@ -31,7 +32,8 @@
     }
     .database-container { border-top: 6px solid var(--success-color); }
     
-    .form-title { color: var(--primary-color); text-align: center; margin-bottom: 25px; font-size: 24px; font-weight: bold; border-bottom: 3px double var(--border-color); padding-bottom: 10px; }
+    .form-header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 3px double var(--border-color); padding-bottom: 15px; flex-wrap: wrap; gap: 15px; }
+    .form-title { color: var(--primary-color); font-size: 24px; font-weight: bold; }
     .section-subtitle { font-size: 16px; font-weight: bold; color: var(--secondary-color); margin: 25px 0 15px 0; border-bottom: 2px solid var(--border-color); padding-bottom: 5px; grid-column: 1 / -1; }
     
     .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; }
@@ -52,13 +54,15 @@
 
     /* Buttons */
     .action-buttons { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 30px; }
-    .btn { color: white; border: none; padding: 14px 20px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer; transition: 0.3s; display: flex; justify-content: center; align-items: center; gap: 10px; text-align: center; }
+    .btn { color: white; border: none; padding: 14px 20px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer; transition: 0.3s; display: flex; justify-content: center; align-items: center; gap: 10px; text-align: center; text-decoration: none; }
     .btn-save { background: var(--primary-color); }
     .btn-save:hover { background: var(--secondary-color); }
     .btn-update { background: var(--success-color); display: none; }
     .btn-update:hover { background: #26af5f; }
     .btn-clear { background: var(--danger-color); }
     .btn-clear:hover { background: #e03d4b; }
+    .btn-report { background: #4a5568; }
+    .btn-report:hover { background: #2d3748; }
 
     /* Table Styling */
     .db-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
@@ -67,7 +71,7 @@
     .db-table tr:hover { background-color: #f8f9fa; }
     
     .action-btn { padding: 8px 14px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; margin-right: 5px; color: white; transition: 0.2s; }
-    .btn-edit { background-color: #ffa502; }
+    .btn-edit { background-color: var(--warning-color); }
     .btn-edit:hover { background-color: #ff7f50; }
     .btn-delete { background-color: var(--accent-color); }
     .btn-delete:hover { background-color: #b31212; }
@@ -77,7 +81,11 @@
 <body>
 
   <div class="master-form-container">
-    <div class="form-title">🏛️ गलकोट नगरपालिका - भूमि व्यवस्थापन तथा भवन डाटा प्रविष्टि प्रणाली</div>
+    <div class="form-header-container">
+      <div class="form-title">🏛️ गलकोट नगरपालिका - भूमि व्यवस्थापन तथा भवन डाटा प्रविष्टि प्रणाली</div>
+      <a href="report.html" target="_blank" class="btn btn-report">📊 रिपोर्टहरू (Reports)</a>
+    </div>
+    
     <form id="masterDataForm">
       <input type="hidden" id="record_id" value="">
       
