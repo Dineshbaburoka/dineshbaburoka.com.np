@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>मुख्य रिपोर्ट ड्यासबोर्ड (१५ बटनहरू)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f4f6f9;
+            color: #333;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        p.subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+        }
+
+        /* १५ वटा बटनका लागि मिलाइएको Grid Layout */
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+        }
+
+        .report-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 18px 12px;
+            font-size: 15px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .report-btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .report-btn:active {
+            transform: translateY(0);
+        }
+
+        /* बटनहरूलाई आकर्षक देखाउन फरक-फरक रङहरू (वैकल्पिक) */
+        .btn-blue { background-color: #3498db; }
+        .btn-blue:hover { background-color: #2980b9; }
+
+        .btn-green { background-color: #2ecc71; }
+        .btn-green:hover { background-color: #27ae60; }
+
+        .btn-orange { background-color: #e67e22; }
+        .btn-orange:hover { background-color: #d35400; }
+
+        .btn-purple { background-color: #9b59b6; }
+        .btn-purple:hover { background-color: #8e44ad; }
+
+        .btn-red { background-color: #e74c3c; }
+        .btn-red:hover { background-color: #c0392b; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>प्रणाली रिपोर्ट ड्यासबोर्ड</h1>
+    <p class="subtitle">सम्बन्धित रिपोर्ट हेर्नका लागि तलका कुनै पनि बटनमा क्लिक गर्नुहोस्:</p>
+
+    <div class="button-grid">
+        <button class="report-btn btn-blue" onclick="navigateTo('order.html')">१. अर्डर रिपोर्ट (Order)</button>
+        <button class="report-btn btn-blue" onclick="navigateTo('sales.html')">२. दैनिक बिक्री रिपोर्ट</button>
+        <button class="report-btn btn-blue" onclick="navigateTo('income.html')">३. मासिक आम्दानी</button>
+        <button class="report-btn btn-blue" onclick="navigateTo('inventory.html')">४. स्टक विवरण (Stock)</button>
+        <button class="report-btn btn-blue" onclick="navigateTo('users.html')">५. प्रयोगकर्ता लग</button>
+        <button class="report-btn btn-green" onclick="navigateTo('profit.html')">६. नाफा-घाटा हिसाब</button>
+        <button class="report-btn btn-green" onclick="navigateTo('tax.html')">७. कर विवरण (Tax)</button>
+        <button class="report-btn btn-green" onclick="navigateTo('attendance.html')">८. कर्मचारी हाजिरी</button>
+        <button class="report-btn btn-green" onclick="navigateTo('feedback.html')">९. ग्राहक प्रतिक्रिया</button>
+        <button class="report-btn btn-green" onclick="navigateTo('expenses.html')">१०. कुल खर्च विवरण</button>
+
+        <button class="report-btn btn-orange" onclick="navigateTo('annual.html')">११. वार्षिक समीक्षा</button>
+        <button class="report-btn btn-purple" onclick="navigateTo('purchase.html')">१२. खरिद रिपोर्ट (Purchase)</button>
+        <button class="report-btn btn-purple" onclick="navigateTo('supplier.html')">१३. सप्लायर्स विवरण</button>
+        <button class="report-btn btn-red" onclick="navigateTo('audit.html')">१४. आन्तरिक अडिट</button>
+        <button class="report-btn btn-red" onclick="navigateTo('settings.html')">१५. प्रणाली सेटिङ</button>
+    </div>
+</div>
+
+<script>
+    // बटन थिच्दा अर्को HTML पेजमा लैजाने फङ्सन
+    function navigateTo(pageUrl) {
+        window.location.href = pageUrl;
+    }
+</script>
+
+</body>
+</html>
