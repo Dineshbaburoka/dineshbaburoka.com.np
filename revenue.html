@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>गलकोट नगरपालिका - नक्सा पास दस्तुर रसिद</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Supabase JS SDK Link -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      --primary-color: #0c2461;
+      --secondary-color: #1e3799;
+      --bg-color: #f1f2f6;
+      --card-bg: #ffffff;
+      --border-color: #ced6e0;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Noto Sans Devanagari', sans-serif; background: var(--bg-color); padding: 30px; color: #2f3542; }
+
+    /* Search Section Styling */
+    .report-search-wrapper { 
+      max-width: 850px; 
+      margin: 20px auto 30px auto; 
+      background: var(--card-bg); 
+      padding: 30px; 
+      border-radius: 12px; 
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+      border: 2px solid var(--primary-color); 
+    }
+    .system-title {
+      text-align: center;
+      color: var(--primary-color);
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+    .report-search-box { 
+      width: 100%; 
+      padding: 16px; 
+      border: 2px solid var(--border-color); 
+      border-radius: 8px; 
+      font-size: 15px; 
+      outline: none; 
+      font-weight: bold; 
+      text-align: center; 
+      color: var(--primary-color); 
+    }
+    .report-search-box:focus { 
+      border-color: var(--secondary-color); 
+      box-shadow: 0 0 10px rgba(30,55,153,0.25); 
+    }
+    .search-hint { 
+      font-size: 14px; 
+      color: #57606f; 
+      text-align: center; 
+      margin-top: 12px; 
+      font-weight: 600; 
+    }
+
+    /* नक्सा पास दस्तुर फारम Layout (PDF ढाँचा) */
+    .print-letter-container {
+      max-width: 850px; 
+      margin: 0 auto 40px auto; 
+      background: var(--card-bg);
+      padding: 50px 60px; 
+      border-radius: 8px; 
+      box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+      border: 1px solid #ccc; 
+      position: relative; 
+      line-height: 1.8; 
+      font-size: 16px; 
+      display: none; /* सुरुमा लुकेको हुने */
+    }
+
+    /* परिमार्जित हेडर: लोगो बायाँ र हेडिङ ठ्याक्कै केन्द्रमा पार्न */
+    .letter-header { 
+      position: relative;      /* लोगोलाई निश्चित ठाउँमा राख्न */
+      display: flex;
+      justify-content: center; /* मुख्य टेक्स्टलाई बीचमा ल्याउन */
+      align-items: center;
+      color: #000000; 
+      margin-bottom: 25px;
+      border-bottom: 2px solid #000000;
+      padding-bottom: 15px;
+      min-height: 100px;       /* लोगो अट्ने न्यूनतम उचाई */
+    }
+    .gov-logo {
+      position: absolute;      /* हेडिङको बीचको ठाउँ नओगटोस् भनेर */
+      left: 0;                 /* बायाँ कुनामा टपक्क टाँस्न */
+      top: 0;
+      width: 95px;
+      height: auto;
+    }
+    .header-text {
+      text-align: center;      /* अक्षरहरूलाई केन्द्रमा राख्न */
+      line-height: 1.5;
+    }
+    .letter-header .municipality-name { font-size: 26px; font-weight: bold; color: #000000; }
+    .letter-header .org-name { font-size: 20px; font-weight: bold; margin: 2px 0; }
+    .letter-header .branch-name { font-size: 17px; font-weight: 600; }
+    .letter-header .address-name { font-size: 17px; font-weight: 600; }
+    
+    /* मुख्य शीर्षक */
+    .document-title {
+      text-align: center;
+      font-size: 22px;
+      font-weight: bold;
+      text-decoration: underline;
+      margin-bottom: 20px;
+      color: #000;
+    }
+    
+    .info-section {
+      margin: 20px 0;
+      font-size: 18px;
+      font-weight: 600;
+      display: flex;
+    }
+    .info-row {
+      display: flex;
+      align-items: center;
+    }
+    .dynamic-value { 
+      font-weight: bold; 
+      color: #000000; 
+      border-bottom: 1px dashed #222; 
+      padding: 0 10px;
+    }
+    
+    /* Table & Input Styling */
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 16px; }
+    th, td { border: 1px solid #000; padding: 10px; text-align: left; }
+    th { background-color: #f2f2f2; text-align: center; font-weight: bold; }
+    .text-center { text-align: center; }
+    .text-right { text-align: right; }
+    
+    /* Manual entry input styling inside table */
+    .manual-input {
+      width: 100%;
+      padding: 5px;
+      font-size: 15px;
+      border: 1px solid #bbb;
+      border-radius: 4px;
+      text-align: center;
+      font-family: 'Noto Sans Devanagari', sans-serif;
+    }
+    .manual-text-input {
+      border: none;
+      border-bottom: 1px dashed #222;
+      font-size: 16px;
+      padding: 2px 5px;
+      outline: none;
+    }
+
+    /* Footer Layout */
+    .footer-section {
+      margin-top: 40px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .footer-box {
+      width: 45%;
+      font-size: 16px;
+      line-height: 2;
+    }
+
+    /* Print Button */
+    .print-btn-wrapper { text-align: center; margin-top: 30px; }
+    .btn-print { 
+      background-color: #2ed573; 
+      color: white; 
+      border: none; 
+      padding: 14px 35px; 
+      font-size: 16px; 
+      font-weight: bold; 
+      border-radius: 6px; 
+      cursor: pointer; 
+      display: inline-flex; 
+      align-items: center; 
+      gap: 6px; 
+      transition: 0.3s; 
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+    }
+    .btn-print:hover { background-color: #26af5f; }
+    
+    .no-report-alert { 
+      text-align: center; 
+      padding: 60px 40px; 
+      color: #7f8c8d; 
+      font-size: 16px; 
+      background: white; 
+      max-width: 850px; 
+      margin: 0 auto; 
+      border-radius: 12px; 
+      border: 2px dashed #cbd5e1; 
+    }
+
+    /* PRINT RULES */
+    @media print {
+      body { background: #fff; padding: 0; }
+      .report-search-wrapper, .print-btn-wrapper, .search-hint, .no-report-alert { display: none !important; }
+      .print-letter-container { 
+        display: block !important; 
+        box-shadow: none !important; 
+        border: none !important; 
+        padding: 0 !important; 
+        margin: 0 !important; 
+        width: 100% !important; 
+        max-width: 100% !important; 
+      }
+      /* Hide borders of manual text inputs when printing */
+      .manual-input { border: none !important; background: transparent; }
+      .manual-text-input { border-bottom: none !important; }
+      .dynamic-value { border-bottom: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Search Bar -->
+  <div class="report-search-wrapper">
+    <div class="system-title">🏛️ गलकोट नगरपालिका - भूमि व्यवस्थापन तथा भवन नियमन शाखा</div>
+    <input type="text" id="reportSearchBox" class="report-search-box" placeholder="🔍 दर्ता न. / जग्गाधनीको नाम / नागरिकता नं. टाइप गर्नुहोस्..." oninput="searchReportDatabase()">
+    <div class="search-hint">डाटाबेसमा विवरण म्याच हुनासाथ "नक्सा पास दस्तुर फारम" स्वतः भरिएर यहाँ देखा पर्नेछ।</div>
+  </div>
+
+  <!-- Alert Area -->
+  <div id="reportNotFoundAlert" class="no-report-alert">
+    🔍 विवरण खोज्नका लागि माथिको कोठामा <b>दर्ता नं, नाम वा नागरिकता नम्बर</b> टाइप गर्नुहोस्। <br><br>
+    <span style="font-size: 13px; color: #a4b0be;">(सुरक्षा र सहजताका लागि यहाँ कुनै पनि अनावश्यक विवरण वा फारम राखिएको छैन।)</span>
+  </div>
+
+  <!-- नक्सा पास दस्तुर रसिद ढाँचा -->
+  <div class="print-letter-container" id="officeOrderPrintArea">
+    
+    <!-- परिमार्जित लेआउट: लोगो एकदम बायाँ र ठेगाना केन्द्रमा -->
+    <div class="letter-header">
+      <img src="Emblem_of_Nepal.svg.png" alt="नेपालको निशान छाप" class="gov-logo">
+      <div class="header-text">
+        <div class="municipality-name">गलकोट नगरपालिका</div>
+        <div class="org-name">नगर कार्यपालिकाको कार्यालय</div>
+        <div class="branch-name">भूमि व्यवस्थापन तथा भवन नियमन शाखा</div>
+        <div class="address-name">गलकोट, बागलुङ</div>
+      </div>
+    </div>
+
+    <!-- मुख्य शिर्षक केन्द्रमा -->
+    <div class="document-title">नक्सा पास दस्तुर</div>
+
+    <!-- व्यक्तिगत विवरण -->
+    <div class="info-section">
+      <div class="info-row" style="width: 65%;">
+        <span>नामः-</span>
+        <span id="lbl_owner" class="dynamic-value" style="flex-grow: 1;"></span>
+      </div>
+      <div class="info-row" style="width: 35%;">
+        <span>वडा नं.-</span>
+        <span id="lbl_ward" class="dynamic-value" style="width: 80px; text-align: center;"></span>
+      </div>
+    </div>
+
+    <!-- दस्तुर हिसाब तालिका -->
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 8%;">क्र.सं.</th>
+          <th style="width: 32%;">विवरण</th>
+          <th style="width: 20%;">क्षेत्रफल</th>
+          <th style="width: 20%;">दर रु.</th>
+          <th style="width: 20%;">रकम</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="text-center">१</td>
+          <td>बेसमेट</td>
+          <td id="lbl_f_base_a" class="text-center">-</td>
+          <td id="rate_f_base" class="text-center">-</td>
+          <td id="amt_f_base" class="text-center">-</td>
+        </tr>
+        <tr>
+          <td class="text-center">२</td>
+          <td>सेमि बेसमेट</td>
+          <td id="lbl_f_semi_a" class="text-center">-</td>
+          <td id="rate_f_semi" class="text-center">-</td>
+          <td id="amt_f_semi" class="text-center">-</td>
+        </tr>
+        <tr>
+          <td class="text-center">३</td>
+          <td>जमिन तल्ला</td>
+          <td id="lbl_f_ground_a" class="text-center">-</td>
+          <td id="rate_f_ground" class="text-center">-</td>
+          <td id="amt_f_ground" class="text-center">-</td>
+        </tr>
+        <tr>
+          <td class="text-center">४</td>
+          <td>प्रथम तल्ला</td>
+          <td id="lbl_f_1st_a" class="text-center">-</td>
+          <td id="rate_f_1st" class="text-center">-</td>
+          <td id="amt_f_1st" class="text-center">-</td>
+        </tr>
+        <tr>
+          <td class="text-center">५</td>
+          <td>दोस्रो तल्ला</td>
+          <td id="lbl_f_2nd_a" class="text-center">-</td>
+          <td id="rate_f_2nd" class="text-center">-</td>
+          <td id="amt_f_2nd" class="text-center">-</td>
+        </tr>
+        <tr>
+          <td class="text-center">६</td>
+          <td>तेस्रो तल्ला</td>
+          <td id="lbl_f_3rd_a" class="text-center">-</td>
+          <td id="rate_f_3rd" class="text-center">-</td>
+          <td id="amt_f_3rd" class="text-center">-</td>
+        </tr>
+        <tr>
+          <td class="text-center">७</td>
+          <td>चौंथो तल्ला</td>
+          <td id="lbl_f_4th_a" class="text-center">-</td>
+          <td id="rate_f_4th" class="text-center">-</td>
+          <td id="amt_f_4th" class="text-center">-</td>
+        </tr>
+        <tr>
+          <td class="text-center">८</td>
+          <td>पाँचौ तल्ला</td>
+          <td id="lbl_f_5th_a" class="text-center">-</td>
+          <td id="rate_f_5th" class="text-center">-</td>
+          <td id="amt_f_5th" class="text-center">-</td>
+        </tr>
+        <tr>
+          <td colspan="4" class="text-right"><b>जम्मा रु.</b></td>
+          <td id="lbl_total_tax" class="text-center" style="font-weight: bold;">-</td>
+        </tr>
+        
+        <!-- **म्यानुअल इन्ट्री सेक्सनहरू** -->
+        <tr>
+          <td class="text-center">९</td>
+          <td>अन्य</td>
+          <td><input type="text" id="inp_other_desc" class="manual-input" placeholder="विवरण थप्नुहोस्"></td>
+          <td><input type="number" id="inp_other_rate" class="manual-input" placeholder="दर"></td>
+          <td><input type="number" id="inp_other_amt" class="manual-input" oninput="calculateGrandTotal()" placeholder="रकम"></td>
+        </tr>
+        <tr>
+          <td class="text-center">१०</td>
+          <td>छुट</td>
+          <td></td><td></td>
+          <td><input type="number" id="inp_discount_amt" class="manual-input" oninput="calculateGrandTotal()" placeholder="(-) रकम"></td>
+        </tr>
+        <tr>
+          <td class="text-center">११</td>
+          <td>जरिवाना</td>
+          <td><input type="text" id="inp_fine_desc" class="manual-input" placeholder="कैफियत"></td>
+          <td></td>
+          <td><input type="number" id="inp_fine_amt" class="manual-input" oninput="calculateGrandTotal()" placeholder="(+) रकम"></td>
+        </tr>
+        <tr>
+          <td class="text-center">१२</td>
+          <td>सेवा शुल्क</td>
+          <td></td><td></td>
+          <td><input type="number" id="inp_service_amt" class="manual-input" oninput="calculateGrandTotal()" placeholder="(+) रकम"></td>
+        </tr>
+        <tr>
+          <td class="text-center">१३</td>
+          <td>फारम शुल्क</td>
+          <td></td>
+          <td class="text-center">-</td>
+          <td class="text-center"><input type="number" id="inp_form_amt" class="manual-input" oninput="calculateGrandTotal()" value="1000" placeholder="(+) रकम"></td>
+        </tr>
+        <tr>
+          <td colspan="4" class="text-right"><b>जम्मा रकम रु.</b></td>
+          <td id="lbl_grand_total" class="text-center" style="font-weight: bold; font-size: 18px; color: #000;">-</td>
+        </tr>
+        <tr>
+          <td colspan="5">
+            <span>अक्षरुपी रकम रु.</span>
+            <span id="lbl_words_total" style="font-weight: bold; text-decoration: underline; padding-left: 10px;">............................................................................................</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <!-- हस्ताक्षार र बुझिलिने सेक्सन -->
+    <div class="footer-section">
+      <div class="footer-box">
+        <p>दस्तुर हिसाब गर्नेको सहीः- .....................</p>
+      </div>
+      <div class="footer-box" style="border: 1px solid #000; padding: 10px; border-radius: 5px;">
+        <p>यस नगरपालिकाको दस्तुर अतिरिक्त दस्तुरको जम्मा रु <input type="text" class="manual-text-input" style="width: 150px;"></p>
+        <p>अक्षरुपी <input type="text" class="manual-text-input" style="width: 250px;"></p>
+        <p>र.नं. <input type="text" class="manual-text-input" style="width: 80px;"> वाट मिति २० <input type="text" class="manual-text-input" style="width: 30px;">/<input type="text" class="manual-text-input" style="width: 20px;">/<input type="text" class="manual-text-input" style="width: 20px;"> मा प्राप्त भयो ।</p>
+        <p style="margin-top: 15px;">बुझिलिनेको सहीः- .......................................</p>
+        <p>नाम, थर :- .................................................</p>
+        <p>पदः- ..........................................................</p>
+      </div>
+    </div>
+
+    <!-- Print Button -->
+    <div class="print-btn-wrapper">
+      <button class="btn-print" onclick="window.print()">🖨️ प्रिन्ट गर्नुहोस्</button>
+    </div>
+  </div>
+
+  <script>
+    // Supabase Credentials Connect
+    const SUPABASE_URL = "https://lyjokogftwtvnhwszqni.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_gxEL2-GVTVy8E0WxMBZHDQ_b5TzsDI9"; 
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let mapDatabase = [];
+    let autoTotalTax = 0;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      fetchFromSupabase();
+    });
+
+    async function fetchFromSupabase() {
+      try {
+        const { data, error } = await _supabase
+          .from('g_map_branch1')
+          .select('registrano, owner, ward, cit_no, revinuerate, f_base_a, f_semi_a, f_ground_a, f_1st_a, f_2nd_a, f_3rd_a, f_4th_a, f_5th_a');
+
+        if (error) throw error;
+        mapDatabase = data;
+      } catch (err) {
+        console.error("डाटाबेस लोड गर्दा समस्या आयो:", err.message);
+      }
+    }
+
+    function searchReportDatabase() {
+      const query = document.getElementById('reportSearchBox').value.toLowerCase().trim();
+      const letterContainer = document.getElementById('officeOrderPrintArea');
+      const alertBox = document.getElementById('reportNotFoundAlert');
+
+      if (query === "") {
+        letterContainer.style.display = "none";
+        alertBox.style.display = "block";
+        return;
+      }
+
+      const match = mapDatabase.find(item => 
+        (item.registrano && item.registrano.toLowerCase().includes(query)) ||
+        (item.owner && item.owner.toLowerCase().includes(query)) ||
+        (item.cit_no && item.cit_no.toLowerCase().includes(query))
+      );
+
+      if (match) {
+        document.getElementById('lbl_owner').innerText = match.owner || '..............................................................';
+        document.getElementById('lbl_ward').innerText = match.ward || '...........';
+        
+        const rate = parseFloat(match.revinuerate) || 0;
+        const rateFields = ['rate_f_base', 'rate_f_semi', 'rate_f_ground', 'rate_f_1st', 'rate_f_2nd', 'rate_f_3rd', 'rate_f_4th', 'rate_f_5th'];
+        rateFields.forEach(id => {
+          document.getElementById(id).innerText = rate > 0 ? rate : '-';
+        });
+
+        const base_a = parseFloat(match.f_base_a) || 0;
+        const semi_a = parseFloat(match.f_semi_a) || 0;
+        const ground_a = parseFloat(match.f_ground_a) || 0;
+        const first_a = parseFloat(match.f_1st_a) || 0;
+        const second_a = parseFloat(match.f_2nd_a) || 0;
+        const third_a = parseFloat(match.f_3rd_a) || 0;
+        const fourth_a = parseFloat(match.f_4th_a) || 0;
+        const fifth_a = parseFloat(match.f_5th_a) || 0;
+
+        document.getElementById('lbl_f_base_a').innerText = base_a || '-';
+        document.getElementById('lbl_f_semi_a').innerText = semi_a || '-';
+        document.getElementById('lbl_f_ground_a').innerText = ground_a || '-';
+        document.getElementById('lbl_f_1st_a').innerText = first_a || '-';
+        document.getElementById('lbl_f_2nd_a').innerText = second_a || '-';
+        document.getElementById('lbl_f_3rd_a').innerText = third_a || '-';
+        document.getElementById('lbl_f_4th_a').innerText = fourth_a || '-';
+        document.getElementById('lbl_f_5th_a').innerText = fifth_a || '-';
+
+        const amt_base = base_a * rate;
+        const amt_semi = semi_a * rate;
+        const amt_ground = ground_a * rate;
+        const amt_1st = first_a * rate;
+        const amt_2nd = second_a * rate;
+        const amt_3rd = third_a * rate;
+        const amt_4th = fourth_a * rate;
+        const amt_5th = fifth_a * rate;
+
+        document.getElementById('amt_f_base').innerText = amt_base ? amt_base.toFixed(2) : '-';
+        document.getElementById('amt_f_semi').innerText = amt_semi ? amt_semi.toFixed(2) : '-';
+        document.getElementById('amt_f_ground').innerText = amt_ground ? amt_ground.toFixed(2) : '-';
+        document.getElementById('amt_f_1st').innerText = amt_1st ? amt_1st.toFixed(2) : '-';
+        document.getElementById('amt_f_2nd').innerText = amt_2nd ? amt_2nd.toFixed(2) : '-';
+        document.getElementById('amt_f_3rd').innerText = amt_3rd ? amt_3rd.toFixed(2) : '-';
+        document.getElementById('amt_f_4th').innerText = amt_4th ? amt_4th.toFixed(2) : '-';
+        document.getElementById('amt_f_5th').innerText = amt_5th ? amt_5th.toFixed(2) : '-';
+
+        autoTotalTax = amt_base + amt_semi + amt_ground + amt_1st + amt_2nd + amt_3rd + amt_4th + amt_5th;
+        document.getElementById('lbl_total_tax').innerText = autoTotalTax > 0 ? autoTotalTax.toFixed(2) : '०.००';
+
+        calculateGrandTotal();
+
+        alertBox.style.display = "none";
+        letterContainer.style.display = "block";
+      } else {
+        letterContainer.style.display = "none";
+        alertBox.style.display = "block";
+        alertBox.innerHTML = `❌ माफ गर्नुहोला, तपाईंले खोज्नुभएको विवरण डाटाबेसमा फेला परेन। कृपया हिज्जे वा नम्बर जाँच गर्नुहोस्।`;
+      }
+    }
+
+    function calculateGrandTotal() {
+      const formFee = parseFloat(document.getElementById('inp_form_amt').value) || 0;
+      
+      const otherAmt = parseFloat(document.getElementById('inp_other_amt').value) || 0;
+      const discountAmt = parseFloat(document.getElementById('inp_discount_amt').value) || 0;
+      const fineAmt = parseFloat(document.getElementById('inp_fine_amt').value) || 0;
+      const serviceAmt = parseFloat(document.getElementById('inp_service_amt').value) || 0;
+
+      const grandTotal = (autoTotalTax + otherAmt + fineAmt + serviceAmt + formFee) - discountAmt;
+
+      document.getElementById('lbl_grand_total').innerText = grandTotal.toFixed(2);
+
+      if(grandTotal > 0) {
+        document.getElementById('lbl_words_total').innerText = numberToNepaliWords(Math.round(grandTotal)) + " मात्र ।";
+      } else {
+        document.getElementById('lbl_words_total').innerText = "शून्य मात्र ।";
+      }
+    }
+
+    function numberToNepaliWords(num) {
+      if (num === 0) return "शून्य";
+      const ones = ["", "एक", "दुई", "तीन", "चार", "पाँच", "छ", "सात", "आठ", "नौ", "दस", 
+                    "एघार", "बाह्र", "तेह्र", "चौध", "पन्ध्र", "सोह्र", "सत्र", "अठार", "उन्नीस", "बीस",
+                    "इक्काइस", "बाइस", "तेइस", "चौबिस", "पच्चिस", "छब्बिस", "सत्तैस", "अठ्ठाइस", "उनन्तीस", "तीस",
+                    "इकत्तीस", "बत्तीस", "तेँतीस", "चौँतीस", "पैँतीस", "छछत्तीस", "सैँतीस", "अढतीस", "उनन्चालीस", "चालीस",
+                    "एकचालीस", "बयालीस", "त्रिचालीस", "चौरालीस", "पैँतालीस", "छयालीस", "सरतालीस", "अठतालीस", "उनन्चास", "पचास",
+                    "एकाउन", "बाउन", "त्रिपन्न", "चौपन्न", "पञ्चाउन", "छपन्न", "सन्ताउन", "अन्ठाउन", "उनन्साठी", "साठी",
+                    "एकसट्ठी", "बायसट्ठी", "त्रिसट्ठी", "चौसट्ठी", "पैँसट्ठी", "छयसट्ठी", "सतसट्ठी", "अठसट्ठी", "उनन्तर", "सत्तारी",
+                    "एकहत्तर", "बाहत्तर", "त्रिहत्तर", "चौहत्तर", "पचहत्तर", "छहत्तर", "सतहत्तर", "अठहत्तर", "उननासी", "असी",
+                    "एकासी", "बयासी", "त्रियासी", "चौरासी", "पचासी", "छयासी", "सतहासी", "अठ्ठासी", "उनानब्बे", "नब्बे",
+                    "एकानब्बे", "बयानब्बे", "त्रियानब्बे", "चौ्रानब्बे", "पञ्चानब्बे", "छयानब्बे", "सन्तानब्बे", "अन्ठानब्बे", "उनन्सय"];
+
+      let words = "";
+      if (Math.floor(num / 10000000) > 0) { words += numberToNepaliWords(Math.floor(num / 10000000)) + " करोड "; num %= 10000000; }
+      if (Math.floor(num / 100000) > 0) { words += ones[Math.floor(num / 100000)] + " लाख "; num %= 100000; }
+      if (Math.floor(num / 1000) > 0) { words += ones[Math.floor(num / 1000)] + " हजार "; num %= 1000; }
+      if (Math.floor(num / 100) > 0) { words += ones[Math.floor(num / 100)] + " सय "; num %= 100; }
+      if (num > 0) { words += ones[num]; }
+      return words.trim();
+    }
+  </script>
+
+</body>
+</html>
