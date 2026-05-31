@@ -712,9 +712,7 @@ footer {
 
 <!-- 5-SECOND PRELOADER -->
 <div id="preloader">
-  <!-- तपाइँको brp.ico फाइल यहाँ लोड हुन्छ -->
   <img src="brp.ico" alt="BRP Icon" class="preloader-icon" onerror="this.src='brp.jpg';">
-  <!-- Microsoft जस्तै प्रिमियम स्पिनर ट्रेडिङ -->
   <div class="microsoft-spinner"></div>
 </div>
 
@@ -729,11 +727,13 @@ footer {
       </div>
     </div>
 
+    <!-- अपडेट गरिएको लिङ्क: mapbranch.html खुल्ने बनाइएको -->
     <div class="nav-links" id="navLinks">
       <a href="#home" class="active">गृहपृष्ठ</a>
       <a href="#services">सेवाहरू</a>
       <a href="#experience">अनुभव</a>
       <a href="#contact">सम्पर्क</a>
+      <a href="mapbranch.html"><i class="fa-solid fa-map-marked-alt"></i> नक्सा शाखा</a>
       <a href="cv.html" download>CV</a>
     </div>
 
@@ -747,7 +747,6 @@ footer {
 <section class="hero container" id="home">
   <div class="hero-left">
     <h4>गलकोट नगरपालिका • Professional Surveyor</h4>
-    <h2>तपाईंको जग्गाको<br>सही मूल्याङ्कन<br>र सही समाधान</h2>
     <p>जग्गा वर्गीकरण, नक्सांकन, सम्पत्ति मूल्याङ्कन, भवन क्षेत्रफल हिसाब, भूमि सम्बन्धी परामर्श तथा प्रशासनिक कार्यमा अनुभवी Professional Surveyor।</p>
     
     <div class="hero-buttons">
@@ -869,6 +868,14 @@ footer {
         <h3>ID Card System</h3>
         <p>नगरपालिकाका कर्मचारीहरूको आधुनिक परिचय पत्र व्यवस्थापन प्रणाली।</p>
         <a href="idcard2protait.html">Open Service →</a>
+      </div>
+
+      <!-- अपडेट गरिएको सेवा कार्ड: mapbranch.html खुल्ने बनाइएको -->
+      <div class="service-card">
+        <i class="fa-solid fa-map-marked-alt"></i>
+        <h3>नक्सा शाखा (Map Branch)</h3>
+        <p>गलकोट नगरपालिकाको नक्सा पास सम्बन्धी कार्य।</p>
+        <a href="mapbranch.html">Open Service →</a>
       </div>
     </div>
   </div>
@@ -995,8 +1002,8 @@ window.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => {
     preloader.style.opacity = '0';
     preloader.style.visibility = 'hidden';
-    document.body.style.overflow = 'auto'; /* पेज स्क्रोल खुला गर्ने */
-  }, 5000); // ५००० मिलिसेकेन्ड = ५ सेकेन्ड
+    document.body.style.overflow = 'auto';
+  }, 5000);
 });
 
 /* MOBILE MENU */
