@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>गलकोट नगरपालिका - कार्यालयको प्रतिवेदन खोज</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      --primary-color: #0c2461;
+      --secondary-color: #1e3799;
+      --bg-color: #f1f2f6;
+      --card-bg: #ffffff;
+      --border-color: #ced6e0;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'kalimati', sans-serif; background: var(--bg-color); padding: 30px; color: #2f3542; }
+
+    /* Search Section Styling */
+    .report-search-wrapper { 
+      max-width: 800px; 
+      margin: 20px auto 30px auto; 
+      background: var(--card-bg); 
+      padding: 30px; 
+      border-radius: 12px; 
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+      border: 2px solid var(--primary-color); 
+    }
+    .system-title {
+      text-align: center;
+      color: var(--primary-color);
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+    .report-search-box { 
+      width: 100%; 
+      padding: 16px; 
+      border: 2px solid var(--border-color); 
+      border-radius: 8px; 
+      font-size: 15px; 
+      outline: none; 
+      font-weight: bold; 
+      text-align: center; 
+      color: var(--primary-color); 
+    }
+    .report-search-box:focus { 
+      border-color: var(--secondary-color); 
+      box-shadow: 0 0 10px rgba(30,55,153,0.25); 
+    }
+    .search-hint { 
+      font-size: 14px; 
+      color: #57606f; 
+      text-align: center; 
+      margin-top: 12px; 
+      font-weight: normal; 
+    }
+
+    /* Exclusive Office Order Letter Layout */
+    .print-letter-container {
+      max-width: 800px; 
+      margin: 0 auto 40px auto; 
+      background: var(--card-bg);
+      padding: 50px 75px; 
+      border-radius: 8px; 
+      box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+      border: 1px solid #ccc; 
+      position: relative; 
+      line-height: 2.2; 
+      font-size: 18px; 
+      display: none; 
+    }
+
+    /* Header Main Layout */
+    .letter-header-wrapper {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .logo-box { text-align: left; }
+    .logo-box img { width: 110px; height: auto; }
+    .letter-header { 
+      text-align: center; 
+      font-weight: bold; 
+      color: #000000; 
+      line-height: 1.4;
+      padding-right: 110px; 
+    }
+    .letter-header .municipality-name { font-size: 26px; }
+    .letter-header .org-name { font-size: 22px; margin: 2px 0; }
+    .letter-header .address-name { font-size: 19px; }
+    
+    .meta-row-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      font-weight: normal;
+      font-size: 18px;
+      padding-bottom: 4px;
+    }
+    .meta-row-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      font-weight: normal;
+      font-size: 18px;
+      padding-top: 6px;
+      margin-bottom: 25px;
+    }
+    .header-separator-line {
+      border-top: 2px solid #000000;
+      width: 100%;
+      margin: 0;
+    }
+
+    .letter-subject { text-align: center; font-size: 22px; font-weight: bold; margin-bottom: 35px; text-decoration: underline; }
+    .letter-receiver { font-weight: bold; margin-bottom: 20px; font-size: 18px; }
+    .letter-body { text-indent: 50px; text-align: justify; margin-bottom: 30px; font-size: 18px; line-height: 2; font-weight: normal; }
+    
+    /* टाइप गर्न मिल्ने (Editable) फिल्डको स्टाइल - Non Bold */
+    .dynamic-value { 
+      font-weight: normal; 
+      color: #000000; 
+      border-bottom: 1px dashed #222; 
+      padding: 0 8px; 
+      display: inline-block;
+      min-width: 10px;
+      outline: none;
+      background-color: #fffde7; /* स्क्रिनमा चिन्न सजिलो बनाउन हल्का पहेंलो */
+      cursor: text;
+    }
+    .dynamic-value:focus {
+      background-color: #fff9c4;
+      border-bottom: 1px solid #0c2461;
+    }
+
+    /* कार्यालय प्रयोजनका लागि मात्र */
+    .office-feature-section {
+      margin-top: 30px;
+      color: #000000;
+    }
+    .office-feature-title {
+      font-size: 18px;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .office-feature-body {
+      font-size: 16px;
+      font-weight: normal;
+      line-height: 1.8;
+      margin-bottom: 40px;
+    }
+    .office-feature-body .sub-item {
+      padding-left: 30px;
+      font-weight: normal;
+    }
+    
+    .sig-layout-top {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+      font-size: 16px;
+      font-weight: normal;
+      text-align: center;
+    }
+    .sig-layout-bottom {
+      margin-top: 40px;
+      font-size: 16px;
+      font-weight: normal;
+      text-align: center;
+      width: 40%;
+    }
+    
+    /* पदको नाम बुझाउन बोल्ड थपिएको */
+    .designation {
+      font-weight: bold;
+      display: block;
+      margin-top: 5px;
+    }
+
+    /* Print Button */
+    .print-btn-wrapper { text-align: center; margin-top: 30px; }
+    .btn-print { 
+      background-color: #2ed573; color: white; border: none; padding: 14px 35px; 
+      font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer; 
+      display: inline-flex; align-items: center; gap: 6px; transition: 0.3s; 
+    }
+    
+    .no-report-alert { 
+      text-align: center; padding: 60px 40px; color: #7f8c8d; font-size: 16px; 
+      background: white; max-width: 800px; margin: 0 auto; border-radius: 12px; border: 2px dashed #cbd5e1; 
+    }
+
+    @media print {
+      body { background: #fff; padding: 0; }
+      .report-search-wrapper, .print-btn-wrapper, .search-hint, .no-report-alert { display: none !important; }
+      .print-letter-container { 
+        display: block !important; box-shadow: none !important; border: none !important; 
+        padding: 0 !important; margin: 0 !important; width: 100% !important; 
+      }
+      .dynamic-value { 
+        border-bottom: none !important; 
+        background-color: transparent !important; 
+        padding: 0 !important;
+        font-weight: normal !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="report-search-wrapper">
+    <div class="system-title">🏛️ गलकोट नगरपालिका - प्रतिवेदन सब-इन्जिनियरको</div>
+    <input type="text" id="reportSearchBox" class="report-search-box" placeholder="🔍 दर्ता न. / जग्गाधनीको नाम / नागरिकता नं. टाइप गर्नुहोस्..." oninput="searchReportDatabase()">
+    <div class="search-hint">डाटाबेसमा विवरण म्याच हुनासाथ पत्र यहाँ देखा पर्नेछ। पहेँलो बक्सहरूमा क्लिक गरेर सिधै विवरण थप्न/सच्याउन सक्नुहुन्छ।</div>
+  </div>
+
+  <div id="reportNotFoundAlert" class="no-report-alert">
+    🔍 विवरण खोज्नका लागि दर्ता नं, नाम वा नागरिकता नम्बर टाइप गर्नुहोस्।
+  </div>
+
+  <div class="print-letter-container" id="officeOrderPrintArea">
+    
+    <div class="letter-header-wrapper">
+      <div class="logo-box"><img src="Emblem_of_Nepal.svg.png" alt="लोगो"></div>
+      <div class="letter-header">
+        <div class="municipality-name">गलकोट नगरपालिका</div>
+        <div class="org-name">नगर कार्यपालिकाको कार्यालय</div>
+        <div class="address-name">गलकोट, बागलुङ</div>
+      </div>
+    </div>
+
+    <div class="meta-row-top">
+      <div>पत्र संख्या:- <span id="lbl_letter_no" class="dynamic-value" contenteditable="true">.....</span></div>
+      <div>गण्डकी प्रदेश, नेपाल</div>
+    </div>
+    <hr class="header-separator-line">
+    <div class="meta-row-bottom">
+      <div>चलानी नं:- <span id="lbl_chalani_no" class="dynamic-value" contenteditable="true">.....</span></div>
+      <div>मिति:- <span id="lbl_date" class="dynamic-value" contenteditable="true">२०...../..../....</span></div>
+    </div>
+    
+    <div class="office-feature-section">
+      <div class="office-feature-title">कार्यालय प्रयोजनका लागि मात्र</div>
+      
+      <div class="office-feature-body">
+        १. मार्ग/पथ/टोलको नाम:- <span id="lbl_tole" class="dynamic-value"></span><br>
+        २. बाटोको चौडाई :- <span id="lbl_road_width" class="dynamic-value"></span>मिटर<br>
+        ३. बाटोको केन्द्रविन्दुबाट छाड्नुपर्ने दुरी :- <span id="lbl_roadce" class="dynamic-value"></span>मिटर<br>
+        ४. छाड्नुपर्ने न्यूनतम् सेटब्याक :- <span id="lbl_setbac" class="dynamic-value"></span>मिटर<br>
+        ५. जग्गासँग जोडिएको संघियारको जग्गाको किनाराबाट छाड्नुपर्ने सेटब्याक:- <span id="lbl_land" class="dynamic-value"></span>मिटर<br>
+        ६. कुलो/नहरको Right of way (ROW) को किनारबाट:<br>
+        <div class="sub-item">
+          क. छाड्नुपर्ने दुरी :- <span id="lbl_river" class="dynamic-value"></span>मिटर<br>
+          ख. छाडेको दुरी :- <span id="lbl_riverx" class="dynamic-value"></span>मिटर<br>
+        </div>
+        
+        ७. अन्य :- <span id="lbl_others" class="dynamic-value" contenteditable="true" style="width: 80%;"></span>
+      </div>
+      
+      <div class="sig-layout-top">
+        <div style="width: 40%;">
+          पेश गर्ने<br><br>
+          दस्तखत:- ...................................<br>
+          नाम:- <span id="lbl_sub_engineer" class="dynamic-value"></span><br>
+          <span class="designation">(सब-इन्जिनियर)</span>
+        </div>
+        <div style="width: 40%;">
+          जाँच गर्ने<br><br>
+          दस्तखत:- ......................<br>
+          नाम:- <span id="" class="dynamic-value" contenteditable="true">.......................</span><br>
+          <span class="designation">(इन्जिनियर)</span>
+        </div>
+      </div>
+
+      <div class="sig-layout-bottom">
+        सिफारिस गर्ने<br><br>
+        दस्तखत:- ...................................<br>
+        नाम:- <span id="" class="dynamic-value" contenteditable="true">......................</span><br>
+        <span class="designation">(महाशाखा प्रमुख)</span>
+      </div>
+    </div>
+
+    <div class="print-btn-wrapper">
+      <button class="btn-print" onclick="window.print()">🖨️ यो आदेश पत्र प्रिन्ट गर्नुस्</button>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = "https://lyjokogftwtvnhwszqni.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_gxEL2-GVTVy8E0WxMBZHDQ_b5TzsDI9"; 
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let mapDatabase = [];
+
+    document.addEventListener("DOMContentLoaded", () => fetchFromSupabase());
+
+    async function fetchFromSupabase() {
+      try {
+        const { data, error } = await _supabase.from('g_map_branch1').select('*');
+        if (error) throw error;
+        mapDatabase = data || [];
+      } catch (err) { console.error("Error:", err.message); }
+    }
+
+    function searchReportDatabase() {
+      const query = document.getElementById('reportSearchBox').value.toLowerCase().trim();
+      const letterContainer = document.getElementById('officeOrderPrintArea');
+      const alertBox = document.getElementById('reportNotFoundAlert');
+
+      if (query === "") {
+        letterContainer.style.display = "none";
+        alertBox.style.display = "block";
+        alertBox.innerHTML = "🔍 विवरण खोज्नका लागि दर्ता नं, नाम वा नागरिकता नम्बर टाइप गर्नुहोस्।";
+        return;
+      }
+
+      if (!mapDatabase || mapDatabase.length === 0) {
+        alertBox.innerText = "⏳ डाटाबेस लोड हुँदैछ, कृपया केही सेकेन्ड पर्खनुहोस्...";
+        return;
+      }
+
+      const match = mapDatabase.find(item => 
+        (item.registrano && item.registrano.toString().toLowerCase().includes(query)) ||
+        (item.owner && item.owner.toLowerCase().includes(query)) ||
+        (item.cit_no && item.cit_no.toString().toLowerCase().includes(query))
+      );
+
+      if (match) {
+        document.getElementById('lbl_tole').innerText = match.tole || '';
+        document.getElementById('lbl_road_width').innerText = match.road_width || '';
+        document.getElementById('lbl_roadce').innerText = match.roadce || '';
+        document.getElementById('lbl_setbac').innerText = match.setbac || '';
+        document.getElementById('lbl_land').innerText = match.land || '';
+        document.getElementById('lbl_river').innerText = match.river || '';
+        document.getElementById('lbl_riverx').innerText = match.riverx || '';
+        document.getElementById('lbl_sub_engineer').innerText = match.se || '';
+        alertBox.style.display = "none";
+        letterContainer.style.display = "block";
+      } else {
+        letterContainer.style.display = "none";
+        alertBox.style.display = "block";
+        alertBox.innerText = "❌ विवरण फेला परेन।";
+      }
+    }
+  </script>
+</body>
+</html>
