@@ -149,6 +149,7 @@
 
       <div class="section-subtitle">मापदण्ड तथा प्राविधिक विवरण (Standards & Technical Details)</div>
       <div class="grid-3">
+         <div class="field"><label class="required">बाटो चौँडाई</label><input type="text" id="road_width" placeholder="उदा: १० मिटर" required></div>
         <div class="field"><label class="required">बाटो केन्द्रबाट छाड्नु पर्ने दुरी</label><input type="text" id="roadce" placeholder="उदा: १५ मिटर" required></div>
         <div class="field"><label class="required">बाटो केन्द्रबाट छाडेको दुरी</label><input type="text" id="roadcex" placeholder="उदा: १५ मिटर" required></div>
         <div class="field"><label class="required">छाड्नु पर्ने सेटब्याक</label><input type="text" id="setbac" placeholder="उदा: १.५ मिटर" required></div>
@@ -399,6 +400,7 @@
         west: document.getElementById('west').value,
         north: document.getElementById('north').value,
         south: document.getElementById('south').value,
+        road_width:document.getElementById('road_width').value,
         roadce: document.getElementById('roadce').value,
         roadcex: document.getElementById('roadcex').value,
         setbac: document.getElementById('setbac').value,
