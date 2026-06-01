@@ -3,8 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reports</title>
+    <title>Reports Dashboard - न.प.</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        :root {
+            --text-main: #2c3e50;
+            --text-sub: #555555;
+            
+            /* Color Groups for Status Badges mapped from image */
+            --badge-green-bg: rgba(46, 204, 113, 0.15);
+            --badge-green-text: #27ae60;
+            --badge-red-bg: rgba(231, 76, 60, 0.15);
+            --badge-red-text: #c0392b;
+            --badge-orange-bg: rgba(230, 126, 34, 0.15);
+            --badge-orange-text: #d35400;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -13,113 +27,368 @@
         }
 
         body {
-            background-color: #f4f6f9;
+            /* Using the local reference image as the full cover background */
+            background: linear-gradient(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.25)), 
+                        url('website.jpg') no-repeat center center fixed;
+            background-size: cover;
             color: #333;
-            padding: 20px;
+            padding: 40px 20px;
+            min-height: 100vh;
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 50px;
         }
 
         h1 {
-            text-align: center;
-            color: #2c3e50;
-            margin-bottom: 10px;
+            color: #ffffff;
+            font-size: 2.8rem;
+            text-shadow: 0 3px 10px rgba(0, 0, 0, 0.7);
+            margin-bottom: 12px;
+            font-weight: 700;
         }
 
         p.subtitle {
-            text-align: center;
-            color: #7f8c8d;
-            margin-bottom: 30px;
+            color: #f1f2f6;
+            font-size: 1.2rem;
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+            background: rgba(0, 0, 0, 0.2);
+            display: inline-block;
+            padding: 6px 18px;
+            border-radius: 20px;
+            backdrop-filter: blur(5px);
         }
 
-        /* १५ वटा बटनका लागि मिलाइएको Grid Layout */
-        .button-grid {
+        /* Card Grid - 3 Columns matching the image structure */
+        .report-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
         }
 
-        .report-btn {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            padding: 18px 12px;
-            font-size: 15px;
-            font-weight: bold;
-            border-radius: 8px;
+        /* Glassmorphism Card Style matching the image visuals */
+        .report-card {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(8px);
+            border-radius: 12px;
+            padding: 22px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
             cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: inherit;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            
+            /* Initial Animation State */
+            opacity: 0;
+            transform: translateY(25px);
         }
 
-        .report-btn:hover {
-            background-color: #2980b9;
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-
-        .report-btn:active {
+        .report-card.loaded {
+            opacity: 1;
             transform: translateY(0);
         }
 
-        /* बटनहरूलाई आकर्षक देखाउन फरक-फरक रङहरू (वैकल्पिक) */
-        .btn-blue { background-color: #3498db; }
-        .btn-blue:hover { background-color: #2980b9; }
+        /* Hover Enhancements */
+        .report-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 1);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
+        }
 
-        .btn-green { background-color: #2ecc71; }
-        .btn-green:hover { background-color: #27ae60; }
+        /* Stylized Left Icon to match Image placement */
+        .icon-container {
+            font-size: 1.8rem;
+            margin-right: 20px;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #57606f;
+            transition: transform 0.3s ease;
+        }
 
-        .btn-orange { background-color: #e67e22; }
-        .btn-orange:hover { background-color: #d35400; }
+        .report-card:hover .icon-container {
+            transform: scale(1.1);
+        }
 
-        .btn-purple { background-color: #9b59b6; }
-        .btn-purple:hover { background-color: #8e44ad; }
+        .details-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
 
-        .btn-red { background-color: #e74c3c; }
-        .btn-red:hover { background-color: #c0392b; }
+        .report-number {
+            font-size: 0.8rem;
+            color: #a4b0be;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        .report-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+
+        .report-desc {
+            font-size: 0.9rem;
+            color: var(--text-sub);
+            max-width: 80%;
+        }
+
+        /* Top-Right Status Badge matching layout in Gemini_Generated_Image_xpvagsxpvagsxpva.png */
+        .status-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Dynamic Badge Color Themes */
+        .badge-green {
+            background-color: var(--badge-green-bg);
+            color: var(--badge-green-text);
+        }
+        .badge-green::before {
+            content: "●";
+            font-size: 0.6rem;
+            margin-right: 2px;
+        }
+
+        .badge-orange {
+            background-color: var(--badge-orange-bg);
+            color: var(--badge-orange-text);
+        }
+
+        .badge-red {
+            background-color: var(--badge-red-bg);
+            color: var(--badge-red-text);
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 768px) {
+            body { padding: 20px 10px; }
+            h1 { font-size: 2rem; }
+            .report-grid { grid-template-columns: 1fr; }
+            .report-card { padding: 18px; }
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>नक्सा पास सम्बन्धि विभिन्न चरणका कागजातहरु</h1>
-    <p class="subtitle">सम्बन्धित रिपोर्ट हेर्नका लागि तलका कुनै पनि बटनमा क्लिक गर्नुहोस्:</p>
+    <header>
+        <h1>नक्सा पास सम्बन्धि</h1>
+        <p class="subtitle"></p>
+    </header>
 
-    <div class="button-grid">
-        <button class="report-btn btn-blue" onclick="navigateTo('order.html')">१. आदेश (Order)</button>
-        <button class="report-btn btn-blue" onclick="navigateTo('revenue.html')">२. नक्सा पास कर हिसाब </button>
-        <button class="report-btn btn-blue" onclick="navigateTo('docoffice.html')">३. जु ई को कार्यालय प्रयोजन प्रतिवेदन </button>
-        
-        <button class="report-btn btn-blue" onclick="navigateTo('notice.html')">४. नक्सा पास सम्बन्धि १५ दिने सूचना </button>
-        <button class="report-btn btn-blue" onclick="navigateTo('inventory.html')">४. स्टक विवरण (Stock)</button>
-        <button class="report-btn btn-blue" onclick="navigateTo('users.html')">५. प्रयोगकर्ता लग</button>
-        <button class="report-btn btn-green" onclick="navigateTo('profit.html')">६. नाफा-घाटा हिसाब</button>
-        <button class="report-btn btn-green" onclick="navigateTo('tax.html')">७. कर विवरण (Tax)</button>
-        <button class="report-btn btn-green" onclick="navigateTo('attendance.html')">८. कर्मचारी हाजिरी</button>
-        <button class="report-btn btn-green" onclick="navigateTo('feedback.html')">९. ग्राहक प्रतिक्रिया</button>
-        <button class="report-btn btn-green" onclick="navigateTo('expenses.html')">१०. कुल खर्च विवरण</button>
+    <div class="report-grid">
+        <!-- Card 1 -->
+        <a href="order.html" class="report-card">
+            <div class="icon-container"><i class="fa-solid fa-file-contract"></i></div>
+            <div class="details-container">
+                <span class="report-number">१</span>
+                <p class="report-title">आदेश (Order)</p>
+                <p class="report-desc">हालको प्रक्रियाको आदेश</p>
+                <span class="status-badge badge-green">२ दिन अघि</span>
+            </div>
+        </a>
 
-        <button class="report-btn btn-orange" onclick="navigateTo('annual.html')">११. वार्षिक समीक्षा</button>
-        <button class="report-btn btn-purple" onclick="navigateTo('purchase.html')">१२. खरिद रिपोर्ट (Purchase)</button>
-        <button class="report-btn btn-purple" onclick="navigateTo('supplier.html')">१३. सप्लायर्स विवरण</button>
-        <button class="report-btn btn-red" onclick="navigateTo('audit.html')">१४. आन्तरिक अडिट</button>
-        <button class="report-btn btn-red" onclick="navigateTo('settings.html')">१५. प्रणाली सेटिङ</button>
+        <!-- Card 2 -->
+        <a href="revenue.html" class="report-card">
+            <div class="icon-container"><i class="fa-solid fa-calculator"></i></div>
+            <div class="details-container">
+                <span class="report-number">२</span>
+                <p class="report-title">नक्सा पास कर हिसाब</p>
+                <p class="report-desc">दस्तुर विवरण</p>
+                <span class="status-badge badge-green">सक्रिय</span>
+            </div>
+        </a>
+
+        <!-- Card 3 -->
+        <a href="docoffice.html" class="report-card">
+            <div class="icon-container"><i class="fa-solid fa-building-user"></i></div>
+            <div class="details-container">
+                <span class="report-number">३</span>
+                <p class="report-title">जु. ई. को कार्यालय रिपोर्ट</p>
+                <p class="report-desc">कार्यालय प्रयोजन प्रतिवेदन</p>
+                <span class="status-badge badge-green">सक्रिय</span>
+            </div>
+        </a>
+
+        <!-- Card 4 -->
+        <a href="notice.html" class="report-card">
+            <div class="icon-container"><i class="fa-solid fa-bullhorn"></i></div>
+            <div class="details-container">
+                <span class="report-number">४</span>
+                <p class="report-title">१५ दिने सूचना</p>
+                <p class="report-desc">सूचना प्रकाशन विवरण</p>
+                <span class="status-badge badge-green">सक्रिय</span>
+            </div>
+        </a>
+
+        <!-- Card 5 -->
+        <a href="inventory.html" class="report-card">
+            <div class="icon-container"><i class="fa-solid fa-boxes-stacked"></i></div>
+            <div class="details-container">
+                <span class="report-number">५</span>
+                <p class="report-title">स्टक विवरण</p>
+                <p class="report-desc">Stock Inventory</p>
+                <span class="status-badge badge-green">सक्रिय</span>
+            </div>
+        </a>
+
+        <!-- Card 6 -->
+        <a href="users.html" class="report-card">
+            <div class="icon-container"><i class="fa-solid fa-users-gear"></i></div>
+            <div class="details-container">
+                <span class="report-number">६</span>
+                <p class="report-title">प्रयोगकर्ता लग</p>
+                <p class="report-desc">User Activity Logs</p>
+                <span class="status-badge badge-green">सक्रिय</span>
+            </div>
+        </a>
+
+        <!-- Card 7 -->
+        <a href="profit.html" class="report-card">
+            <div class="icon-container"><i class="fa-solid fa-chart-line"></i></div>
+            <div class="details-container">
+                <span class="report-number">७</span>
+                <p class="report-title">नाफा-घाटा हिसाब</p>
+                <p class="report-desc">कुल नाफा र घाटा</p>
+                <span class="status-badge badge-orange">मासिक</span>
+            </div>
+        </a>
+
+        <!-- Card 8 -->
+        <a href="tax.html" class="report-card">
+            <div class="icon-container"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+            <div class="details-container">
+                <span class="report-number">८</span>
+                <p class="report-title">कर विवरण (Tax)</p>
+                <p class="report-desc">कर विवरण तथा दाखिला</p>
+                <span class="status-badge badge-green">तयार</span>
+            </div>
+        </a>
+
+        <!-- Card 9 -->
+        <a href="attendance.html" class="report-card">
+            <div class="icon-container"><i class="fa-solid fa-clipboard-user"></i></div>
+            <div class="details-container">
+                <span class="report-number">९</span>
+                <p class="report-title">कर्मचारी हाजिरी</p>
+                <p class="report-desc">हाजिरी र बिदा विवरण</p>
+                <span class="status-badge badge-green">सक्रिय</span>
+            </div>
+        </a>
+
+        <!-- Card 10 -->
+        <a href="feedback.html" class="report-card">
+            <div class="icon-container"><i class="fa-solid fa-comments"></i></div>
+            <div class="details-container">
+                <span class="report-number">१०</span>
+                <p class="report-title">ग्राहक प्रतिक्रिया</p>
+                <p class="report-desc">सेवाग्राहीको गुनासो/सुझाव</p>
+                <span class="status-badge badge-green">सक्रिय</span>
+            </div>
+        </a>
+
+        <!-- Card 11 -->
+        <a href="expenses.html" class="report-card">
+            <div class="icon-container"><i class="fa-solid fa-money-bill-transfer"></i></div>
+            <div class="details-container">
+                <span class="report-number">११</span>
+                <p class="report-title">कुल खर्च विवरण</p>
+                <p class="report-desc">खर्चको विश्लेषण</p>
+                <span class="status-badge badge-green">सक्रिय</span>
+            </div>
+        </a>
+
+        <!-- Card 12 -->
+        <a href="annual.html" class="report-card">
+            <div class="icon-container"><i class="fa-solid fa-chart-pie"></i></div>
+            <div class="details-container">
+                <span class="report-number">१२</span>
+                <p class="report-title">वार्षिक समीक्षा</p>
+                <p class="report-desc">Annual Review</p>
+                <span class="status-badge badge-orange">समीक्षा</span>
+            </div>
+        </a>
+
+        <!-- Card 13 -->
+        <a href="purchase.html" class="report-card">
+            <div class="icon-container"><i class="fa-solid fa-cart-shopping"></i></div>
+            <div class="details-container">
+                <span class="report-number">१३</span>
+                <p class="report-title">खरिद रिपोर्ट</p>
+                <p class="report-desc">Purchase Details</p>
+                <span class="status-badge badge-green">सक्रिय</span>
+            </div>
+        </a>
+
+        <!-- Card 14 -->
+        <a href="supplier.html" class="report-card">
+            <div class="icon-container"><i class="fa-solid fa-truck-field"></i></div>
+            <div class="details-container">
+                <span class="report-number">१४</span>
+                <p class="report-title">सप्लायर्स विवरण</p>
+                <p class="report-desc">सप्लायर्स सूची</p>
+                <span class="status-badge badge-green">सक्रिय</span>
+            </div>
+        </a>
+
+        <!-- Card 15 -->
+        <a href="audit.html" class="report-card">
+            <div class="icon-container"><i class="fa-solid fa-magnifying-glass-chart"></i></div>
+            <div class="details-container">
+                <span class="report-number">१५</span>
+                <p class="report-title">आन्तरिक अडिट</p>
+                <p class="report-desc">आन्तरिक लेखा परीक्षण</p>
+                <span class="status-badge badge-red">प्रक्रियामा</span>
+            </div>
+        </a>
+
+        <!-- Card 16 -->
+        <a href="settings.html" class="report-card">
+            <div class="icon-container"><i class="fa-solid fa-gears"></i></div>
+            <div class="details-container">
+                <span class="report-number">१६</span>
+                <p class="report-title">प्रणाली सेटिङ</p>
+                <p class="report-desc">System Configurations</p>
+                <span class="status-badge badge-orange">प्रबन्ध</span>
+            </div>
+        </a>
     </div>
 </div>
 
 <script>
-    // बटन थिच्दा अर्को HTML पेजमा लैजाने फङ्सन
-    function navigateTo(pageUrl) {
-        window.location.href = pageUrl;
-    }
+    document.addEventListener("DOMContentLoaded", function() {
+        const cards = document.querySelectorAll('.report-card');
+        cards.forEach((card, index) => {
+            setTimeout(() => {
+                card.classList.add('loaded');
+            }, index * 50); 
+        });
+    });
 </script>
 
 </body>
