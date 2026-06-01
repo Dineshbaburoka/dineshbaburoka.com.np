@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>गलकोट नगरपालिका - १५ दिने सूचना</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      --primary-color: #0c2461;
+      --secondary-color: #1e3799;
+      --bg-color: #f1f2f6;
+      --card-bg: #ffffff;
+      --border-color: #ced6e0;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body { 
+      font-family: 'Noto Sans Devanagari', sans-serif; 
+      background: var(--bg-color); 
+      padding: 30px; 
+      color: #000000; 
+      line-height: 1.8; 
+    }
+
+    /* Search Section Styling */
+    .report-search-wrapper { 
+      max-width: 900px; 
+      margin: 20px auto 30px auto; 
+      background: var(--card-bg); 
+      padding: 30px; 
+      border-radius: 12px; 
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+      border: 2px solid var(--primary-color); 
+    }
+    .system-title {
+      text-align: center;
+      color: var(--primary-color);
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+    .report-search-box { 
+      width: 100%; 
+      padding: 16px; 
+      border: 2px solid var(--border-color); 
+      border-radius: 8px; 
+      font-size: 15px; 
+      outline: none; 
+      font-weight: bold; 
+      text-align: center; 
+      color: var(--primary-color); 
+    }
+    .search-hint { 
+      font-size: 14px; 
+      color: #57606f; 
+      text-align: center; 
+      margin-top: 12px; 
+      font-weight: 600; 
+    }
+
+    /* Print Container Layout */
+    .print-letter-container {
+      max-width: 900px; 
+      margin: 0 auto 40px auto; 
+      background: var(--card-bg);
+      padding: 50px 60px; 
+      border-radius: 8px; 
+      box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+      border: 1px solid #ccc; 
+      position: relative; 
+      font-size: 17px;
+      display: none; 
+    }
+
+    /* Header Main Layout */
+    .letter-header { 
+      text-align: center; 
+      font-weight: bold; 
+      line-height: 1.4;
+      margin-bottom: 20px;
+    }
+    .letter-header .municipality-name { font-size: 32px; font-weight: 700; color: var(--primary-color); }
+    .letter-header .ward-title { font-size: 18px; margin-top: 5px; font-weight: 600; }
+    .letter-header .notice-subject { font-size: 21px; font-weight: bold; text-decoration: underline; margin-top: 15px; }
+
+    .letter-body { 
+      text-align: justify; 
+      margin-bottom: 20px; 
+      text-indent: 40px;
+    }
+    
+    /* सम्पादन गर्न मिल्ने पहेँलो बक्सको स्टाइल */
+    .dynamic-value { 
+      font-weight: bold; 
+      border-bottom: 1px dashed #222; 
+      padding: 0 5px; 
+      display: inline-block;
+      min-width: 40px;
+      outline: none;
+      background-color: #fffde7;
+      text-indent: 0px !important;
+    }
+    .dynamic-value:focus {
+      background-color: #fff9c4;
+      border-bottom: 1px solid #000;
+    }
+
+    /* Layout Table Design */
+    .info-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 16px;
+    }
+    .info-table th, .info-table td {
+      border: 1px solid #000000;
+      padding: 10px;
+      vertical-align: middle;
+    }
+    .info-table th {
+      font-weight: bold;
+      text-align: center;
+      background-color: #f8f9fa;
+    }
+    .inner-table-cell {
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      margin-bottom: 5px;
+      align-items: center;
+    }
+
+    /* Bottom Sign Section */
+    .footer-section {
+      margin-top: 40px;
+      line-height: 2;
+    }
+    .footer-row {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 30px;
+    }
+
+    /* Print Button */
+    .print-btn-wrapper { text-align: center; margin-top: 30px; }
+    .btn-print { 
+      background-color: #2ed573; color: white; border: none; padding: 14px 35px; 
+      font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer; 
+      display: inline-flex; align-items: center; gap: 6px; transition: 0.3s; 
+    }
+    .btn-print:hover { background-color: #26af5f; }
+    
+    .no-report-alert { 
+      text-align: center; padding: 60px 40px; color: #7f8c8d; font-size: 16px; 
+      background: white; max-width: 900px; margin: 0 auto; border-radius: 12px; border: 2px dashed #cbd5e1; 
+    }
+
+    /* प्रिन्ट गर्दा अनवान्टेड कुराहरू लुकाउने व्यवस्था */
+    @media print {
+      body { background: #fff; padding: 0; color: #000; }
+      .report-search-wrapper, .print-btn-wrapper, .search-hint, .no-report-alert { display: none !important; }
+      .print-letter-container { 
+        display: block !important; box-shadow: none !important; border: none !important; 
+        padding: 0 !important; margin: 0 !important; width: 100% !important; 
+      }
+      .dynamic-value { 
+        border-bottom: none !important; 
+        background-color: transparent !important; 
+        padding: 0 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="report-search-wrapper">
+    <div class="system-title">🏛️ गलकोट नगरपालिका - १५ दिने सूचना</div>
+    <input type="text" id="reportSearchBox" class="report-search-box" placeholder="🔍 दर्ता न. / जग्गाधनीको नाम / नागरिकता नं. टाइप गर्नुहोस्..." oninput="searchReportDatabase()">
+    <div class="search-hint">विवरण भेटिएपछि पहेँलो बक्सहरूमा क्लिक गरेर थपघट वा म्यानुअल इन्ट्री गर्न सक्नुहुन्छ।</div>
+  </div>
+
+  <div id="reportNotFoundAlert" class="no-report-alert">
+    🔍 विवरण खोज्नका लागि दर्ता नं, नाम वा नागरिकता नम्बर टाइप गर्नुहोस्।
+  </div>
+
+  <div class="print-letter-container" id="officeOrderPrintArea">
+    
+    <div class="letter-header">
+      <div class="municipality-name">गलकोट नगरपालिका</div>
+      <div class="ward-title">( <span id="lbl_ward" class="dynamic-value" contenteditable="true">....</span> नं. वडा कार्यालय )</div>
+      <div class="notice-subject">नक्सा पासका लागि सँधियारको नाममा जारी भएको सूचना</div>
+    </div>
+
+    <div class="letter-body">
+      जिल्ला बागलुङ, गलकोट नगरपालिका वडा नं. <span id="lbl_body_ward" class="dynamic-value" contenteditable="true">...</span> अन्तर्गत <span id="lbl_tole" class="dynamic-value" contenteditable="true">...</span>टोलमा पर्ने साविक <span id="lbl_savik_gavis" class="dynamic-value" contenteditable="true">...</span>गाविस वडा नं. <span id="lbl_savik_ward" class="dynamic-value" contenteditable="true">...</span> कित्ता नं. <span id="lbl_kitta" class="dynamic-value" contenteditable="true">...</span> क्षेत्रफल <span id="lbl_area" class="dynamic-value" contenteditable="true">...</span> को जग्गाधनी हक हुन आएको श्री <span id="lbl_owner" class="dynamic-value" contenteditable="true">...</span> को नाममा दर्ता तिरो हकभोग भएको जग्गामा तपसिलमा उल्लिखित विवरण अनुसारको नयाँ भवन निर्माण गर्न स्वीकृत पाऊँ भनी गलकोट नगरपालिका वडा नं. <span id="lbl_ward_two" class="dynamic-value" contenteditable="true">...</span> श्री <span id="lbl_applicant" class="dynamic-value" contenteditable="true">...</span> ले मिति <span id="lbl_date_reg" class="dynamic-value" contenteditable="true">...</span> मा यस कार्यालयमा आवश्यक कागजात सहित निर्माण गर्न दरखास्त पेश गर्नु भएकोमा तपशिलको विवरण बमोजिम घर बनाउन पाउँ भन्ने नक्सा बमोजिमको नयाँ भवन बनाउँदा साँध सँधियार कसैलाई पीर मर्का पर्ने सन्धी सर्पन गर्ने भए यो सूचना टाँसेको मितिले १५ दिनभित्र सबुत सहित आफ्नो दाबी खुलेको उजुरी दिन ल्याउन होला । सो म्याद भित्र उजुरी नपरे नियमानुसार कारबाही भई जाने व्यहोरा समेत सूचित गरिन्छ ।
+    </div>
+
+    <table class="info-table">
+      <thead>
+        <tr>
+          <th style="width: 35%;">आफ्नो हकको व्यहोरा बनाउने ठाउँमा चारकिल्ला समेतको बयान</th>
+          <th colspan="3" style="width: 40%;">हाल बनाउने नाप</th>
+          <th style="width: 25%;">निर्माण कार्यको विवरण</th>
+        </tr>
+        <tr>
+          <th></th>
+          <th>लम्बाई</th>
+          <th>चौडाई</th>
+          <th>उचाई</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <div class="inner-table-cell"><span>पूर्व -</span><span id="lbl_east" class="dynamic-value" contenteditable="true">........</span></div>
+            <div class="inner-table-cell"><span>पश्चिम -</span><span id="lbl_west" class="dynamic-value" contenteditable="true">......</span></div>
+            <div class="inner-table-cell"><span>उत्तर -</span><span id="lbl_north" class="dynamic-value" contenteditable="true">......</span></div>
+            <div class="inner-table-cell"><span>दक्षिण -</span><span id="lbl_south" class="dynamic-value" contenteditable="true">.....</span></div>
+          </td>
+          <td style="text-align: center;">
+            <span id="lbl_tot_length" class="dynamic-value" contenteditable="true">...</span> फिट
+          </td>
+          <td style="text-align: center;">
+            <span id="lbl_tot_width" class="dynamic-value" contenteditable="true">...</span> फिट
+          </td>
+          <td style="text-align: center;">
+            <span id="lbl_tot_height" class="dynamic-value" contenteditable="true">...</span> फिट
+          </td>
+          <td>
+            तल्ला - <span id="lbl_total_floors" class="dynamic-value" contenteditable="true">...</span><br>
+            कोठा - <span id="lbl_room" class="dynamic-value" contenteditable="true">...</span> वटा<br>
+            झ्याल - <span id="lbl_window" class="dynamic-value" contenteditable="true">...</span> वटा<br>
+            ढोका - <span id="lbl_door" class="dynamic-value" contenteditable="true">...</span> वटा<br>
+            शटर - <span id="lbl_shutter" class="dynamic-value" contenteditable="true">...</span> वटा<br>
+            च्यानलगेट - <span id="lbl_cg" class="dynamic-value" contenteditable="true">...</span> वटा
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="letter-body">
+      यति चार किल्लाभित्र गलकोट नगरपालिका वडा नं. <span id="lbl_ward_three" class="dynamic-value" contenteditable="true">...</span> बागलुङ जिल्लाको साविक <span id="lbl_savik_gavis1" class="dynamic-value" contenteditable="true">...</span>गाविस वडा नं. <span id="lbl_savik_ward1" class="dynamic-value" contenteditable="true">...</span> कित्ता नं. <span id="lbl_kitta1" class="dynamic-value" contenteditable="true">...</span> क्षेत्रफल <span id="lbl_area1" class="dynamic-value" contenteditable="true">...</span> जग्गा मेरो नाउँमा भूमि प्रशासन/मालपोत कार्यालयमा दर्ता श्रेस्ता भएको जग्गामा पुरै/मध्येको जग्गामा नयाँ मोहडा <span id="lbl_tot_width1" class="dynamic-value" contenteditable="true">...</span> फिट गरी साइट प्लानमा देखाएको ठाउँमा तल्ला <span id="lbl_total_floors1" class="dynamic-value" contenteditable="true">...</span>, कोठा <span id="lbl_room1" class="dynamic-value" contenteditable="true">...</span> छाना आर.सी.सी. ढलान गरी सिमेन्टको जोडाईमा गाह्रो लगाई नेपाली ढाँचामा बनाउने गरी प्रेषित भवनको नक्कल पेस गरेको छु। चर्पी, निकास पानीको हकमा नक्सामा देखाएको ठाउँमा बनाउने छु। ढल निकासको लागि जग्गा छाडी निर्माण गर्नेछु। भनी बागलुङ जिल्ला गलकोट नगरपालिका, श्री <span id="lbl_applicant1" class="dynamic-value" contenteditable="true">...</span>को दरखास्त परेकाले गलकोट नगरपालिकाबाट स्थानीय सरकार सञ्चालन ऐन, २०७४ को प्रयोजनका लागि यो सूचना सँधियारको घर दैलोमा, घर बनाउने जग्गामा र <span id="lbl_ward_bottom" class="dynamic-value" contenteditable="true">...</span> नं. वडा कार्यालयमा टाँस गर्ने गरी प्रकाशन गरिएको छ ।
+    </div>
+
+    <div class="footer-section">
+      <div>म्याद टाँस गर्ने कर्मचारीको नामथर : <span id="lbl_emp_name" class="dynamic-value" contenteditable="true">............................................</span> दर्जा : <span id="lbl_emp_post" class="dynamic-value" contenteditable="true">....................</span> सही : ................</div>
+      <div class="footer-row">
+        <div>वि.सं. <span id="lbl_year" class="dynamic-value" contenteditable="true">२०८३</span> साल <span id="lbl_month" class="dynamic-value" contenteditable="true">........</span> महिना <span id="lbl_day" class="dynamic-value" contenteditable="true">....</span> गते रोज ।</div>
+        <div style="font-weight: bold;">शुभम् ।</div>
+      </div>
+    </div>
+
+    <div class="print-btn-wrapper">
+      <button class="btn-print" onclick="window.print()">🖨️ यो सूचना पत्र प्रिन्ट गर्नुस्</button>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = "https://lyjokogftwtvnhwszqni.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_gxEL2-GVTVy8E0WxMBZHDQ_b5TzsDI9"; 
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let mapDatabase = [];
+
+    document.addEventListener("DOMContentLoaded", () => fetchFromSupabase());
+
+    async function fetchFromSupabase() {
+      try {
+        const { data, error } = await _supabase.from('g_map_branch1').select('*');
+        if (error) throw error;
+        mapDatabase = data;
+      } catch (err) { console.error("Error:", err.message); }
+    }
+
+    // अंग्रेजी अंक वा संख्यात्मक विवरणलाई नेपाली युनिकोड अंकमा बदल्ने फङ्सन
+    function toNepaliNumber(num) {
+      if (num === undefined || num === null || num === '') return '...';
+      
+      const englishDigits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+      const nepaliDigits = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
+      
+      let str = num.toString();
+      
+      for (let i = 0; i < 10; i++) {
+        const regex = new RegExp(englishDigits[i], 'g');
+        str = str.replace(regex, nepaliDigits[i]);
+      }
+      return str;
+    }
+
+    function searchReportDatabase() {
+      const query = document.getElementById('reportSearchBox').value.toLowerCase().trim();
+      const letterContainer = document.getElementById('officeOrderPrintArea');
+      const alertBox = document.getElementById('reportNotFoundAlert');
+
+      if (query === "") {
+        letterContainer.style.display = "none";
+        alertBox.style.display = "block";
+        alertBox.innerHTML = "🔍 विवरण खोज्नका लागि दर्ता नं, नाम वा नागरिकता नम्बर टाइप गर्नुहोस्।";
+        return;
+      }
+
+      const match = mapDatabase.find(item => 
+        (item.registrano && item.registrano.toString().toLowerCase().includes(query)) ||
+        (item.owner && item.owner.toLowerCase().includes(query)) ||
+        (item.cit_no && item.cit_no.toString().toLowerCase().includes(query))
+      );
+
+      if (match) {
+        // अंक वा संख्या भएका विवरणहरूलाई नेपालीमा कन्भर्ट गरेर देखाउने
+        document.getElementById('lbl_ward').innerText = toNepaliNumber(match.ward);
+        document.getElementById('lbl_body_ward').innerText = toNepaliNumber(match.ward);
+        document.getElementById('lbl_savik_ward').innerText = toNepaliNumber(match.savik_ward);
+        document.getElementById('lbl_ward_two').innerText = toNepaliNumber(match.ward);
+        document.getElementById('lbl_date_reg').innerText = toNepaliNumber(match.date_reg);
+        document.getElementById('lbl_total_floors').innerText = toNepaliNumber(match.total_floors);
+        document.getElementById('lbl_room').innerText = toNepaliNumber(match.room);
+        document.getElementById('lbl_room1').innerText = toNepaliNumber(match.room);
+        document.getElementById('lbl_door').innerText = toNepaliNumber(match.door);
+        document.getElementById('lbl_window').innerText = toNepaliNumber(match.window);
+        document.getElementById('lbl_shutter').innerText = toNepaliNumber(match.shutter);
+        document.getElementById('lbl_cg').innerText = toNepaliNumber(match.cg);
+        document.getElementById('lbl_ward_three').innerText = toNepaliNumber(match.ward);
+        document.getElementById('lbl_savik_ward1').innerText = toNepaliNumber(match.savik_ward);
+        document.getElementById('lbl_kitta1').innerText = toNepaliNumber(match.kitta);
+        document.getElementById('lbl_area1').innerText = toNepaliNumber(match.area);
+        document.getElementById('lbl_total_floors1').innerText = toNepaliNumber(match.total_floors);
+        document.getElementById('lbl_ward_bottom').innerText = toNepaliNumber(match.ward);
+        document.getElementById('lbl_kitta').innerText = toNepaliNumber(match.kitta);
+        document.getElementById('lbl_area').innerText = toNepaliNumber(match.area);
+        
+        // नाप सम्बन्धि विवरण नेपाली अंकमा
+        document.getElementById('lbl_tot_length').innerText = toNepaliNumber(match.tot_length);
+        document.getElementById('lbl_tot_width').innerText = toNepaliNumber(match.tot_width);
+        document.getElementById('lbl_tot_height').innerText = toNepaliNumber(match.tot_height);
+        document.getElementById('lbl_tot_width1').innerText = toNepaliNumber(match.tot_width);
+
+        // शाब्दिक टेक्स्टहरू जस्ताको त्यस्तै राख्ने
+        document.getElementById('lbl_tole').innerText = match.tole || '...';
+        document.getElementById('lbl_savik_gavis').innerText = match.savik_gavis || '...';
+        document.getElementById('lbl_savik_gavis1').innerText = match.savik_gavis || '...';
+        document.getElementById('lbl_owner').innerText = match.owner || '...';
+        document.getElementById('lbl_applicant').innerText = match.owner || '...';
+        document.getElementById('lbl_applicant1').innerText = match.owner || '...';
+
+        // चारकिल्ला विवरणहरू
+        document.getElementById('lbl_east').innerText = match.east || '......................';
+        document.getElementById('lbl_west').innerText = match.west || '......................';
+        document.getElementById('lbl_north').innerText = match.north || '......................';
+        document.getElementById('lbl_south').innerText = match.south || '......................';
+
+        alertBox.style.display = "none";
+        letterContainer.style.display = "block";
+      } else {
+        letterContainer.style.display = "none";
+        alertBox.style.display = "block";
+        alertBox.innerText = "❌ विवरण फेला परेन।";
+      }
+    }
+  </script>
+</body>
+</html>
