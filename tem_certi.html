@@ -85,24 +85,22 @@
       display: none; 
     }
 
-    /* -------------------------------------------------------------
-       NEW PREMIUM HEADER LOGIC FROM image_3b077f.png
-    ------------------------------------------------------------- */
+    /* Header Section (Based on image_3b077f.png) */
     .header-main-section {
       position: relative;
-      min-height: 110px;
+      min-height: 120px;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 10px;
+      margin-bottom: 5px;
     }
     .gov-logo-container {
       position: absolute;
-      left: 15px;
+      left: 10px;
       top: 0;
     }
     .gov-logo-container img {
-      width: 110px;
+      width: 120px;
       height: auto;
     }
     .header-text-container {
@@ -110,19 +108,22 @@
       line-height: 1.4;
     }
     .header-text-container .muni-name {
-      font-size: 34px;
+      font-size: 36px;
       font-weight: 700;
       letter-spacing: 0.5px;
+      color: #000000;
     }
     .header-text-container .exec-office {
-      font-size: 24px;
-      font-weight: 600;
-      margin-top: 2px;
+      font-size: 26px;
+      font-weight: 700;
+      margin-top: 1px;
+      color: #000000;
     }
     .header-text-container .address-line {
-      font-size: 21px;
+      font-size: 22px;
       font-weight: 600;
-      margin-top: 2px;
+      margin-top: 1px;
+      color: #000000;
     }
 
     /* Meta Fields Row Styling */
@@ -130,39 +131,39 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
-      margin-top: 20px;
+      margin-top: 15px;
       font-weight: 600;
-      font-size: 18px;
+      font-size: 19px;
     }
     .header-divider-line {
       border-top: 2px solid #000000;
-      margin: 8px 0 12px 0;
+      margin: 6px 0 10px 0;
     }
     .meta-row-second {
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
       font-weight: 600;
-      font-size: 18px;
-      margin-bottom: 40px;
+      font-size: 19px;
+      margin-bottom: 35px;
     }
 
-    /* Title Styling Below Header */
+    /* Title Styling (Based on image_3b286c.png) */
     .letter-document-title {
       text-align: center;
-      margin-bottom: 30px;
+      margin-bottom: 35px;
       line-height: 1.3;
     }
     .letter-document-title .main-title {
-      font-size: 28px;
+      font-size: 32px;
       font-weight: 700;
-      text-decoration: none;
+      color: #000000;
     }
     .letter-document-title .sub-title {
-      font-size: 18px;
+      font-size: 19px;
       font-weight: 600;
       text-decoration: underline;
-      margin-top: 2px;
+      margin-top: 4px;
     }
 
     /* Inner Body text styling */
@@ -170,6 +171,7 @@
       text-align: justify; 
       margin-bottom: 25px; 
       text-indent: 60px;
+      font-size: 19px;
     }
     
     /* Dynamic Inline Inputs */
@@ -191,17 +193,18 @@
     }
     
     .dynamic-value.locked {
-      background-color: #f8fafc !important;
+      background-color: transparent !important;
       border-bottom: none !important;
-      color: #0f172a !important;
+      color: #000000 !important;
       cursor: not-allowed;
       padding: 0 2px;
     }
 
     .conditions-list {
-      margin-left: 30px;
+      margin-left: 20px;
       margin-bottom: 35px;
       list-style-type: none;
+      font-size: 19px;
     }
     .conditions-list li {
       margin-bottom: 12px;
@@ -209,24 +212,22 @@
       text-align: justify;
     }
 
-    /* Signatures Section */
+    /* Signatures Section (Based on image_3b286c.png) */
     .signatures-container {
       display: flex;
       justify-content: space-between;
       text-align: center;
-      margin-top: 70px;
+      margin-top: 80px;
       margin-bottom: 45px;
-      font-size: 15.5px;
+      font-size: 17px;
     }
-    .sig-box { width: 23%; font-weight: 600; line-height: 1.5; }
-    .sig-line { border-top: 1px dashed #475569; margin-bottom: 8px; width: 100%; }
+    .sig-box { width: 23%; font-weight: 600; line-height: 1.6; }
+    .sig-line { border-top: 1px dashed #000000; margin-bottom: 8px; width: 100%; }
 
     .footer-warning {
       text-align: justify;
-      font-size: 16px;
+      font-size: 17px;
       margin-bottom: 35px;
-      border-bottom: 2px solid #000;
-      padding-bottom: 15px;
       font-weight: 500;
     }
 
@@ -234,19 +235,20 @@
       display: flex;
       justify-content: space-between;
       font-weight: 600;
-      margin-bottom: 50px;
+      font-size: 18px;
+      margin-bottom: 60px;
     }
 
     .system-footer {
       display: flex;
       justify-content: space-between;
       font-weight: 700;
-      border-top: 1.5px solid #000;
+      border-top: 2px solid #000;
       padding-top: 12px;
-      font-size: 16px;
+      font-size: 18px;
     }
 
-    /* Premium Button */
+    /* Button and UI Actions */
     .print-btn-wrapper { 
       text-align: center; 
       margin-top: 45px; 
@@ -301,28 +303,21 @@
 </head>
 <body>
 
-  <!-- Top Navigation & Search Engine -->
   <div class="report-search-wrapper">
     <div class="system-title">🏛️ गलकोट नगरपालिका - भवन निर्माण अस्थायी इजाजत पत्र</div>
     <input type="text" id="reportSearchBox" class="report-search-box" placeholder="🔍 दर्ता न. / जग्गाधनीको नाम / नागरिकता नं. टाइप गर्नुहोस्..." oninput="searchReportDatabase()">
     <div class="search-hint">डाटा परिमार्जन (Update) भएमा वा नयाँ रेकर्ड खोलिएमा यो प्रणाली स्वचालित रूपमा अद्यावधिक हुन्छ।</div>
   </div>
 
-  <!-- Status / Fallback Message Box -->
   <div id="reportNotFoundAlert" class="no-report-alert">
     🔍 विवरण खोज्नका लागि माथिको सर्च बक्समा विवरण टाइप गर्नुहोस्।
   </div>
 
-  <!-- Document Canvas -->
   <div class="print-letter-container" id="officeOrderPrintArea">
     
-    <!-- -------------------------------------------------------------
-       IMAGE_3B077F.PNG BRAND NEW CORRESPONDING HEADER DESIGN
-    ------------------------------------------------------------- -->
     <div class="header-main-section">
       <div class="gov-logo-container">
-        <!-- नेपाल सरकारको आधिकारिक लागोको डिजिटल प्रतिनिधि यूआरएल रूपान्तरण -->
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Emblem_of_Nepal.svg/512px-Emblem_of_Nepal.svg.png" alt="Emblem of Nepal">
+        <img src="Emblem_of_Nepal.svg.png" alt="Emblem of Nepal">
       </div>
       <div class="header-text-container">
         <div class="muni-name">गलकोट नगरपालिका</div>
@@ -343,10 +338,6 @@
       <div>मिति:- <span id="lbl_date_top" class="dynamic-value" contenteditable="true">२०८३/......../........</span></div>
     </div>
 
-    <!-- -------------------------------------------------------------
-       END OF NEW HEADER
-    ------------------------------------------------------------- -->
-
     <div class="letter-document-title">
       <div class="main-title"><strong>भवन निर्माण अस्थायी इजाजत पत्र</strong></div>
       <div class="sub-title">प्लिन्थ लेभलसम्म</div>
@@ -360,19 +351,17 @@
       स्वीकृत भएको नक्सा बमोजिम <span style="text-decoration: underline; font-weight: 700;">प्लिन्थ लेभल (डि.पि.सी.)</span> सम्म निर्माण कार्य गरिसकेपछि सो भन्दा माथिल्लो भवन (Superstructure) को निर्माण कार्य गर्न पुनः "भवन निर्माण स्थायी इजाजत पत्र" अनिवार्य लिनुपर्नेछ ।
     </div>
 
-    <!-- Conditions of Authorization -->
     <ul class="conditions-list">
       <li>१. नयाँ घर/तल्ला थप/कोठा थप/अन्य</li>
       <li>२. बन्ने घरले चर्चेको क्षेत्रफल <strong><span id="lbl_ja_ta_kche" class="dynamic-value" contenteditable="true">ज_त_क्षे</span></strong> वर्ग फिट, जम्मा क्षेत्रफल <strong><span id="lbl_tot_area" class="dynamic-value">............</span></strong> वर्ग फिट ।</li>
       <li>३. बन्ने घरको तल्ला <strong><span id="lbl_talla" class="dynamic-value" contenteditable="true">तला_संख्या</span></strong> लम्बाई <strong><span id="lbl_lambahee" class="dynamic-value" contenteditable="true">घरको_लम्बाई</span></strong> चौडाई <strong><span id="lbl_chaudahee" class="dynamic-value" contenteditable="true">घरको_चौडाई</span></strong> उचाई <strong><span id="lbl_uchahi" class="dynamic-value" contenteditable="true">घरको_उचाई</span></strong> ।</li>
       <li>४. बाटोको केन्द्ररेखाबाट नियम अनुसार कम्तीमा छाड्नुपर्ने दूरी <strong><span id="lbl_row" class="dynamic-value" contenteditable="true">आर_ओ_डब्लु</span></strong> ।</li>
       <li>५. बन्ने घरको किसिम : जोडाई <strong><span id="lbl_jodai" class="dynamic-value" contenteditable="true">घरको_किसिम_जोडाई</span></strong> छाना : <strong><span id="lbl_chhana" class="dynamic-value" contenteditable="true">घरको_किसिम_छाना</span></strong> ।</li>
-      <li>६. भवनको प्रयोजन : आवासीय</li>/व्यवसायिक</li>/अन्य</li>
+      <li>६. भवनको प्रयोजन : आवासीय / व्यवसायिक / अन्य</li>
       <li>७. घरको वरिपरि २ वटा रुखको विरुवा रोप्नुपर्नेछ ।</li>
       <li>८. अन्य निर्माणाधिन घरको वरिपरि जथाभावी निर्माण सामाग्री नथुपार्नु होला ।</li>
     </ul>
 
-    <!-- Authentication Signatures Layout -->
     <div class="signatures-container">
       <div class="sig-box"><div class="sig-line"></div>पेश गर्ने<br>(फाँटवाला)</div>
       <div class="sig-box"><div class="sig-line"></div>स्थलगत निरीक्षक<br>(सब-इन्जिनियर)</div>
@@ -396,13 +385,11 @@
       </div>
     </div>
 
-    <!-- Official Footer Info -->
     <div class="system-footer">
       <div>गलकोट नगरपालिका</div>
       <div>भूमि व्यवस्थापन तथा भवन नियमन शाखा</div>
     </div>
 
-    <!-- Actions Panel -->
     <div class="print-btn-wrapper">
       <button id="btnPrintAction" class="btn-print" onclick="handlePrintAndSave()">🖨️ अस्थायी इजाजत जारी गरी प्रिन्ट गर्नुस्</button>
     </div>
@@ -472,12 +459,11 @@
         const dateElement = document.getElementById('lbl_date_top');
         const chalaniElement = document.getElementById('lbl_chalani');
 
-        const hasValidDate = match.tem_issued_date && 
-                             match.tem_issued_date.trim() !== "" && 
-                             !match.tem_issued_date.includes("...");
+        // Logic based on tem_certificate column
+        const isIssued = match.tem_certificate === "yes";
 
-        if (hasValidDate) {
-          dateElement.textContent = match.tem_issued_date;
+        if (isIssued) {
+          dateElement.textContent = match.tem_issued_date || getTodayNepaliDate();
           dateElement.setAttribute("contenteditable", "false");
           dateElement.classList.add("locked");
 
@@ -519,19 +505,19 @@
       const finalIssuedDate = dateElement.textContent.trim();
       const finalChalaniNo = chalaniElement.textContent.trim();
 
-      const isAlreadySaved = currentActiveRecord.tem_issued_date && 
-                             currentActiveRecord.tem_issued_date.trim() !== "" && 
-                             !currentActiveRecord.tem_issued_date.includes("...");
+      const isAlreadySaved = currentActiveRecord.tem_certificate === "yes";
 
       if (!isAlreadySaved) {
         try {
           const targetId = isNaN(currentActiveRecord.id) ? currentActiveRecord.id : Number(currentActiveRecord.id);
 
+          // Updating database table structure including tem_certificate column
           const { error } = await _supabase
             .from('g_map_branch1')
             .update({ 
               tem_issued_date: finalIssuedDate,
-              per_chalani_no: finalChalaniNo
+              per_chalani_no: finalChalaniNo,
+              tem_certificate: "yes"
             })
             .eq('id', targetId);
 
@@ -539,6 +525,7 @@
 
           currentActiveRecord.tem_issued_date = finalIssuedDate;
           currentActiveRecord.per_chalani_no = finalChalaniNo;
+          currentActiveRecord.tem_certificate = "yes";
           
           dateElement.setAttribute("contenteditable", "false");
           dateElement.classList.add("locked");
@@ -547,40 +534,13 @@
           
           document.getElementById('btnPrintAction').style.backgroundColor = "#1b8d4b";
           document.getElementById('btnPrintAction').innerText = "🖨️ यो इजाजत पत्र प्रिन्ट गर्नुस् (जारी भइसकेको)";
-          alert("भवन निर्माण अस्थायी इजाजत पत्र सफलतापूर्वक डेटाबेसमा सुरक्षित र लक गरियो।");
+          alert("भवन निर्माण अस्थायी इजाजत पत्र सफलतापूर्वक डेटाबेसमा (tem_certificate='yes') सुरक्षित र लक गरियो।");
         } catch (err) {
           alert("❌ डेटाबेस अपडेट हुन सकेन: " + err.message);
           return; 
         }
       }
       window.print();
-    }
-
-    async function updateMasterRecord(recordId, updatedFormData) {
-      try {
-        const dataToUpdate = {
-          ...updatedFormData,
-          tem_issued_date: null, 
-          per_chalani_no: null
-        };
-
-        const { error } = await _supabase
-          .from('g_map_branch1')
-          .update(dataToUpdate)
-          .eq('id', recordId);
-
-        if (error) throw error;
-        
-        alert("✔️ रेकर्ड सफलतापूर्वक परिमार्जन (Update) गरियो! अस्थायी इजाजत पत्र पुनः सम्पादन गर्न सकिनेछ।");
-        await fetchFromSupabase(); 
-        
-        if (currentActiveRecord && currentActiveRecord.id == recordId) {
-          searchReportDatabase();
-        }
-
-      } catch (err) {
-        alert("डाटा अपडेट गर्दा समस्या आयो: " + err.message);
-      }
     }
   </script>
 </body>
