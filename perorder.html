@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>गलकोट नगरपालिका - टिप्पणी आदेश (स्थायी इजाजत) प्रणाली</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      --primary-color: #0c2461;
+      --secondary-color: #1e3799;
+      --bg-color: #f1f2f6;
+      --card-bg: #ffffff;
+      --border-color: #ced6e0;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body { 
+      font-family: 'Noto Sans Devanagari', sans-serif; 
+      background: var(--bg-color); 
+      padding: 30px; 
+      color: #000000; 
+      line-height: 1.8; 
+    }
+
+    .report-search-wrapper { 
+      max-width: 900px; 
+      margin: 20px auto 30px auto; 
+      background: var(--card-bg); 
+      padding: 30px; 
+      border-radius: 12px; 
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+      border: 2px solid var(--primary-color); 
+    }
+    .system-title {
+      text-align: center;
+      color: var(--primary-color);
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+    .report-search-box { 
+      width: 100%; 
+      padding: 16px; 
+      border: 2px solid var(--border-color); 
+      border-radius: 8px; 
+      font-size: 15px; 
+      outline: none; 
+      font-weight: bold; 
+      text-align: center; 
+      color: var(--primary-color); 
+    }
+    .search-hint { 
+      font-size: 14px; 
+      color: #57606f; 
+      text-align: center; 
+      margin-top: 12px; 
+      font-weight: 600; 
+    }
+
+    .print-letter-container {
+      max-width: 900px; 
+      margin: 0 auto 40px auto; 
+      background: var(--card-bg);
+      padding: 60px 70px; 
+      border-radius: 8px; 
+      box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+      border: 1px solid #ccc; 
+      position: relative; 
+      font-size: 18px;
+      display: none; 
+    }
+
+    .letter-header { 
+      text-align: center; 
+      font-weight: bold; 
+      line-height: 1.4;
+      margin-bottom: 30px;
+    }
+    .letter-header .state-name { font-size: 16px; font-weight: 600; color: #333; }
+    .letter-header .municipality-name { font-size: 32px; font-weight: 700; color: var(--primary-color); }
+    .letter-header .executive-title { font-size: 18px; font-weight: 600; }
+    .letter-header .tippani-title { font-size: 24px; font-weight: bold; text-decoration: underline; margin-top: 25px; color: #d32f2f; }
+
+    .top-meta-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 30px;
+      font-weight: 600;
+    }
+
+    .letter-body { 
+      text-align: justify; 
+      margin-bottom: 30px; 
+      text-indent: 50px;
+    }
+    
+    .dynamic-value { 
+      font-weight: bold; 
+      border-bottom: 1px dashed #222; 
+      padding: 0 5px; 
+      display: inline-block;
+      min-width: 50px;
+      outline: none;
+      background-color: #fffde7;
+      text-indent: 0px !important;
+    }
+    .dynamic-value:focus {
+      background-color: #fff9c4;
+      border-bottom: 1px solid #000;
+    }
+    
+    .dynamic-value.locked {
+      background-color: #f1f2f6 !important;
+      border-bottom: none !important;
+      color: #2f3542 !important;
+      cursor: not-allowed;
+    }
+
+    .receiver-section {
+      font-weight: bold;
+      margin-bottom: 25px;
+      font-size: 19px;
+    }
+
+    .print-btn-wrapper { text-align: center; margin-top: 40px; }
+    .btn-print { 
+      background-color: #1e3799; color: white; border: none; padding: 14px 35px; 
+      font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer; 
+      display: inline-flex; align-items: center; gap: 6px; transition: 0.3s; 
+    }
+    .btn-print:hover { background-color: #0c2461; }
+    
+    .no-report-alert { 
+      text-align: center; padding: 60px 40px; color: #7f8c8d; font-size: 16px; 
+      background: white; max-width: 900px; margin: 0 auto; border-radius: 12px; border: 2px dashed #cbd5e1; 
+    }
+
+    @media print {
+      body { background: #fff; padding: 0; color: #000; }
+      .report-search-wrapper, .print-btn-wrapper, .search-hint, .no-report-alert { display: none !important; }
+      .print-letter-container { 
+        display: block !important; box-shadow: none !important; border: none !important; 
+        padding: 0 !important; margin: 0 !important; width: 100% !important; 
+      }
+      .dynamic-value { 
+        border-bottom: none !important; 
+        background-color: transparent !important; 
+        padding: 0 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="report-search-wrapper">
+    <div class="system-title">🏛️ गलकोट नगरपालिका - टिप्पणी आदेश प्रणाली (स्थायी इजाजत)</div>
+    <input type="text" id="reportSearchBox" class="report-search-box" placeholder="🔍 दर्ता न. / जग्गाधनीको नाम / नागरिकता नं. टाइप गर्नुहोस्..." oninput="searchReportDatabase()">
+    <div class="search-hint">मास्टर DATA परिमार्जन (Edit/Update) भएपछि स्वतः यो सुबिधा पुनः खुला (Unlock) हुनेछ।</div>
+  </div>
+
+  <div id="reportNotFoundAlert" class="no-report-alert">
+    🔍 विवरण खोज्नका लागि दर्ता नं, नाम वा नागरिकता नम्बर टाइप गर्नुहोस्।
+  </div>
+
+  <div class="print-letter-container" id="officeOrderPrintArea">
+    
+    <div class="letter-header">
+      <div class="state-name">गण्डकी प्रदेश, नेपाल</div>
+      <div class="municipality-name">गलकोट नगरपालिका</div>
+      <div class="executive-title">नगर कार्यपालिकाको कार्यालय</div>
+      <div class="tippani-title">टिप्पणी आदेश</div>
+    </div>
+
+    <div class="top-meta-row">
+      <div>चलानी नं: <span id="lbl_chalani" class="dynamic-value" contenteditable="true">.......</span></div>
+      <div>मिति (जारी भएको): <span id="lbl_date_top" class="dynamic-value" contenteditable="true">२०८३/......../........</span></div>
+    </div>
+
+    <div class="receiver-section">
+      श्रीमान् प्रमुख प्रशासकीय अधिकृत ज्यू,
+    </div>
+
+    <div class="letter-body">
+      गलकोट नगरपालिका वडा नं. <span id="lbl_ward" class="dynamic-value">...</span> बस्ने श्री <span id="lbl_owner" class="dynamic-value">..........................................</span> ले यस कार्यालयमा नयाँ भवनको नक्शा पास गरीपाउँ भनि नक्शा एवं डिजाइन सहित मिति <span id="lbl_tem_issued_date" class="dynamic-value">......................</span> मा पहिलो चरणको अस्थायी इजाजत दिइएको । साथै उक्त भवनको प्लिन्थ लेभल सम्मको निर्माण कार्य संलग्न नक्सा एवं डिजाइन बमोजिम सम्पन्न गरेकोले गलकोट नगरपालिकाले जारी गरेको भवन निर्माण मापदण्डका सम्पुर्ण मापदण्डहरु पालना गर्ने गरि यस गलकोट नगरपालिका वडा नं. <span id="lbl_ward_two" class="dynamic-value">...</span> को कित्ता नं. <span id="lbl_kitta" class="dynamic-value">........</span> को <span id="lbl_area" class="dynamic-value">............</span> क्षेत्रफलमा निर्माण हुन लागेको उक्त भवनसंग संलग्न नक्शा एवं डिजाइन बमोजिम निर्माण सम्पन्न गर्न स्थायी इजाजत दिन मनासिब देखि निर्णयार्थ पेस गरेको छु।
+    </div>
+
+    <div class="print-btn-wrapper">
+      <button id="btnPrintAction" class="btn-print" onclick="handlePrintAndSave()">🖨️ टिप्पणी आदेश जारी गरी प्रिन्ट गर्नुस्</button>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = "https://lyjokogftwtvnhwszqni.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_gxEL2-GVTVy8E0WxMBZHDQ_b5TzsDI9"; 
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let mapDatabase = [];
+    let currentActiveRecord = null; 
+
+    document.addEventListener("DOMContentLoaded", () => fetchFromSupabase());
+
+    async function fetchFromSupabase() {
+      try {
+        const { data, error } = await _supabase.from('g_map_branch1').select('*');
+        if (error) throw error;
+        mapDatabase = data;
+      } catch (err) { console.error("Error fetching data:", err.message); }
+    }
+
+    function toNepaliNumber(num) {
+      if (num === undefined || num === null || num === '') return '...';
+      const englishDigits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+      const nepaliDigits = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
+      let str = num.toString();
+      for (let i = 0; i < 10; i++) {
+        const regex = new RegExp(englishDigits[i], 'g');
+        str = str.replace(regex, nepaliDigits[i]);
+      }
+      return str;
+    }
+
+    function getTodayNepaliDate() {
+      return "२०८३/०२/१९"; 
+    }
+
+    function searchReportDatabase() {
+      const query = document.getElementById('reportSearchBox').value.toLowerCase().trim();
+      const letterContainer = document.getElementById('officeOrderPrintArea');
+      const alertBox = document.getElementById('reportNotFoundAlert');
+
+      if (query === "") {
+        letterContainer.style.display = "none";
+        alertBox.style.display = "block";
+        currentActiveRecord = null;
+        return;
+      }
+
+      const match = mapDatabase.find(item => 
+        (item.registrano && item.registrano.toString().toLowerCase().includes(query)) ||
+        (item.owner && item.owner.toLowerCase().includes(query)) ||
+        (item.cit_no && item.cit_no.toString().toLowerCase().includes(query))
+      );
+
+      if (match) {
+        currentActiveRecord = match; 
+
+        document.getElementById('lbl_ward').innerText = toNepaliNumber(match.ward);
+        document.getElementById('lbl_ward_two').innerText = toNepaliNumber(match.ward);
+        document.getElementById('lbl_kitta').innerText = toNepaliNumber(match.kitta);
+        document.getElementById('lbl_area').innerText = toNepaliNumber(match.area);
+        document.getElementById('lbl_tem_issued_date').innerText = toNepaliNumber(match.tem_issued_date);
+        document.getElementById('lbl_owner').innerText = match.owner || '...';
+        
+        const dateElement = document.getElementById('lbl_date_top');
+        const chalaniElement = document.getElementById('lbl_chalani');
+
+        const hasValidDate = match.per_issued_date && 
+                             match.per_issued_date.trim() !== "" && 
+                             !match.per_issued_date.includes("...");
+
+        if (hasValidDate) {
+          dateElement.textContent = match.per_issued_date;
+          dateElement.setAttribute("contenteditable", "false");
+          dateElement.classList.add("locked");
+
+          // यहाँ 'chalani_no' को सट्टा 'per_chalani_no' बाट डेटा तानिएको छ
+          chalaniElement.textContent = match.per_chalani_no || '.......';
+          chalaniElement.setAttribute("contenteditable", "false");
+          chalaniElement.classList.add("locked");
+
+          document.getElementById('btnPrintAction').innerText = "🖨️ यो टिप्पणी आदेश प्रिन्ट गर्नुस् (जारी भइसकेको)";
+        } else {
+          dateElement.textContent = getTodayNepaliDate(); 
+          dateElement.setAttribute("contenteditable", "true");
+          dateElement.classList.remove("locked");
+
+          chalaniElement.textContent = ".......";
+          chalaniElement.setAttribute("contenteditable", "true");
+          chalaniElement.classList.remove("locked");
+
+          document.getElementById('btnPrintAction').innerText = "🖨️ टिप्पणी आदेश जारी गरी प्रिन्ट गर्नुस्";
+        }
+
+        alertBox.style.display = "none";
+        letterContainer.style.display = "block";
+      } else {
+        letterContainer.style.display = "none";
+        alertBox.style.display = "block";
+        alertBox.innerText = "❌ विवरण फेला परेन।";
+        currentActiveRecord = null;
+      }
+    }
+
+    async function handlePrintAndSave() {
+      if (!currentActiveRecord) return;
+
+      const dateElement = document.getElementById('lbl_date_top');
+      const chalaniElement = document.getElementById('lbl_chalani');
+      
+      const finalIssuedDate = dateElement.textContent.trim();
+      const finalChalaniNo = chalaniElement.textContent.trim();
+
+      const isAlreadySaved = currentActiveRecord.per_issued_date && 
+                             currentActiveRecord.per_issued_date.trim() !== "" && 
+                             !currentActiveRecord.per_issued_date.includes("...");
+
+      if (!isAlreadySaved) {
+        try {
+          const targetId = isNaN(currentActiveRecord.id) ? currentActiveRecord.id : Number(currentActiveRecord.id);
+
+          // यहाँ Supabase Update Object मा 'per_chalani_no' राखिएको छ
+          const { error } = await _supabase
+            .from('g_map_branch1')
+            .update({ 
+              per_issued_date: finalIssuedDate,
+              per_chalani_no: finalChalaniNo
+            })
+            .eq('id', targetId);
+
+          if (error) throw error;
+
+          currentActiveRecord.per_issued_date = finalIssuedDate;
+          currentActiveRecord.per_chalani_no = finalChalaniNo;
+          
+          dateElement.setAttribute("contenteditable", "false");
+          dateElement.classList.add("locked");
+          chalaniElement.setAttribute("contenteditable", "false");
+          chalaniElement.classList.add("locked");
+          
+          document.getElementById('btnPrintAction').innerText = "🖨️ यो टिप्पणी आदेश प्रिन्ट गर्नुस् (जारी भइसकेको)";
+          alert("स्थायी इजाजत टिप्पणी आदेश सफलतापूर्वक डेटाबेसमा सुरक्षित र लक गरियो।");
+        } catch (err) {
+          alert("❌ डेटाबेस अपडेट हुन सकेन: " + err.message);
+          return; 
+        }
+      }
+      window.print();
+    }
+
+    async function updateMasterRecord(recordId, updatedFormData) {
+      try {
+        // यहाँ मास्टर रेकर्ड रिसेट गर्दा पनि 'per_chalani_no' लाई null बनाइएको छ
+        const dataToUpdate = {
+          ...updatedFormData,
+          per_issued_date: null, 
+          per_chalani_no: null
+        };
+
+        const { error } = await _supabase
+          .from('g_map_branch1')
+          .update(dataToUpdate)
+          .eq('id', recordId);
+
+        if (error) throw error;
+        
+        alert("✔️ रेकर्ड सफलतापूर्वक परिमार्जन (Update) गरियो! स्थायी टिप्पणी आदेश पुनः सम्पादन गर्न सकिनेछ।");
+        await fetchFromSupabase(); 
+        
+        if (currentActiveRecord && currentActiveRecord.id == recordId) {
+          searchReportDatabase();
+        }
+
+      } catch (err) {
+        alert("डाटा अपडेट गर्दा समस्या आयो: " + err.message);
+      }
+    }
+  </script>
+</body>
+</html>
