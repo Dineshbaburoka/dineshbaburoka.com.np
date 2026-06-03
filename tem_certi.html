@@ -173,9 +173,9 @@
     .dynamic-value { 
       font-weight: 700; 
       border-bottom: 1px dashed #44546a; 
-      padding: 0 8px; 
+      padding: 0 4px; 
       display: inline-block;
-      min-width: 60px;
+      min-width: 10px;
       outline: none;
       background-color: var(--edit-bg);
       text-indent: 0px !important;
@@ -341,18 +341,19 @@
       <div class="sub-title">प्लिन्थ लेभलसम्म</div>
     </div>
 
+    <!-- यहाँ span र नेपाली टेक्स्ट बीचको ग्याप हटाउन सँगै टाँसिएको छ -->
     <div class="letter-body">
-      श्रीमान्/श्रीमती/सुश्री <strong><span id="lbl_owner" class="dynamic-value">..........................................</span></strong> ले गलकोट नगरपालिका वडा नं. (हालको) <strong><span id="lbl_ward" class="dynamic-value">...</span></strong> अन्तर्गत <strong><span id="lbl_tole" class="dynamic-value" contenteditable="true">टोल_मार्ग</span></strong> टोलमा रहेको कित्ता नं. <strong><span id="lbl_kitta" class="dynamic-value">........</span></strong> को गलकोट नगरपालिकाको सम्पूर्ण नियम पालना गर्ने सर्तहरूमा यसै साथ दिइएको अस्थायी स्वीकृत नक्सा बमोजिम <span style="text-decoration: underline; font-weight: 700;">प्लिन्थ लेभल (डि.पि.सी.)</span> सम्म निर्माण कार्य गर्न यो "भवन निर्माण अस्थायी इजाजत पत्र" प्रदान गरिएको छ ।
+      श्रीमान्/श्रीमती/सुश्री <strong><span id="lbl_owner" class="dynamic-value"></span></strong>ले गलकोट नगरपालिका वडा नं. (हालको) <strong><span id="lbl_ward" class="dynamic-value"></span></strong>अन्तर्गत <strong><span id="lbl_tole" class="dynamic-value" contenteditable="true">टोल_मार्ग</span></strong>टोलमा रहेको साविक<span id="lbl_savik_gavis" class="dynamic-value">........................</span> गाविस वडा नं. <span id="lbl_savik_ward" class="dynamic-value">...</span>कित्ता नं. <strong><span id="lbl_kitta" class="dynamic-value"></span></strong>मा गलकोट नगरपालिकाको सम्पूर्ण नियम पालना गर्ने सर्तहरूमा यसै साथ दिइएको अस्थायी स्वीकृत नक्सा बमोजिम <span style="text-decoration: underline; font-weight: 700;">प्लिन्थ लेभल (डि.पि.सी.)</span> सम्म निर्माण कार्य गर्न यो "भवन निर्माण अस्थायी इजाजत पत्र" प्रदान गरिएको छ ।
     </div>
 
     <div class="letter-body" style="text-indent: 60px; font-weight: 500;">
-      स्वीकृत भएको नक्सा बमोजिम <span style="text-decoration: underline; font-weight: 700;">प्लिन्थ लेभल (डि.पि.सी.)</span> सम्म निर्माण कार्य गरिसकेपछि सो भन्दा माथिल्लो भवन (Superstructure) को निर्माण कार्य गर्न पुनः "भवन निर्माण स्थायी इजाजत पत्र" अनिवार्य लिनुपर्नेछ ।
+       स्वीकृत भएको नक्सा बमोजिम <span style="text-decoration: underline; font-weight: 700;">प्लिन्थ लेभल (डि.पि.सी.)</span> सम्म निर्माण कार्य गरिसकेपछि सो भन्दा माथिल्लो भवन (Superstructure) को निर्माण कार्य गर्न पुनः "भवन निर्माण स्थायी इजाजत पत्र" अनिवार्य लिनुपर्नेछ ।
     </div>
 
     <!-- Conditions of Authorization -->
     <ul class="conditions-list">
       <li>१. नयाँ घर/तल्ला थप/कोठा थप/अन्य</li>
-      <li>२. बन्ने घरले चर्चेको क्षेत्रफल <strong><span id="lbl_ja_ta_kche" class="dynamic-value" contenteditable="true">ज_त_क्षे</span></strong> वर्ग फिट, जम्मा क्षेत्रफल <strong><span id="lbl_tot_area" class="dynamic-value">............</span></strong> वर्ग फिट ।</li>
+      <li>२. बन्ने घरले चर्चेको क्षेत्रफल <strong><span id="lbl_ja_ta_kche" class="dynamic-value" contenteditable="true">ज_त_क्षे</span></strong> वर्ग फिट, जम्मा क्षेत्रफल <strong><span id="lbl_tot_area" class="dynamic-value"></span></strong> वर्ग फिट ।</li>
       <li>३. बन्ने घरको तल्ला <strong><span id="lbl_talla" class="dynamic-value" contenteditable="true">तला_संख्या</span></strong> लम्बाई <strong><span id="lbl_lambahee" class="dynamic-value" contenteditable="true">घरको_लम्बाई</span></strong> चौडाई <strong><span id="lbl_chaudahee" class="dynamic-value" contenteditable="true">घरको_चौडाई</span></strong> उचाई <strong><span id="lbl_uchahi" class="dynamic-value" contenteditable="true">घरको_उचाई</span></strong> ।</li>
       <li>४. बाटोको केन्द्ररेखाबाट नियम अनुसार कम्तीमा छाड्नुपर्ने दूरी <strong><span id="lbl_row" class="dynamic-value" contenteditable="true">आर_ओ_डब्लु</span></strong> ।</li>
       <li>५. बन्ने घरको किसिम : जोडाई <strong><span id="lbl_jodai" class="dynamic-value" contenteditable="true">सिमेन्टको जोडाईमा इट्टा ढुङ्गा</span></strong> छाना : <strong><span id="lbl_chhana" class="dynamic-value" contenteditable="true">आर.सि.सि ढलान</span></strong> ।</li>
@@ -376,7 +377,7 @@
     <div class="bottom-meta-row">
       <div>
         बोधार्थ<br>
-        श्री वडा कार्यालय वडा नं. <strong><span id="lbl_ward_two" class="dynamic-value">...</span></strong>
+        श्री वडा कार्यालय वडा नं. <strong><span id="lbl_ward_two" class="dynamic-value"></span></strong>
       </div>
       <div style="text-align: center; width: 45%;">
         ...........................................................<br>
@@ -416,10 +417,10 @@
     }
 
     function toNepaliNumber(num) {
-      if (num === undefined || num === null || num === '') return '...';
+      if (num === undefined || num === null || num === '') return '';
       const englishDigits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
       const nepaliDigits = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
-      let str = num.toString();
+      let str = num.toString().trim(); // डेटाको दायाँ-बायाँको स्पेस हटाउन .trim() थपिएको
       for (let i = 0; i < 10; i++) {
         const regex = new RegExp(englishDigits[i], 'g');
         str = str.replace(regex, nepaliDigits[i]);
@@ -452,21 +453,22 @@
       if (match) {
         currentActiveRecord = match; 
 
-        // सबै विवरणहरूलाई तोनेपाली नम्बर फङ्ग्सनमा र्‍याप गरिएको छ
+        // यहाँ डेटालाई सिधै .trim() गरेर भित्र राखिएको छ ताकि अनावश्यक स्पेस नआओस्
         document.getElementById('lbl_ward').innerText = toNepaliNumber(match.ward);
         document.getElementById('lbl_ward_two').innerText = toNepaliNumber(match.ward);
         document.getElementById('lbl_kitta').innerText = toNepaliNumber(match.kitta);
         document.getElementById('lbl_tot_area').innerText = toNepaliNumber(match.tot_area);
-        document.getElementById('lbl_owner').innerText = match.owner || '...';
-        document.getElementById('lbl_owner1').innerText = match.owner || '...';
+        document.getElementById('lbl_owner').innerText = match.owner ? match.owner.trim() : '';
+        document.getElementById('lbl_owner1').innerText = match.owner ? match.owner.trim() : '';
         
-        // नयाँ थपिएका अङ्कगत मानहरूको नेपाली रूपान्तरण
         document.getElementById('lbl_ja_ta_kche').innerText = toNepaliNumber(match.ja_ta_kche || match.f_ground_a);
         document.getElementById('lbl_talla').innerText = toNepaliNumber(match.total_floors || match.talla);
         document.getElementById('lbl_lambahee').innerText = toNepaliNumber(match.tot_length || match.lambahee);
         document.getElementById('lbl_chaudahee').innerText = toNepaliNumber(match.tot_width || match.chaudahee);
         document.getElementById('lbl_uchahi').innerText = toNepaliNumber(match.tot_height || match.uchahi);
         document.getElementById('lbl_row').innerText = toNepaliNumber(match.row || match.roadce);
+         document.getElementById('lbl_savik_gavis').innerText = match.savik_gavis ? match.savik_gavis.trim() : '...';
+        document.getElementById('lbl_savik_ward').innerText = match.savik_ward ? toNepaliNumber(match.savik_ward).trim() : '...';
 
         const dateElement = document.getElementById('lbl_date_top');
         const chalaniElement = document.getElementById('lbl_chalani');
