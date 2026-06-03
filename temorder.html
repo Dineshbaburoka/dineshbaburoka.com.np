@@ -10,8 +10,7 @@
 
   <style>
     :root {
-      --primary-color: #0c2461;
-      --secondary-color: #1e3799;
+      --primary-color: #000000;
       --bg-color: #f1f2f6;
       --card-bg: #ffffff;
       --border-color: #ced6e0;
@@ -35,11 +34,11 @@
       padding: 30px; 
       border-radius: 12px; 
       box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
-      border: 2px solid var(--primary-color); 
+      border: 2px solid #0c2461; 
     }
     .system-title {
       text-align: center;
-      color: var(--primary-color);
+      color: #0c2461;
       font-size: 22px;
       font-weight: bold;
       margin-bottom: 20px;
@@ -53,7 +52,7 @@
       outline: none; 
       font-weight: bold; 
       text-align: center; 
-      color: var(--primary-color); 
+      color: #0c2461; 
     }
     .search-hint { 
       font-size: 14px; 
@@ -65,10 +64,10 @@
 
     /* Print Container Layout */
     .print-letter-container {
-      max-width: 900px; 
+      max-width: 1000px; 
       margin: 0 auto 40px auto; 
       background: var(--card-bg);
-      padding: 60px 70px; 
+      padding: 50px 60px; 
       border-radius: 8px; 
       box-shadow: 0 5px 20px rgba(0,0,0,0.08);
       border: 1px solid #ccc; 
@@ -77,38 +76,102 @@
       display: none; 
     }
 
-    /* Header Main Layout */
+    /* Official Letterhead Styling */
+    .header-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+    }
+
+    .gov-logo {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 130px; 
+      height: auto;
+    }
+
     .letter-header { 
       text-align: center; 
-      font-weight: bold; 
-      line-height: 1.4;
-      margin-bottom: 30px;
+      line-height: 1.3;
+      width: 100%;
+      padding-left: 140px; 
+      padding-right: 140px;
     }
-    .letter-header .state-name { font-size: 16px; font-weight: 600; color: #333; }
-    .letter-header .municipality-name { font-size: 32px; font-weight: 700; color: var(--primary-color); }
-    .letter-header .executive-title { font-size: 18px; font-weight: 600; }
-    .letter-header .tippani-title { font-size: 24px; font-weight: bold; text-decoration: underline; margin-top: 25px; color: #d32f2f; }
+    
+    .letter-header .municipality-name { 
+      font-size: 38px; 
+      font-weight: 700; 
+      color: var(--primary-color);
+      letter-spacing: 0.5px;
+    }
+    .letter-header .executive-title { 
+      font-size: 26px; 
+      font-weight: 700; 
+      color: var(--primary-color);
+      margin-top: 2px;
+    }
+    .letter-header .location-name { 
+      font-size: 20px; 
+      font-weight: 700; 
+      color: var(--primary-color);
+      margin-top: 2px;
+    }
 
-    .top-meta-row {
+    /* Official Metadata Row (Top Line - Patra Sankhya & Province) */
+    .official-meta-top-row {
       display: flex;
       justify-content: space-between;
+      align-items: center;
+      font-size: 20px;
+      font-weight: 700;
+      padding-top: 15px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #000000; 
+      margin-bottom: 15px;
+    }
+
+    /* Lower Metadata Row (Below Line - Chalani No. & Date) */
+    .official-meta-bottom-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 35px;
+    }
+    
+    .tippani-title-wrapper {
+      text-align: center;
       margin-bottom: 30px;
-      font-weight: 600;
+    }
+    .tippani-title { 
+      font-size: 26px; 
+      font-weight: bold; 
+      text-decoration: underline; 
+      color: #d32f2f; 
+      display: inline-block;
     }
 
     .letter-body { 
       text-align: justify; 
+      text-justify: inter-word;
+      word-break: keep-all;
       margin-bottom: 30px; 
       text-indent: 50px;
+      line-height: 1.9;
     }
     
     /* Edit Box Style */
     .dynamic-value { 
       font-weight: bold; 
       border-bottom: 1px dashed #222; 
-      padding: 0 5px; 
-      display: inline-block;
-      min-width: 50px;
+      padding: 0 1px; 
+      display: inline;
       outline: none;
       background-color: #fffde7;
       text-indent: 0px !important;
@@ -118,7 +181,6 @@
       border-bottom: 1px solid #000;
     }
     
-    /* Locked Status Style (Cannot change) */
     .dynamic-value.locked {
       background-color: #f1f2f6 !important;
       border-bottom: none !important;
@@ -126,11 +188,10 @@
       cursor: not-allowed;
     }
 
-    /* Officer/Receiver Section */
     .receiver-section {
       font-weight: bold;
       margin-bottom: 25px;
-      font-size: 19px;
+      font-size: 20px;
     }
 
     /* Print Button */
@@ -141,7 +202,6 @@
       display: inline-flex; align-items: center; gap: 6px; transition: 0.3s; 
     }
     .btn-print:hover { background-color: #0c2461; }
-    .btn-print:disabled { background-color: #a4b0be; cursor: not-allowed; }
     
     .no-report-alert { 
       text-align: center; padding: 60px 40px; color: #7f8c8d; font-size: 16px; 
@@ -161,6 +221,10 @@
         background-color: transparent !important; 
         padding: 0 !important;
       }
+      .gov-logo {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
     }
   </style>
 </head>
@@ -178,16 +242,28 @@
 
   <div class="print-letter-container" id="officeOrderPrintArea">
     
-    <div class="letter-header">
-      <div class="state-name">गण्डकी प्रदेश, Nepal</div>
-      <div class="municipality-name">गलकोट नगरपालिका</div>
-      <div class="executive-title">नगर कार्यपालिकाको कार्यालय</div>
-      <div class="tippani-title">टिप्पणी आदेश</div>
+    <div class="header-container">
+      <img src="Emblem_of_Nepal.svg.png" alt="Emblem of Nepal" class="gov-logo">
+      
+      <div class="letter-header">
+        <div class="municipality-name">गलकोट नगरपालिका</div>
+        <div class="executive-title">नगर कार्यपालिकाको कार्यालय</div>
+        <div class="location-name">गलकोट, बागलुङ</div>
+      </div>
     </div>
 
-    <div class="top-meta-row">
-      <div>चलानी नं: <span id="lbl_chalani" class="dynamic-value" contenteditable="true">.......</span></div>
-      <div>मिति (जारी भएको): <span id="lbl_date_top" class="dynamic-value" contenteditable="true">२०८३/......../........</span></div>
+    <div class="official-meta-top-row">
+      <div>पत्र संख्या :- <span id="lbl_patra_sankhya" class="dynamic-value" contenteditable="true">०८२/०८३</span></div>
+      <div>गण्डकी प्रदेश, नेपाल</div>
+    </div>
+
+    <div class="official-meta-bottom-row">
+      <div>चलानी नं :- <span id="lbl_chalani" class="dynamic-value" contenteditable="true">.......</span></div>
+      <div>मिति :- <span id="lbl_date_top" class="dynamic-value" contenteditable="true">२०८३/०२/१९</span></div>
+    </div>
+
+    <div class="tippani-title-wrapper">
+      <div class="tippani-title">टिप्पणी आदेश</div>
     </div>
 
     <div class="receiver-section">
@@ -195,7 +271,7 @@
     </div>
 
     <div class="letter-body">
-      गलकोट नगरपालिका वडा नं. <span id="lbl_ward" class="dynamic-value" contenteditable="true">...</span> बस्ने श्री <span id="lbl_owner" class="dynamic-value" contenteditable="true">..........................................</span> ले यस कार्यालयमा नयाँ भवनको नक्सा पास गरीपाऊँ भनि नक्सा एवं डिजाइन सहित मिति <span id="lbl_date_reg" class="dynamic-value" contenteditable="true">......................</span> मा निवेदन दिइएकोमा उक्त निर्माण हुने भवनको नक्सा एवं डिजाइन सहित पेस गरेकाले यस गलकोट नगरपालिकाले जारी गरेको भवन निर्माण मापदण्डका सम्पूर्ण मापदण्डहरु पालना गर्ने गरि यस गलकोट नगरपालिका वडा नं. <span id="lbl_ward_two" class="dynamic-value" contenteditable="true">...</span> को कित्ता नं. <span id="lbl_kitta" class="dynamic-value" contenteditable="true">........</span> को <span id="lbl_area" class="dynamic-value" contenteditable="true">............</span> क्षेत्रफलमा निर्माण हुन लागेको उक्त भवनसँग संलग्न नक्सा एवं डिजाइन बमोजिम प्लिन्थ लेभलसम्म निर्माण गर्न पहिलो चरणको अस्थायी इजाजत दिन मनासिब देखि निर्णयार्थ पेस गरेको छु ।
+      गलकोट नगरपालिका वडा नं. <span id="lbl_ward" class="dynamic-value" contenteditable="true">...</span> बस्ने श्री <span id="lbl_owner" class="dynamic-value">..........................................</span> ले यस कार्यालयमा नयाँ भवनको नक्सा पास गरीपाऊँ भनि नक्सा एवं डिजाइन सहित मिति <span id="lbl_date_reg" class="dynamic-value">......................</span> मा निवेदन दिइएकोमा उक्त निर्माण हुने भवनको नक्सा एवं डिजाइन सहित पेस गरेकाले यस गलकोट नगरपालिकाले जारी गरेको भवन निर्माण मापदण्डका सम्पूर्ण मापदण्डहरु पालना गर्ने गरि यस गलकोट नगरपालिका वडा नं. <span id="lbl_ward_two" class="dynamic-value">...</span> साविक <span id="lbl_savik_gavis" class="dynamic-value">...</span> गाविस वडा न. <span id="lbl_savik_ward" class="dynamic-value">...</span> को कित्ता नं. <span id="lbl_kitta" class="dynamic-value">........</span> को <span id="lbl_area" class="dynamic-value">............</span> क्षेत्रफलमा निर्माण हुन लागेको उक्त भवनसँग संलग्न नक्सा एवं डिजाइन बमोजिम प्लिन्थ लेभलसम्म निर्माण गर्न पहिलो चरणको अस्थायी इजाजत दिन मनासिब देखि निर्णयार्थ पेस गरेको छु ।
     </div>
 
     <div class="print-btn-wrapper">
@@ -211,14 +287,19 @@
     let mapDatabase = [];
     let currentActiveRecord = null; 
 
-    document.addEventListener("DOMContentLoaded", () => fetchFromSupabase());
+    document.addEventListener("DOMContentLoaded", () => {
+      fetchFromSupabase();
+      setupLiveNepaliInputConversion();
+    });
 
     async function fetchFromSupabase() {
       try {
         const { data, error } = await _supabase.from('g_map_branch1').select('*');
         if (error) throw error;
-        mapDatabase = data;
-      } catch (err) { console.error("Error fetching data:", err.message); }
+        mapDatabase = data || [];
+      } catch (err) { 
+        console.error("Error fetching data:", err.message); 
+      }
     }
 
     function toNepaliNumber(num) {
@@ -233,8 +314,33 @@
       return str;
     }
 
+    function setupLiveNepaliInputConversion() {
+      const targets = ['lbl_patra_sankhya', 'lbl_chalani', 'lbl_date_top', 'lbl_ward', 'lbl_ward_two'];
+      targets.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+          element.addEventListener('input', (e) => {
+            let cursorPosition = window.getSelection().getRangeAt(0).startOffset;
+            let originalText = e.target.innerText;
+            let convertedText = toNepaliNumber(originalText);
+            
+            if (originalText !== convertedText) {
+              e.target.innerText = convertedText;
+              
+              let range = document.createRange();
+              let sel = window.getSelection();
+              range.setStart(e.target.childNodes[0] || e.target, cursorPosition);
+              range.collapse(true);
+              sel.removeAllRanges();
+              sel.addRange(range);
+            }
+          });
+        }
+      });
+    }
+
     function getTodayNepaliDate() {
-      return "२०८३/०२/२०"; 
+      return "२०८३/०२/१९"; 
     }
 
     function searchReportDatabase() {
@@ -250,7 +356,6 @@
         return;
       }
 
-      // खोज्ने लोजिक परिमार्जन गरिएको छ
       const match = mapDatabase.find(item => 
         (item.registrano && item.registrano.toString().toLowerCase().includes(query)) ||
         (item.owner && item.owner.toLowerCase().includes(query)) ||
@@ -260,24 +365,27 @@
       if (match) {
         currentActiveRecord = match; 
 
-        // विवरणहरू अटो फिल गर्ने
         document.getElementById('lbl_ward').innerText = toNepaliNumber(match.ward);
         document.getElementById('lbl_ward_two').innerText = toNepaliNumber(match.ward);
         document.getElementById('lbl_kitta').innerText = toNepaliNumber(match.kitta);
         document.getElementById('lbl_area').innerText = toNepaliNumber(match.area);
         document.getElementById('lbl_date_reg').innerText = toNepaliNumber(match.date_reg);
         document.getElementById('lbl_owner').innerText = match.owner || '...';
+        document.getElementById('lbl_savik_gavis').innerText = match.savik_gavis || '...';
+        document.getElementById('lbl_savik_ward').innerText = toNepaliNumber(match.savik_ward);
         
         const dateElement = document.getElementById('lbl_date_top');
         const chalaniElement = document.getElementById('lbl_chalani');
+        const patraSankhyaElement = document.getElementById('lbl_patra_sankhya');
 
-        // पहिले नै सेभ छ कि छैन चेक गर्ने कन्डिसन
+        patraSankhyaElement.innerText = match.fiscal_year ? toNepaliNumber(match.fiscal_year) : "०८२/०८३";
+
         if (match.tem_issued_date && match.tem_issued_date.trim() !== "" && !match.tem_issued_date.includes("...")) {
-          dateElement.innerText = match.tem_issued_date;
+          dateElement.innerText = toNepaliNumber(match.tem_issued_date);
           dateElement.setAttribute("contenteditable", "false");
           dateElement.classList.add("locked");
 
-          chalaniElement.innerText = match.tem_chalani_no || '.......';
+          chalaniElement.innerText = toNepaliNumber(match.tem_chalani_no) || '.......';
           chalaniElement.setAttribute("contenteditable", "false");
           chalaniElement.classList.add("locked");
 
@@ -313,21 +421,23 @@
       const dateElement = document.getElementById('lbl_date_top');
       const chalaniElement = document.getElementById('lbl_chalani');
       
-      // .innerText को सट्टा .textContent प्रयोग गरेर सफा टेक्स्ट तानिएको छ
       const finalIssuedDate = dateElement.textContent.trim();
       const finalChalaniNo = chalaniElement.textContent.trim();
 
-      // डाटाबेसमा पहिले नै खाली छ वा थुप्रै थोप्ला मात्र छन् भने अपडेट चलाउने
       const isAlreadySaved = currentActiveRecord.tem_issued_date && 
                              currentActiveRecord.tem_issued_date.trim() !== "" && 
                              !currentActiveRecord.tem_issued_date.includes("...");
 
       if (!isAlreadySaved) {
+        if (finalChalaniNo === "" || finalChalaniNo.includes(".......") || finalChalaniNo === ".......") {
+          alert("कृपया पहिले चलानी नम्बर प्रविष्ट गर्नुहोस्!");
+          chalaniElement.focus();
+          return;
+        }
+
         try {
-          // 'id' को डाटा टाइप जस्तोसुकै भए पनि सुरक्षित रूपमा म्याच गराउने 
           const targetId = isNaN(currentActiveRecord.id) ? currentActiveRecord.id : Number(currentActiveRecord.id);
 
-          // Supabase UPDATE कुएरी: यहाँ 'id' कोलमसँग कडा रूपमा म्याच गराइयो
           const { data, error } = await _supabase
             .from('g_map_branch1')
             .update({ 
@@ -338,12 +448,20 @@
             .select();
 
           if (error) throw error;
+          
+          if (!data || data.length === 0) {
+            throw new Error("डाटाबेसमा सम्बन्धित रेकर्ड फेला परेन वा अपडेट भएन।");
+          }
 
-          // मेमोरीमा भएको डाटाबेस लिस्टलाई तत्कालै अपडेट गर्ने
           currentActiveRecord.tem_issued_date = finalIssuedDate;
           currentActiveRecord.tem_chalani_no = finalChalaniNo;
           
-          // रूपरेखा परिवर्तन गरी लक गर्ने
+          const dbIndex = mapDatabase.findIndex(item => item.id == targetId);
+          if (dbIndex !== -1) {
+            mapDatabase[dbIndex].tem_issued_date = finalIssuedDate;
+            mapDatabase[dbIndex].tem_chalani_no = finalChalaniNo;
+          }
+          
           dateElement.setAttribute("contenteditable", "false");
           dateElement.classList.add("locked");
           chalaniElement.setAttribute("contenteditable", "false");
@@ -358,7 +476,6 @@
         }
       }
 
-      // विन्डो प्रिन्ट खोल्ने
       window.print();
     }
   </script>
