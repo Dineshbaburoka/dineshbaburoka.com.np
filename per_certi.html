@@ -26,7 +26,7 @@
       background: var(--bg-color); 
       padding: 40px 20px; 
       color: #000000; 
-      line-height: 1.8; 
+      line-height: 1.6; 
     }
 
     /* Search Area Styling */
@@ -64,35 +64,35 @@
       margin-top: 15px; 
     }
 
-    /* Document Box Layout */
+    /* Document Box Layout (A4 Width matching) */
     .print-letter-container {
-      max-width: 950px; 
+      max-width: 850px; /* A4 width standard in screen */
       margin: 0 auto 50px auto; 
       background: var(--card-bg);
-      padding: 60px 70px; 
+      padding: 50px 60px; 
       border-radius: 8px; 
       position: relative; 
-      font-size: 19px;
+      font-size: 17.5px; /* A4 मा फिट हुने फन्ट साइज */
       color: #000000;
       display: none; 
     }
 
-    /* Header Section */
+    /* Header Section - Center Alignment */
     .header-main-section {
       position: relative;
-      min-height: 120px;
+      min-height: 110px;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 5px;
+      margin-bottom: 20px;
     }
     .gov-logo-container {
       position: absolute;
-      left: 10px;
+      left: 0px;
       top: 0;
     }
     .gov-logo-container img {
-      width: 120px;
+      width: 110px;
       height: auto;
     }
     .header-text-container {
@@ -100,50 +100,54 @@
       line-height: 1.4;
     }
     .header-text-container .muni-name {
-      font-size: 36px;
+      font-size: 34px;
       font-weight: 700;
+      letter-spacing: 0.5px;
     }
     .header-text-container .exec-office {
-      font-size: 26px;
+      font-size: 24px;
       font-weight: 700;
+      margin-top: 2px;
     }
     .header-text-container .address-line {
-      font-size: 22px;
+      font-size: 20px;
       font-weight: 600;
+      margin-top: 2px;
     }
 
-    /* Meta Fields Rows */
-    .meta-row-first {
+    /* दुवै किनारमा डेटा मिलाउने फ्लेक्स रो */
+    .meta-row-flex {
       display: flex;
       justify-content: space-between;
-      align-items: flex-end;
-      margin-top: 15px;
-      font-weight: 600;
+      align-items: center;
+      font-weight: 700;
+      font-size: 18px;
+      margin-top: 4px;
     }
+    
+    .state-right {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
     .header-divider-line {
       border-top: 2px solid #000000;
-      margin: 6px 0 10px 0;
-    }
-    .meta-row-second {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      font-weight: 600;
-      margin-bottom: 35px;
+      margin: 6px 0;
     }
 
     /* Title Styling */
     .letter-document-title {
       text-align: center;
-      margin-bottom: 35px;
+      margin-bottom: 25px;
       line-height: 1.4;
+      margin-top: 15px;
     }
     .letter-document-title .main-title {
-      font-size: 32px;
+      font-size: 28px;
       font-weight: 700;
     }
     .letter-document-title .sub-title {
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 700;
       margin-top: 2px;
     }
@@ -151,21 +155,23 @@
     /* Inner Body text styling */
     .letter-body { 
       text-align: justify; 
-      margin-bottom: 25px; 
-      text-indent: 60px;
+      margin-bottom: 20px; 
+      text-indent: 50px;
+      line-height: 1.7;
     }
     
     /* Dynamic Inline Inputs */
     .dynamic-value { 
       font-weight: 700; 
       border-bottom: 1px dashed #000000; 
-      padding: 0 5px; 
+      padding: 0 4px; 
       display: inline-block;
-      min-width: 60px;
+      min-width: 10px;
       outline: none;
       background-color: var(--edit-bg);
       text-indent: 0px !important;
       border-radius: 4px;
+      white-space: nowrap;
     }
     .dynamic-value:focus {
       background-color: #fff59d;
@@ -181,21 +187,21 @@
     /* Nested Conditions List */
     .conditions-list {
       margin-left: 10px;
-      margin-bottom: 35px;
+      margin-bottom: 25px;
       list-style-type: none;
     }
     .conditions-list li {
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       text-indent: 0px;
       text-align: justify;
     }
     .sub-conditions {
-      margin-left: 45px;
-      margin-top: 8px;
+      margin-left: 40px;
+      margin-top: 6px;
       list-style-type: none;
     }
     .sub-conditions li {
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     /* Signatures Section */
@@ -203,23 +209,24 @@
       display: flex;
       justify-content: space-between;
       text-align: center;
-      margin-top: 80px;
-      margin-bottom: 45px;
+      margin-top: 65px;
+      margin-bottom: 35px;
     }
-    .sig-box { width: 23%; font-weight: 600; font-size: 16px; line-height: 1.6; }
+    .sig-box { width: 23%; font-weight: 600; font-size: 14px; line-height: 1.5; }
     .sig-line { border-top: 1px dashed #000000; margin-bottom: 8px; width: 100%; }
 
     .footer-warning {
       text-align: justify;
-      margin-bottom: 35px;
+      margin-bottom: 25px;
       font-weight: 500;
+      font-size: 16px;
     }
 
     .bottom-meta-row {
       display: flex;
       justify-content: space-between;
       font-weight: 600;
-      margin-bottom: 50px;
+      margin-bottom: 40px;
     }
 
     .system-footer {
@@ -227,7 +234,7 @@
       justify-content: space-between;
       font-weight: 700;
       border-top: 2px solid #000000;
-      padding-top: 12px;
+      padding-top: 10px;
     }
 
     /* Action Button Container */
@@ -265,16 +272,42 @@
       font-weight: 600;
     }
 
+    /* ==================== A4 PRINT SPECIFIC STYLES ==================== */
+    @page {
+      size: A4 portrait;
+      margin: 20mm 15mm 15mm 15mm; /* A4 Standard Margins */
+    }
+
     @media print {
-      body { background: #fff; padding: 0; color: #000; }
-      .report-search-wrapper, .print-btn-wrapper, .no-report-alert { display: none !important; }
+      body { 
+        background: #fff; 
+        padding: 0; 
+        margin: 0; 
+        color: #000; 
+        -webkit-print-color-adjust: exact; 
+        print-color-adjust: exact; 
+      }
+      .report-search-wrapper, .print-btn-wrapper, .no-report-alert { 
+        display: none !important; 
+      }
       .print-letter-container { 
-        display: block !important; box-shadow: none !important; border: none !important; 
-        padding: 0 !important; margin: 0 !important; width: 100% !important; 
+        display: block !important; 
+        box-shadow: none !important; 
+        border: none !important; 
+        padding: 0 !important; 
+        margin: 0 !important; 
+        width: 100% !important; 
+        max-width: 100% !important;
+        font-size: 16.5px; /* प्रिन्टमा अक्षरहरू नमिच्चिऊन् भन्नका लागि अनुकूलित साइज */
       }
       .dynamic-value { 
         border-bottom: none !important; 
         background-color: transparent !important; 
+        padding: 0 !important;
+      }
+      /* पेज ब्रेक हुन नदिने लोजिक ताकि सबै कुरा एउटै पानामा अटून् */
+      .signatures-container, .bottom-meta-row, .system-footer {
+        page-break-inside: avoid;
       }
     }
   </style>
@@ -293,6 +326,7 @@
 
   <div class="print-letter-container" id="officeOrderPrintArea">
     
+    <!-- ==================== LETTERHEAD START ==================== -->
     <div class="header-main-section">
       <div class="gov-logo-container">
         <img src="Emblem_of_Nepal.svg.png" alt="Emblem of Nepal">
@@ -304,16 +338,21 @@
       </div>
     </div>
 
-    <div class="meta-row-first">
+    <!-- पहिलो रो: पत्र संख्या र गण्डकी प्रदेश -->
+    <div class="meta-row-flex">
       <div>पत्र संख्या :- <span id="lbl_patra_sankhya" class="dynamic-value" contenteditable="true">०८२/०८३</span></div>
-      <div>मिति :- <span id="lbl_date_top" class="dynamic-value" contenteditable="true">......../......../........</span></div>
+      <div class="state-right">गण्डकी प्रदेश, नेपाल</div>
     </div>
 
+    <!-- कालो तेर्सो रेखा -->
     <div class="header-divider-line"></div>
 
-    <div class="meta-row-second">
+    <!-- दोस्रो रो: चलानी नम्बर र मिति -->
+    <div class="meta-row-flex" style="margin-bottom: 30px;">
       <div>च. न. :- <span id="lbl_chalani" class="dynamic-value" contenteditable="true">............</span></div>
+      <div>मिति :- <span id="lbl_date_top" class="dynamic-value" contenteditable="true">......../......../........</span></div>
     </div>
+    <!-- ==================== LETTERHEAD END ==================== -->
 
     <div class="letter-document-title">
       <div class="main-title">भवन निर्माण स्थायी इजाजत पत्र</div>
@@ -321,7 +360,7 @@
     </div>
 
     <div class="letter-body">
-      श्रीमान्/श्रीमती/सुश्री <strong><span id="lbl_owner" class="dynamic-value">..........................................</span></strong> ले गलकोट नगरपालिका वडा नं. (हालको) <strong><span id="lbl_ward" class="dynamic-value">...</span></strong> अन्तर्गत <strong><span id="lbl_tole" class="dynamic-value" contenteditable="true">टोल_मार्ग</span></strong> टोलमा रहेको कित्ता नं. <strong><span id="lbl_kitta" class="dynamic-value">........</span></strong> को क्षेत्रफल <strong><span id="lbl_area_body" class="dynamic-value">क्षेत्रफल</span></strong> जग्गामा नक्सा बमोजिम नक्सा पास सम्बन्धी प्रक्रिया पूरा भइरहेको हुँदा गलकोट नगरपालिकाबाट सम्पूर्ण नियम गर्ने सर्तहरूमा यसै साथ दिइएको स्वीकृत भएको नक्सा बमोजिम निर्माण कार्य गरिसकेपछि यसै साथ संङ्लग्न सर्त तथा मापदण्ड पूरा गरी <strong>"निर्माण सम्पन्न प्रमाण पत्र"</strong> अनिवार्य लिनुपर्नेछ ।
+      श्रीमान्/श्रीमती/सुश्री <strong><span id="lbl_owner" class="dynamic-value">..........................................</span></strong> ले गलकोट नगरपालिका वडा नं. (हालको) <strong><span id="lbl_ward" class="dynamic-value">...</span></strong> अन्तर्गत <strong><span id="lbl_tole" class="dynamic-value" contenteditable="true">टोल_मार्ग</span></strong> टोलमा रहेको साविक <span id="lbl_savik_gavis" class="dynamic-value">........................</span> गाविस वडा नं. <span id="lbl_savik_ward" class="dynamic-value">...</span> कित्ता नं. <strong><span id="lbl_kitta" class="dynamic-value">........</span></strong> को क्षेत्रफल <strong><span id="lbl_area_body" class="dynamic-value">क्षेत्रफल</span></strong> जग्गामा नक्सा बमोजिम नक्सा पास सम्बन्धी प्रक्रिया पूरा भइरहेको हुँदा गलकोट नगरपालिकाबाट सम्पूर्ण नियम गर्ने सर्तहरूमा यसै साथ दिइएको स्वीकृत भएको नक्सा बमोजिम निर्माण कार्य गरिसकेपछि यसै साथ संङ्लग्न सर्त तथा मापदण्ड पूरा गरी <strong>"निर्माण सम्पन्न प्रमाण पत्र"</strong> अनिवार्य लिनुपर्नेछ ।
     </div>
 
     <ul class="conditions-list">
@@ -395,10 +434,12 @@
     }
 
     function toNepaliNumber(num) {
-      if (num === undefined || num === null || num === '') return '...';
+      if (num === undefined || num === null || num === '') return '';
+      let str = num.toString().trim().replace(/\s+/g, '');
+      
       const englishDigits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
       const nepaliDigits = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
-      let str = num.toString();
+      
       for (let i = 0; i < 10; i++) {
         const regex = new RegExp(englishDigits[i], 'g');
         str = str.replace(regex, nepaliDigits[i]);
@@ -422,22 +463,23 @@
         return;
       }
 
-      const match = mapDatabase.find(item => 
-        (item.registrano && item.registrano.toString().toLowerCase().includes(query)) ||
-        (item.owner && item.owner.toLowerCase().includes(query)) ||
-        (item.cit_no && item.cit_no.toString().toLowerCase().includes(query))
-      );
+      const match = mapDatabase.find(item => {
+        const regNo = item.registrano ? item.registrano.toString().toLowerCase().trim() : '';
+        const ownerName = item.owner ? item.owner.toLowerCase().trim() : '';
+        const citNo = item.cit_no ? item.cit_no.toString().toLowerCase().trim() : '';
+        
+        return regNo.includes(query) || ownerName.includes(query) || citNo.includes(query);
+      });
 
       if (match) {
         currentActiveRecord = match; 
 
-        // सबै संख्यात्मक डेटालाई toNepaliNumber फङ्सन भित्र राखिएको छ
         document.getElementById('lbl_ward').innerText = toNepaliNumber(match.ward);
         document.getElementById('lbl_ward_two').innerText = toNepaliNumber(match.ward);
         document.getElementById('lbl_kitta').innerText = toNepaliNumber(match.kitta);
         document.getElementById('lbl_tot_area').innerText = toNepaliNumber(match.tot_area);
-        document.getElementById('lbl_owner').innerText = match.owner || '...';
-        document.getElementById('lbl_owner1').innerText = match.owner || '...';
+        document.getElementById('lbl_owner').innerText = match.owner ? match.owner.trim() : '';
+        document.getElementById('lbl_owner1').innerText = match.owner ? match.owner.trim() : '';
         document.getElementById('lbl_f_ground_a').innerText = toNepaliNumber(match.f_ground_a);
         document.getElementById('lbl_total_floors').innerText = toNepaliNumber(match.total_floors);
         document.getElementById('lbl_tot_length').innerText = toNepaliNumber(match.tot_length);
@@ -449,17 +491,20 @@
         document.getElementById('lbl_setbacX').innerText = toNepaliNumber(match.setbacx);
         document.getElementById('lbl_area_body').innerText = toNepaliNumber(match.area);
         
+        document.getElementById('lbl_savik_gavis').innerText = match.savik_gavis ? match.savik_gavis.trim() : '';
+        document.getElementById('lbl_savik_ward').innerText = match.savik_ward ? toNepaliNumber(match.savik_ward).trim() : '';
+        
         const dateElement = document.getElementById('lbl_date_top');
         const chalaniElement = document.getElementById('lbl_chalani');
 
-        const isPermanentIssued = match.per_certificate === "yes";
+        const isPermanentIssued = match.per_certificate && match.per_certificate.trim() === "yes";
 
         if (isPermanentIssued) {
-          dateElement.textContent = toNepaliNumber(match.per_issued_date) || getTodayNepaliDate();
+          dateElement.textContent = match.per_issued_date ? toNepaliNumber(match.per_issued_date.trim()) : getTodayNepaliDate();
           dateElement.setAttribute("contenteditable", "false");
           dateElement.classList.add("locked");
 
-          chalaniElement.textContent = toNepaliNumber(match.per_chalani_no) || '.......';
+          chalaniElement.textContent = match.per_chalani_no ? toNepaliNumber(match.per_chalani_no.trim()) : '.......';
           chalaniElement.setAttribute("contenteditable", "false");
           chalaniElement.classList.add("locked");
 
@@ -497,11 +542,15 @@
       const finalIssuedDate = dateElement.textContent.trim();
       const finalChalaniNo = chalaniElement.textContent.trim();
 
-      const isAlreadySaved = currentActiveRecord.per_certificate === "yes";
+      const isAlreadySaved = currentActiveRecord.per_certificate && currentActiveRecord.per_certificate.trim() === "yes";
 
       if (!isAlreadySaved) {
         try {
-          const targetId = isNaN(currentActiveRecord.id) ? currentActiveRecord.id : Number(currentActiveRecord.id);
+          let targetId = currentActiveRecord.id;
+          if (typeof targetId === 'string') {
+            targetId = targetId.trim();
+          }
+          targetId = isNaN(targetId) ? targetId : Number(targetId);
 
           const { error } = await _supabase
             .from('g_map_branch1')
@@ -525,7 +574,7 @@
           
           document.getElementById('btnPrintAction').style.backgroundColor = "#1b8d4b";
           document.getElementById('btnPrintAction').innerText = "🖨️ स्थायी इजाजत पत्र प्रिन्ट गर्नुस् (जारी भइसकेको)";
-          alert("भवन निर्माण स्थायी इजाजत पत्र सफलतापूर्वक डेटाबेसमा (per_certificate='yes') सुरक्षित र लक गरियो।");
+          alert("भवन निर्माण स्थायी इजाजत पत्र सफलतापूर्वक डेटाबेसमा सुरक्षित र लक गरियो।");
         } catch (err) {
           alert("❌ डेटाबेस अपडेट हुन सकेन: " + err.message);
           return; 
