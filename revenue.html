@@ -75,27 +75,27 @@
       display: none; /* सुरुमा लुकेको हुने */
     }
 
-    /* परिमार्जित हेडर: लोगो बायाँ र हेडिङ ठ्याक्कै केन्द्रमा पार्न */
+    /* हेडर मिलाइएको: लोगो बायाँ र हेडिङ केन्द्रमा */
     .letter-header { 
-      position: relative;      /* लोगोलाई निश्चित ठाउँमा राख्न */
       display: flex;
-      justify-content: center; /* मुख्य टेक्स्टलाई बीचमा ल्याउन */
       align-items: center;
+      justify-content: center;
       color: #000000; 
       margin-bottom: 25px;
       border-bottom: 2px solid #000000;
       padding-bottom: 15px;
-      min-height: 100px;       /* लोगो अट्ने न्यूनतम उचाई */
+      position: relative;
+      min-height: 110px;
     }
     .gov-logo {
-      position: absolute;      /* हेडिङको बीचको ठाउँ नओगटोस् भनेर */
-      left: 0;                 /* बायाँ कुनामा टपक्क टाँस्न */
+      position: absolute;      
+      left: 0;                 
       top: 0;
-      width: 95px;
+      width: 90px;
       height: auto;
     }
     .header-text {
-      text-align: center;      /* अक्षरहरूलाई केन्द्रमा राख्न */
+      text-align: center;      
       line-height: 1.5;
     }
     .letter-header .municipality-name { font-size: 26px; font-weight: bold; color: #000000; }
@@ -132,7 +132,7 @@
     
     /* Table & Input Styling */
     table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 16px; }
-    th, td { border: 1px solid #000; padding: 10px; text-align: left; }
+    th, td { border: 1px solid #000; padding: 10px; text-align: left; color: #000; }
     th { background-color: #f2f2f2; text-align: center; font-weight: bold; }
     .text-center { text-align: center; }
     .text-right { text-align: right; }
@@ -153,6 +153,8 @@
       font-size: 16px;
       padding: 2px 5px;
       outline: none;
+      text-align: center;
+      background: transparent;
     }
 
     /* Footer Layout */
@@ -162,7 +164,7 @@
       justify-content: space-between;
     }
     .footer-box {
-      width: 45%;
+      width: 48%;
       font-size: 16px;
       line-height: 2;
     }
@@ -200,7 +202,7 @@
 
     /* PRINT RULES */
     @media print {
-      body { background: #fff; padding: 0; }
+      body { background: #fff; padding: 0; color: #000; }
       .report-search-wrapper, .print-btn-wrapper, .search-hint, .no-report-alert { display: none !important; }
       .print-letter-container { 
         display: block !important; 
@@ -211,9 +213,10 @@
         width: 100% !important; 
         max-width: 100% !important; 
       }
-      /* Hide borders of manual text inputs when printing */
-      .manual-input { border: none !important; background: transparent; }
-      .manual-text-input { border-bottom: none !important; }
+      /* Hide inputs placeholder/borders during printing and keep values visible */
+      .manual-input { border: none !important; background: transparent; font-weight: bold; }
+      .manual-input::placeholder { color: transparent; }
+      .manual-text-input { border-bottom: 1px solid #000 !important; font-weight: bold; }
       .dynamic-value { border-bottom: none !important; }
     }
   </style>
@@ -234,7 +237,7 @@
   <div class="print-letter-container" id="officeOrderPrintArea">
     
     <div class="letter-header">
-      <img src="Emblem_of_Nepal.svg.png" alt="नेपालको निशान छाप" class="gov-logo">
+      <img src="Emblem_of_Nepal.svg.png" alt="Emblem of Nepal" class="gov-logo">
       <div class="header-text">
         <div class="municipality-name">गलकोट नगरपालिका</div>
         <div class="org-name">नगर कार्यपालिकाको कार्यालय</div>
@@ -379,8 +382,8 @@
         <p>दस्तुर हिसाब गर्नेको सहीः- .....................</p>
       </div>
       <div class="footer-box" style="border: 1px solid #000; padding: 10px; border-radius: 5px;">
-        <p>यस नगरपालिकाको दस्तुर अतिरिक्त दस्तुरको जम्मा रु <input type="text" class="manual-text-input" style="width: 150px;"></p>
-        <p>अक्षरुपी <input type="text" class="manual-text-input" style="width: 250px;"></p>
+        <p>यस नगरपालिकाको दस्तुर अतिरिक्त दस्तुरको जम्मा रु <input type="text" class="manual-text-input" style="width: 130px;"></p>
+        <p>अक्षरुपी <input type="text" class="manual-text-input" style="width: 230px;"></p>
         <p>र.नं. <input type="text" class="manual-text-input" style="width: 80px;"> वाट मिति २० <input type="text" class="manual-text-input" style="width: 30px;">/<input type="text" class="manual-text-input" style="width: 20px;">/<input type="text" class="manual-text-input" style="width: 20px;"> मा प्राप्त भयो ।</p>
         <p style="margin-top: 15px;">बुझिलिनेको सहीः- .......................................</p>
         <p>नाम, थर :- .................................................</p>
@@ -532,13 +535,14 @@
       }
     }
 
+    // नेपाली शब्दमा रूपान्तरण गर्ने सुदृढ फंक्शन (करोड सम्म)
     function numberToNepaliWords(num) {
       if (num === 0) return "शून्य";
       const ones = ["", "एक", "दुई", "तीन", "चार", "पाँच", "छ", "सात", "आठ", "नौ", "दस", 
                     "एघार", "बाह्र", "तेह्र", "चौध", "पन्ध्र", "सोह्र", "सत्र", "अठार", "उन्नीस", "बीस",
-                    "इक्काइस", "बाइस", "तेइस", "चौबिस", "पच्चिस", "छब्बिस", "सत्तैस", "अठ्ठाइस", "उनन्तीस", "तीस",
-                    "इकत्तीस", "बत्तीस", "तेँतीस", "चौँतीस", "पैँतीस", "छछत्तीस", "सैँतीस", "अढतीस", "उनन्चालीस", "चालीस",
-                    "एकचालीस", "बयालीस", "त्रिचालीस", "चौरालीस", "पैँतालीस", "छयालीस", "सरतालीस", "अठतालीस", "उनन्चास", "पचास",
+                    "एक्काइस", "बाइस", "तेइस", "चौबिस", "पच्चिस", "छब्बिस", "सत्ताइस", "अठ्ठाइस", "उनन्तीस", "तीस",
+                    "एकत्तीस", "बत्तीस", "तेँतीस", "चौँतीस", "पैँतीस", "छत्तीस", "सैँतीस", "अठ्तीस", "उनन्चालीस", "चालीस",
+                    "एकचालीस", "बयालीस", "त्रिचालीस", "चौवालीस", "पैँतालीस", "छयालीस", "सरतालीस", "अठतालीस", "उनन्चास", "पचास",
                     "एकाउन", "बाउन", "त्रिपन्न", "चौपन्न", "पञ्चाउन", "छपन्न", "सन्ताउन", "अन्ठाउन", "उनन्साठी", "साठी",
                     "एकसट्ठी", "बायसट्ठी", "त्रिसट्ठी", "चौसट्ठी", "पैँसट्ठी", "छयसट्ठी", "सतसट्ठी", "अठसट्ठी", "उनन्तर", "सत्तारी",
                     "एकहत्तर", "बाहत्तर", "त्रिहत्तर", "चौहत्तर", "पचहत्तर", "छहत्तर", "सतहत्तर", "अठहत्तर", "उननासी", "असी",
