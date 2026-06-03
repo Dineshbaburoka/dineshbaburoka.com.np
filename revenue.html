@@ -6,7 +6,6 @@
   <title>गलकोट नगरपालिका - नक्सा पास दस्तुर रसिद</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
   
-  <!-- Supabase JS SDK Link -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
@@ -19,7 +18,7 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'kalimati', sans-serif; background: var(--bg-color); padding: 30px; color: #2f3542; }
+    body { font-family: 'Noto Sans Devanagari', sans-serif; background: var(--bg-color); padding: 30px; color: #2f3542; }
 
     /* Search Section Styling */
     .report-search-wrapper { 
@@ -221,23 +220,19 @@
 </head>
 <body>
 
-  <!-- Search Bar -->
   <div class="report-search-wrapper">
     <div class="system-title">🏛️ गलकोट नगरपालिका - भूमि व्यवस्थापन तथा भवन नियमन शाखा</div>
     <input type="text" id="reportSearchBox" class="report-search-box" placeholder="🔍 दर्ता न. / जग्गाधनीको नाम / नागरिकता नं. टाइप गर्नुहोस्..." oninput="searchReportDatabase()">
     <div class="search-hint">डाटाबेसमा विवरण म्याच हुनासाथ "नक्सा पास दस्तुर फारम" स्वतः भरिएर यहाँ देखा पर्नेछ।</div>
   </div>
 
-  <!-- Alert Area -->
   <div id="reportNotFoundAlert" class="no-report-alert">
     🔍 विवरण खोज्नका लागि माथिको कोठामा <b>दर्ता नं, नाम वा नागरिकता नम्बर</b> टाइप गर्नुहोस्। <br><br>
     <span style="font-size: 13px; color: #a4b0be;">(सुरक्षा र सहजताका लागि यहाँ कुनै पनि अनावश्यक विवरण वा फारम राखिएको छैन।)</span>
   </div>
 
-  <!-- नक्सा पास दस्तुर रसिद ढाँचा -->
   <div class="print-letter-container" id="officeOrderPrintArea">
     
-    <!-- परिमार्जित लेआउट: लोगो एकदम बायाँ र ठेगाना केन्द्रमा -->
     <div class="letter-header">
       <img src="Emblem_of_Nepal.svg.png" alt="नेपालको निशान छाप" class="gov-logo">
       <div class="header-text">
@@ -248,10 +243,8 @@
       </div>
     </div>
 
-    <!-- मुख्य शिर्षक केन्द्रमा -->
     <div class="document-title">नक्सा पास दस्तुर</div>
 
-    <!-- व्यक्तिगत विवरण -->
     <div class="info-section">
       <div class="info-row" style="width: 65%;">
         <span>नामः-</span>
@@ -263,7 +256,6 @@
       </div>
     </div>
 
-    <!-- दस्तुर हिसाब तालिका -->
     <table>
       <thead>
         <tr>
@@ -336,7 +328,6 @@
           <td id="lbl_total_tax" class="text-center" style="font-weight: bold;">-</td>
         </tr>
         
-        <!-- **म्यानुअल इन्ट्री सेक्सनहरू** -->
         <tr>
           <td class="text-center">९</td>
           <td>अन्य</td>
@@ -383,7 +374,6 @@
       </tbody>
     </table>
     
-    <!-- हस्ताक्षार र बुझिलिने सेक्सन -->
     <div class="footer-section">
       <div class="footer-box">
         <p>दस्तुर हिसाब गर्नेको सहीः- .....................</p>
@@ -398,7 +388,6 @@
       </div>
     </div>
 
-    <!-- Print Button -->
     <div class="print-btn-wrapper">
       <button class="btn-print" onclick="window.print()">🖨️ प्रिन्ट गर्नुहोस्</button>
     </div>
@@ -430,6 +419,18 @@
       }
     }
 
+    // १. अङ्ग्रेजी अङ्कहरूलाई नेपाली देवनागरी अङ्कमा बदल्ने सुदृढ फंक्शन
+    function convertToNepaliDigits(num) {
+      if (num === undefined || num === null || num === '-') return '-';
+      
+      const nepaliDigits = {
+        '0': '०', '1': '१', '2': '२', '3': '३', '4': '४',
+        '5': '५', '6': '६', '7': '७', '8': '८', '9': '९', '.': '.'
+      };
+      
+      return num.toString().split('').map(char => nepaliDigits[char] || char).join('');
+    }
+
     function searchReportDatabase() {
       const query = document.getElementById('reportSearchBox').value.toLowerCase().trim();
       const letterContainer = document.getElementById('officeOrderPrintArea');
@@ -449,12 +450,14 @@
 
       if (match) {
         document.getElementById('lbl_owner').innerText = match.owner || '..............................................................';
-        document.getElementById('lbl_ward').innerText = match.ward || '...........';
+        
+        // वडा नम्बरलाई नेपाली अङ्कमा कन्भर्ट गरिएको
+        document.getElementById('lbl_ward').innerText = match.ward ? convertToNepaliDigits(match.ward) : '...........';
         
         const rate = parseFloat(match.revinuerate) || 0;
         const rateFields = ['rate_f_base', 'rate_f_semi', 'rate_f_ground', 'rate_f_1st', 'rate_f_2nd', 'rate_f_3rd', 'rate_f_4th', 'rate_f_5th'];
         rateFields.forEach(id => {
-          document.getElementById(id).innerText = rate > 0 ? rate : '-';
+          document.getElementById(id).innerText = rate > 0 ? convertToNepaliDigits(rate) : '-';
         });
 
         const base_a = parseFloat(match.f_base_a) || 0;
@@ -466,14 +469,15 @@
         const fourth_a = parseFloat(match.f_4th_a) || 0;
         const fifth_a = parseFloat(match.f_5th_a) || 0;
 
-        document.getElementById('lbl_f_base_a').innerText = base_a || '-';
-        document.getElementById('lbl_f_semi_a').innerText = semi_a || '-';
-        document.getElementById('lbl_f_ground_a').innerText = ground_a || '-';
-        document.getElementById('lbl_f_1st_a').innerText = first_a || '-';
-        document.getElementById('lbl_f_2nd_a').innerText = second_a || '-';
-        document.getElementById('lbl_f_3rd_a').innerText = third_a || '-';
-        document.getElementById('lbl_f_4th_a').innerText = fourth_a || '-';
-        document.getElementById('lbl_f_5th_a').innerText = fifth_a || '-';
+        // क्षेत्रफललाई नेपाली अङ्कमा कन्भर्ट गरिएको
+        document.getElementById('lbl_f_base_a').innerText = base_a ? convertToNepaliDigits(base_a) : '-';
+        document.getElementById('lbl_f_semi_a').innerText = semi_a ? convertToNepaliDigits(semi_a) : '-';
+        document.getElementById('lbl_f_ground_a').innerText = ground_a ? convertToNepaliDigits(ground_a) : '-';
+        document.getElementById('lbl_f_1st_a').innerText = first_a ? convertToNepaliDigits(first_a) : '-';
+        document.getElementById('lbl_f_2nd_a').innerText = second_a ? convertToNepaliDigits(second_a) : '-';
+        document.getElementById('lbl_f_3rd_a').innerText = third_a ? convertToNepaliDigits(third_a) : '-';
+        document.getElementById('lbl_f_4th_a').innerText = fourth_a ? convertToNepaliDigits(fourth_a) : '-';
+        document.getElementById('lbl_f_5th_a').innerText = fifth_a ? convertToNepaliDigits(fifth_a) : '-';
 
         const amt_base = base_a * rate;
         const amt_semi = semi_a * rate;
@@ -484,17 +488,18 @@
         const amt_4th = fourth_a * rate;
         const amt_5th = fifth_a * rate;
 
-        document.getElementById('amt_f_base').innerText = amt_base ? amt_base.toFixed(2) : '-';
-        document.getElementById('amt_f_semi').innerText = amt_semi ? amt_semi.toFixed(2) : '-';
-        document.getElementById('amt_f_ground').innerText = amt_ground ? amt_ground.toFixed(2) : '-';
-        document.getElementById('amt_f_1st').innerText = amt_1st ? amt_1st.toFixed(2) : '-';
-        document.getElementById('amt_f_2nd').innerText = amt_2nd ? amt_2nd.toFixed(2) : '-';
-        document.getElementById('amt_f_3rd').innerText = amt_3rd ? amt_3rd.toFixed(2) : '-';
-        document.getElementById('amt_f_4th').innerText = amt_4th ? amt_4th.toFixed(2) : '-';
-        document.getElementById('amt_f_5th').innerText = amt_5th ? amt_5th.toFixed(2) : '-';
+        // मुल्यांकन रकमहरूलाई नेपाली अङ्कमा कन्भर्ट गरिएको
+        document.getElementById('amt_f_base').innerText = amt_base ? convertToNepaliDigits(amt_base.toFixed(2)) : '-';
+        document.getElementById('amt_f_semi').innerText = amt_semi ? convertToNepaliDigits(amt_semi.toFixed(2)) : '-';
+        document.getElementById('amt_f_ground').innerText = amt_ground ? convertToNepaliDigits(amt_ground.toFixed(2)) : '-';
+        document.getElementById('amt_f_1st').innerText = amt_1st ? convertToNepaliDigits(amt_1st.toFixed(2)) : '-';
+        document.getElementById('amt_f_2nd').innerText = amt_2nd ? convertToNepaliDigits(amt_2nd.toFixed(2)) : '-';
+        document.getElementById('amt_f_3rd').innerText = amt_3rd ? convertToNepaliDigits(amt_3rd.toFixed(2)) : '-';
+        document.getElementById('amt_f_4th').innerText = amt_4th ? convertToNepaliDigits(amt_4th.toFixed(2)) : '-';
+        document.getElementById('amt_f_5th').innerText = amt_5th ? convertToNepaliDigits(amt_5th.toFixed(2)) : '-';
 
         autoTotalTax = amt_base + amt_semi + amt_ground + amt_1st + amt_2nd + amt_3rd + amt_4th + amt_5th;
-        document.getElementById('lbl_total_tax').innerText = autoTotalTax > 0 ? autoTotalTax.toFixed(2) : '०.००';
+        document.getElementById('lbl_total_tax').innerText = autoTotalTax > 0 ? convertToNepaliDigits(autoTotalTax.toFixed(2)) : '०.००';
 
         calculateGrandTotal();
 
@@ -517,7 +522,8 @@
 
       const grandTotal = (autoTotalTax + otherAmt + fineAmt + serviceAmt + formFee) - discountAmt;
 
-      document.getElementById('lbl_grand_total').innerText = grandTotal.toFixed(2);
+      // अन्तिम जम्मा रकमलाई नेपाली अङ्कमा देखाउने
+      document.getElementById('lbl_grand_total').innerText = convertToNepaliDigits(grandTotal.toFixed(2));
 
       if(grandTotal > 0) {
         document.getElementById('lbl_words_total').innerText = numberToNepaliWords(Math.round(grandTotal)) + " मात्र ।";
