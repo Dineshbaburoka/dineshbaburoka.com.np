@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>गलकोट नगरपालिका - भवन निर्माण स्थायी इजाजत पत्र</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      --primary-color: #b71c1c;
+      --secondary-color: #0d47a1;
+      --success-color: #1b8d4b;
+      --bg-color: #f8fafc;
+      --card-bg: #ffffff;
+      --border-color: #cbd5e1;
+      --edit-bg: #fffde7;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body { 
+      font-family: 'Noto Sans Devanagari', sans-serif; 
+      background: var(--bg-color); 
+      padding: 40px 20px; 
+      color: #000000; 
+      line-height: 1.8; 
+    }
+
+    /* Search Area Styling */
+    .report-search-wrapper { 
+      max-width: 950px; 
+      margin: 0 auto 30px auto; 
+      background: var(--card-bg); 
+      padding: 35px; 
+      border-radius: 16px; 
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
+      border: 2px solid var(--secondary-color); 
+    }
+    .system-title {
+      text-align: center;
+      color: var(--secondary-color);
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+    .report-search-box { 
+      width: 100%; 
+      padding: 18px; 
+      border: 2px solid var(--border-color); 
+      border-radius: 10px; 
+      font-size: 16px; 
+      outline: none; 
+      font-weight: 600; 
+      text-align: center; 
+      color: #000000; 
+    }
+    .search-hint { 
+      font-size: 13.5px; 
+      color: #64748b; 
+      text-align: center; 
+      margin-top: 15px; 
+    }
+
+    /* Document Box Layout */
+    .print-letter-container {
+      max-width: 950px; 
+      margin: 0 auto 50px auto; 
+      background: var(--card-bg);
+      padding: 60px 70px; 
+      border-radius: 8px; 
+      position: relative; 
+      font-size: 19px;
+      color: #000000;
+      display: none; 
+    }
+
+    /* Header Section */
+    .header-main-section {
+      position: relative;
+      min-height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 5px;
+    }
+    .gov-logo-container {
+      position: absolute;
+      left: 10px;
+      top: 0;
+    }
+    .gov-logo-container img {
+      width: 120px;
+      height: auto;
+    }
+    .header-text-container {
+      text-align: center;
+      line-height: 1.4;
+    }
+    .header-text-container .muni-name {
+      font-size: 36px;
+      font-weight: 700;
+    }
+    .header-text-container .exec-office {
+      font-size: 26px;
+      font-weight: 700;
+    }
+    .header-text-container .address-line {
+      font-size: 22px;
+      font-weight: 600;
+    }
+
+    /* Meta Fields Rows */
+    .meta-row-first {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-top: 15px;
+      font-weight: 600;
+    }
+    .header-divider-line {
+      border-top: 2px solid #000000;
+      margin: 6px 0 10px 0;
+    }
+    .meta-row-second {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      font-weight: 600;
+      margin-bottom: 35px;
+    }
+
+    /* Title Styling */
+    .letter-document-title {
+      text-align: center;
+      margin-bottom: 35px;
+      line-height: 1.4;
+    }
+    .letter-document-title .main-title {
+      font-size: 32px;
+      font-weight: 700;
+    }
+    .letter-document-title .sub-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    /* Inner Body text styling */
+    .letter-body { 
+      text-align: justify; 
+      margin-bottom: 25px; 
+      text-indent: 60px;
+    }
+    
+    /* Dynamic Inline Inputs */
+    .dynamic-value { 
+      font-weight: 700; 
+      border-bottom: 1px dashed #000000; 
+      padding: 0 5px; 
+      display: inline-block;
+      min-width: 60px;
+      outline: none;
+      background-color: var(--edit-bg);
+      text-indent: 0px !important;
+      border-radius: 4px;
+    }
+    .dynamic-value:focus {
+      background-color: #fff59d;
+    }
+    
+    .dynamic-value.locked {
+      background-color: transparent !important;
+      border-bottom: none !important;
+      cursor: not-allowed;
+      padding: 0;
+    }
+
+    /* Nested Conditions List */
+    .conditions-list {
+      margin-left: 10px;
+      margin-bottom: 35px;
+      list-style-type: none;
+    }
+    .conditions-list li {
+      margin-bottom: 12px;
+      text-indent: 0px;
+      text-align: justify;
+    }
+    .sub-conditions {
+      margin-left: 45px;
+      margin-top: 8px;
+      list-style-type: none;
+    }
+    .sub-conditions li {
+      margin-bottom: 8px;
+    }
+
+    /* Signatures Section */
+    .signatures-container {
+      display: flex;
+      justify-content: space-between;
+      text-align: center;
+      margin-top: 80px;
+      margin-bottom: 45px;
+    }
+    .sig-box { width: 23%; font-weight: 600; font-size: 16px; line-height: 1.6; }
+    .sig-line { border-top: 1px dashed #000000; margin-bottom: 8px; width: 100%; }
+
+    .footer-warning {
+      text-align: justify;
+      margin-bottom: 35px;
+      font-weight: 500;
+    }
+
+    .bottom-meta-row {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 600;
+      margin-bottom: 50px;
+    }
+
+    .system-footer {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 700;
+      border-top: 2px solid #000000;
+      padding-top: 12px;
+    }
+
+    /* Action Button Container */
+    .print-btn-wrapper { 
+      text-align: center; 
+      margin-top: 45px; 
+      border-top: 1px dashed #e2e8f0;
+      padding-top: 30px;
+    }
+    .btn-print { 
+      background-color: var(--secondary-color); 
+      color: white; 
+      border: none; 
+      padding: 15px 40px; 
+      font-size: 17px; 
+      font-weight: 700; 
+      border-radius: 8px; 
+      cursor: pointer; 
+      box-shadow: 0 4px 12px rgba(13, 71, 161, 0.2);
+    }
+    .btn-print:hover { 
+      background-color: #0b3c85; 
+    }
+    
+    .no-report-alert { 
+      text-align: center; 
+      padding: 50px 40px; 
+      color: #64748b; 
+      font-size: 16px; 
+      background: white; 
+      max-width: 950px; 
+      margin: 0 auto; 
+      border-radius: 12px; 
+      border: 2px dashed #cbd5e1; 
+      font-weight: 600;
+    }
+
+    @media print {
+      body { background: #fff; padding: 0; color: #000; }
+      .report-search-wrapper, .print-btn-wrapper, .no-report-alert { display: none !important; }
+      .print-letter-container { 
+        display: block !important; box-shadow: none !important; border: none !important; 
+        padding: 0 !important; margin: 0 !important; width: 100% !important; 
+      }
+      .dynamic-value { 
+        border-bottom: none !important; 
+        background-color: transparent !important; 
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="report-search-wrapper">
+    <div class="system-title">🏛️ गलकोट नगरपालिका - भवन निर्माण स्थायी इजाजत पत्र प्रणाली</div>
+    <input type="text" id="reportSearchBox" class="report-search-box" placeholder="🔍 दर्ता न. / जग्गाधनीको नाम / नागरिकता नं. टाइप गर्नुहोस्..." oninput="searchReportDatabase()">
+    <div class="search-hint">स्थायी इजाजत पत्र (Superstructure) जारी गर्नका लागि विवरण यहाँबाट खोज्नुहोस्।</div>
+  </div>
+
+  <div id="reportNotFoundAlert" class="no-report-alert">
+    🔍 विवरण खोज्नका लागि माथिको सर्च बक्समा विवरण टाइप गर्नुहोस्।
+  </div>
+
+  <div class="print-letter-container" id="officeOrderPrintArea">
+    
+    <div class="header-main-section">
+      <div class="gov-logo-container">
+        <img src="Emblem_of_Nepal.svg.png" alt="Emblem of Nepal">
+      </div>
+      <div class="header-text-container">
+        <div class="muni-name">गलकोट नगरपालिका</div>
+        <div class="exec-office">नगर कार्यपालिकाको कार्यालय</div>
+        <div class="address-line">गलकोट, बागलुङ</div>
+      </div>
+    </div>
+
+    <div class="meta-row-first">
+      <div>पत्र संख्या :- <span id="lbl_patra_sankhya" class="dynamic-value" contenteditable="true">०८२/०८३</span></div>
+      <div>मिति :- <span id="lbl_date_top" class="dynamic-value" contenteditable="true">......../......../........</span></div>
+    </div>
+
+    <div class="header-divider-line"></div>
+
+    <div class="meta-row-second">
+      <div>च. न. :- <span id="lbl_chalani" class="dynamic-value" contenteditable="true">............</span></div>
+    </div>
+
+    <div class="letter-document-title">
+      <div class="main-title">भवन निर्माण स्थायी इजाजत पत्र</div>
+      <div class="sub-title">(प्लिन्थ लेभल भन्दा माथिको Superstructure का लागी)</div>
+    </div>
+
+    <div class="letter-body">
+      श्रीमान्/श्रीमती/सुश्री <strong><span id="lbl_owner" class="dynamic-value">..........................................</span></strong> ले गलकोट नगरपालिका वडा नं. (हालको) <strong><span id="lbl_ward" class="dynamic-value">...</span></strong> अन्तर्गत <strong><span id="lbl_tole" class="dynamic-value" contenteditable="true">टोल_मार्ग</span></strong> टोलमा रहेको कित्ता नं. <strong><span id="lbl_kitta" class="dynamic-value">........</span></strong> को क्षेत्रफल <strong><span id="lbl_area_body" class="dynamic-value">क्षेत्रफल</span></strong> जग्गामा नक्सा बमोजिम नक्सा पास सम्बन्धी प्रक्रिया पूरा भइरहेको हुँदा गलकोट नगरपालिकाबाट सम्पूर्ण नियम गर्ने सर्तहरूमा यसै साथ दिइएको स्वीकृत भएको नक्सा बमोजिम निर्माण कार्य गरिसकेपछि यसै साथ संङ्लग्न सर्त तथा मापदण्ड पूरा गरी <strong>"निर्माण सम्पन्न प्रमाण पत्र"</strong> अनिवार्य लिनुपर्नेछ ।
+    </div>
+
+    <ul class="conditions-list">
+      <li>१. नयाँ घर/तल्ला थप/बाँकी कोठा थप/ अन्य........................................................................</li>
+      <li>२. पुरानो भत्काइराखेको घरले चर्चेको क्षेत्रफल ............................ वर्ग फिट जम्मा क्षेत्रफल ............................ वर्ग फिट</li>
+      <li>३. बन्ने भवन/घर को क्षेत्रफल <strong><span id="lbl_f_ground_a" class="dynamic-value"></span></strong> वर्ग फिट जम्मा क्षेत्रफल <strong><span id="lbl_tot_area" class="dynamic-value">............</span></strong> वर्ग फिट</li>
+      <li>४. बन्ने घरको तल्ला <strong><span id="lbl_total_floors" class="dynamic-value"></span></strong> लम्बाई <strong><span id="lbl_tot_length" class="dynamic-value">घरको_लम्बाई</span></strong> चौडाई <strong><span id="lbl_tot_width" class="dynamic-value">घरको_चौडाई</span></strong> उचाई <strong><span id="lbl_tot_height" class="dynamic-value">घरको_उचाई</span></strong></li>
+      <li>५. बाटोको केन्द्र रेखाबाट नियमानुसार कम्तीमा
+        <ul class="sub-conditions">
+          <li>क. छाड्नुपर्ने दूरी : <strong><span id="lbl_roadcex" class="dynamic-value"></span>मिटर</strong></li>
+          <li>ख. छाडेको दूरी : <strong><span id="lbl_roadce" class="dynamic-value"></span>मिटर</strong></li>
+          <li>ग. छाड्नुपर्ने सेटब्याक : <strong><span id="lbl_setbac" class="dynamic-value"></span>मिटर</strong></li>
+          <li>घ. छाडेको सेटब्याक : <strong><span id="lbl_setbacX" class="dynamic-value"></span>मिटर</strong></li>
+        </ul>
+      </li>
+      <li>६. बन्ने घरको किसिम : जोडाई <strong><span id="lbl_jodai" class="dynamic-value" contenteditable="true">सिमेन्टको जोडाईमा इट्टा ढुङ्गा</span></strong> छाना <strong><span id="lbl_chhana" class="dynamic-value" contenteditable="true">आर.सि.सि ढलान</span></strong></li>
+      <li>७. भवनको प्रयोजन :- आवासीय/व्यवसायिक</li>
+      <li>८. घरको वरिपरि दुईवटा रुखको विरुवा रोप्नु पर्नेछ ।</li>
+      <li>९. अन्य निर्माणाधिन घरको वरिपरि निर्माण सामाग्रीहरू जथाभाबी नथुपार्नुहोला ।</li>
+    </ul>
+
+    <div class="signatures-container">
+      <div class="sig-box"><div class="sig-line"></div>पेश गर्ने<br>(फाँट वाला )</div>
+      <div class="sig-box"><div class="sig-line"></div>स्थलगत निरीक्षक<br>(सब- इन्जिनियर)</div>
+      <div class="sig-box"><div class="sig-line"></div>जाँच गर्ने<br>(इन्जिनियर)</div>
+      <div class="sig-box"><div class="sig-line"></div>प्रमाण पत्र दिने<br>(प्रमुख प्रशासकीय अधिकृत)</div>
+    </div>
+
+    <div class="footer-warning">
+      पास भएको नक्सा विपरीत कार्य गरेमा वा यसमा उल्लिखित शर्हरूको बर्खिलाप अन्य कुनै कार्य गरेमा प्रचलित कानुन बमोजिम कारबाही भएमा मान्य हुनेछ भनी सहिछाप गर्ने ।
+    </div>
+
+    <div class="bottom-meta-row">
+      <div>
+        बोधार्थ<br>
+        श्री वडा कार्यालय वडा नं. <strong><span id="lbl_ward_two" class="dynamic-value">...</span></strong>
+      </div>
+      <div style="text-align: center; width: 45%;">
+        ...........................................................................<br>
+        नक्सा दरखास्तवाला वा निजको वारेस<br>
+        <strong><span id="lbl_owner1" class="dynamic-value" contenteditable="true">«प्रतिनिधिको नाम »</span></strong>
+      </div>
+    </div>
+
+    <div class="system-footer">
+      <div>गलकोट नगरपालिका</div>
+      <div>भूमि व्यवस्थापन तथा भवन नियमन शाखा</div>
+    </div>
+
+    <div class="print-btn-wrapper">
+      <button id="btnPrintAction" class="btn-print" onclick="handlePermanentPrintAndSave()">🖨️ स्थायी इजाजत जारी गरी प्रिन्ट गर्नुस्</button>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = "https://lyjokogftwtvnhwszqni.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_gxEL2-GVTVy8E0WxMBZHDQ_b5TzsDI9"; 
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let mapDatabase = [];
+    let currentActiveRecord = null; 
+
+    document.addEventListener("DOMContentLoaded", () => fetchFromSupabase());
+
+    async function fetchFromSupabase() {
+      try {
+        const { data, error } = await _supabase.from('g_map_branch1').select('*');
+        if (error) throw error;
+        mapDatabase = data;
+      } catch (err) { console.error("Error fetching data:", err.message); }
+    }
+
+    function toNepaliNumber(num) {
+      if (num === undefined || num === null || num === '') return '...';
+      const englishDigits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+      const nepaliDigits = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
+      let str = num.toString();
+      for (let i = 0; i < 10; i++) {
+        const regex = new RegExp(englishDigits[i], 'g');
+        str = str.replace(regex, nepaliDigits[i]);
+      }
+      return str;
+    }
+
+    function getTodayNepaliDate() {
+      return "२०८३/०२/१९"; 
+    }
+
+    function searchReportDatabase() {
+      const query = document.getElementById('reportSearchBox').value.toLowerCase().trim();
+      const letterContainer = document.getElementById('officeOrderPrintArea');
+      const alertBox = document.getElementById('reportNotFoundAlert');
+
+      if (query === "") {
+        letterContainer.style.display = "none";
+        alertBox.style.display = "block";
+        currentActiveRecord = null;
+        return;
+      }
+
+      const match = mapDatabase.find(item => 
+        (item.registrano && item.registrano.toString().toLowerCase().includes(query)) ||
+        (item.owner && item.owner.toLowerCase().includes(query)) ||
+        (item.cit_no && item.cit_no.toString().toLowerCase().includes(query))
+      );
+
+      if (match) {
+        currentActiveRecord = match; 
+
+        // सबै संख्यात्मक डेटालाई toNepaliNumber फङ्सन भित्र राखिएको छ
+        document.getElementById('lbl_ward').innerText = toNepaliNumber(match.ward);
+        document.getElementById('lbl_ward_two').innerText = toNepaliNumber(match.ward);
+        document.getElementById('lbl_kitta').innerText = toNepaliNumber(match.kitta);
+        document.getElementById('lbl_tot_area').innerText = toNepaliNumber(match.tot_area);
+        document.getElementById('lbl_owner').innerText = match.owner || '...';
+        document.getElementById('lbl_owner1').innerText = match.owner || '...';
+        document.getElementById('lbl_f_ground_a').innerText = toNepaliNumber(match.f_ground_a);
+        document.getElementById('lbl_total_floors').innerText = toNepaliNumber(match.total_floors);
+        document.getElementById('lbl_tot_length').innerText = toNepaliNumber(match.tot_length);
+        document.getElementById('lbl_tot_width').innerText = toNepaliNumber(match.tot_width);
+        document.getElementById('lbl_tot_height').innerText = toNepaliNumber(match.tot_height);
+        document.getElementById('lbl_roadce').innerText = toNepaliNumber(match.roadce);
+        document.getElementById('lbl_roadcex').innerText = toNepaliNumber(match.roadcex);
+        document.getElementById('lbl_setbac').innerText = toNepaliNumber(match.setbac);
+        document.getElementById('lbl_setbacX').innerText = toNepaliNumber(match.setbacx);
+        document.getElementById('lbl_area_body').innerText = toNepaliNumber(match.area);
+        
+        const dateElement = document.getElementById('lbl_date_top');
+        const chalaniElement = document.getElementById('lbl_chalani');
+
+        const isPermanentIssued = match.per_certificate === "yes";
+
+        if (isPermanentIssued) {
+          dateElement.textContent = toNepaliNumber(match.per_issued_date) || getTodayNepaliDate();
+          dateElement.setAttribute("contenteditable", "false");
+          dateElement.classList.add("locked");
+
+          chalaniElement.textContent = toNepaliNumber(match.per_chalani_no) || '.......';
+          chalaniElement.setAttribute("contenteditable", "false");
+          chalaniElement.classList.add("locked");
+
+          document.getElementById('btnPrintAction').style.backgroundColor = "#1b8d4b";
+          document.getElementById('btnPrintAction').innerText = "🖨️ स्थायी इजाजत पत्र प्रिन्ट गर्नुस् (जारी भइसकेको)";
+        } else {
+          dateElement.textContent = getTodayNepaliDate(); 
+          dateElement.setAttribute("contenteditable", "true");
+          dateElement.classList.remove("locked");
+
+          chalaniElement.textContent = ".......";
+          chalaniElement.setAttribute("contenteditable", "true");
+          chalaniElement.classList.remove("locked");
+
+          document.getElementById('btnPrintAction').style.backgroundColor = "#0d47a1";
+          document.getElementById('btnPrintAction').innerText = "🖨️ स्थायी इजाजत जारी गरी प्रिन्ट गर्नुस्";
+        }
+
+        alertBox.style.display = "none";
+        letterContainer.style.display = "block";
+      } else {
+        letterContainer.style.display = "none";
+        alertBox.style.display = "block";
+        alertBox.innerText = "❌ विवरण फेला परेन। कृपया सही विवरण टाइप गर्नुहोला।";
+        currentActiveRecord = null;
+      }
+    }
+
+    async function handlePermanentPrintAndSave() {
+      if (!currentActiveRecord) return;
+
+      const dateElement = document.getElementById('lbl_date_top');
+      const chalaniElement = document.getElementById('lbl_chalani');
+      
+      const finalIssuedDate = dateElement.textContent.trim();
+      const finalChalaniNo = chalaniElement.textContent.trim();
+
+      const isAlreadySaved = currentActiveRecord.per_certificate === "yes";
+
+      if (!isAlreadySaved) {
+        try {
+          const targetId = isNaN(currentActiveRecord.id) ? currentActiveRecord.id : Number(currentActiveRecord.id);
+
+          const { error } = await _supabase
+            .from('g_map_branch1')
+            .update({ 
+              per_issued_date: finalIssuedDate,
+              per_chalani_no: finalChalaniNo,
+              per_certificate: "yes"
+            })
+            .eq('id', targetId);
+
+          if (error) throw error;
+
+          currentActiveRecord.per_issued_date = finalIssuedDate;
+          currentActiveRecord.per_chalani_no = finalChalaniNo;
+          currentActiveRecord.per_certificate = "yes";
+          
+          dateElement.setAttribute("contenteditable", "false");
+          dateElement.classList.add("locked");
+          chalaniElement.setAttribute("contenteditable", "false");
+          chalaniElement.classList.add("locked");
+          
+          document.getElementById('btnPrintAction').style.backgroundColor = "#1b8d4b";
+          document.getElementById('btnPrintAction').innerText = "🖨️ स्थायी इजाजत पत्र प्रिन्ट गर्नुस् (जारी भइसकेको)";
+          alert("भवन निर्माण स्थायी इजाजत पत्र सफलतापूर्वक डेटाबेसमा (per_certificate='yes') सुरक्षित र लक गरियो।");
+        } catch (err) {
+          alert("❌ डेटाबेस अपडेट हुन सकेन: " + err.message);
+          return; 
+        }
+      }
+      window.print();
+    }
+  </script>
+</body>
+</html>
