@@ -94,13 +94,12 @@
       text-indent: 40px;
     }
     
-    /* सम्पादन गर्न मिल्ने पहेँलो बक्सको स्टाइल */
+    /* सम्पादन गर्न मिल्ने पहेँलो बक्सको परिमार्जित स्टाइल (स्पेस हटाउनका लागि inline गरिएको र min-width हटाइएको) */
     .dynamic-value { 
       font-weight: bold; 
       border-bottom: 1px dashed #222; 
-      padding: 0 5px; 
-      display: inline-block;
-      min-width: 40px;
+      padding: 0 2px; 
+      display: inline;
       outline: none;
       background-color: #fffde7;
       text-indent: 0px !important;
@@ -244,7 +243,7 @@
     </table>
 
     <div class="letter-body">
-      यति चार किल्लाभित्र गलकोट नगरपालिका वडा नं. <span id="lbl_ward_three" class="dynamic-value" contenteditable="true">...</span> बागलुङ जिल्लाको साविक <span id="lbl_savik_gavis1" class="dynamic-value" contenteditable="true">...</span>गाविस वडा नं. <span id="lbl_savik_ward1" class="dynamic-value" contenteditable="true">...</span> कित्ता नं. <span id="lbl_kitta1" class="dynamic-value" contenteditable="true">...</span> क्षेत्रफल <span id="lbl_area1" class="dynamic-value" contenteditable="true">...</span> जग्गा मेरो नाउँमा भूमि प्रशासन/मालपोत कार्यालयमा दर्ता श्रेस्ता भएको जग्गामा पुरै/मध्येको जग्गामा नयाँ मोहडा <span id="lbl_tot_width1" class="dynamic-value" contenteditable="true">...</span> फिट गरी साइट प्लानमा देखाएको ठाउँमा तल्ला <span id="lbl_total_floors1" class="dynamic-value" contenteditable="true">...</span>, कोठा <span id="lbl_room1" class="dynamic-value" contenteditable="true">...</span> छाना आर.सी.सी. ढलान गरी सिमेन्टको जोडाईमा गाह्रो लगाई नेपाली ढाँचामा बनाउने गरी प्रेषित भवनको नक्कल पेस गरेको छु। चर्पी, निकास पानीको हकमा नक्सामा देखाएको ठाउँमा बनाउने छु। ढल निकासको लागि जग्गा छाडी निर्माण गर्नेछु। भनी बागलुङ जिल्ला गलकोट नगरपालिका, श्री <span id="lbl_applicant1" class="dynamic-value" contenteditable="true">...</span>को दरखास्त परेकाले गलकोट नगरपालिकाबाट स्थानीय सरकार सञ्चालन ऐन, २०७४ को प्रयोजनका लागि यो सूचना सँधियारको घर दैलोमा, घर बनाउने जग्गामा र <span id="lbl_ward_bottom" class="dynamic-value" contenteditable="true">...</span> नं. वडा कार्यालयमा टाँस गर्ने गरी प्रकाशन गरिएको छ ।
+      यति चार किल्लाभित्र गलकोट नगरपालिका वडा नं. <span id="lbl_ward_three" class="dynamic-value" contenteditable="true">...</span> बागलुङ जिल्लाको साविक <span id="lbl_savik_gavis1" class="dynamic-value" contenteditable="true">...</span>गाविस वडा नं. <span id="lbl_savik_ward1" class="dynamic-value" contenteditable="true">...</span> कित्ता नं. <span id="lbl_kitta1" class="dynamic-value" contenteditable="true">...</span> क्षेत्रफल <span id="lbl_area1" class="dynamic-value" contenteditable="true">...</span> जग्गा मेरो नाउँमा भूमि प्रशासन/मालपोत कार्यालयमा दर्ता श्रेस्ता भएको जग्गामा पुरै/मध्येको जग्गामा नयाँ मोहडा <span id="lbl_tot_width1" class="dynamic-value" contenteditable="true">...</span> गरी साइट प्लानमा देखाएको ठाउँमा तल्ला <span id="lbl_total_floors1" class="dynamic-value" contenteditable="true">...</span>, कोठा <span id="lbl_room1" class="dynamic-value" contenteditable="true">...</span> छाना आर.सी.सी. ढलान गरी सिमेन्टको जोडाईमा गाह्रो लगाई नेपाली ढाँचामा बनाउने गरी प्रेषित भवनको नक्कल पेस गरेको छु। चर्पी, निकास पानीको हकमा नक्सामा देखाएको ठाउँमा बनाउने छु। ढल निकासको लागि जग्गा छाडी निर्माण गर्नेछु। भनी बागलुङ जिल्ला गलकोट नगरपालिका, श्री <span id="lbl_applicant1" class="dynamic-value" contenteditable="true">...</span>को दरखास्त परेकाले गलकोट नगरपालिकाबाट स्थानीय सरकार सञ्चालन ऐन, २०७४ को प्रयोजनका लागि यो सूचना सँधियारको घर दैलोमा, घर बनाउने जग्गामा र <span id="lbl_ward_bottom" class="dynamic-value" contenteditable="true">...</span> नं. वडा कार्यालयमा टाँस गर्ने गरी प्रकाशन गरिएको छ ।
     </div>
 
     <div class="footer-section">
@@ -277,14 +276,14 @@
       } catch (err) { console.error("Error:", err.message); }
     }
 
-    // अंग्रेजी अंक वा संख्यात्मक विवरणलाई नेपाली युनिकोड अंकमा बदल्ने फङ्सन
+    // अंग्रेजी अंक वा संख्यात्मक विवरणलाई नेपाली युनिकोड अंकमा बदल्ने र स्पेस हटाउने फङ्सन
     function toNepaliNumber(num) {
       if (num === undefined || num === null || num === '') return '...';
       
       const englishDigits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
       const nepaliDigits = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
       
-      let str = num.toString();
+      let str = num.toString().trim(); // .trim() थपेर दायाँ-बायाँको स्पेस हटाइएको
       
       for (let i = 0; i < 10; i++) {
         const regex = new RegExp(englishDigits[i], 'g');
@@ -340,19 +339,19 @@
         document.getElementById('lbl_tot_height').innerText = toNepaliNumber(match.tot_height);
         document.getElementById('lbl_tot_width1').innerText = toNepaliNumber(match.tot_width);
 
-        // शाब्दिक टेक्स्टहरू जस्ताको त्यस्तै राख्ने
-        document.getElementById('lbl_tole').innerText = match.tole || '...';
-        document.getElementById('lbl_savik_gavis').innerText = match.savik_gavis || '...';
-        document.getElementById('lbl_savik_gavis1').innerText = match.savik_gavis || '...';
-        document.getElementById('lbl_owner').innerText = match.owner || '...';
-        document.getElementById('lbl_applicant').innerText = match.owner || '...';
-        document.getElementById('lbl_applicant1').innerText = match.owner || '...';
+        // शाब्दिक टेक्स्टहरूको दायाँ-बायाँको स्पेस हटाउन .trim() प्रयोग गरिएको
+        document.getElementById('lbl_tole').innerText = match.tole ? match.tole.toString().trim() : '...';
+        document.getElementById('lbl_savik_gavis').innerText = match.savik_gavis ? match.savik_gavis.toString().trim() : '...';
+        document.getElementById('lbl_savik_gavis1').innerText = match.savik_gavis ? match.savik_gavis.toString().trim() : '...';
+        document.getElementById('lbl_owner').innerText = match.owner ? match.owner.toString().trim() : '...';
+        document.getElementById('lbl_applicant').innerText = match.owner ? match.owner.toString().trim() : '...';
+        document.getElementById('lbl_applicant1').innerText = match.owner ? match.owner.toString().trim() : '...';
 
-        // चारकिल्ला विवरणहरू
-        document.getElementById('lbl_east').innerText = match.east || '......................';
-        document.getElementById('lbl_west').innerText = match.west || '......................';
-        document.getElementById('lbl_north').innerText = match.north || '......................';
-        document.getElementById('lbl_south').innerText = match.south || '......................';
+        // चारकिल्ला विवरणहरू (यसमा पनि .trim() थपिएको)
+        document.getElementById('lbl_east').innerText = match.east ? match.east.toString().trim() : '......................';
+        document.getElementById('lbl_west').innerText = match.west ? match.west.toString().trim() : '......................';
+        document.getElementById('lbl_north').innerText = match.north ? match.north.toString().trim() : '......................';
+        document.getElementById('lbl_south').innerText = match.south ? match.south.toString().trim() : '......................';
 
         alertBox.style.display = "none";
         letterContainer.style.display = "block";
