@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🏛️ गलकोट नगरपालिका - भूमि व्यवस्थापन तथा भवन डाटा प्रविष्टि प्रणाली</title>
+  <title>गलकोट नगरपालिका - भूमि व्यवस्थापन (कन्सलटेन्सी मास्टर पोर्टल)</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
   
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -24,19 +24,29 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Noto Sans Devanagari', sans-serif; background: var(--bg-color); padding: 25px; color: #2f3542; }
 
+    /* Returned Files Notification Alert Banner */
+    .notification-alert {
+      max-width: 1200px; margin: 0 auto 20px auto; background: #fff0f1;
+      border-left: 6px solid var(--danger-color); padding: 15px; border-radius: 6px;
+      font-weight: bold; font-size: 16px; color: #b31212; display: none;
+      align-items: center; justify-content: space-between; gap: 10px;
+      border: 1px solid #ffa8a8;
+    }
+
     /* Master Containers Layout */
     .master-form-container, .database-container {
       max-width: 1200px; margin: 0 auto 30px auto; background: var(--card-bg);
       padding: 35px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);
       border-top: 6px solid var(--primary-color);
     }
-    .database-container { border-top: 6px solid var(--success-color); }
+    .database-container { border-top: 6px solid var(--danger-color); }
     
     .form-header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 3px double var(--border-color); padding-bottom: 15px; flex-wrap: wrap; gap: 15px; }
     .form-title { color: var(--primary-color); font-size: 24px; font-weight: bold; }
     .section-subtitle { font-size: 16px; font-weight: bold; color: var(--secondary-color); margin: 25px 0 15px 0; border-bottom: 2px solid var(--border-color); padding-bottom: 5px; grid-column: 1 / -1; }
     
     .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; background: #fff5f5; padding: 15px; border-radius: 8px; border: 1px dashed var(--danger-color); margin-bottom: 20px; }
     .grid-5 { display: grid; grid-template-columns: 2fr repeat(4, 1fr); gap: 10px; align-items: center; margin-bottom: 10px; }
     
     .field { display: flex; flex-direction: column; }
@@ -50,21 +60,18 @@
     .floor-area-input { background-color: #fff9db; font-weight: bold; color: #2f3542; border: 2px solid #fab005; }
 
     /* Search Box Input */
-    .search-box { width: 100%; padding: 12px; margin-bottom: 20px; border: 2px solid var(--success-color); border-radius: 6px; font-size: 15px; outline: none; font-weight: bold; }
+    .search-box { width: 100%; padding: 12px; margin-bottom: 20px; border: 2px solid var(--danger-color); border-radius: 6px; font-size: 15px; outline: none; font-weight: bold; }
 
     /* Buttons */
     .action-buttons { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-top: 30px; }
     .btn { color: white; border: none; padding: 14px 20px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer; transition: 0.3s; display: flex; justify-content: center; align-items: center; gap: 10px; text-align: center; text-decoration: none; }
     .btn-save { background: var(--primary-color); }
     .btn-save:hover { background: var(--secondary-color); }
-    .btn-update { background: var(--success-color); display: none; }
-    .btn-update:hover { background: #26af5f; }
-    .btn-send { background: #6c5ce7; display: none; }
-    .btn-send:hover { background: #5b4cc4; }
+    .btn-resubmit { background: var(--success-color); display: none; }
+    .btn-resubmit:hover { background: #26af5f; }
     .btn-clear { background: var(--danger-color); }
     .btn-clear:hover { background: #e03d4b; }
-    .btn-report { background: #4a5568; }
-    .btn-report:hover { background: #2d3748; }
+    .btn-scroll { background: var(--warning-color); padding: 8px 15px; font-size: 14px; }
 
     /* Table Styling */
     .db-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
@@ -75,24 +82,36 @@
     .action-btn { padding: 8px 14px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; margin-right: 5px; color: white; transition: 0.2s; }
     .btn-edit { background-color: var(--warning-color); }
     .btn-edit:hover { background-color: #ff7f50; }
-    .btn-delete { background-color: var(--accent-color); }
-    .btn-delete:hover { background-color: #b31212; }
     .text-center { text-align: center !important; }
+
+    .remarks-box { color: var(--accent-color); font-weight: bold; font-size: 13px; background-color: #fff5f5; }
   </style>
 </head>
 <body>
 
+  <div id="returnedNotification" class="notification-alert">
+    <div>⚠️ ध्यानाकर्षण: नगरपालिकाबाट विवरण नपुगेर <b><span id="returnedCount">0</span> वटा फाइलहरू फिर्ता</b> आएका छन्! कृपया आवश्यक परिमार्जन गरी पुनः पठाउनुहोस्।</div>
+    <button class="btn btn-scroll" onclick="scrollToReturnedSection()">👇 सूची हेर्नुहोस्</button>
+  </div>
+
   <div class="master-form-container">
     <div class="form-header-container">
-      <div class="form-title">🏛️ गलकोट नगरपालिका - भूमि व्यवस्थापन तथा भवन डाटा प्रविष्टि प्रणाली</div>
+      <div class="form-title" id="formMainTitle">🏛️ गलकोट नगरपालिका - भूमि व्यवस्थापन (कन्सलटेन्सी डेटा प्रविष्टि तथा संशोधन पोर्टल)</div>
     </div>
     
     <form id="masterDataForm">
       <input type="hidden" id="record_id" value="">
       
+      <div id="returnedRemarksSection" class="section-subtitle" style="color: var(--accent-color); display: none;">❌ नगरपालिकाबाट फाइल फिर्ता हुनुको मुख्य कारण (Rejection Remarks)</div>
+      <div id="remarksWrapper" class="grid-4" style="display: none;">
+        <div class="field" style="grid-column: 1 / -1;">
+          <label style="color: var(--accent-color); font-weight: bold;">नगरपालिकाको टिप्पणी (Remarks From Municipality):</label>
+          <input type="text" id="remarks" style="background-color: #fff0f1; border: 2px solid var(--danger-color); color: red; font-weight: bold;" readonly>
+        </div>
+      </div>
+
       <div class="section-subtitle">जग्गा र जग्गाधनीको विवरण (Land And Landownership Details)</div>
       <div class="grid-3">
-        <!-- दर्ता नं, दर्ता मिति, प्राविधिक र प्रतिवेदन मिति सबै हटाइएको छ -->
         <div class="field"><label class="required">जग्गाधनीको नाम/थर</label><input type="text" id="owner" placeholder="उदा: खिम बहादुर थापा" required></div>
         <div class="field"><label class="required">नागरिकता नं</label><input type="text" id="cit_no" placeholder="उदा: ४५३०-२९८" required></div>
         <div class="field"><label class="required">जारी मिति</label><input type="text" id="cit_date" placeholder="उदा: २०६६-१०-१३" required></div>
@@ -154,7 +173,7 @@
 
       <div class="section-subtitle">मापदण्ड तथा प्राविधिक विवरण (Standards & Technical Details)</div>
       <div class="grid-3">
-         <div class="field"><label class="required">बाटो चौँडाई</label><input type="text" id="road_width" placeholder="उदा: १० मिटर" required></div>
+        <div class="field"><label class="required">बाटो चौँडाई</label><input type="text" id="road_width" placeholder="उदा: १० मिटर" required></div>
         <div class="field"><label class="required">बाटो केन्द्रबाट छाड्नु पर्ने दुरी</label><input type="text" id="roadce" placeholder="उदा: १५ मिटर" required></div>
         <div class="field"><label class="required">बाटो केन्द्रबाट छाडेको दुरी</label><input type="text" id="roadcex" placeholder="उदा: १५ मिटर" required></div>
         <div class="field"><label class="required">छाड्नु पर्ने सेटब्याक</label><input type="text" id="setbac" placeholder="उदा: १.५ मिटर" required></div>
@@ -235,18 +254,17 @@
       </div>
 
       <div class="action-buttons">
-        <button type="submit" id="submitBtn" class="btn btn-save">💾 नयाँ रेकर्ड सेभ गर्नुस्</button>
-        <button type="button" id="updateBtn" class="btn btn-update" onclick="submitFormDirectly()">🔄 रेकर्ड अपडेट (Update) गर्नुस्</button>
-        <button type="button" id="sendBtn" class="btn btn-send" onclick="sendToMunicipality()">🏢 नगरपालिका पठाउनुहोस्</button>
+        <button type="submit" id="submitBtn" class="btn btn-save">🚀 नयाँ आवेदन नगरपालिका पठाउनुहोस्</button>
+        <button type="button" id="resubmitBtn" class="btn btn-resubmit" onclick="resubmitReturnedFile()">🔄 सच्याएर पुनः नगरपालिका पठाउनुहोस्</button>
         <button type="button" class="btn btn-clear" onclick="clearForm()">🧹 फारम खाली गर्नुस्</button>
       </div>
     </form>
   </div>
 
-  <div class="database-container">
-    <div class="form-title">🗄️ जग्गाधनी तथा भवन रेकर्ड डाटाबेस (Supabase Cloud)</div>
+  <div class="database-container" id="returnedSectionCard">
+    <div class="form-title" style="color: var(--danger-color);">📋 नगरपालिकाबाट संशोधन/सुधारका लागि फिर्ता (Returned) गरिएका फाइलहरू</div>
     
-    <input type="text" id="searchBar" class="search-box" placeholder="🔍 जग्गाधनीको नाम वा नागरिकता नम्बर टाइप गरेर खोज्नुहोस्..." oninput="filterDatabase()">
+    <input type="text" id="searchBar" class="search-box" placeholder="🔍 फिर्ता सूचीमा जग्गाधनीको नाम वा नागरिकता नम्बर टाइप गरेर खोज्नुहोस्..." oninput="filterDatabase()">
 
     <div style="overflow-x: auto;">
       <table class="db-table">
@@ -254,14 +272,14 @@
           <tr>
             <th>नागरिकता नं.</th>
             <th>जग्गाधनीको नाम</th>
-            <th>वडा</th>
             <th>कित्ता नं.</th>
             <th>कुल क्षेत्रफल (sq.ft)</th>
-            <th style="width:220px;">कार्यहरू (Actions)</th>
+            <th>फिर्ताको कारण (Remarks)</th>
+            <th style="width:140px;">कार्य (Action)</th>
           </tr>
         </thead>
         <tbody id="databaseTableBody">
-          <tr><td colspan="6" class="text-center">डाटा लोड हुँदैछ...</td></tr>
+          <tr><td colspan="6" class="text-center">डेटा लोड हुँदैछ...</td></tr>
         </tbody>
       </table>
     </div>
@@ -272,12 +290,12 @@
     const SUPABASE_ANON_KEY = "sb_publishable_gxEL2-GVTVy8E0WxMBZHDQ_b5TzsDI9"; 
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    let mapDatabase = [];
+    let returnedDatabase = [];
     const floorsList = ['base', 'semi', 'ground', '1st', '2nd', '3rd', '4th', '5th'];
 
     document.addEventListener("DOMContentLoaded", () => {
       setupLiveCalculations();
-      fetchFromSupabase();
+      fetchReturnedFromSupabase();
     });
 
     function setupLiveCalculations() {
@@ -313,20 +331,35 @@
       document.getElementById('tot_area').value = total > 0 ? total.toFixed(2) : "";
     }
 
-    // Supabase: READ (दर्ताका लागि नपठाइएका 'Pending' रेकर्डहरू मात्र देखाउने)
-    async function fetchFromSupabase() {
+    // केवल 'Returned' स्टाटस भएका फाइलहरू मात्र डेटाबेसबाट तान्ने र अलर्ट काउन्टर अपडेट गर्ने
+    async function fetchReturnedFromSupabase() {
       try {
         const { data, error } = await _supabase
           .from('g_map_branch1')
           .select('*')
-          .or('status.eq.Pending,status.is.null')
+          .eq('status', 'Returned')
           .order('created_at', { ascending: false });
 
         if (error) throw error;
-        mapDatabase = data;
-        renderDatabaseTable(mapDatabase);
+        returnedDatabase = data;
+        
+        updateNotificationBanner();
+        renderDatabaseTable(returnedDatabase);
       } catch (err) {
         console.error("Error fetching data:", err.message);
+      }
+    }
+
+    function updateNotificationBanner() {
+      const count = returnedDatabase.length;
+      const alertBanner = document.getElementById('returnedNotification');
+      const countSpan = document.getElementById('returnedCount');
+      
+      if (count > 0) {
+        countSpan.innerText = count;
+        alertBanner.style.display = 'flex';
+      } else {
+        alertBanner.style.display = 'none';
       }
     }
 
@@ -335,7 +368,7 @@
       tbody.innerHTML = '';
 
       if (dataArray.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="text-center" style="color:#999;">कुनै डाटा फेला परेन।</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center" style="color:#2ed573; font-weight:bold;">🎉 नगरपालिकाबाट सुधारका लागि फिर्ता आएका कुनै फाइलहरू बाँकी छैनन्।</td></tr>`;
         return;
       }
 
@@ -344,12 +377,11 @@
         row.innerHTML = `
           <td><b>${item.cit_no}</b></td>
           <td>${item.owner}</td>
-          <td>${item.ward}</td>
           <td>${item.kitta}</td>
           <td><b style="color:red;">${item.tot_area || '0.00'}</b></td>
+          <td class="remarks-box">⚠️ ${item.remarks || 'कारण खुलाइएको छैन'}</td>
           <td>
-            <button class="action-btn btn-edit" onclick="loadRecord(${item.id})">✏️ Edit</button>
-            <button class="action-btn btn-delete" onclick="deleteRecord(${item.id}, '${item.owner}')">❌ Delete</button>
+            <button class="action-btn btn-edit" onclick="loadRecordForModify(${item.id})">✏️ Edit / सच्याउने</button>
           </td>
         `;
         tbody.appendChild(row);
@@ -358,7 +390,7 @@
 
     function filterDatabase() {
       const query = document.getElementById('searchBar').value.toLowerCase().trim();
-      const filteredData = mapDatabase.filter(item => {
+      const filteredData = returnedDatabase.filter(item => {
         return (item.owner && item.owner.toLowerCase().includes(query)) || 
                (item.cit_no && item.cit_no.toLowerCase().includes(query));
       });
@@ -418,18 +450,18 @@
       return record;
     }
 
-    // Supabase: INSERT / SAVE
+    // नयाँ रेकर्ड पहिलो पटक भर्दा (New Entry Direct To Municipality Pending Status)
     document.getElementById('masterDataForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       
       const recordId = document.getElementById('record_id').value;
       if(recordId) {
-        submitFormDirectly();
+        resubmitReturnedFile();
         return;
       }
 
       const dataToSave = getFormDataObject();
-      dataToSave.status = 'Pending'; 
+      dataToSave.status = 'Pending'; // नयाँ रेकर्ड सिधै दर्ता शाखामा पेन्डिङ बनेर जान्छ
 
       try {
         const { error } = await _supabase
@@ -438,17 +470,17 @@
 
         if (error) throw error;
         
-        alert("💾 नयाँ डाटा क्लाउड डाटाबेसमा सफलतापूर्वक सुरक्षित गरियो!");
+        alert("🚀 नयाँ आवेदन सफलतापूर्वक दर्ता प्रक्रियाका लागि नगरपालिका पठाइयो!");
         clearForm();
-        fetchFromSupabase();
+        fetchReturnedFromSupabase();
       } catch (err) {
-        alert("डाटा सेभ गर्दा समस्या आयो: " + err.message);
+        alert("डाटा पठाउँदा प्राविधिक समस्या आयो: " + err.message);
       }
     });
 
-    // Supabase: LOAD RECORD INTO FORM FOR EDIT
-    function loadRecord(id) {
-      const record = mapDatabase.find(r => r.id === id);
+    // फिर्ता सूचीबाट सम्पादन (Edit) का लागि विवरण फारममा लोड गर्ने
+    function loadRecordForModify(id) {
+      const record = returnedDatabase.find(r => r.id === id);
       if (!record) return;
 
       document.getElementById('record_id').value = record.id;
@@ -467,79 +499,40 @@
         if (document.getElementById(`f_${f}_a`)) document.getElementById(`f_${f}_a`).value = record[`f_${f}_a`] !== null ? record[`f_${f}_a`] : "";
       });
 
+      // कैफियत सेक्सन प्रदर्शन गर्ने
+      document.getElementById('returnedRemarksSection').style.display = 'block';
+      document.getElementById('remarksWrapper').style.display = 'block';
+      
+      // बटन विस्थापन
       document.getElementById('submitBtn').style.display = 'none';
-      document.getElementById('updateBtn').style.display = 'flex';
-      document.getElementById('sendBtn').style.display = 'flex'; 
+      document.getElementById('resubmitBtn').style.display = 'flex';
+      document.getElementById('formMainTitle').innerText = "✏️ फाइल परिमार्जन मोड (Modification Mode)";
 
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // Supabase: UPDATE
-    async function submitFormDirectly() {
+    // फिर्ता फाइललाई थप परिमार्जन गरि पुनः नगरपालिका पठाउने (Resubmit back to Pending)
+    async function resubmitReturnedFile() {
       const recordId = document.getElementById('record_id').value;
       if (!recordId) return;
 
-      const dataToUpdate = getFormDataObject();
+      const updatedData = getFormDataObject();
+      updatedData.status = 'Pending'; // स्थिति पुनः 'Pending' बनाएर पठाउने ताकि नगरपालिकामा नयाँ जस्तै देखियोस्
+      updatedData.remarks = '';      // पुरानो कैफियत सफा गर्ने
 
       try {
         const { error } = await _supabase
           .from('g_map_branch1')
-          .update(dataToUpdate)
+          .update(updatedData)
           .eq('id', recordId);
 
         if (error) throw error;
         
-        alert("✔️ रेकर्ड सफलतापूर्वक परिमार्जन (Update) गरियो!");
+        alert("🔄 फाइल सफलतापूर्वक थप परिमार्जन (Modify) गरी पुनः नगरपालिका पठाइयो!");
         clearForm();
-        fetchFromSupabase();
+        fetchReturnedFromSupabase();
       } catch (err) {
-        alert("डाटा अपडेट गर्दा समस्या आयो: " + err.message);
-      }
-    }
-
-    // परिमार्जित फङ्सन: कुनै जानकारी नमागी सोझै स्थिति (Status) बदलेर नगरपालिका पठाउने
-    async function sendToMunicipality() {
-      const recordId = document.getElementById('record_id').value;
-      if (!recordId) {
-        alert("कृपया पहिले तालिकाबाट कुन डाटा पठाउने हो Edit बटन थिचेर छान्नुहोस्।");
-        return;
-      }
-
-      if (confirm("के तपाईं यो रेकर्ड दर्ताको लागि नगरपालिका पठाउन निश्चित हुनुहुन्छ?\nपठाइसकेपछि यो यहाँबाट स्थायी रूपमा हट्नेछ र परिमार्जन गर्न मिल्ने छैन।")) {
-        try {
-          const { error } = await _supabase
-            .from('g_map_branch1')
-            .update({ status: 'Submitted' }) // सिधै status मात्र परिवर्तन गर्ने
-            .eq('id', recordId);
-
-          if (error) throw error;
-
-          alert("🚀 डाटा नगरपालिकामा सफलतापूर्वक पठाइयो र यहाँबाट हटाइयो!");
-          clearForm();
-          fetchFromSupabase(); 
-        } catch (err) {
-          alert("नगरपालिका पठाउँदा समस्या आयो: " + err.message);
-        }
-      }
-    }
-
-    // Supabase: DELETE
-    async function deleteRecord(id, ownerName) {
-      if (confirm(`के तपाईं जग्गाधनी [${ownerName}] को रेकर्ड स्थायी रूपमा हटाउन (Delete) चाहनुहुन्छ?`)) {
-        try {
-          const { error } = await _supabase
-            .from('g_map_branch1')
-            .delete()
-            .eq('id', id);
-
-          if (error) throw error;
-          
-          alert("रेकर्ड सफलतापूर्वक हटाइयो।");
-          fetchFromSupabase();
-          clearForm();
-        } catch (err) {
-          alert("हटाउन सकिएन: " + err.message);
-        }
+        alert("डाटा पुनः पठाउँदा समस्या आयो: " + err.message);
       }
     }
 
@@ -548,9 +541,16 @@
       document.getElementById('record_id').value = "";
       document.getElementById('tot_area').value = "";
       
+      document.getElementById('returnedRemarksSection').style.display = 'none';
+      document.getElementById('remarksWrapper').style.display = 'none';
+      
       document.getElementById('submitBtn').style.display = 'flex';
-      document.getElementById('updateBtn').style.display = 'none';
-      document.getElementById('sendBtn').style.display = 'none'; 
+      document.getElementById('resubmitBtn').style.display = 'none'; 
+      document.getElementById('formMainTitle').innerText = "🏛️ गलकोट नगरपालिका - भूमि व्यवस्थापन (कन्सलटेन्सी मास्टर पोर्टल)";
+    }
+
+    function scrollToReturnedSection() {
+      document.getElementById('returnedSectionCard').scrollIntoView({ behavior: 'smooth' });
     }
   </script>
 
