@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>प्रयोगकर्ता व्यवस्थापन - गलकोट नगरपालिका</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      --primary-color: #0c2461;
+      --secondary-color: #1e3799;
+      --success-color: #2ed573;
+      --warning-color: #ffa502;
+      --danger-color: #ff4757;
+      --bg-color: #f1f2f6;
+      --card-bg: #ffffff;
+      --border-color: #ced6e0;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Noto Sans Devanagari', sans-serif; }
+    body { background: var(--bg-color); padding: 30px; }
+
+    .container { max-width: 1100px; margin: 0 auto; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 3px solid var(--primary-color); padding-bottom: 15px; }
+    .header h1 { color: var(--primary-color); font-size: 26px; }
+
+    .main-grid { display: grid; grid-template-columns: 1fr 2.2fr; gap: 30px; }
+    @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
+
+    .card { background: var(--card-bg); padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+    .card-title { color: var(--secondary-color); font-size: 18px; font-weight: bold; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; }
+
+    .field { display: flex; flex-direction: column; margin-bottom: 15px; }
+    .field label { font-weight: 600; margin-bottom: 5px; font-size: 14px; color: #57606f; }
+    .field input, .field select, .table-select { padding: 10px; border: 2px solid var(--border-color); border-radius: 6px; font-size: 14px; outline: none; background: white; }
+    .field input:focus, .field select:focus, .table-select:focus { border-color: var(--secondary-color); }
+
+    .table-select { padding: 5px; font-size: 13px; border-width: 1px; border-radius: 4px; cursor: pointer; font-weight: 600; color: #2f3542; }
+
+    .btn { color: white; border: none; padding: 14px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer; width: 100%; transition: 0.2s; }
+    .btn-create { background: var(--success-color); }
+    .btn-create:hover { background: #26af5f; }
+    
+    .btn-action { padding: 6px 12px; font-size: 13px; width: auto; border-radius: 4px; display: inline-block; background: var(--secondary-color); color: white; border: none; cursor: pointer; }
+    .btn-action:hover { background: var(--primary-color); }
+
+    .table-wrapper { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; text-align: left; background: white; font-size: 14px; }
+    th, td { padding: 12px 15px; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
+    th { background: var(--primary-color); color: white; font-weight: 600; }
+    tr:hover { background-color: #f8f9fa; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <h1>🏛️ प्रयोगकर्ता व्यवस्थापन प्यानल (Admin Dashboard)</h1>
+      <p style="color: #57606f;">गलकोट नगरपालिका</p>
+    </div>
+
+    <div class="main-grid">
+      <div class="card">
+        <div class="card-title">➕ नयाँ आईडी सिर्जना</div>
+        <form id="createUserForm">
+          <div class="field">
+            <label>पूरा नाम (Full Name)</label>
+            <input type="text" id="regName" placeholder="कर्मचारीको पूरा नाम" required>
+          </div>
+          <div class="field">
+            <label>इमेल ठेगाना (Email)</label>
+            <input type="email" id="regEmail" placeholder="username@galkotmun.gov.np" required>
+          </div>
+          <div class="field">
+            <label>पासवर्ड (Password)</label>
+            <input type="password" id="regPassword" placeholder="******" minlength="6" required>
+          </div>
+          <div class="field">
+            <label>भूमिका (System Role)</label>
+            <select id="regRole" required>
+              <option value="staff">Staff (कर्मचारी)</option>
+              <option value="admin">Admin (प्रशासक)</option>
+              <option value="consultancy">Consultancy (कन्सल्टेन्सी)</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-create">👤 अकाउन्ट तयार गर्नुस्</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <div class="card-title">👥 दर्ता भएका प्रयोगकर्ताहरूको सूची</div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>नाम</th>
+                <th>इमेल</th>
+                <th>भूमिका फेर्नुस् (Role Select)</th>
+                <th>पासवर्ड (Action)</th>
+              </tr>
+            </thead>
+            <tbody id="usersTableBody">
+              <tr>
+                <td colspan="5" style="text-align:center; color:#999;">डेटा लोड हुँदैछ...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = "https://lyjokogftwtvnhwszqni.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_gxEL2-GVTVy8E0WxMBZHDQ_b5TzsDI9"; 
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // १. युजरहरूको सूची तालिकामा ड्रपडाउन सहित देखाउने
+    async function fetchUsers() {
+      const { data: users, error } = await _supabase
+        .from('system_users')
+        .select('id, fullname, email, role')
+        .order('id', { ascending: true });
+
+      if (error) {
+        console.error("विवरण तान्न समस्या भयो:", error.message);
+        return;
+      }
+
+      const tbody = document.getElementById('usersTableBody');
+      tbody.innerHTML = ""; 
+
+      if(users.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">कुनै पनि प्रयोगकर्ता भेटिएन।</td></tr>`;
+        return;
+      }
+
+      users.forEach(user => {
+        const tr = document.createElement('tr');
+        
+        // डाइन्यामिक रोल ड्रपडाउन सिर्जना गर्ने र हालको रोल सेलेक्टेड राख्ने
+        tr.innerHTML = `
+          <td>${user.id}</td>
+          <td><strong>${user.fullname}</strong></td>
+          <td>${user.email}</td>
+          <td>
+            <select class="table-select" onchange="updateUserRole(${user.id}, this.value)">
+              <option value="staff" ${user.role === 'staff' ? 'selected' : ''}>Staff (कर्मचारी)</option>
+              <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin (प्रशासक)</option>
+              <option value="consultancy" ${user.role === 'consultancy' ? 'selected' : ''}>Consultancy (कन्सल्टेन्सी)</option>
+            </select>
+          </td>
+          <td>
+            <button class="btn-action" onclick="changeUserPassword(${user.id})">🔑 फेर्नुस्</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    window.onload = fetchUsers;
+
+    // २. नयाँ अकाउन्ट सिर्जना गर्ने प्रोसेस
+    document.getElementById('createUserForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const fullname = document.getElementById('regName').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
+      const password = document.getElementById('regPassword').value;
+      const role = document.getElementById('regRole').value;
+
+      const { data, error } = await _supabase
+        .from('system_users')
+        .insert([{ fullname, email, password, role }]);
+
+      if (error) {
+        alert("❌ अकाउन्ट बनाउन सकिएन: " + error.message);
+      } else {
+        alert("🎉 नयाँ प्रयोगकर्ता सफलतापुर्वक दर्ता भयो!");
+        document.getElementById('createUserForm').reset();
+        fetchUsers(); 
+      }
+    });
+
+    // ३. तालिकाको ड्रपडाउन परिवर्तन गर्दा स्वतः डाटाबेस अपडेट हुने फङ्सन
+    async function updateUserRole(userId, newRole) {
+      const { error } = await _supabase
+        .from('system_users')
+        .update({ role: newRole })
+        .eq('id', userId);
+
+      if (error) {
+        alert("❌ भूमिका परिवर्तन असफल: " + error.message);
+        fetchUsers(); // फेल भएमा पुरानै अवस्था देखाउन रिफ्रेस गर्ने
+      } else {
+        // सानो अलर्ट मेसेज स्क्रिनको कुनामा देखाउन सकिन्छ, यहाँ सामान्य अलर्ट राखिएको छ
+        console.log(`User ${userId} role updated to ${newRole}`);
+      }
+    }
+
+    // ४. पासवर्ड परिवर्तन गर्ने फङ्सन
+    async function changeUserPassword(userId) {
+      const newPassword = prompt("कृपया उक्त युजरको लागि नयाँ पासवर्ड राख्नुहोस् (न्यूनतम ६ अक्षर):");
+      
+      if (!newPassword) return;
+      if (newPassword.trim().length < 6) {
+        alert("❌ पासवर्ड कमजोर भयो! कम्तीमा ६ अक्षरको हुनुपर्छ।");
+        return;
+      }
+
+      const { error } = await _supabase
+        .from('system_users')
+        .update({ password: newPassword.trim() })
+        .eq('id', userId);
+
+      if (error) {
+        alert("❌ पासवर्ड परिवर्तन असफल: " + error.message);
+      } else {
+        alert("🔐 पासवर्ड सफलतापूर्वक परिवर्तन गरियो!");
+        fetchUsers();
+      }
+    }
+  </script>
+</body>
+</html>
