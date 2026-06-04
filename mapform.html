@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>गलकोट नगरपालिका - भूमि व्यवस्थापन (कार्यालय कर्मचारी दर्ता/फिर्ता पोर्टल)</title>
+  <title>गलकोट नगरपालिका - भूमि व्यवस्थापन (कार्यालय कर्मचारी दर्ता/रिपोर्ट पोर्टल)</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
   
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <style>
     :root {
@@ -24,7 +25,6 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Noto Sans Devanagari', sans-serif; background: var(--bg-color); padding: 25px; color: #2f3542; }
 
-    /* Action Notification Alert Banner */
     .pending-alert {
       max-width: 1200px; margin: 0 auto 20px auto; background: #eccc68;
       border-left: 6px solid var(--warning-color); padding: 15px; border-radius: 6px;
@@ -32,7 +32,6 @@
       align-items: center; justify-content: space-between; gap: 10px;
     }
 
-    /* Master Containers Layout */
     .master-form-container, .database-container {
       max-width: 1200px; margin: 0 auto 30px auto; background: var(--card-bg);
       padding: 35px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);
@@ -58,26 +57,27 @@
     .floor-input { padding: 8px; border: 2px solid var(--border-color); border-radius: 4px; font-size: 14px; text-align: center; }
     .floor-area-input { background-color: #fff9db; font-weight: bold; color: #2f3542; border: 2px solid #fab005; }
 
-    /* Search Box Input */
-    .search-box { width: 100%; padding: 12px; margin-bottom: 20px; border: 2px solid var(--success-color); border-radius: 6px; font-size: 15px; outline: none; font-weight: bold; }
+    /* Filter Controls Row */
+    .filter-wrapper { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; background: #f1f2f6; padding: 15px; border-radius: 8px; }
+    .filter-select { padding: 10px; border: 2px solid var(--success-color); border-radius: 6px; font-size: 15px; font-weight: bold; outline: none; background: #fff; cursor: pointer; min-width: 200px; }
+    .search-box-mod { flex: 1; padding: 10px; border: 2px solid var(--success-color); border-radius: 6px; font-size: 15px; outline: none; font-weight: bold; min-width: 250px; }
 
     /* Buttons */
     .action-buttons { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 30px; }
-    .btn { color: white; border: none; padding: 14px 20px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer; transition: 0.3s; display: flex; justify-content: center; align-items: center; gap: 10px; text-align: center; text-decoration: none; }
+    .report-buttons { display: flex; gap: 10px; margin-left: auto; }
     
+    .btn { color: white; border: none; padding: 12px 20px; font-size: 15px; font-weight: bold; border-radius: 6px; cursor: pointer; transition: 0.3s; display: flex; justify-content: center; align-items: center; gap: 8px; text-align: center; text-decoration: none; }
     .btn-save { background: var(--primary-color); }
     .btn-save:hover { background: var(--secondary-color); }
     
-    /* Staff Action Specific Buttons */
     .btn-verify { background: var(--success-color); display: none; }
     .btn-verify:hover { background: #26af5f; }
     .btn-return { background: var(--danger-color); display: none; }
     .btn-return:hover { background: #b31212; }
     
     .btn-clear { background: #747d8c; }
-    .btn-clear:hover { background: #57606f; }
-    .btn-report { background: #4a5568; }
-    .btn-report:hover { background: #2d3748; }
+    .btn-excel { background: #1f7343; }
+    .btn-excel:hover { background: #15522f; }
 
     /* Table Styling */
     .db-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
@@ -87,12 +87,9 @@
     
     .action-btn { padding: 8px 14px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; margin-right: 5px; color: white; transition: 0.2s; }
     .btn-edit { background-color: var(--warning-color); }
-    .btn-edit:hover { background-color: #ff7f50; }
     .btn-delete { background-color: var(--accent-color); }
-    .btn-delete:hover { background-color: #b31212; }
     .text-center { text-align: center !important; }
 
-    /* Badges */
     .badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 12px; color: white; display: inline-block; }
     .badge-pending { background-color: var(--warning-color); color: black; }
     .badge-approved { background-color: var(--success-color); }
@@ -101,21 +98,18 @@
 </head>
 <body>
 
-  <!-- १. नयाँ आवेदनको अलर्ट ब्यानर -->
   <div id="pendingAlertBanner" class="pending-alert">
-    <div>📬 कन्सल्टेन्सीबाट स्वीकृतिका लागि <b><span id="pendingCount">0</span> वटा नयाँ फाइलहरू</b> आएका छन्। कृपया तलको तालिकाबाट 'Review/Edit' गरी दर्ता वा फिर्ता गर्नुहोला।</div>
+    <div>📬 कन्सल्टेन्सीबाट स्वीकृतिका लागि <b><span id="pendingCount">0</span> वटा नयाँ फाइलहरू</b> आएका छन्। कृपया रिभ्यु गरी दर्ता गर्नुहोला।</div>
   </div>
 
   <div class="master-form-container">
     <div class="form-header-container">
       <div class="form-title" id="formHeaderTitle">🏛️ गलकोट नगरपालिका - भूमि व्यवस्थापन (कार्यालय कर्मचारी कार्यप्रणाली)</div>
-      <a href="report.html" target="_blank" class="btn btn-report">📊 रिपोर्टहरू (Reports)</a>
     </div>
     
     <form id="masterDataForm">
       <input type="hidden" id="record_id" value="">
 
-      <!-- कार्यालयका कर्मचारीले भर्ने दर्ता / फिर्ता सम्बन्धी विशेष निर्णय सेक्सन -->
       <div class="section-subtitle" style="color: var(--primary-color);">✍️ कार्यालय कर्मचारी निर्णय र स्वीकृतिका क्षेत्रहरू (Office Staff Action Field)</div>
       <div class="grid-Staff-Action">
         <div class="field">
@@ -127,7 +121,7 @@
           <input type="text" id="registrano_date" placeholder="उदा: २०८२-१०-१३">
         </div>
         <div class="field">
-          <label class="required">दर्ता/जाँच गर्ने कर्मचारी</label>
+          <label class="required">दर्ता गर्ने कर्मचारी</label>
           <input type="text" id="se" placeholder="उदा: सन्तोष थापा (सि. इन्जिनियर)" required>
         </div>
         <div class="field">
@@ -135,8 +129,8 @@
           <input type="text" id="date_reg" placeholder="उदा: २०८२-०२-१५" required>
         </div>
         <div class="field" style="grid-column: 1 / -1;">
-          <label style="color: var(--danger-color); font-weight: bold;">फिर्ता (Return) गर्ने भएमा कैफियत अनिवार्य लेख्नुहोस् (Remarks/Reason for Rejection):</label>
-          <input type="text" id="remarks" placeholder="उदा: नागरिकताको प्रतिलिपि स्पष्ट भएन वा सेटब्याक नाप फरक देखियो।" style="border: 2px solid var(--danger-color); background-color: #fff5f5;">
+          <label style="color: var(--danger-color); font-weight: bold;">फिर्ता (Return) गर्ने भएमा कैफियत अनिवार्य लेख्नुहोस्:</label>
+          <input type="text" id="remarks" placeholder="उदा: नक्सा स्पष्ट भएन वा सेटब्याक नाप फरक देखियो।" style="border: 2px solid var(--danger-color); background-color: #fff5f5;">
         </div>
       </div>
       
@@ -217,84 +211,45 @@
         <div class="field"><label class="required">फार (FAR)</label><input type="text" id="far" required></div>
       </div>
 
-      <div class="section-subtitle">तल्लागत विस्तृत नाप र क्षेत्रफल विवरण (५ औं तल्लासम्म)</div>
-      <div class="grid-5">
-        <div class="floor-label">बेसमेन्ट (भूमिगत)</div>
-        <input type="number" step="any" id="f_base_l" placeholder="लम्बाई" class="floor-input">
-        <input type="number" step="any" id="f_base_w" placeholder="चौडाई" class="floor-input">
-        <input type="text" id="f_base_h" placeholder="उचाई" class="floor-input">
-        <input type="number" step="any" id="f_base_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input">
-      </div>
-      <div class="grid-5">
-        <div class="floor-label">सेमिबेसमेन्ट</div>
-        <input type="number" step="any" id="f_semi_l" placeholder="लम्बाई" class="floor-input">
-        <input type="number" step="any" id="f_semi_w" placeholder="चौडाई" class="floor-input">
-        <input type="text" id="f_semi_h" placeholder="उचाई" class="floor-input">
-        <input type="number" step="any" id="f_semi_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input">
-      </div>
-      <div class="grid-5">
-        <div class="floor-label">जमिन तल्ला (Ground)</div>
-        <input type="number" step="any" id="f_ground_l" placeholder="लम्बाई" class="floor-input">
-        <input type="number" step="any" id="f_ground_w" placeholder="चौडाई" class="floor-input">
-        <input type="text" id="f_ground_h" placeholder="उचाई" class="floor-input">
-        <input type="number" step="any" id="f_ground_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input">
-      </div>
-      <div class="grid-5">
-        <div class="floor-label">पहिलो तल्ला</div>
-        <input type="number" step="any" id="f_1st_l" placeholder="लम्बाई" class="floor-input">
-        <input type="number" step="any" id="f_1st_w" placeholder="चौडाई" class="floor-input">
-        <input type="text" id="f_1st_h" placeholder="उचाई" class="floor-input">
-        <input type="number" step="any" id="f_1st_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input">
-      </div>
-      <div class="grid-5">
-        <div class="floor-label">दोस्रो तल्ला</div>
-        <input type="number" step="any" id="f_2nd_l" placeholder="लम्बाई" class="floor-input">
-        <input type="number" step="any" id="f_2nd_w" placeholder="चौडाई" class="floor-input">
-        <input type="text" id="f_2nd_h" placeholder="उचाई" class="floor-input">
-        <input type="number" step="any" id="f_2nd_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input">
-      </div>
-      <div class="grid-5">
-        <div class="floor-label">तेस्रो तल्ला</div>
-        <input type="number" step="any" id="f_3rd_l" placeholder="लम्बाई" class="floor-input">
-        <input type="number" step="any" id="f_3rd_w" placeholder="चौडाई" class="floor-input">
-        <input type="text" id="f_3rd_h" placeholder="उचाई" class="floor-input">
-        <input type="number" step="any" id="f_3rd_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input">
-      </div>
-      <div class="grid-5">
-        <div class="floor-label">चौथो तल्ला</div>
-        <input type="number" step="any" id="f_4th_l" placeholder="लम्बाई" class="floor-input">
-        <input type="number" step="any" id="f_4th_w" placeholder="चौडाई" class="floor-input">
-        <input type="text" id="f_4th_h" placeholder="उचाई" class="floor-input">
-        <input type="number" step="any" id="f_4th_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input">
-      </div>
-      <div class="grid-5">
-        <div class="floor-label">पाँचौ तल्ला</div>
-        <input type="number" step="any" id="f_5th_l" placeholder="लम्बाई" class="floor-input">
-        <input type="number" step="any" id="f_5th_w" placeholder="चौडाई" class="floor-input">
-        <input type="text" id="f_5th_h" placeholder="उचाई" class="floor-input">
-        <input type="number" step="any" id="f_5th_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input">
-      </div>
+      <div class="section-subtitle">तल्लागत विस्तृत नाप र क्षेत्रफल विवरण</div>
+      <div class="grid-5"><div class="floor-label">जमिन तल्ला (Ground)</div><input type="number" step="any" id="f_ground_l" placeholder="लम्बाई" class="floor-input"><input type="number" step="any" id="f_ground_w" placeholder="चौडाई" class="floor-input"><input type="text" id="f_ground_h" placeholder="उचाई" class="floor-input"><input type="number" step="any" id="f_ground_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input"></div>
+      <div class="grid-5"><div class="floor-label">पहिलो तल्ला</div><input type="number" step="any" id="f_1st_l" placeholder="लम्बाई" class="floor-input"><input type="number" step="any" id="f_1st_w" placeholder="चौडाई" class="floor-input"><input type="text" id="f_1st_h" placeholder="उचाई" class="floor-input"><input type="number" step="any" id="f_1st_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input"></div>
+      <div class="grid-5"><div class="floor-label">दोस्रो तल्ला</div><input type="number" step="any" id="f_2nd_l" placeholder="लम्बाई" class="floor-input"><input type="number" step="any" id="f_2nd_w" placeholder="चौडाई" class="floor-input"><input type="text" id="f_2nd_h" placeholder="उचाई" class="floor-input"><input type="number" step="any" id="f_2nd_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input"></div>
+      <div class="grid-5"><div class="floor-label">तेस्रो तल्ला</div><input type="number" step="any" id="f_3rd_l" placeholder="लम्बाई" class="floor-input"><input type="number" step="any" id="f_3rd_w" placeholder="चौडाई" class="floor-input"><input type="text" id="f_3rd_h" placeholder="उचाई" class="floor-input"><input type="number" step="any" id="f_3rd_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input"></div>
+      <div class="grid-5"><div class="floor-label">चौथो तल्ला</div><input type="number" step="any" id="f_4th_l" placeholder="लम्बाई" class="floor-input"><input type="number" step="any" id="f_4th_w" placeholder="चौडाई" class="floor-input"><input type="text" id="f_4th_h" placeholder="उचाई" class="floor-input"><input type="number" step="any" id="f_4th_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input"></div>
+      <div class="grid-5"><div class="floor-label">पाँचौ तल्ला</div><input type="number" step="any" id="f_5th_l" placeholder="लम्बाई" class="floor-input"><input type="number" step="any" id="f_5th_w" placeholder="चौडाई" class="floor-input"><input type="text" id="f_5th_h" placeholder="उचाई" class="floor-input"><input type="number" step="any" id="f_5th_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input"></div>
 
       <div class="action-buttons">
-        <!-- सुरुमा आउने साधारण सेभ बटन (यदि सोझै नगरपालिकाबाट नयाँ रेकर्ड इन्ट्री गर्नु परेमा) -->
         <button type="submit" id="submitBtn" class="btn btn-save">💾 नयाँ रेकर्ड सोझै सेभ गर्नुस्</button>
-        
-        <!-- फाइल रिभ्यु गर्दा मात्र देखिने मुख्य बटनहरू -->
-        <button type="button" id="verifyBtn" class="btn btn-verify" onclick="actionVerifyAndRegister()">✅ दर्ता स्वीकृत (Verify & Approve) गर्नुस्</button>
-        <button type="button" id="returnBtn" class="btn btn-return" onclick="actionReturnToConsultancy()">❌ अस्वीकृत गरी कन्सल्टेन्सी फिर्ता पठाउनुहोस्</button>
-        
+        <button type="button" id="verifyBtn" class="btn btn-verify" onclick="actionVerifyAndRegister()">✅ दर्ता स्वीकृत (Verify & Approve)</button>
+        <button type="button" id="returnBtn" class="btn btn-return" onclick="actionReturnToConsultancy()">❌ अस्वीकृत गरी कन्सल्टेन्सी फिर्ता</button>
         <button type="button" class="btn btn-clear" onclick="clearForm()">🧹 फारम खाली गर्नुस्</button>
       </div>
     </form>
   </div>
 
   <div class="database-container">
-    <div class="form-title">🗄️ जग्गाधनी तथा भवन रेकर्ड डाटाबेस (सबै फाइलहरूको मास्टर सूची)</div>
+    <div class="form-header-container">
+      <div class="form-title">🗄️ जग्गाधनी तथा भवन रेकर्ड डाटाबेस र रिपोर्ट प्रणाली</div>
+      
+      <div class="report-buttons">
+        <button class="btn btn-excel" onclick="exportToExcel()">📊 Excel रिपोर्ट डाउनलोड</button>
+      </div>
+    </div>
     
-    <input type="text" id="searchBar" class="search-box" placeholder="🔍 जग्गाधनीको नाम, नागरिकता नम्बर वा स्टाटस (Pending, Approved, Returned) लेखेर खोज्नुहोस्...">
+    <div class="filter-wrapper">
+      <div>
+        <select id="statusFilter" class="filter-select" onchange="filterDatabase()">
+          <option value="ALL">🔍 सबै फाइलहरू हेर्नुहोस्</option>
+          <option value="APPROVED">🟢 दर्ता भएका (Approved)</option>
+          <option value="NOT_APPROVED">🔴 दर्ता नभएका (Pending/Returned)</option>
+        </select>
+      </div>
+      <input type="text" id="searchBar" class="search-box-mod" placeholder="🔍 जग्गाधनीको नाम वा नागरिकता नम्बर टाइप गरेर खोज्नुहोस्..." oninput="filterDatabase()">
+    </div>
 
     <div style="overflow-x: auto;">
-      <table class="db-table">
+      <table class="db-table" id="reportTable">
         <thead>
           <tr>
             <th>दर्ता न.</th>
@@ -303,11 +258,11 @@
             <th>कित्ता नं.</th>
             <th>कुल क्षेत्रफल</th>
             <th>अवस्था (Status)</th>
-            <th style="width:200px;">कार्यहरू (Actions)</th>
+            <th class="action-col" style="width:200px;">कार्यहरू (Actions)</th>
           </tr>
         </thead>
         <tbody id="databaseTableBody">
-          <tr><td colspan="7" class="text-center">डाटा लोड हुँदैछ...</td></tr>
+          <tr><td colspan="7" class="text-center">डेटा लोड हुँदैछ...</td></tr>
         </tbody>
       </table>
     </div>
@@ -319,12 +274,12 @@
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let mapDatabase = [];
-    const floorsList = ['base', 'semi', 'ground', '1st', '2nd', '3rd', '4th', '5th'];
+    let displayedData = []; 
+    const floorsList = ['ground', '1st', '2nd', '3rd', '4th', '5th'];
 
     document.addEventListener("DOMContentLoaded", () => {
       setupLiveCalculations();
       fetchFromSupabase();
-      document.getElementById('searchBar').addEventListener('input', filterDatabase);
     });
 
     function setupLiveCalculations() {
@@ -355,31 +310,43 @@
       document.getElementById('tot_area').value = total > 0 ? total.toFixed(2) : "";
     }
 
-    // क्लाउडबाट सबै डाटा तान्ने र पेन्डिङ काउन्ट अलर्ट ब्यानरमा देखाउने
     async function fetchFromSupabase() {
       try {
-        const { data, error } = await _supabase
-          .from('g_map_branch1')
-          .select('*')
-          .order('created_at', { ascending: false });
-
+        const { data, error } = await _supabase.from('g_map_branch1').select('*').order('created_at', { ascending: false });
         if (error) throw error;
         mapDatabase = data;
         
-        // Pending फाइलहरूको संख्या गणना गर्ने
         const pendingCount = mapDatabase.filter(item => item.status === 'Pending' || !item.status).length;
-        const alertBanner = document.getElementById('pendingAlertBanner');
-        if (pendingCount > 0) {
-          document.getElementById('pendingCount').innerText = pendingCount;
-          alertBanner.style.display = 'flex';
-        } else {
-          alertBanner.style.display = 'none';
-        }
+        document.getElementById('pendingAlertBanner').style.display = pendingCount > 0 ? 'flex' : 'none';
+        if(pendingCount > 0) document.getElementById('pendingCount').innerText = pendingCount;
 
-        renderDatabaseTable(mapDatabase);
+        filterDatabase(); 
       } catch (err) {
         console.error("Error fetching data:", err.message);
       }
+    }
+
+    function filterDatabase() {
+      const filterValue = document.getElementById('statusFilter').value;
+      const searchQuery = document.getElementById('searchBar').value.toLowerCase().trim();
+
+      displayedData = mapDatabase.filter(item => {
+        const currentStatus = item.status || 'Pending';
+        
+        let matchStatus = true;
+        if (filterValue === 'APPROVED') {
+          matchStatus = (currentStatus === 'Approved');
+        } else if (filterValue === 'NOT_APPROVED') {
+          matchStatus = (currentStatus === 'Pending' || currentStatus === 'Returned');
+        }
+
+        const matchSearch = (item.owner && item.owner.toLowerCase().includes(searchQuery)) || 
+                            (item.cit_no && item.cit_no.toLowerCase().includes(searchQuery));
+
+        return matchStatus && matchSearch;
+      });
+
+      renderDatabaseTable(displayedData);
     }
 
     function renderDatabaseTable(dataArray) {
@@ -387,21 +354,16 @@
       tbody.innerHTML = '';
 
       if (dataArray.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="text-center" style="color:#999;">कुनै डाटा फेला परेन।</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center" style="color:#999; padding: 20px;">फिल्टर बमोजिमको कुनै डाटा फेला परेन।</td></tr>`;
         return;
       }
 
       dataArray.forEach(item => {
-        let statusBadge = '';
         const currentStatus = item.status || 'Pending';
-        
-        if (currentStatus === 'Approved') {
-          statusBadge = `<span class="badge badge-approved">✅ दर्ता भएको (Approved)</span>`;
-        } else if (currentStatus === 'Returned') {
-          statusBadge = `<span class="badge badge-returned">❌ फिर्ता (Returned)</span>`;
-        } else {
-          statusBadge = `<span class="badge badge-pending">⏳ प्रतीक्षारत (Pending)</span>`;
-        }
+        let statusBadge = '';
+        if (currentStatus === 'Approved') statusBadge = `<span class="badge badge-approved">✅ दर्ता भएको</span>`;
+        else if (currentStatus === 'Returned') statusBadge = `<span class="badge badge-returned">❌ फिर्ता गरिएको</span>`;
+        else statusBadge = `<span class="badge badge-pending">⏳ दर्ता नभएको</span>`;
 
         const row = document.createElement('tr');
         row.innerHTML = `
@@ -411,71 +373,116 @@
           <td>${item.kitta}</td>
           <td><b style="color:red;">${item.tot_area || '0.00'}</b></td>
           <td>${statusBadge}</td>
-          <td>
-            <button class="action-btn btn-edit" onclick="loadRecordForStaff(${item.id})">✏️ Review & Action</button>
-            <button class="action-btn btn-delete" onclick="deleteRecord(${item.id}, '${item.owner}')">❌ Delete</button>
+          <td class="action-col">
+            <button type="button" class="action-btn btn-edit" onclick="loadRecordForStaff(${item.id})">✏️ Review</button>
+            <button type="button" class="action-btn btn-delete" onclick="deleteRecord(${item.id}, '${item.owner}')">❌</button>
           </td>
         `;
         tbody.appendChild(row);
       });
     }
 
-    function filterDatabase() {
-      const query = document.getElementById('searchBar').value.toLowerCase().trim();
-      const filteredData = mapDatabase.filter(item => {
-        const itemStatus = item.status || 'pending';
-        return (item.owner && item.owner.toLowerCase().includes(query)) || 
-               (item.cit_no && item.cit_no.toLowerCase().includes(query)) ||
-               itemStatus.toLowerCase().includes(query);
+    // EXCEL (XLSX) REPORT GENERATION (तालिकामा फिल्टर भएर जे देखिएको छ, त्यसकै रिपोर्ट बन्छ)
+    function exportToExcel() {
+      if (displayedData.length === 0) {
+        alert("डाउनलोड गर्नका लागि तालिकामा डाटाहरू उपलब्ध छैनन्।");
+        return;
+      }
+
+      const excelRows = displayedData.map((item, index) => {
+        let statusText = "दर्ता नभएको (Pending)";
+        if(item.status === 'Approved') statusText = "दर्ता भएको (Approved)";
+        if(item.status === 'Returned') statusText = "फिर्ता गरिएको (Returned)";
+
+        return {
+          "क्र.सं.": index + 1,
+          "दर्ता नं.": item.registrano || '-',
+          "दर्ता मिति": item.registrano_date || '-',
+          "जग्गाधनीको नाम": item.owner || '-',
+          "नागरिकता नं.": item.cit_no || '-',
+          "कित्ता नं.": item.kitta || '-',
+          "कुल क्षेत्रफल (व.फि.)": item.tot_area || 0,
+          "वडा नं.": item.ward || '-',
+          "अवस्था (Status)": statusText,
+          "दर्ता गर्ने कर्मचारी": item.se || '-'
+        };
       });
-      renderDatabaseTable(filteredData);
+
+      const worksheet = XLSX.utils.json_to_sheet(excelRows);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Land_Report");
+      XLSX.writeFile(workbook, `Galkot_Municipality_Excel_Report_${new Date().toISOString().slice(0,10)}.xlsx`);
+    }
+
+    function loadRecordForStaff(id) {
+      const record = mapDatabase.find(r => r.id === id);
+      if (!record) return;
+      document.getElementById('record_id').value = record.id;
+      
+      Object.keys(record).forEach(key => {
+        const field = document.getElementById(key);
+        if (field) field.value = record[key] !== null ? record[key] : "";
+      });
+
+      floorsList.forEach(f => {
+        if (document.getElementById(`f_${f}_l`)) document.getElementById(`f_${f}_l`).value = record[`f_${f}_l`] !== null ? record[`f_${f}_l`] : "";
+        if (document.getElementById(`f_${f}_w`)) document.getElementById(`f_${f}_w`).value = record[`f_${f}_w`] !== null ? record[`f_${f}_w`] : "";
+        if (document.getElementById(`f_${f}_h`)) document.getElementById(`f_${f}_h`).value = record[`f_${f}_h`] !== null ? record[`f_${f}_h`] : "";
+        if (document.getElementById(`f_${f}_a`)) document.getElementById(`f_${f}_a`).value = record[`f_${f}_a`] !== null ? record[`f_${f}_a`] : "";
+      });
+
+      document.getElementById('submitBtn').style.display = 'none';
+      document.getElementById('verifyBtn').style.display = 'flex';
+      document.getElementById('returnBtn').style.display = 'flex';
+      document.getElementById('formHeaderTitle').innerText = "🔎 फाइल पुनरावलोकन तथा प्रमाणीकरण मोड (Review Mode)";
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function getFormDataObject() {
       const record = {
-        registrano: document.getElementById('registrano').value,
+        registrano: document.getElementById('registrano').value, 
         registrano_date: document.getElementById('registrano_date').value,
-        cit_no: document.getElementById('cit_no').value,
-        cit_date: document.getElementById('cit_date').value,
+        cit_no: document.getElementById('cit_no').value, 
+        cit_date: document.getElementById('cit_date').value, 
         cit_office: document.getElementById('cit_office').value,
-        owner: document.getElementById('owner').value,
-        grandfather: document.getElementById('grandfather').value,
+        owner: document.getElementById('owner').value, 
+        grandfather: document.getElementById('grandfather').value, 
         father: document.getElementById('father').value,
-        ward: document.getElementById('ward').value,
-        tole: document.getElementById('tole').value,
+        ward: document.getElementById('ward').value, 
+        tole: document.getElementById('tole').value, 
         savik_gavis: document.getElementById('savik_gavis').value,
-        savik_ward: document.getElementById('savik_ward').value,
-        kitta: document.getElementById('kitta').value,
+        savik_ward: document.getElementById('savik_ward').value, 
+        kitta: document.getElementById('kitta').value, 
         area: document.getElementById('area').value,
-        tot_length: parseFloat(document.getElementById('tot_length').value) || null,
+        tot_length: parseFloat(document.getElementById('tot_length').value) || null, 
         tot_width: parseFloat(document.getElementById('tot_width').value) || null,
-        tot_height: document.getElementById('tot_height').value,
-        room: document.getElementById('room').value,
+        tot_height: document.getElementById('tot_height').value, 
+        room: document.getElementById('room').value, 
         door: document.getElementById('door').value,
-        window: document.getElementById('window').value,
-        shutter: document.getElementById('shutter').value,
+        window: document.getElementById('window').value, 
+        shutter: document.getElementById('shutter').value, 
         cg: document.getElementById('cg').value,
-        total_floors: document.getElementById('total_floors').value,
+        total_floors: document.getElementById('total_floors').value, 
         cov_area: parseFloat(document.getElementById('cov_area').value) || null,
-        tot_area: parseFloat(document.getElementById('tot_area').value) || null,
-        east: document.getElementById('east').value,
+        tot_area: parseFloat(document.getElementById('tot_area').value) || null, 
+        east: document.getElementById('east').value, 
         west: document.getElementById('west').value,
-        north: document.getElementById('north').value,
-        south: document.getElementById('south').value,
+        north: document.getElementById('north').value, 
+        south: document.getElementById('south').value, 
         road_width: document.getElementById('road_width').value,
-        roadce: document.getElementById('roadce').value,
-        roadcex: document.getElementById('roadcex').value,
+        roadce: document.getElementById('roadce').value, 
+        roadcex: document.getElementById('roadcex').value, 
         setbac: document.getElementById('setbac').value,
-        setbacx: document.getElementById('setbacx').value,
-        river: document.getElementById('river').value,
+        setbacx: document.getElementById('setbacx').value, 
+        river: document.getElementById('river').value, 
         riverx: document.getElementById('riverx').value,
-        land: document.getElementById('land').value,
-        landb: document.getElementById('landb').value,
+        land: document.getElementById('land').value, 
+        landb: document.getElementById('landb').value, 
         revinuerate: document.getElementById('revinuerate').value,
-        gc: document.getElementById('gc').value,
-        far: document.getElementById('far').value,
-        se: document.getElementById('se').value,
-        date_reg: document.getElementById('date_reg').value,
+        gc: document.getElementById('gc').value, 
+        far: document.getElementById('far').value, 
+        se: document.getElementById('se').value, 
+        date_reg: document.getElementById('date_reg').value, 
         remarks: document.getElementById('remarks').value
       };
 
@@ -489,7 +496,6 @@
       return record;
     }
 
-    // नयाँ रेकर्ड सोझै नगरपालिकाबाट थप्दा (Normal Direct Entry Mode)
     document.getElementById('masterDataForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const dataToSave = getFormDataObject();
@@ -498,47 +504,11 @@
       try {
         const { error } = await _supabase.from('g_map_branch1').insert([dataToSave]);
         if (error) throw error;
-        alert("💾 नयाँ विवरण सफलतापूर्वक डाटाबेसमा दर्ता गरियो!");
-        clearForm();
-        fetchFromSupabase();
-      } catch (err) {
-        alert("त्रुटि: " + err.message);
-      }
+        alert("💾 नयाँ विवरण सफलतापूर्वक डाटाबेसमा सेभ गरियो!");
+        clearForm(); fetchFromSupabase();
+      } catch (err) { alert("त्रुटि: " + err.message); }
     });
 
-    // पुनरावलोकनका लागि डाटा फारममा लोड गर्ने
-    function loadRecordForStaff(id) {
-      const record = mapDatabase.find(r => r.id === id);
-      if (!record) return;
-
-      document.getElementById('record_id').value = record.id;
-
-      Object.keys(record).forEach(key => {
-        const inputField = document.getElementById(key);
-        if (inputField) {
-          inputField.value = record[key] !== null ? record[key] : "";
-        }
-      });
-
-      floorsList.forEach(f => {
-        if (document.getElementById(`f_${f}_l`)) document.getElementById(`f_${f}_l`).value = record[`f_${f}_l`] !== null ? record[`f_${f}_l`] : "";
-        if (document.getElementById(`f_${f}_w`)) document.getElementById(`f_${f}_w`).value = record[`f_${f}_w`] !== null ? record[`f_${f}_w`] : "";
-        if (document.getElementById(`f_${f}_h`)) document.getElementById(`f_${f}_h`).value = record[`f_${f}_h`] !== null ? record[`f_${f}_h`] : "";
-        if (document.getElementById(`f_${f}_a`)) document.getElementById(`f_${f}_a`).value = record[`f_${f}_a`] !== null ? record[`f_${f}_a`] : "";
-      });
-
-      // लेआउट परिवर्तन: दर्ता स्वीकृत र फिर्ता बटनहरू देखाउने
-      document.getElementById('submitBtn').style.display = 'none';
-      document.getElementById('verifyBtn').style.display = 'flex';
-      document.getElementById('returnBtn').style.display = 'flex';
-      
-      document.getElementById('formHeaderTitle').innerText = "🔎 फाइल पुनरावलोकन तथा प्रमाणीकरण मोड (Review Mode)";
-      
-      // युजरको ध्यान तान्न स्क्रोल अप गर्ने
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    // कार्य १: दर्ता स्वीकृत (Verify & Approve) गर्ने कार्य प्रणाली
     async function actionVerifyAndRegister() {
       const recordId = document.getElementById('record_id').value;
       if (!recordId) return;
@@ -546,78 +516,48 @@
       const regNo = document.getElementById('registrano').value.trim();
       const regDate = document.getElementById('registrano_date').value.trim();
 
-      // फारमकै दर्ता न र दर्ता मिति अनिवार्य चेक गर्ने
       if (!regNo || !regDate) {
-        alert("❌ दर्ता प्रक्रिया सम्पन्न गर्नका लागि फारममा 'दर्ता न.' र 'दर्ता मिति' अनिवार्य रूपमा भर्नुहोस्!");
-        if(!regNo) document.getElementById('registrano').focus();
-        else document.getElementById('registrano_date').focus();
+        alert("❌ दर्ता गर्नका लागि फारममा 'दर्ता न.' र 'दर्ता मिति' अनिवार्य भर्नुहोस्!");
         return;
       }
 
       const updatedFields = getFormDataObject();
-      updatedFields.status = 'Approved'; // स्थिति 'Approved' मा सेट हुनेछ
-      updatedFields.remarks = '';        // स्वीकृत भएपछि पुराना कैफियतहरू मेटिने छन्
+      updatedFields.status = 'Approved';
+      updatedFields.remarks = '';
 
       try {
-        const { error } = await _supabase
-          .from('g_map_branch1')
-          .update(updatedFields)
-          .eq('id', recordId);
-
+        const { error } = await _supabase.from('g_map_branch1').update(updatedFields).eq('id', recordId);
         if (error) throw error;
-        
-        alert("✅ फाइल सफलतापूर्वक स्वीकृत भयो र दर्ता नं: " + regNo + " मा दर्ता गरियो।");
-        clearForm();
-        fetchFromSupabase();
-      } catch (err) {
-        alert("अपडेट गर्दा समस्या आयो: " + err.message);
-      }
+        alert("✅ फाइल स्वीकृत भई सफलतापूर्वक दर्ता भयो।");
+        clearForm(); fetchFromSupabase();
+      } catch (err) { alert(err.message); }
     }
 
-    // कार्य २: अस्वीकृत गरी कन्सल्टेन्सी फिर्ता (Return) पठाउने कार्य प्रणाली
     async function actionReturnToConsultancy() {
       const recordId = document.getElementById('record_id').value;
       if (!recordId) return;
 
       const remarksVal = document.getElementById('remarks').value.trim();
-
-      // फिर्ता पठाउँदा कैफियत अनिवार्य माग्ने
       if (!remarksVal) {
-        alert("⚠️ कन्सल्टेन्सी फिर्ता पठाउनु अघि फाइलमा के विवरण मिलेन वा के सच्याउनु पर्ने हो, त्यसको 'कैफियत (Remarks)' अनिवार्य लेख्नुहोस्!");
-        document.getElementById('remarks').focus();
+        alert("⚠️ कन्सल्टेन्सी फिर्ता पठाउनु अघि 'कैफियत (Remarks)' अनिवार्य लेख्नुहोस्!");
         return;
       }
 
       const updatedFields = getFormDataObject();
-      updatedFields.status = 'Returned'; // स्थिति 'Returned' हुने बित्तिकै कन्सल्टेन्सी पोर्टलको फिर्ता सूचीमा पुग्छ
+      updatedFields.status = 'Returned';
 
       try {
-        const { error } = await _supabase
-          .from('g_map_branch1')
-          .update(updatedFields)
-          .eq('id', recordId);
-
+        const { error } = await _supabase.from('g_map_branch1').update(updatedFields).eq('id', recordId);
         if (error) throw error;
-        
-        alert("❌ फाइल अस्वीकृत गरी आवश्यक परिमार्जनका लागि कन्सल्टेन्सी तर्फ फिर्ता पठाइयो।");
-        clearForm();
-        fetchFromSupabase();
-      } catch (err) {
-        alert("फिर्ता पठाउँदा प्राविधिक समस्या आयो: " + err.message);
-      }
+        alert("❌ फाइल अस्वीकृत गरी कन्सल्टेन्सी तर्फ फिर्ता पठाइयो।");
+        clearForm(); fetchFromSupabase();
+      } catch (err) { alert(err.message); }
     }
 
     async function deleteRecord(id, ownerName) {
-      if (confirm(`के तपाईं जग्गाधनी [${ownerName}] को रेकर्ड स्थायी रूपमा हटाउन चाहनुहुन्छ?`)) {
-        try {
-          const { error } = await _supabase.from('g_map_branch1').delete().eq('id', id);
-          if (error) throw error;
-          alert("रेकर्ड सफलतापूर्वक हटाइयो।");
-          fetchFromSupabase();
-          clearForm();
-        } catch (err) {
-          alert("हटाउन सकिएन: " + err.message);
-        }
+      if (confirm(`के तपाईं जग्गाधनी [${ownerName}] को रेकर्ड हटाउन चाहनुहुन्छ?`)) {
+        await _supabase.from('g_map_branch1').delete().eq('id', id);
+        fetchFromSupabase(); clearForm();
       }
     }
 
@@ -625,13 +565,11 @@
       document.getElementById('masterDataForm').reset();
       document.getElementById('record_id').value = "";
       document.getElementById('tot_area').value = "";
-      
       document.getElementById('submitBtn').style.display = 'flex';
       document.getElementById('verifyBtn').style.display = 'none';
       document.getElementById('returnBtn').style.display = 'none';
       document.getElementById('formHeaderTitle').innerText = "🏛️ गलकोट नगरपालिका - भूमि व्यवस्थापन (कार्यालय कर्मचारी कार्यप्रणाली)";
     }
   </script>
-
 </body>
 </html>
