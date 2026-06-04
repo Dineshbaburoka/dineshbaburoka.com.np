@@ -90,7 +90,7 @@
 <body>
 
   <div id="returnedNotification" class="notification-alert">
-    <div>⚠️ ध्यानाकर्षण: नगरपालिकाबाट विवरण नपुगेर <b><span id="returnedCount">0</span> वटा फाइलहरू फिर्ता</b> आएका छन्! कृपया आवश्यक परिमार्जन गरी पुनः पठाउनुहोस्।</div>
+    <div>⚠️ ध्यानाकर्षण: गलकोट नगरपालिकाबाट विवरण नपुगेर <b><span id="returnedCount">0</span> वटा फाइलहरू फिर्ता</b> आएका छन्! कृपया आवश्यक परिमार्जन गरी पुनः पठाउनुहोस्।</div>
     <button class="btn btn-scroll" onclick="scrollToReturnedSection()">👇 सूची हेर्नुहोस्</button>
   </div>
 
@@ -113,6 +113,7 @@
       <div class="section-subtitle">जग्गा र जग्गाधनीको विवरण (Land And Landownership Details)</div>
       <div class="grid-3">
         <div class="field"><label class="required">जग्गाधनीको नाम/थर</label><input type="text" id="owner" placeholder="उदा: खिम बहादुर थापा" required></div>
+        <div class="field"><label class="required">घरधनीको फोन नम्बर</label><input type="text" id="phone" placeholder="उदा: ९८XXXXXXXX" required></div>
         <div class="field"><label class="required">नागरिकता नं</label><input type="text" id="cit_no" placeholder="उदा: ४५३०-२९८" required></div>
         <div class="field"><label class="required">जारी मिति</label><input type="text" id="cit_date" placeholder="उदा: २०६६-१०-१३" required></div>
         <div class="field"><label class="required">जारी कार्यालय</label><input type="text" id="cit_office" placeholder="उदा: जि.प्र.का. बागलुङ" required></div>
@@ -150,8 +151,10 @@
         </div>
         <div class="field"><label class="required">कित्ता नं.</label><input type="text" id="kitta" placeholder="उदा: १९९" required></div>
         <div class="field"><label class="required">क्षेत्रफल (रोपनी-आना-पैसा-दाम)</label><input type="text" id="area" placeholder="उदा: १-८-३-२" required></div>
-        <div class="field"><label>घरको कुल लम्बाई (फिट)</label><input type="number" step="any" id="tot_length" placeholder="उदा: ३६"></div>
-        <div class="field"><label>घरको कुल चौडाई (फिट)</label><input type="number" step="any" id="tot_width" placeholder="उदा: २५"></div>
+        
+        <div class="field"><label>घरको कुल लम्बाई (फिट)</label><input type="text" id="tot_length" placeholder="उदा: ३० फिट ६ इन्च"></div>
+        <div class="field"><label>घरको कुल चौडाई (फिट)</label><input type="text" id="tot_width" placeholder="उदा: २५ फिट ४ इन्च"></div>
+        
         <div class="field"><label>घरको कुल उचाई (फिट)</label><input type="text" id="tot_height" placeholder="उदा: ३०"></div>
         <div class="field"><label>कुल तल्ला संख्या</label><input type="text" id="total_floors" placeholder="उदा: ५.५"></div>
         <div class="field"><label>कोठा संख्या</label><input type="text" id="room" placeholder="उदा: ५"></div>
@@ -264,7 +267,7 @@
   <div class="database-container" id="returnedSectionCard">
     <div class="form-title" style="color: var(--danger-color);">📋 नगरपालिकाबाट संशोधन/सुधारका लागि फिर्ता (Returned) गरिएका फाइलहरू</div>
     
-    <input type="text" id="searchBar" class="search-box" placeholder="🔍 फिर्ता सूचीमा जग्गाधनीको नाम वा नागरिकता नम्बर टाइप गरेर खोज्नुहोस्..." oninput="filterDatabase()">
+    <input type="text" id="searchBar" class="search-box" placeholder="🔍 फिर्ता सूचीमा जग्गाधनीको नाम, फोन नम्बर वा नागरिकता नम्बर टाइप गरेर खोज्नुहोस्...">
 
     <div style="overflow-x: auto;">
       <table class="db-table">
@@ -272,6 +275,7 @@
           <tr>
             <th>नागरिकता नं.</th>
             <th>जग्गाधनीको नाम</th>
+            <th>फोन नम्बर</th>
             <th>कित्ता नं.</th>
             <th>कुल क्षेत्रफल (sq.ft)</th>
             <th>फिर्ताको कारण (Remarks)</th>
@@ -279,7 +283,7 @@
           </tr>
         </thead>
         <tbody id="databaseTableBody">
-          <tr><td colspan="6" class="text-center">डेटा लोड हुँदैछ...</td></tr>
+          <tr><td colspan="7" class="text-center">डेटा लोड हुँदैछ...</td></tr>
         </tbody>
       </table>
     </div>
@@ -296,6 +300,9 @@
     document.addEventListener("DOMContentLoaded", () => {
       setupLiveCalculations();
       fetchReturnedFromSupabase();
+      
+      // सर्च बारको लागि इवेंट लिसनर
+      document.getElementById('searchBar').addEventListener('input', filterDatabase);
     });
 
     function setupLiveCalculations() {
@@ -331,7 +338,6 @@
       document.getElementById('tot_area').value = total > 0 ? total.toFixed(2) : "";
     }
 
-    // केवल 'Returned' स्टाटस भएका फाइलहरू मात्र डेटाबेसबाट तान्ने र अलर्ट काउन्टर अपडेट गर्ने
     async function fetchReturnedFromSupabase() {
       try {
         const { data, error } = await _supabase
@@ -368,7 +374,7 @@
       tbody.innerHTML = '';
 
       if (dataArray.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="text-center" style="color:#2ed573; font-weight:bold;">🎉 नगरपालिकाबाट सुधारका लागि फिर्ता आएका कुनै फाइलहरू बाँकी छैनन्।</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center" style="color:#2ed573; font-weight:bold;">🎉 नगरपालिकाबाट सुधारका लागि फिर्ता आएका कुनै फाइलहरू बाँकी छैनन्।</td></tr>`;
         return;
       }
 
@@ -377,6 +383,7 @@
         row.innerHTML = `
           <td><b>${item.cit_no}</b></td>
           <td>${item.owner}</td>
+          <td>${item.phone || '-'}</td>
           <td>${item.kitta}</td>
           <td><b style="color:red;">${item.tot_area || '0.00'}</b></td>
           <td class="remarks-box">⚠️ ${item.remarks || 'कारण खुलाइएको छैन'}</td>
@@ -392,7 +399,8 @@
       const query = document.getElementById('searchBar').value.toLowerCase().trim();
       const filteredData = returnedDatabase.filter(item => {
         return (item.owner && item.owner.toLowerCase().includes(query)) || 
-               (item.cit_no && item.cit_no.toLowerCase().includes(query));
+               (item.cit_no && item.cit_no.toLowerCase().includes(query)) ||
+               (item.phone && item.phone.toLowerCase().includes(query));
       });
       renderDatabaseTable(filteredData);
     }
@@ -400,6 +408,7 @@
     function getFormDataObject() {
       const record = {
         cit_no: document.getElementById('cit_no').value,
+        phone: document.getElementById('phone').value,
         cit_date: document.getElementById('cit_date').value,
         cit_office: document.getElementById('cit_office').value,
         owner: document.getElementById('owner').value,
@@ -411,8 +420,9 @@
         savik_ward: document.getElementById('savik_ward').value,
         kitta: document.getElementById('kitta').value,
         area: document.getElementById('area').value,
-        tot_length: parseFloat(document.getElementById('tot_length').value) || null,
-        tot_width: parseFloat(document.getElementById('tot_width').value) || null,
+        // परिमार्जन: लम्बाई र चौडाईलाई text को रुपमा सिधै डेटाबेस पठाइनेछ
+        tot_length: document.getElementById('tot_length').value || null,
+        tot_width: document.getElementById('tot_width').value || null,
         tot_height: document.getElementById('tot_height').value,
         room: document.getElementById('room').value,
         door: document.getElementById('door').value,
@@ -450,7 +460,6 @@
       return record;
     }
 
-    // नयाँ रेकर्ड पहिलो पटक भर्दा (New Entry Direct To Municipality Pending Status)
     document.getElementById('masterDataForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       
@@ -461,7 +470,7 @@
       }
 
       const dataToSave = getFormDataObject();
-      dataToSave.status = 'Pending'; // नयाँ रेकर्ड सिधै दर्ता शाखामा पेन्डिङ बनेर जान्छ
+      dataToSave.status = 'Pending'; 
 
       try {
         const { error } = await _supabase
@@ -478,7 +487,6 @@
       }
     });
 
-    // फिर्ता सूचीबाट सम्पादन (Edit) का लागि विवरण फारममा लोड गर्ने
     function loadRecordForModify(id) {
       const record = returnedDatabase.find(r => r.id === id);
       if (!record) return;
@@ -499,11 +507,9 @@
         if (document.getElementById(`f_${f}_a`)) document.getElementById(`f_${f}_a`).value = record[`f_${f}_a`] !== null ? record[`f_${f}_a`] : "";
       });
 
-      // कैफियत सेक्सन प्रदर्शन गर्ने
       document.getElementById('returnedRemarksSection').style.display = 'block';
       document.getElementById('remarksWrapper').style.display = 'block';
       
-      // बटन विस्थापन
       document.getElementById('submitBtn').style.display = 'none';
       document.getElementById('resubmitBtn').style.display = 'flex';
       document.getElementById('formMainTitle').innerText = "✏️ फाइल परिमार्जन मोड (Modification Mode)";
@@ -511,14 +517,13 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // फिर्ता फाइललाई थप परिमार्जन गरि पुनः नगरपालिका पठाउने (Resubmit back to Pending)
     async function resubmitReturnedFile() {
       const recordId = document.getElementById('record_id').value;
       if (!recordId) return;
 
       const updatedData = getFormDataObject();
-      updatedData.status = 'Pending'; // स्थिति पुनः 'Pending' बनाएर पठाउने ताकि नगरपालिकामा नयाँ जस्तै देखियोस्
-      updatedData.remarks = '';      // पुरानो कैफियत सफा गर्ने
+      updatedData.status = 'Pending'; 
+      updatedData.remarks = '';      
 
       try {
         const { error } = await _supabase
