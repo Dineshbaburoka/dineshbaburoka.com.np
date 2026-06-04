@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>गलकोट नगरपालिका - भूमि व्यवस्थापन (कार्यालय कर्मचारी दर्ता/रिपोर्ट पोर्टल)</title>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght=400;600;700&display=swap" rel="stylesheet">
   
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -17,83 +17,140 @@
       --success-color: #2ed573;
       --danger-color: #ff4757;
       --warning-color: #ffa502;
-      --bg-color: #f1f2f6;
+      --bg-color: #f5f6fa;
       --card-bg: #ffffff;
-      --border-color: #ced6e0;
+      --border-color: #dcdde1;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Noto Sans Devanagari', sans-serif; background: var(--bg-color); padding: 25px; color: #2f3542; }
+    body { font-family: 'Noto Sans Devanagari', sans-serif; background: var(--bg-color); padding: 25px; color: #2f3542; transition: all 0.3s ease; }
 
     .pending-alert {
-      max-width: 1200px; margin: 0 auto 20px auto; background: #eccc68;
-      border-left: 6px solid var(--warning-color); padding: 15px; border-radius: 6px;
+      max-width: 1200px; margin: 0 auto 20px auto; background: linear-gradient(135deg, #ffeaa7, #eccc68);
+      border-left: 6px solid var(--warning-color); padding: 15px 20px; border-radius: 8px;
       font-weight: bold; font-size: 16px; color: #5d4037; display: none;
       align-items: center; justify-content: space-between; gap: 10px;
+      box-shadow: 0 4px 15px rgba(236, 204, 104, 0.3);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.01); }
+      100% { transform: scale(1); }
     }
 
     .master-form-container, .database-container {
       max-width: 1200px; margin: 0 auto 30px auto; background: var(--card-bg);
-      padding: 35px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-      border-top: 6px solid var(--primary-color);
+      padding: 35px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+      border-top: 8px solid var(--primary-color);
+      transition: all 0.4s ease;
     }
-    .database-container { border-top: 6px solid var(--success-color); }
+    .master-form-container.review-mode-active {
+      background: #fffdf3;
+      border-top-color: var(--warning-color);
+      box-shadow: 0 10px 35px rgba(255, 165, 2, 0.15);
+    }
+    .database-container { border-top: 8px solid var(--success-color); }
     
     .form-header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 3px double var(--border-color); padding-bottom: 15px; flex-wrap: wrap; gap: 15px; }
-    .form-title { color: var(--primary-color); font-size: 24px; font-weight: bold; }
-    .section-subtitle { font-size: 16px; font-weight: bold; color: var(--secondary-color); margin: 25px 0 15px 0; border-bottom: 2px solid var(--border-color); padding-bottom: 5px; grid-column: 1 / -1; }
+    .form-title { color: var(--primary-color); font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
     
-    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; }
-    .grid-Staff-Action { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; background: #f1f2f6; padding: 20px; border-radius: 8px; border: 2px dashed var(--primary-color); margin-bottom: 20px; }
-    .grid-5 { display: grid; grid-template-columns: 2fr repeat(4, 1fr); gap: 10px; align-items: center; margin-bottom: 10px; }
+    /* Interactive Card Section Styling */
+    .form-section-card {
+      background: #fff;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 25px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .form-section-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    
+    .section-subtitle { font-size: 17px; font-weight: 700; color: var(--secondary-color); margin-bottom: 20px; border-bottom: 2px solid var(--border-color); padding-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+    
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+    
+    .grid-Staff-Action { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+      gap: 20px; 
+      background: #f8f9fa; 
+      padding: 25px; 
+      border-radius: 12px; 
+      border: 2px dashed #a4b0be; 
+      margin-bottom: 5px;
+      transition: all 0.3s ease;
+    }
+    .master-form-container.review-mode-active .grid-Staff-Action {
+      background: #fff9e6;
+      border-color: var(--warning-color);
+    }
+    
+    .grid-5 { display: grid; grid-template-columns: 2fr repeat(4, 1fr); gap: 12px; align-items: center; margin-bottom: 12px; padding: 8px; border-radius: 6px; transition: background 0.2s; }
+    .grid-5:hover { background: #f1f2f6; }
     
     .field { display: flex; flex-direction: column; }
-    .field label { font-weight: 600; margin-bottom: 5px; font-size: 14px; color: #57606f; }
-    .field label.required::after { content: " *"; color: red; }
-    .field input, .field select { padding: 10px; border: 2px solid var(--border-color); border-radius: 6px; font-size: 14px; outline: none; transition: 0.2s; }
-    .field input:focus { border-color: var(--secondary-color); }
+    .field label { font-weight: 600; margin-bottom: 6px; font-size: 14px; color: #475569; transition: color 0.2s; }
+    .field label.required::after { content: " *"; color: var(--accent-color); }
     
-    .floor-label { font-weight: 600; font-size: 14px; color: #2f3542; }
-    .floor-input { padding: 8px; border: 2px solid var(--border-color); border-radius: 4px; font-size: 14px; text-align: center; }
+    .field input, .field select { padding: 12px; border: 2px solid var(--border-color); border-radius: 8px; font-size: 14.5px; outline: none; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); background-color: #fdfdfd; color: #2f3542; font-weight: 500; }
+    .field input:focus, .field select:focus { border-color: var(--secondary-color); background-color: #fff; box-shadow: 0 0 0 4px rgba(30, 55, 153, 0.15); }
+    .field input::placeholder { color: #a4b0be; }
+    
+    .floor-label { font-weight: 700; font-size: 14.5px; color: #2f3542; }
+    .floor-input { padding: 10px; border: 2px solid var(--border-color); border-radius: 6px; font-size: 14.5px; text-align: center; font-weight: 600; background: #fff; }
+    .floor-input:focus { border-color: var(--secondary-color); box-shadow: 0 0 0 3px rgba(30, 55, 153, 0.1); outline: none; }
     .floor-area-input { background-color: #fff9db; font-weight: bold; color: #2f3542; border: 2px solid #fab005; }
 
     /* Filter Controls Row */
-    .filter-wrapper { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; background: #f1f2f6; padding: 15px; border-radius: 8px; }
-    .filter-select { padding: 10px; border: 2px solid var(--success-color); border-radius: 6px; font-size: 15px; font-weight: bold; outline: none; background: #fff; cursor: pointer; min-width: 200px; }
-    .search-box-mod { flex: 1; padding: 10px; border: 2px solid var(--success-color); border-radius: 6px; font-size: 15px; outline: none; font-weight: bold; min-width: 250px; }
+    .filter-wrapper { display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; align-items: center; background: #f1f2f6; padding: 15px 20px; border-radius: 10px; border: 1px solid var(--border-color); }
+    .filter-select { padding: 12px; border: 2px solid var(--success-color); border-radius: 8px; font-size: 15px; font-weight: bold; outline: none; background: #fff; cursor: pointer; min-width: 220px; transition: all 0.3s; }
+    .filter-select:focus { box-shadow: 0 0 0 3px rgba(46, 213, 115, 0.2); }
+    .search-box-mod { flex: 1; padding: 12px; border: 2px solid var(--success-color); border-radius: 8px; font-size: 15px; outline: none; font-weight: bold; min-width: 250px; transition: all 0.3s; }
+    .search-box-mod:focus { box-shadow: 0 0 0 3px rgba(46, 213, 115, 0.2); }
 
     /* Buttons */
-    .action-buttons { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 30px; }
+    .action-buttons { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; }
     .report-buttons { display: flex; gap: 10px; margin-left: auto; }
     
-    .btn { color: white; border: none; padding: 12px 20px; font-size: 15px; font-weight: bold; border-radius: 6px; cursor: pointer; transition: 0.3s; display: flex; justify-content: center; align-items: center; gap: 8px; text-align: center; text-decoration: none; }
-    .btn-save { background: var(--primary-color); }
-    .btn-save:hover { background: var(--secondary-color); }
+    .btn { color: white; border: none; padding: 14px 24px; font-size: 15px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); display: flex; justify-content: center; align-items: center; gap: 8px; text-align: center; text-decoration: none; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+    .btn:active { transform: scale(0.98); }
     
-    .btn-verify { background: var(--success-color); display: none; }
-    .btn-verify:hover { background: #26af5f; }
-    .btn-return { background: var(--danger-color); display: none; }
-    .btn-return:hover { background: #b31212; }
+    .btn-save { background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); }
+    .btn-save:hover { background: linear-gradient(135deg, var(--secondary-color), #0c2461); box-shadow: 0 6px 20px rgba(12, 36, 97, 0.3); }
+    
+    .btn-verify { background: linear-gradient(135deg, #2ed573, #26af5f); display: none; }
+    .btn-verify:hover { box-shadow: 0 6px 20px rgba(46, 213, 115, 0.3); }
+    
+    .btn-return { background: linear-gradient(135deg, #ff4757, #cf1b1b); display: none; }
+    .btn-return:hover { box-shadow: 0 6px 20px rgba(255, 71, 87, 0.3); }
     
     .btn-clear { background: #747d8c; }
+    .btn-clear:hover { background: #57606f; }
     .btn-excel { background: #1f7343; }
-    .btn-excel:hover { background: #15522f; }
+    .btn-excel:hover { background: #15522f; box-shadow: 0 6px 15px rgba(31, 115, 67, 0.3); }
 
     /* Table Styling */
-    .db-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
-    .db-table th, .db-table td { border: 1px solid var(--border-color); padding: 12px; text-align: left; }
-    .db-table th { background-color: #f1f2f6; color: var(--primary-color); font-weight: bold; }
-    .db-table tr:hover { background-color: #f8f9fa; }
+    .db-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14.5px; border-radius: 8px; overflow: hidden; }
+    .db-table th, .db-table td { border: 1px solid var(--border-color); padding: 14px; text-align: left; }
+    .db-table th { background-color: #f1f2f6; color: var(--primary-color); font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .db-table tr { transition: background 0.2s; }
+    .db-table tr:hover { background-color: #f1f2f6; }
     
-    .action-btn { padding: 8px 14px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; margin-right: 5px; color: white; transition: 0.2s; }
-    .btn-edit { background-color: var(--warning-color); }
+    .action-btn { padding: 8px 14px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; margin-right: 5px; color: white; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .action-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
+    .btn-edit { background-color: var(--warning-color); color: #000; }
     .btn-delete { background-color: var(--accent-color); }
     .text-center { text-align: center !important; }
 
-    .badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 12px; color: white; display: inline-block; }
-    .badge-pending { background-color: var(--warning-color); color: black; }
-    .badge-approved { background-color: var(--success-color); }
-    .badge-returned { background-color: var(--danger-color); }
+    .badge { padding: 6px 10px; border-radius: 20px; font-weight: bold; font-size: 12px; color: white; display: inline-block; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .badge-pending { background-color: #ffa502; color: black; }
+    .badge-approved { background-color: #2ed573; }
+    .badge-returned { background-color: #ff4757; }
   </style>
 </head>
 <body>
@@ -102,7 +159,7 @@
     <div>📬 कन्सल्टेन्सीबाट स्वीकृतिका लागि <b><span id="pendingCount">0</span> वटा नयाँ फाइलहरू</b> आएका छन्। कृपया रिभ्यु गरी दर्ता गर्नुहोला।</div>
   </div>
 
-  <div class="master-form-container">
+  <div class="master-form-container" id="mainFormContainer">
     <div class="form-header-container">
       <div class="form-title" id="formHeaderTitle">🏛️ गलकोट नगरपालिका - भूमि व्यवस्थापन (कार्यालय कर्मचारी कार्यप्रणाली)</div>
     </div>
@@ -110,114 +167,128 @@
     <form id="masterDataForm">
       <input type="hidden" id="record_id" value="">
 
-      <div class="section-subtitle" style="color: var(--primary-color);">✍️ कार्यालय कर्मचारी निर्णय र स्वीकृतिका क्षेत्रहरू (Office Staff Action Field)</div>
-      <div class="grid-Staff-Action">
-        <div class="field">
-          <label id="lbl_registrano">दर्ता न. <span style="color:red;">*(दर्ता गर्दा अनिवार्य)</span></label>
-          <input type="text" id="registrano" placeholder="उदा: ०१-२०८२/०८३">
-        </div>
-        <div class="field">
-          <label id="lbl_registrano_date">दर्ता मिति <span style="color:red;">*(दर्ता गर्दा अनिवार्य)</span></label>
-          <input type="text" id="registrano_date" placeholder="उदा: २०८२-१०-१३">
-        </div>
-        <div class="field">
-          <label class="required">दर्ता गर्ने कर्मचारी</label>
-          <input type="text" id="se" placeholder="उदा: सन्तोष थापा (सि. इन्जिनियर)" required>
-        </div>
-        <div class="field">
-          <label class="required">कार्यबाही/दर्ता मिति</label>
-          <input type="text" id="date_reg" placeholder="उदा: २०८२-०२-१५" required>
-        </div>
-        <div class="field" style="grid-column: 1 / -1;">
-          <label style="color: var(--danger-color); font-weight: bold;">फिर्ता (Return) गर्ने भएमा कैफियत अनिवार्य लेख्नुहोस्:</label>
-          <input type="text" id="remarks" placeholder="उदा: नक्सा स्पष्ट भएन वा सेटब्याक नाप फरक देखियो।" style="border: 2px solid var(--danger-color); background-color: #fff5f5;">
+      <div class="form-section-card">
+        <div class="section-subtitle" style="color: var(--primary-color);">✍️ कार्यालय कर्मचारी निर्णय र स्वीकृतिका क्षेत्रहरू (Office Staff Action Field)</div>
+        <div class="grid-Staff-Action">
+          <div class="field">
+            <label id="lbl_registrano">दर्ता न. <span style="color:red;">*(दर्ता गर्दा अनिवार्य)</span></label>
+            <input type="text" id="registrano" placeholder="उदा: ०१-२०८२/०८३">
+          </div>
+          <div class="field">
+            <label id="lbl_registrano_date">दर्ता मिति <span style="color:red;">*(दर्ता गर्दा अनिवार्य)</span></label>
+            <input type="text" id="registrano_date" placeholder="उदा: २०८२-१०-१३">
+          </div>
+          <div class="field">
+            <label class="required">दर्ता गर्ने कर्मचारी</label>
+            <input type="text" id="se" placeholder="उदा: सन्तोष थापा (सि. इन्जिनियर)" required>
+          </div>
+          <div class="field">
+            <label class="required">कार्यबाही/दर्ता मिति</label>
+            <input type="text" id="date_reg" placeholder="उदा: २०८२-०२-१५" required>
+          </div>
+          <div class="field" style="grid-column: 1 / -1;">
+            <label style="color: var(--danger-color); font-weight: bold;">फिर्ता (Return) गर्ने भएमा कैफियत अनिवार्य लेख्नुहोस्:</label>
+            <input type="text" id="remarks" placeholder="उदा: नक्सा स्पष्ट भएन वा सेटब्याक नाप फरक देखियो।" style="border: 2px solid var(--danger-color); background-color: #fff5f5;">
+          </div>
         </div>
       </div>
       
-      <div class="section-subtitle">जग्गा र जग्गाधनीको विवरण (Land And Landownership Details)</div>
-      <div class="grid-3">
-        <div class="field"><label class="required">जग्गाधनीको नाम/थर</label><input type="text" id="owner" required></div>
-        <div class="field"><label class="required">नागरिकता नं</label><input type="text" id="cit_no" required></div>
-        <div class="field"><label class="required">जारी मिति</label><input type="text" id="cit_date" required></div>
-        <div class="field"><label class="required">जारी कार्यालय</label><input type="text" id="cit_office" required></div>
-        <div class="field"><label class="required">बाजेको नाम/थर</label><input type="text" id="grandfather" required></div>
-        <div class="field"><label class="required">बाबुको नाम/थर</label><input type="text" id="father" required></div>
-        <div class="field">
-          <label class="required">वडा नं.</label>
-          <select id="ward" required>
-            <option value="" disabled selected>वडा नं. छान्नुहोस्</option>
-            <option value="1">१</option><option value="2">२</option><option value="3">३</option>
-            <option value="4">४</option><option value="5">५</option><option value="6">६</option>
-            <option value="7">७</option><option value="8">८</option><option value="9">९</option>
-            <option value="10">१०</option><option value="11">११</option>
-          </select>
+      <div class="form-section-card">
+        <div class="section-subtitle">👤 जग्गा र जग्गाधनीको विवरण (Land And Landownership Details)</div>
+        <div class="grid-3">
+          <div class="field"><label class="required">जग्गाधनीको नाम/थर</label><input type="text" id="owner" required></div>
+          <div class="field"><label class="required">📞 घरधनीको मोबाइल नम्बर (Phone No.)</label><input type="text" id="phone" placeholder="९८XXXXXXXX" required></div>
+          <div class="field"><label class="required">नागरिकता नं</label><input type="text" id="cit_no" required></div>
+          <div class="field"><label class="required">जारी मिति</label><input type="text" id="cit_date" required></div>
+          <div class="field"><label class="required">जारी कार्यालय</label><input type="text" id="cit_office" required></div>
+          <div class="field"><label class="required">बाजेको नाम/थर</label><input type="text" id="grandfather" required></div>
+          <div class="field"><label class="required">बाबुको नाम/थर</label><input type="text" id="father" required></div>
+          <div class="field">
+            <label class="required">वडा नं.</label>
+            <select id="ward" required>
+              <option value="" disabled selected>वडा नं. छान्नुहोस्</option>
+              <option value="1">१</option><option value="2">२</option><option value="3">३</option>
+              <option value="4">४</option><option value="5">५</option><option value="6">६</option>
+              <option value="7">७</option><option value="8">८</option><option value="9">९</option>
+              <option value="10">१०</option><option value="11">११</option>
+            </select>
+          </div>
+          <div class="field"><label class="required">मार्ग / टोल</label><input type="text" id="tole" required></div>
+          <div class="field">
+            <label class="required">साविक गाविस</label>
+            <select id="savik_gavis" required>
+              <option value="" disabled selected>साविक गाविस छान्नुहोस्</option>
+              <option value="दुदिलाभाटी">दुदिलाभाटी</option><option value="नरेठाँटी">नरेठाँटी</option>
+              <option value="हटिया">हटिया</option><option value="हरिचौँर">हरिचौँर</option>
+              <option value="मल्म">मल्म</option><option value="काँडेवास">काँडेवास</option>
+              <option value="पाण्डवखानी">पाण्डवखानी</option><option value="रिघा">रिघा</option>
+            </select>
+          </div>       
+          <div class="field">
+            <label class="required">साविक वडा नं.</label>
+            <select id="savik_ward" required>
+              <option value="" disabled selected>वडा नं. छान्नुहोस्</option>
+              <option value="1">१</option><option value="2">२</option><option value="3">३</option>
+              <option value="4">४</option><option value="5">५</option><option value="6">६</option>
+              <option value="7">७</option><option value="8">८</option><option value="9">९</option>
+            </select>
+          </div>
+          <div class="field"><label class="required">कित्ता नं.</label><input type="text" id="kitta" required></div>
+          <div class="field"><label class="required">क्षेत्रफल (रोपनी-आना-पैसा-दाम)</label><input type="text" id="area" required></div>
+          
+          <div class="field"><label>घरको कुल लम्बाई (फिट)</label><input type="text" id="tot_length" placeholder="उदा: ३५ वा ३०+१५"></div>
+          <div class="field"><label>घरको कुल चौडाई (फिट)</label><input type="text" id="tot_width" placeholder="उदा: २५ वा २०+१०"></div>
+          
+          <div class="field"><label>घरको कुल उचाई (फिट)</label><input type="text" id="tot_height"></div>
+          <div class="field"><label>कुल तल्ला संख्या</label><input type="text" id="total_floors"></div>
+          <div class="field"><label>कोठा संख्या</label><input type="text" id="room"></div>
+          <div class="field"><label>ढोकाको संख्या</label><input type="text" id="door"></div>
+          <div class="field"><label>झ्यालको संख्या</label><input type="text" id="window"></div>
+          <div class="field"><label>शटरको  संख्या</label><input type="text" id="shutter"></div>
+          <div class="field"><label>च्यानल गेटको संख्या</label><input type="text" id="cg"></div>
+          <div class="field"><label>घरले चर्चेको क्षेत्रफल (व.फि.)</label><input type="number" step="any" id="cov_area"></div>
+          <div class="field"><label>भवनको कुल क्षेत्रफल (व.फि.)</label><input type="number" step="any" id="tot_area" style="background-color: #e8f4fd; font-weight: bold; color: #cf1b1b; border: 2px solid #2196f3;"></div>
         </div>
-        <div class="field"><label class="required">मार्ग / टोल</label><input type="text" id="tole" required></div>
-        <div class="field">
-          <label class="required">साविक गाविस</label>
-          <select id="savik_gavis" required>
-            <option value="" disabled selected>साविक गाविस छान्नुहोस्</option>
-            <option value="दुदिलाभाटी">दुदिलाभाटी</option><option value="नरेठाँटी">नरेठाँटी</option>
-            <option value="हटिया">हटिया</option><option value="हरिचौँर">हरिचौँर</option>
-            <option value="मल्म">मल्म</option><option value="काँडेवास">काँडेवास</option>
-            <option value="पाण्डवखानी">पाण्डवखानी</option><option value="रिघा">रिघा</option>
-          </select>
-        </div>       
-        <div class="field">
-          <label class="required">साविक वडा नं.</label>
-          <select id="savik_ward" required>
-            <option value="" disabled selected>वडा नं. छान्नुहोस्</option>
-            <option value="1">१</option><option value="2">२</option><option value="3">३</option>
-            <option value="4">४</option><option value="5">५</option><option value="6">६</option>
-            <option value="7">७</option><option value="8">८</option><option value="9">९</option>
-          </select>
+      </div>
+
+      <div class="form-section-card">
+        <div class="section-subtitle">🧭 चारकिल्ला (Land Boundary Details)</div>
+        <div class="grid-3">
+          <div class="field"><label class="required">पूर्व</label><input type="text" id="east" required></div>
+          <div class="field"><label class="required">पश्चिम</label><input type="text" id="west" required></div>        
+          <div class="field"><label class="required">उत्तर</label><input type="text" id="north" required></div>        
+          <div class="field"><label class="required">दक्षिण</label><input type="text" id="south" required></div>
         </div>
-        <div class="field"><label class="required">कित्ता नं.</label><input type="text" id="kitta" required></div>
-        <div class="field"><label class="required">क्षेत्रफल (रोपनी-आना-पैसा-दाम)</label><input type="text" id="area" required></div>
-        <div class="field"><label>घरको कुल लम्बाई (फिट)</label><input type="number" step="any" id="tot_length"></div>
-        <div class="field"><label>घरको कुल चौडाई (फिट)</label><input type="number" step="any" id="tot_width"></div>
-        <div class="field"><label>घरको कुल उचाई (फिट)</label><input type="text" id="tot_height"></div>
-        <div class="field"><label>कुल तल्ला संख्या</label><input type="text" id="total_floors"></div>
-        <div class="field"><label>कोठा संख्या</label><input type="text" id="room"></div>
-        <div class="field"><label>ढोकाको संख्या</label><input type="text" id="door"></div>
-        <div class="field"><label>झ्यालको संख्या</label><input type="text" id="window"></div>
-        <div class="field"><label>शटरको  संख्या</label><input type="text" id="shutter"></div>
-        <div class="field"><label>च्यानल गेटको संख्या</label><input type="text" id="cg"></div>
-        <div class="field"><label>घरले चर्चेको क्षेत्रफल (व.फि.)</label><input type="number" step="any" id="cov_area"></div>
-        <div class="field"><label>भवनको कुल क्षेत्रफल (व.फि.)</label><input type="number" step="any" id="tot_area" style="background-color: #e8f4fd; font-weight: bold; color: #cf1b1b; border: 2px solid #2196f3;"></div>
       </div>
 
-      <div class="section-subtitle">चारकिल्ला (Land Boundary Details)</div>
-      <div class="grid-3">
-        <div class="field"><label class="required">पूर्व</label><input type="text" id="east" required></div>
-        <div class="field"><label class="required">पश्चिम</label><input type="text" id="west" required></div>        
-        <div class="field"><label class="required">उत्तर</label><input type="text" id="north" required></div>        
-        <div class="field"><label class="required">दक्षिण</label><input type="text" id="south" required></div>
+      <div class="form-section-card">
+        <div class="section-subtitle">📋 मापदण्ड तथा प्राविधिक विवरण (Standards & Technical Details)</div>
+        <div class="grid-3">
+          <div class="field"><label class="required">बाटो चौँडाई</label><input type="text" id="road_width" required></div>
+          <div class="field"><label class="required">बाटो केन्द्रबाट छाड्नु पर्ने दुरी</label><input type="text" id="roadce" required></div>
+          <div class="field"><label class="required">बाटो केन्द्रबाट छाडेको दुरी</label><input type="text" id="roadcex" required></div>
+          <div class="field"><label class="required">छाड्नु पर्ने सेटब्याक</label><input type="text" id="setbac" required></div>
+          <div class="field"><label class="required">छाडेको सेटब्याक</label><input type="text" id="setbacx" required></div>
+          <div class="field"><label class="required">नदि किनारबाट छोड्नु पर्ने दुरी</label><input type="text" id="river" required></div>
+          <div class="field"><label class="required">नदि किनारबाट छोडेको दुरी</label><input type="text" id="riverx" required></div>
+          <div class="field"><label class="required">संधियार सिमानाबाट छोड्नु पर्ने दुरी</label><input type="text" id="land" required></div>
+          <div class="field"><label class="required">संधियार सिमानाबाट छोडेको दुरी</label><input type="text" id="landb" required></div>
+          <div class="field"><label class="required">राजश्व दर रु</label><input type="text" id="revinuerate" required></div>
+          <div class="field"><label class="required">गाउँ कभरेज प्रतिशत</label><input type="text" id="gc" required></div>
+          <div class="field"><label class="required">फार (FAR)</label><input type="text" id="far" required></div>
+        </div>
       </div>
 
-      <div class="section-subtitle">मापदण्ड तथा प्राविधिक विवरण (Standards & Technical Details)</div>
-      <div class="grid-3">
-        <div class="field"><label class="required">बाटो चौँडाई</label><input type="text" id="road_width" required></div>
-        <div class="field"><label class="required">बाटो केन्द्रबाट छाड्नु पर्ने दुरी</label><input type="text" id="roadce" required></div>
-        <div class="field"><label class="required">बाटो केन्द्रबाट छाडेको दुरी</label><input type="text" id="roadcex" required></div>
-        <div class="field"><label class="required">छाड्नु पर्ने सेटब्याक</label><input type="text" id="setbac" required></div>
-        <div class="field"><label class="required">छाडेको सेटब्याक</label><input type="text" id="setbacx" required></div>
-        <div class="field"><label class="required">नदि किनारबाट छोड्नु पर्ने दुरी</label><input type="text" id="river" required></div>
-        <div class="field"><label class="required">नदि किनारबाट छोडेको दुरी</label><input type="text" id="riverx" required></div>
-        <div class="field"><label class="required">संधियार सिमानाबाट छोड्नु पर्ने दुरी</label><input type="text" id="land" required></div>
-        <div class="field"><label class="required">संधियार सिमानाबाट छोडेको दुरी</label><input type="text" id="landb" required></div>
-        <div class="field"><label class="required">राजश्व दर रु</label><input type="text" id="revinuerate" required></div>
-        <div class="field"><label class="required">गाउँ कभरेज प्रतिशत</label><input type="text" id="gc" required></div>
-        <div class="field"><label class="required">फार (FAR)</label><input type="text" id="far" required></div>
+      <div class="form-section-card">
+        <div class="section-subtitle">🏢 तल्लागत विस्तृत नाप र क्षेत्रफल विवरण (Floor Details)</div>
+        
+        <div class="grid-5"><div class="floor-label">जमिन तल्ला (Ground)</div><input type="text" id="f_ground_l" placeholder="लम्बाई (उदा: ३०)" class="floor-input"><input type="text" id="f_ground_w" placeholder="चौडाई" class="floor-input"><input type="text" id="f_ground_h" placeholder="उचाई" class="floor-input"><input type="number" step="any" id="f_ground_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input"></div>
+        <div class="grid-5"><div class="floor-label">पहिलो तल्ला</div><input type="text" id="f_1st_l" placeholder="लम्बाई" class="floor-input"><input type="text" id="f_1st_w" placeholder="चौडाई" class="floor-input"><input type="text" id="f_1st_h" placeholder="उचाई" class="floor-input"><input type="number" step="any" id="f_1st_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input"></div>
+        <div class="grid-5"><div class="floor-label">दोस्रो तल्ला</div><input type="text" id="f_2nd_l" placeholder="लम्बाई" class="floor-input"><input type="text" id="f_2nd_w" placeholder="चौडाई" class="floor-input"><input type="text" id="f_2nd_h" placeholder="उचाई" class="floor-input"><input type="number" step="any" id="f_2nd_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input"></div>
+        <div class="grid-5"><div class="floor-label">तेस्रो तल्ला</div><input type="text" id="f_3rd_l" placeholder="लम्बाई" class="floor-input"><input type="text" id="f_3rd_w" placeholder="चौडाई" class="floor-input"><input type="text" id="f_3rd_h" placeholder="उचाई" class="floor-input"><input type="number" step="any" id="f_3rd_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input"></div>
+        <div class="grid-5"><div class="floor-label">चौथो तल्ला</div><input type="text" id="f_4th_l" placeholder="लम्बाई" class="floor-input"><input type="text" id="f_4th_w" placeholder="चौडाई" class="floor-input"><input type="text" id="f_4th_h" placeholder="उचाई" class="floor-input"><input type="number" step="any" id="f_4th_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input"></div>
+        <div class="grid-5"><div class="floor-label">पाँचौ तल्ला</div><input type="text" id="f_5th_l" placeholder="लम्बाई" class="floor-input"><input type="text" id="f_5th_w" placeholder="चौडाई" class="floor-input"><input type="text" id="f_5th_h" placeholder="उचाई" class="floor-input"><input type="number" step="any" id="f_5th_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input"></div>
       </div>
-
-      <div class="section-subtitle">तल्लागत विस्तृत नाप र क्षेत्रफल विवरण</div>
-      <div class="grid-5"><div class="floor-label">जमिन तल्ला (Ground)</div><input type="number" step="any" id="f_ground_l" placeholder="लम्बाई" class="floor-input"><input type="number" step="any" id="f_ground_w" placeholder="चौडाई" class="floor-input"><input type="text" id="f_ground_h" placeholder="उचाई" class="floor-input"><input type="number" step="any" id="f_ground_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input"></div>
-      <div class="grid-5"><div class="floor-label">पहिलो तल्ला</div><input type="number" step="any" id="f_1st_l" placeholder="लम्बाई" class="floor-input"><input type="number" step="any" id="f_1st_w" placeholder="चौडाई" class="floor-input"><input type="text" id="f_1st_h" placeholder="उचाई" class="floor-input"><input type="number" step="any" id="f_1st_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input"></div>
-      <div class="grid-5"><div class="floor-label">दोस्रो तल्ला</div><input type="number" step="any" id="f_2nd_l" placeholder="लम्बाई" class="floor-input"><input type="number" step="any" id="f_2nd_w" placeholder="चौडाई" class="floor-input"><input type="text" id="f_2nd_h" placeholder="उचाई" class="floor-input"><input type="number" step="any" id="f_2nd_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input"></div>
-      <div class="grid-5"><div class="floor-label">तेस्रो तल्ला</div><input type="number" step="any" id="f_3rd_l" placeholder="लम्बाई" class="floor-input"><input type="number" step="any" id="f_3rd_w" placeholder="चौडाई" class="floor-input"><input type="text" id="f_3rd_h" placeholder="उचाई" class="floor-input"><input type="number" step="any" id="f_3rd_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input"></div>
-      <div class="grid-5"><div class="floor-label">चौथो तल्ला</div><input type="number" step="any" id="f_4th_l" placeholder="लम्बाई" class="floor-input"><input type="number" step="any" id="f_4th_w" placeholder="चौडाई" class="floor-input"><input type="text" id="f_4th_h" placeholder="उचाई" class="floor-input"><input type="number" step="any" id="f_4th_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input"></div>
-      <div class="grid-5"><div class="floor-label">पाँचौ तल्ला</div><input type="number" step="any" id="f_5th_l" placeholder="लम्बाई" class="floor-input"><input type="number" step="any" id="f_5th_w" placeholder="चौडाई" class="floor-input"><input type="text" id="f_5th_h" placeholder="उचाई" class="floor-input"><input type="number" step="any" id="f_5th_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input"></div>
 
       <div class="action-buttons">
         <button type="submit" id="submitBtn" class="btn btn-save">💾 नयाँ रेकर्ड सोझै सेभ गर्नुस्</button>
@@ -231,7 +302,6 @@
   <div class="database-container">
     <div class="form-header-container">
       <div class="form-title">🗄️ जग्गाधनी तथा भवन रेकर्ड डाटाबेस र रिपोर्ट प्रणाली</div>
-      
       <div class="report-buttons">
         <button class="btn btn-excel" onclick="exportToExcel()">📊 Excel रिपोर्ट डाउनलोड</button>
       </div>
@@ -253,8 +323,9 @@
         <thead>
           <tr>
             <th>दर्ता न.</th>
-            <th>नागरिकता नं.</th>
             <th>जग्गाधनीको नाम</th>
+            <th>📞 सम्पर्क नम्बर</th>
+            <th>नागरिकता नं.</th>
             <th>कित्ता नं.</th>
             <th>कुल क्षेत्रफल</th>
             <th>अवस्था (Status)</th>
@@ -262,7 +333,7 @@
           </tr>
         </thead>
         <tbody id="databaseTableBody">
-          <tr><td colspan="7" class="text-center">डेटा लोड हुँदैछ...</td></tr>
+          <tr><td colspan="8" class="text-center">डेटा लोड हुँदैछ...</td></tr>
         </tbody>
       </table>
     </div>
@@ -282,6 +353,23 @@
       fetchFromSupabase();
     });
 
+    // टेक्स्ट इनपुटबाट अंक वा गणितीय सुत्र (उदा: ३०+१५) भए पनि पार्स गर्ने सुरक्षित प्रणाली
+    function parseTextToNumber(value) {
+      if (!value) return 0;
+      // केवल अंक, दशमलव, +, -, *, /, र कोष्ठकहरू मात्र स्वीकार्ने (सुरक्षाको लागि)
+      let sanitized = value.replace(/[^0-9.+\-*/()]/g, '');
+      if (!sanitized) return 0;
+      try {
+        // eval को प्रयोग गरी "३०+१५" लाई ४५ बनाउने
+        let result = Function(`"use strict"; return (${sanitized})`)();
+        return parseFloat(result) || 0;
+      } catch (e) {
+        // यदि फर्मुला अधुरो छ भने (जस्तै "३०+") सिधै पहिलो नम्बर मात्र निकाल्ने प्रयास गर्ने
+        let firstNumber = sanitized.match(/^[\d.]+/);
+        return firstNumber ? parseFloat(firstNumber[0]) : 0;
+      }
+    }
+
     function setupLiveCalculations() {
       floorsList.forEach(f => {
         const lenInput = document.getElementById(`f_${f}_l`);
@@ -289,12 +377,14 @@
         const areaInput = document.getElementById(`f_${f}_a`);
         
         if (lenInput && widInput) {
-          lenInput.addEventListener('input', () => {
-            const l = parseFloat(lenInput.value) || 0;
-            const w = parseFloat(widInput.value) || 0;
+          const calculateRow = () => {
+            const l = parseTextToNumber(lenInput.value);
+            const w = parseTextToNumber(widInput.value);
             areaInput.value = (l * w) > 0 ? (l * w).toFixed(2) : "";
             calculateGrandTotalFloorArea();
-          });
+          };
+          lenInput.addEventListener('input', calculateRow);
+          widInput.addEventListener('input', calculateRow);
         }
         if (areaInput) {
           areaInput.addEventListener('input', calculateGrandTotalFloorArea);
@@ -354,7 +444,7 @@
       tbody.innerHTML = '';
 
       if (dataArray.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="text-center" style="color:#999; padding: 20px;">फिल्टर बमोजिमको कुनै डाटा फेला परेन।</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center" style="color:#999; padding: 20px;">फिल्टर बमोजिमको कुनै डाटा फेला परेन।</td></tr>`;
         return;
       }
 
@@ -368,8 +458,9 @@
         const row = document.createElement('tr');
         row.innerHTML = `
           <td><b>${item.registrano || '-'}</b></td>
+          <td><b>${item.owner}</b></td>
+          <td>${item.phone || '-'}</td>
           <td>${item.cit_no}</td>
-          <td>${item.owner}</td>
           <td>${item.kitta}</td>
           <td><b style="color:red;">${item.tot_area || '0.00'}</b></td>
           <td>${statusBadge}</td>
@@ -382,7 +473,6 @@
       });
     }
 
-    // EXCEL (XLSX) REPORT GENERATION (तालिकामा फिल्टर भएर जे देखिएको छ, त्यसकै रिपोर्ट बन्छ)
     function exportToExcel() {
       if (displayedData.length === 0) {
         alert("डाउनलोड गर्नका लागि तालिकामा डाटाहरू उपलब्ध छैनन्।");
@@ -399,6 +489,7 @@
           "दर्ता नं.": item.registrano || '-',
           "दर्ता मिति": item.registrano_date || '-',
           "जग्गाधनीको नाम": item.owner || '-',
+          "सम्पर्क नम्बर": item.phone || '-',
           "नागरिकता नं.": item.cit_no || '-',
           "कित्ता नं.": item.kitta || '-',
           "कुल क्षेत्रफल (व.फि.)": item.tot_area || 0,
@@ -435,6 +526,9 @@
       document.getElementById('verifyBtn').style.display = 'flex';
       document.getElementById('returnBtn').style.display = 'flex';
       document.getElementById('formHeaderTitle').innerText = "🔎 फाइल पुनरावलोकन तथा प्रमाणीकरण मोड (Review Mode)";
+      
+      // इन्टरफेसमा रीभ्यु मुड दर्साउन क्लास थप्ने
+      document.getElementById('mainFormContainer').classList.add('review-mode-active');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -446,6 +540,7 @@
         cit_date: document.getElementById('cit_date').value, 
         cit_office: document.getElementById('cit_office').value,
         owner: document.getElementById('owner').value, 
+        phone: document.getElementById('phone').value, 
         grandfather: document.getElementById('grandfather').value, 
         father: document.getElementById('father').value,
         ward: document.getElementById('ward').value, 
@@ -454,8 +549,8 @@
         savik_ward: document.getElementById('savik_ward').value, 
         kitta: document.getElementById('kitta').value, 
         area: document.getElementById('area').value,
-        tot_length: parseFloat(document.getElementById('tot_length').value) || null, 
-        tot_width: parseFloat(document.getElementById('tot_width').value) || null,
+        tot_length: document.getElementById('tot_length').value, // Text Format 
+        tot_width: document.getElementById('tot_width').value,   // Text Format
         tot_height: document.getElementById('tot_height').value, 
         room: document.getElementById('room').value, 
         door: document.getElementById('door').value,
@@ -487,8 +582,8 @@
       };
 
       floorsList.forEach(f => {
-        record[`f_${f}_l`] = parseFloat(document.getElementById(`f_${f}_l`).value) || null;
-        record[`f_${f}_w`] = parseFloat(document.getElementById(`f_${f}_w`).value) || null;
+        record[`f_${f}_l`] = document.getElementById(`f_${f}_l`).value || null; // Text Format
+        record[`f_${f}_w`] = document.getElementById(`f_${f}_w`).value || null; // Text Format
         record[`f_${f}_h`] = document.getElementById(`f_${f}_h`).value || null;
         record[`f_${f}_a`] = parseFloat(document.getElementById(`f_${f}_a`).value) || null;
       });
@@ -569,6 +664,7 @@
       document.getElementById('verifyBtn').style.display = 'none';
       document.getElementById('returnBtn').style.display = 'none';
       document.getElementById('formHeaderTitle').innerText = "🏛️ गलकोट नगरपालिका - भूमि व्यवस्थापन (कार्यालय कर्मचारी कार्यप्रणाली)";
+      document.getElementById('mainFormContainer').classList.remove('review-mode-active');
     }
   </script>
 </body>
