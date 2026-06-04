@@ -11,6 +11,8 @@
       --primary-color: #c0392b;
       --secondary-color: #2c3e50;
       --success-color: #27ae60;
+      --warning-color: #f39c12;
+      --danger-color: #d35400;
       --bg-color: #f5f6fa;
       --card-bg: #ffffff;
       --border-color: #dcdde1;
@@ -20,15 +22,15 @@
     body { 
       font-family: 'Noto Sans Devanagari', sans-serif; 
       background: var(--bg-color); 
-      padding: 40px 20px; 
+      padding: 30px 20px; 
       color: #000000; 
-      line-height: 1.6; 
+      line-height: 1.5; 
     }
     .search-wrapper { 
       max-width: 850px; 
-      margin: 0 auto 30px auto; 
+      margin: 0 auto 20px auto; 
       background: var(--card-bg); 
-      padding: 30px; 
+      padding: 25px; 
       border-radius: 12px; 
       box-shadow: 0 8px 20px rgba(0,0,0,0.05); 
       border: 2px solid var(--secondary-color); 
@@ -36,13 +38,34 @@
     .system-title {
       text-align: center;
       color: var(--secondary-color);
-      font-size: 22px;
+      font-size: 21px;
       font-weight: 700;
-      margin-bottom: 15px;
+      margin-bottom: 12px;
     }
+    
+    /* Notice Dashboard Styling */
+    .notice-dashboard {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .notice-card {
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+      color: white;
+      font-weight: 600;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .card-success { background-color: var(--success-color); }
+    .card-warning { background-color: var(--warning-color); }
+    .card-danger { background-color: var(--danger-color); }
+    .card-num { font-size: 24px; font-weight: 700; display: block; margin-top: 5px; }
+
     .search-box { 
       width: 100%; 
-      padding: 15px; 
+      padding: 12px; 
       border: 2px solid var(--border-color); 
       border-radius: 8px; 
       font-size: 16px; 
@@ -52,28 +75,28 @@
     }
     .print-certificate-container {
       max-width: 850px; 
-      margin: 0 auto 50px auto; 
+      margin: 0 auto 30px auto; 
       background: var(--card-bg);
-      padding: 50px 60px; 
+      padding: 30px 40px; 
       border-radius: 4px; 
       position: relative; 
-      font-size: 17px; 
+      font-size: 16.5px; 
       color: #000000;
       display: none; 
     }
-    .header-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
-    .header-logo { width: 110px; text-align: left; vertical-align: top; }
-    .header-logo img { width: 100px; height: auto; }
-    .header-text { text-align: center; vertical-align: top; line-height: 1.4; }
-    .muni-name { font-size: 20px; font-weight: 600; color: #000; }
-    .exec-office { font-size: 30px; font-weight: 700; color: #cc0000; margin-top: 2px; }
-    .dept-name { font-size: 16px; font-weight: 700; margin-top: 1px; }
-    .address-line { font-size: 18px; font-weight: 600; }
-    .header-photo { width: 110px; text-align: right; vertical-align: top; }
-    .photo-box { width: 100px; height: 120px; border: 2px solid #000; margin-left: auto; display: flex; align-items: center; justify-content: center; font-size: 13px; }
-    .cert-main-title { text-align: center; font-size: 26px; font-weight: 700; margin: 20px 0; text-decoration: underline; letter-spacing: 0.5px; }
-    .meta-row { display: flex; justify-content: space-between; font-weight: 700; font-size: 17.5px; margin-bottom: 8px; }
-    .cert-body-para { text-align: justify; margin-bottom: 15px; line-height: 1.8; text-justify: inter-word; }
+    .header-table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
+    .header-logo { width: 105px; text-align: left; vertical-align: top; }
+    .header-logo img { width: 95px; height: auto; }
+    .header-text { text-align: center; vertical-align: top; line-height: 1.35; }
+    .muni-name { font-size: 19px; font-weight: 600; color: #000; }
+    .exec-office { font-size: 28px; font-weight: 700; color: #cc0000; margin-top: 2px; }
+    .dept-name { font-size: 15px; font-weight: 700; margin-top: 1px; }
+    .address-line { font-size: 17px; font-weight: 600; }
+    .header-photo { width: 105px; text-align: right; vertical-align: top; }
+    .photo-box { width: 95px; height: 115px; border: 2px solid #000; margin-left: auto; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+    .cert-main-title { text-align: center; font-size: 24px; font-weight: 700; margin: 15px 0; text-decoration: underline; letter-spacing: 0.5px; }
+    .meta-row { display: flex; justify-content: space-between; font-weight: 700; font-size: 16.5px; margin-bottom: 6px; }
+    .cert-body-para { text-align: justify; margin-bottom: 12px; line-height: 1.7; text-justify: inter-word; }
     .dynamic-span { 
       font-weight: 700; 
       border-bottom: 1px dashed #000000; 
@@ -88,28 +111,28 @@
       outline: none;
     }
     .editable-span:focus { background-color: #fff59d; }
-    .section-head { font-weight: 700; margin-top: 15px; margin-bottom: 5px; font-size: 17.5px; }
-    .indent-block { padding-left: 20px; }
-    .boundary-table { width: 100%; margin-left: 20px; margin-bottom: 15px; }
-    .boundary-table td { padding: 4px 0; width: 50%; }
-    .area-data-table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 15px; }
-    .area-data-table th, .area-data-table td { border: 1px solid #000; padding: 6px 10px; }
+    .section-head { font-weight: 700; margin-top: 12px; margin-bottom: 4px; font-size: 16.5px; }
+    .indent-block { padding-left: 15px; }
+    .boundary-table { width: 100%; margin-left: 15px; margin-bottom: 12px; }
+    .boundary-table td { padding: 3px 0; width: 50%; }
+    .area-data-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14.5px; }
+    .area-data-table th, .area-data-table td { border: 1px solid #000; padding: 5px 8px; }
     .area-data-table th { background-color: #f2f2f2; font-weight: 700; text-align: center; }
     .text-center { text-align: center; }
-    .signature-row { display: flex; justify-content: space-between; text-align: center; margin-top: 70px; margin-bottom: 20px; font-size: 14.5px; font-weight: 600; }
+    .signature-row { display: flex; justify-content: space-between; text-align: center; margin-top: 45px; margin-bottom: 15px; font-size: 14px; font-weight: 600; }
     .sig-column { width: 22%; }
-    .sig-top-line { border-top: 1px dashed #000; margin-bottom: 6px; width: 100%; }
-    .bottom-office-footer { display: flex; justify-content: space-between; font-weight: 700; border-top: 2px solid #000; padding-top: 8px; margin-top: 30px; font-size: 15px; }
+    .sig-top-line { border-top: 1px dashed #000; margin-bottom: 5px; width: 100%; }
+    .bottom-office-footer { display: flex; justify-content: space-between; font-weight: 700; border-top: 2px solid #000; padding-top: 6px; margin-top: 20px; font-size: 14.5px; }
     
-    .print-action-box { text-align: center; margin-top: 35px; border-top: 1px solid #e2e8f0; padding-top: 25px; display: flex; justify-content: center; gap: 15px; }
-    .btn-submit-print { background-color: var(--primary-color); color: white; border: none; padding: 14px 35px; font-size: 16px; font-weight: 700; border-radius: 6px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
-    .btn-save-meta { background-color: var(--success-color); color: white; border: none; padding: 14px 35px; font-size: 16px; font-weight: 700; border-radius: 6px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+    .print-action-box { text-align: center; margin-top: 25px; border-top: 1px solid #e2e8f0; padding-top: 20px; display: flex; justify-content: center; gap: 15px; }
+    .btn-submit-print { background-color: var(--primary-color); color: white; border: none; padding: 12px 30px; font-size: 15px; font-weight: 700; border-radius: 6px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+    .btn-save-meta { background-color: var(--success-color); color: white; border: none; padding: 12px 30px; font-size: 15px; font-weight: 700; border-radius: 6px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
     .alert-no-record { text-align: center; padding: 40px; color: #7f8c8d; font-size: 16px; background: white; max-width: 850px; margin: 0 auto; border-radius: 8px; border: 2px dashed #cbd5e1; font-weight: 600; }
 
-    @page { size: A4 portrait; margin: 15mm; }
+    @page { size: A4 portrait; margin: 10mm; }
     @media print {
       body { background: #fff; padding: 0; margin: 0; }
-      .search-wrapper, .print-action-box, .alert-no-record { display: none !important; }
+      .search-wrapper, .print-action-box, .alert-no-record, .notice-dashboard { display: none !important; }
       .print-certificate-container { display: block !important; box-shadow: none !important; border: none !important; padding: 0 !important; margin: 0 !important; width: 100% !important; }
       .dynamic-span { border-bottom: none !important; background-color: transparent !important; padding: 0 !important; }
       .editable-span { border-bottom: none !important; background-color: transparent !important; }
@@ -120,6 +143,23 @@
 
   <div class="search-wrapper">
     <div class="system-title">🏛️ गलकोट नगरपालिका - भवन निर्माण सम्पन्न प्रमाण पत्र प्रणाली</div>
+    
+    <!-- Notice Dashboard Board -->
+    <div class="notice-dashboard">
+      <div class="notice-card card-success">
+        📜 स्थायी इजाजत संख्या
+        <span id="cnt_approved" class="card-num">०</span>
+      </div>
+      <div class="notice-card card-warning">
+        ⚠️ म्याद नाघ्यो, थप गर्नुहोला (२ वर्ष कटेका)
+        <span id="cnt_delayed_2yr" class="card-num">०</span>
+      </div>
+      <div class="notice-card card-danger">
+        🚨 अत्यन्तै ढिलो, तुरुन्तै थप गर्नुहोला (४ वर्ष कटेका)
+        <span id="cnt_delayed_4yr" class="card-num">०</span>
+      </div>
+    </div>
+
     <input type="text" id="certSearchBox" class="search-box" placeholder="🔍 दर्ता न. / जग्गाधनीको नाम / कित्ता नं. टाइप गरी खोज्नुहोस्..." oninput="searchCertificateSystem()">
   </div>
 
@@ -145,13 +185,10 @@
     <div class="cert-main-title">भवन निर्माण सम्पन्न प्रमाण पत्र</div>
 
     <div class="meta-row">
-      <!-- पत्र संख्या -> done_certificate -->
       <div>पत्र संख्या : <span id="lbl_done_certificate" class="dynamic-span editable-span" contenteditable="true">२०८२/२०८३</span></div>
-      <!-- मिति -> done_issued_date -->
       <div>मिति : <span id="lbl_done_issued_date" class="dynamic-span editable-span" contenteditable="true">......../......../........</span></div>
     </div>
-    <div class="meta-row" style="margin-bottom: 20px;">
-      <!-- चलानी नं -> done_chalani_no -->
+    <div class="meta-row" style="margin-bottom: 15px;">
       <div>चलानी नं : <span id="lbl_done_chalani_no" class="dynamic-span editable-span" contenteditable="true">............</span></div>
       <div></div>
     </div>
@@ -181,7 +218,6 @@
       <strong>४. घर धनीको बाबु/पतिको नाम, थर वतन:</strong> <span id="lbl_father" class="dynamic-span" style="min-width: 200px;"></span> / बाजेको नाम: <span id="lbl_grandfather" class="dynamic-span" style="min-width: 180px;"></span>
     </div>
 
-    <!-- ५. क्षेत्रफल तालिका (४ औं र ५ औं तल्ला छुट्टाछुट्टै) -->
     <div class="section-head">५. पास नक्सा अनुसार पाउने र निर्माण भएको स्थिति (वर्ग फिट):</div>
     <table class="area-data-table">
       <thead>
@@ -209,7 +245,7 @@
       </tbody>
     </table>
 
-    <div class="cert-body-para" style="line-height: 1.75;">
+    <div class="cert-body-para" style="line-height: 1.65;">
       <strong>६. उचाई फिट/ मिटर:</strong> <span id="lbl_tot_height_two" class="dynamic-span"></span> <strong>कुल तल्ला संख्या:</strong> <span id="lbl_total_floors" class="dynamic-span"></span><br>
       <strong>७. केन्द्र रेखाबाट छाड्नुपर्ने दूरी:</strong> <span id="lbl_roadce" class="dynamic-span"></span> छोडेको दूरी <span id="lbl_roadcex" class="dynamic-span"></span><br>
       <strong>८. छाड्नुपर्ने सेटब्याक:</strong> <span id="lbl_setbac" class="dynamic-span"></span> छोडेको सेटब्याक <span id="lbl_setbacx" class="dynamic-span"></span><br>
@@ -251,11 +287,55 @@
         const { data, error } = await _supabase.from('g_map_branch1').select('*');
         if (error) throw error;
         serverDatabase = data;
+        
+        // डेटा लोड भएपछि नोटिस तथ्याङ्कहरू अपडेट गर्ने
+        calculateNoticeStatistics();
       } catch (err) { console.error("Database connection failure:", err.message); }
     }
 
+    // नोटिसका लागि तथ्याङ्क गणना गर्ने स्वचालित फङ्गसन
+    function calculateNoticeStatistics() {
+      let approvedCount = 0;
+      let delayed2YearCount = 0;
+      let delayed4YearCount = 0;
+
+      // चालु साल (नेपाली वर्ष २०८३ लाई आधार मान्दा)
+      const currentYear = 2083;
+
+      serverDatabase.forEach(row => {
+        // १. स्थायी इजाजत दिएका संख्या (जसको प्रमाणपत्र नम्बर वा जारी मिति उपलब्ध छ)
+        if (row.done_certificate && row.done_issued_date && row.done_issued_date.includes('/')) {
+          approvedCount++;
+        } else {
+          // प्रमाणपत्र जारी नभएकाको हकमा म्याद गणना
+          let registerYear = currentYear; // डिफल्ट चालु वर्ष
+          
+          // यदि दर्ता वर्ष पत्र संख्या वा दर्ता नम्बरमा उपलब्ध भए निकाल्ने (उदा: २०७९/८०)
+          if (row.registrano && row.registrano.toString().includes('/')) {
+            const parts = row.registrano.toString().split('/');
+            const baseYear = parseInt(parts[0].replace(/[^0-9]/g, ''));
+            if (!isNaN(baseYear) && baseYear > 2000) registerYear = baseYear;
+          }
+
+          const yearsElapsed = currentYear - registerYear;
+
+          // २ वर्ष कटेका र ४ वर्ष कटेकाको वर्गिकरण
+          if (yearsElapsed >= 4) {
+            delayed4YearCount++;
+          } else if (yearsElapsed >= 2) {
+            delayed2YearCount++;
+          }
+        }
+      });
+
+      // सूचना बोर्डमा संख्या देखाउने (नेपाली अंकमा परिवर्तन गरेर)
+      document.getElementById('cnt_approved').innerText = convertToNepaliDigits(approvedCount);
+      document.getElementById('cnt_delayed_2yr').innerText = convertToNepaliDigits(delayed2YearCount);
+      document.getElementById('cnt_delayed_4yr').innerText = convertToNepaliDigits(delayed4YearCount);
+    }
+
     function convertToNepaliDigits(value) {
-      if (value === undefined || value === null || value === '') return '-';
+      if (value === undefined || value === null || value === '') return '०';
       let textSource = value.toString().trim();
       const eng = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
       const nep = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
@@ -288,7 +368,6 @@
       if (targetMatch) {
         currentSelectedRowId = targetMatch.id; 
 
-        // सामान्य विवरणहरू
         document.getElementById('lbl_ward').innerText = convertToNepaliDigits(targetMatch.ward);
         document.getElementById('lbl_ward_two').innerText = convertToNepaliDigits(targetMatch.ward);
         document.getElementById('lbl_kitta').innerText = convertToNepaliDigits(targetMatch.kitta);
@@ -298,15 +377,11 @@
         document.getElementById('lbl_tole_two').innerText = targetMatch.tole || '.........';
         document.getElementById('lbl_road_width').innerText = targetMatch.road_width || '.........';
         
-        // ==========================================
-        // तपाईंको नयाँ कोलमहरूको डेटा लोड गर्ने खण्ड
-        // ==========================================
         document.getElementById('lbl_done_issued_date').innerText = targetMatch.done_issued_date || '......../......../........';
         document.getElementById('lbl_done_certificate').innerText = targetMatch.done_certificate || '२०८२/२०८३';
         document.getElementById('lbl_done_chalani_no').innerText = targetMatch.done_chalani_no || '............';
         document.getElementById('lbl_house_no').innerText = targetMatch.house_no || '.....';
 
-        // आकार र सिमाना
         document.getElementById('lbl_tot_length').innerText = targetMatch.tot_length ? convertToNepaliDigits(targetMatch.tot_length) : '---';
         document.getElementById('lbl_tot_width').innerText = targetMatch.tot_width ? convertToNepaliDigits(targetMatch.tot_width) : '---';
         document.getElementById('lbl_tot_height').innerText = targetMatch.tot_height ? convertToNepaliDigits(targetMatch.tot_height) : '---';
@@ -333,7 +408,6 @@
         document.getElementById('lbl_land').innerText = targetMatch.land ? convertToNepaliDigits(targetMatch.land) : '---';
         document.getElementById('lbl_landb').innerText = targetMatch.landb ? convertToNepaliDigits(targetMatch.landb) : '---';
 
-        // तल्लागत क्षेत्रफल
         let floors = ['base_a', 'semi_a', 'ground_a', '1st_a', '2nd_a', '3rd_a', '4th_a', '5th_a'];
         floors.forEach(f => {
           let val = targetMatch['f_' + f] ? convertToNepaliDigits(targetMatch['f_' + f]) : '-';
@@ -355,13 +429,9 @@
       }
     }
 
-    // ==========================================================
-    // नयाँ थपिएका कोलमहरू (done_certificate, done_chalani_no, done_issued_date)
-    // मा डाटा सुरक्षित गर्ने फङ्सन
-    // ==========================================================
     async function saveCertificateMetadata() {
       if (!currentSelectedRowId) {
-        alert("कुनै रेकرد छानिएको छैन!");
+        alert("कुनै रेकर्ड छानिएको छैन!");
         return;
       }
 
