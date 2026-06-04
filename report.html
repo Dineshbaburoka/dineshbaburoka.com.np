@@ -3,14 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reports Dashboard - न.प.</title>
+    <title>Reports Dashboard - गलकोट न.प.</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
         :root {
+            --primary-color: #0c2461;
             --text-main: #2c3e50;
             --text-sub: #555555;
             
-            /* Color Groups for Status Badges mapped from image */
+            /* Color Groups for Status Badges */
             --badge-green-bg: rgba(46, 204, 113, 0.15);
             --badge-green-text: #27ae60;
             --badge-red-bg: rgba(231, 76, 60, 0.15);
@@ -27,7 +30,6 @@
         }
 
         body {
-            /* Using the local reference image as the full cover background */
             background: linear-gradient(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.25)), 
                         url('website.jpg') no-repeat center center fixed;
             background-size: cover;
@@ -65,14 +67,14 @@
             backdrop-filter: blur(5px);
         }
 
-        /* Card Grid - 3 Columns matching the image structure */
+        /* Card Grid - 3 Columns */
         .report-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 25px;
         }
 
-        /* Glassmorphism Card Style matching the image visuals */
+        /* Glassmorphism Card Style */
         .report-card {
             background: rgba(255, 255, 255, 0.92);
             backdrop-filter: blur(8px);
@@ -106,7 +108,7 @@
             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
         }
 
-        /* Stylized Left Icon to match Image placement */
+        /* Stylized Left Icon */
         .icon-container {
             font-size: 1.8rem;
             margin-right: 20px;
@@ -149,7 +151,18 @@
             max-width: 80%;
         }
 
-        /* Top-Right Status Badge matching layout in Gemini_Generated_Image_xpvagsxpvagsxpva.png */
+        /* Live Counter Badge */
+        .live-counter {
+            font-weight: bold;
+            color: var(--primary-color);
+            background: #eccc68;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            margin-left: 5px;
+        }
+
+        /* Top-Right Status Badge */
         .status-badge {
             position: absolute;
             top: 15px;
@@ -197,12 +210,11 @@
 
 <div class="container">
     <header>
-        <h1>नक्सा पास सम्बन्धि</h1>
-        <p class="subtitle"></p>
+        <h1>नक्सा पास सम्बन्धि रिपोर्ट ड्यासबोर्ड</h1>
+        <p class="subtitle">गलकोट नगरपालिका</p>
     </header>
 
     <div class="report-grid">
-        <!-- Card 1 -->
         <a href="order.html" class="report-card">
             <div class="icon-container"><i class="fa-solid fa-file-contract"></i></div>
             <div class="details-container">
@@ -213,7 +225,6 @@
             </div>
         </a>
 
-        <!-- Card 2 -->
         <a href="revenue.html" class="report-card">
             <div class="icon-container"><i class="fa-solid fa-calculator"></i></div>
             <div class="details-container">
@@ -224,7 +235,6 @@
             </div>
         </a>
 
-        <!-- Card 3 -->
         <a href="docoffice.html" class="report-card">
             <div class="icon-container"><i class="fa-solid fa-building-user"></i></div>
             <div class="details-container">
@@ -235,84 +245,76 @@
             </div>
         </a>
 
-        <!-- Card 4 -->
         <a href="notice.html" class="report-card">
             <div class="icon-container"><i class="fa-solid fa-bullhorn"></i></div>
             <div class="details-container">
                 <span class="report-number">४</span>
-                <p class="report-title">१५ दिने सूचना</p>
-                <p class="report-desc">सूचना प्रकाशन विवरण</p>
+                <p class="report-title">१५ दिने सूचना <span class="live-counter" id="countTotal">...</span></p>
+                <p class="report-desc">जम्मा दर्ता संख्या विवरण</p>
                 <span class="status-badge badge-green">सक्रिय</span>
             </div>
         </a>
 
-        <!-- Card 5 -->
         <a href="temorder.html" class="report-card">
             <div class="icon-container"><i class="fa-solid fa-boxes-stacked"></i></div>
             <div class="details-container">
                 <span class="report-number">५</span>
                 <p class="report-title">अस्थायी इजाजतको लागि टिप्पणी आदेश</p>
-                <p class="report-desc">अस्थायी इजाजत</p>
+                <p class="report-desc">अस्थायी इजाजत टिप्पणी</p>
                 <span class="status-badge badge-green">सक्रिय</span>
             </div>
         </a>
 
-        <!-- Card 6 -->
         <a href="tem_certi.html" class="report-card">
             <div class="icon-container"><i class="fa-solid fa-users-gear"></i></div>
             <div class="details-container">
                 <span class="report-number">६</span>
-                <p class="report-title">अस्थायी इजाजत</p>
-                <p class="report-desc">अस्थायी इजाजत</p>
+                <p class="report-title">अस्थायी इजाजत <span class="live-counter" id="countTem">...</span></p>
+                <p class="report-desc">कुल अस्थायी जारी प्रमाणपत्र संख्या</p>
                 <span class="status-badge badge-green">सक्रिय</span>
             </div>
         </a>
 
-        <!-- Card 7 -->
         <a href="perorder.html" class="report-card">
             <div class="icon-container"><i class="fa-solid fa-chart-line"></i></div>
             <div class="details-container">
                 <span class="report-number">७</span>
                 <p class="report-title">स्थायी इजाजतको लागि टिप्पणी आदेश</p>
-                <p class="report-desc">स्थायी इजाजत</p>
+                <p class="report-desc">स्थायी इजाजत टिप्पणी</p>
                 <span class="status-badge badge-orange">सक्रिय</span>
             </div>
         </a>
 
-        <!-- Card 8 -->
         <a href="per_certi.html" class="report-card">
             <div class="icon-container"><i class="fa-solid fa-file-invoice-dollar"></i></div>
             <div class="details-container">
                 <span class="report-number">८</span>
-                <p class="report-title">स्थायी इजाजत</p>
-                <p class="report-desc">D.P.C Level सम्मको निर्माण कार्य गरेकोले स्थायी इजाजता</p>
+                <p class="report-title">स्थायी इजाजत <span class="live-counter" id="countPem">...</span></p>
+                <p class="report-desc">D.P.C Level सम्मको स्थायी इजाजत संख्या</p>
                 <span class="status-badge badge-green">सक्रिय</span>
             </div>
         </a>
 
-        <!-- Card 9 -->
         <a href="attendance.html" class="report-card">
             <div class="icon-container"><i class="fa-solid fa-clipboard-user"></i></div>
             <div class="details-container">
                 <span class="report-number">९</span>
-                <p class="report-title"></p>
+                <p class="report-title">कर्मचारी हाजिरी</p>
                 <p class="report-desc">हाजिरी र बिदा विवरण</p>
                 <span class="status-badge badge-green">सक्रिय</span>
             </div>
         </a>
 
-        <!-- Card 10 -->
         <a href="final_cert.html" class="report-card">
             <div class="icon-container"><i class="fa-solid fa-comments"></i></div>
             <div class="details-container">
                 <span class="report-number">१०</span>
-                <p class="report-title">भवन निर्माण सम्पन्न</p>
-                <p class="report-desc">मापदण्ड अनुसार निर्माण सम्पन्न गरेमा </p>
+                <p class="report-title">भवन निर्माण सम्पन्न <span class="live-counter" id="countFinal">...</span></p>
+                <p class="report-desc">मापदण्ड अनुसार निर्माण सम्पन्न संख्या</p>
                 <span class="status-badge badge-green">सक्रिय</span>
             </div>
         </a>
 
-        <!-- Card 11 -->
         <a href="expenses.html" class="report-card">
             <div class="icon-container"><i class="fa-solid fa-money-bill-transfer"></i></div>
             <div class="details-container">
@@ -323,7 +325,6 @@
             </div>
         </a>
 
-        <!-- Card 12 -->
         <a href="annual.html" class="report-card">
             <div class="icon-container"><i class="fa-solid fa-chart-pie"></i></div>
             <div class="details-container">
@@ -334,7 +335,6 @@
             </div>
         </a>
 
-        <!-- Card 13 -->
         <a href="purchase.html" class="report-card">
             <div class="icon-container"><i class="fa-solid fa-cart-shopping"></i></div>
             <div class="details-container">
@@ -345,7 +345,6 @@
             </div>
         </a>
 
-        <!-- Card 14 -->
         <a href="supplier.html" class="report-card">
             <div class="icon-container"><i class="fa-solid fa-truck-field"></i></div>
             <div class="details-container">
@@ -356,7 +355,6 @@
             </div>
         </a>
 
-        <!-- Card 15 -->
         <a href="audit.html" class="report-card">
             <div class="icon-container"><i class="fa-solid fa-magnifying-glass-chart"></i></div>
             <div class="details-container">
@@ -367,7 +365,6 @@
             </div>
         </a>
 
-        <!-- Card 16 -->
         <a href="settings.html" class="report-card">
             <div class="icon-container"><i class="fa-solid fa-gears"></i></div>
             <div class="details-container">
@@ -381,14 +378,57 @@
 </div>
 
 <script>
+    // Supabase Setup (admin.html बाट लिइएको Credentials)
+    const SUPABASE_URL = "https://lyjokogftwtvnhwszqni.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_gxEL2-GVTVy8E0WxMBZHDQ_b5TzsDI9"; 
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
     document.addEventListener("DOMContentLoaded", function() {
+        // १. कार्ड लोड हुने एनिमेसन प्रभाव
         const cards = document.querySelectorAll('.report-card');
         cards.forEach((card, index) => {
             setTimeout(() => {
                 card.classList.add('loaded');
-            }, index * 50); 
+            }, index * 40); 
         });
+
+        // २. डाटाबेसबाट Live संख्याहरू तानेर अपडेट गर्ने कार्यहरू
+        loadLiveCounts();
     });
+
+    async function loadLiveCounts() {
+        try {
+            const { data, error } = await _supabase.from('g_map_branch1').select('*');
+            if (error) throw error;
+
+            if (data) {
+                // क) १५ दिने सूचनाको लागि जम्मा दर्ता संख्या
+                const totalRegistered = data.length;
+                
+                // ख) अस्थायी प्रमाणपत्र जारी भइसकेका संख्या (tem_certificate == 'yes')
+                const totalTemporary = data.filter(d => d.tem_certificate === 'yes').length;
+                
+                // ग) स्थायी प्रमाणपत्र जारी भइसकेका संख्या (per_certificate == 'yes')
+                const totalPermanent = data.filter(d => d.per_certificate === 'yes').length;
+                
+                // घ) निर्माण सम्पन्न प्रमाणपत्र पाइसकेका संख्या (done_certificate मा भ्यालु भएको)
+                const totalFinalDone = data.filter(d => d.done_certificate && d.done_certificate !== '').length;
+
+                // UI मा संख्याहरू भर्ने
+                document.getElementById('countTotal').innerText = totalRegistered;
+                document.getElementById('countTem').innerText = totalTemporary;
+                document.getElementById('countPem').innerText = totalPermanent;
+                document.getElementById('countFinal').innerText = totalFinalDone;
+            }
+        } catch (err) {
+            console.error("डाटा लोड गर्दा त्रुटि भयो:", err.message);
+            // कुनै समस्या आएमा डिफल्ट जिरो देखाउने
+            document.getElementById('countTotal').innerText = "०";
+            document.getElementById('countTem').innerText = "०";
+            document.getElementById('countPem').innerText = "०";
+            document.getElementById('countFinal').innerText = "०";
+        }
+    }
 </script>
 
 </body>
