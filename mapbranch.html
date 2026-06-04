@@ -5,15 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>प्रणाली लगइन - गलकोट नगरपालिका</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
-  
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     :root {
       --primary-color: #0c2461;
       --secondary-color: #1e3799;
-      --accent-color: #cf1b1b;
-      --success-color: #2ed573;
       --bg-color: #f1f2f6;
       --card-bg: #ffffff;
       --border-color: #ced6e0;
@@ -83,62 +80,35 @@
       cursor: pointer; 
       width: 100%;
       transition: 0.3s; 
+      background: var(--primary-color);
+      margin-top: 10px;
     }
-    .btn-login { background: var(--primary-color); }
-    .btn-login:hover { background: var(--secondary-color); }
-    .btn-reset { background: var(--success-color); }
-    .btn-reset:hover { background: #26af5f; }
-
-    .auth-toggle { 
-      text-align: center; 
-      margin-top: 20px; 
-      font-size: 14px; 
-      color: var(--accent-color); 
-      cursor: pointer; 
-      text-decoration: underline; 
-    }
-    
-    .info-text {
-      font-size: 13px; 
-      color: #666; 
-      text-align: center; 
-      margin-bottom: 20px;
+    .btn:hover { 
+      background: var(--secondary-color); 
     }
   </style>
 </head>
 <body>
 
   <div class="auth-wrapper">
-    <div id="loginBlock">
-      <div class="auth-title">🏛️ प्रणाली लगइन (Staff Login)</div>
-      <form id="loginForm">
-        <div class="field">
-          <label>आधिकारिक इमेल (Email)</label>
-          <input type="email" id="loginEmail" placeholder="staff@galkotmun.gov.np" required>
-        </div>
-        <div class="field">
-          <label>पासवर्ड (Password)</label>
-          <input type="password" id="loginPassword" placeholder="******" required>
-        </div>
-        <button type="submit" class="btn btn-login">🔐 लगइन गर्नुस्</button>
-      </form>
-
-    <div id="forgotBlock" style="display:none;">
-      <div class="auth-title">🔑 नयाँ पासवर्ड सेट गर्नुस्</div>
-      <p class="info-text">डाटाबेसमा इमेल मिलेको खण्डमा तपाईंको पासवर्ड तुरुन्तै परिवर्तन हुनेछ।</p>
-      <form id="forgotForm">
-        <div class="field">
-          <label>तपाईंको दर्ता भएको इमेल</label>
-          <input type="email" id="forgotEmail" placeholder="name@galkotmun.gov.np" required>
-        </div>
-        <div class="field">
-          <label>नयाँ बलियो पासवर्ड (New Password)</label>
-          <input type="password" id="newPassword" placeholder="नयाँ पासवर्ड" minlength="6" required>
-        </div>
-        <button type="submit" class="btn btn-reset">🔄 पासवर्ड परिवर्तन गर्नुस्</button>
-      </form>
-      <div class="auth-toggle" onclick="toggleView('login')" style="color:#57606f;">फिर्ता लगइन स्क्रिनमा जानुस्</div>
-    </div>
+    <div class="auth-title">🏛️ प्रणाली लगइन (System Login)</div>
+    
+    <form id="loginForm">
+      <!-- इमेल -->
+      <div class="field">
+        <label>आधिकारिक इमेल (Email)</label>
+        <input type="email" id="loginEmail" placeholder="staff@galkotmun.gov.np" required>
+      </div>
+      
+      <!-- पासवर्ड -->
+      <div class="field">
+        <label>पासवर्ड (Password)</label>
+        <input type="password" id="loginPassword" placeholder="******" required>
+      </div>
+      
+      <!-- लगइन बटन -->
+      <button type="submit" class="btn">🔐 लगइन गर्नुस्</button>
+    </form>
   </div>
 
   <script>
@@ -147,22 +117,16 @@
     const SUPABASE_ANON_KEY = "sb_publishable_gxEL2-GVTVy8E0WxMBZHDQ_b5TzsDI9"; 
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // स्क्रिन स्विच गर्ने (Login <-> Forgot)
-    function toggleView(view) {
-      document.getElementById('loginBlock').style.display = view === 'login' ? 'block' : 'none';
-      document.getElementById('forgotBlock').style.display = view === 'forgot' ? 'block' : 'none';
-    }
-
-    // १. लगइन प्रोसेस (कस्टम टेबल म्याच)
+    // लगइन प्रोसेस
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('loginEmail').value.trim();
       const password = document.getElementById('loginPassword').value;
 
-      // `system_users` टेबलमा इमेल र पासवर्ड चेक गर्ने
+      // `system_users` टेबलबाट रोल (role) समेत तान्ने
       const { data, error } = await _supabase
         .from('system_users')
-        .select('fullname, email')
+        .select('fullname, email, role')
         .eq('email', email)
         .eq('password', password)
         .maybeSingle();
@@ -170,50 +134,25 @@
       if (error) {
         alert("❌ प्राविधिक त्रुटि: " + error.message);
       } else if (data) {
-        // म्याच भएपछि सेसन राख्ने र सिधै mapform.html मा लैजाने
+        // सेसन डाटाहरू स्थानीय रूपमा सुरक्षित राख्ने
         localStorage.setItem("userLoggedIn", "true");
         localStorage.setItem("loggedInUserEmail", data.email);
-        window.location.href = "mapform.html"; 
+        localStorage.setItem("userRole", data.role); // रोल पनि सेभ गर्ने
+
+        // डाटाबेसमा भएको रोल (Role) को आधारमा पेज रिडाइरेक्ट गर्ने (स्वतः छनौट)
+        if (data.role === "admin") {
+            window.location.href = "admin.html";
+        } else if (data.role === "staff") {
+            window.location.href = "mapform.html";
+        } else if (data.role === "consultancy") {
+            window.location.href = "consultancy.html";
+        } else {
+            // यदि डाटाबेसमा रोल खाली छ वा कुनै पनि रोल मिल्दैन भने डिफल्ट पेजमा लैजाने
+            window.location.href = "dashboard.html";
+        }
+
       } else {
         alert("❌ गलत इमेल वा पासवर्ड! कृपया पुनः जाँच्नुहोस्।");
-      }
-    });
-
-    // २. सिधै नयाँ पासवर्ड सेट गर्ने प्रोसेस (इमेल म्याच भएमा मात्र चल्ने)
-    document.getElementById('forgotForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = document.getElementById('forgotEmail').value.trim();
-      const newPassword = document.getElementById('newPassword').value;
-
-      // पहिले इमेल डाटाबेसमा छ कि छैन जाँच्ने
-      const { data: userCheck, error: checkError } = await _supabase
-        .from('system_users')
-        .select('email')
-        .eq('email', email)
-        .maybeSingle();
-
-      if (checkError) {
-        alert("❌ डाटाबेस जाँच गर्न सकिएन: " + checkError.message);
-        return;
-      }
-
-      if (!userCheck) {
-        alert("❌ यो इमेल प्रणालीको डाटाबेसमा फेला परेन!");
-        return;
-      }
-
-      // यदि इमेल भेटियो भने सिधै पासवर्ड अपडेट गरिदिने
-      const { error: updateError } = await _supabase
-        .from('system_users')
-        .update({ password: newPassword })
-        .eq('email', email);
-
-      if (updateError) {
-        alert("❌ पासवर्ड अपडेट असफल भयो: " + updateError.message);
-      } else {
-        alert("🚀 पासवर्ड सफलतापूर्वक परिवर्तन भयो! अब नयाँ पासवर्ड प्रयोग गरेर लगइन गर्नुहोस्।");
-        document.getElementById('forgotForm').reset();
-        toggleView('login');
       }
     });
   </script>
