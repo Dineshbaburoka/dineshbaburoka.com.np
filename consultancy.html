@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>गलकोट नगरपालिका - भूमि व्यवस्थापन मास्टर डाटाबेस प्रणाली</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      --primary-color: #0c2461;
+      --secondary-color: #1e3799;
+      --accent-color: #cf1b1b;
+      --success-color: #2ed573;
+      --danger-color: #ff4757;
+      --warning-color: #ffa502;
+      --bg-color: #f1f2f6;
+      --card-bg: #ffffff;
+      --border-color: #ced6e0;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Noto Sans Devanagari', sans-serif; background: var(--bg-color); padding: 25px; color: #2f3542; }
+
+    /* Master Containers Layout */
+    .master-form-container, .database-container {
+      max-width: 1200px; margin: 0 auto 30px auto; background: var(--card-bg);
+      padding: 35px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      border-top: 6px solid var(--primary-color);
+    }
+    .database-container { border-top: 6px solid var(--success-color); }
+    
+    .form-header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 3px double var(--border-color); padding-bottom: 15px; flex-wrap: wrap; gap: 15px; }
+    .form-title { color: var(--primary-color); font-size: 24px; font-weight: bold; }
+    .section-subtitle { font-size: 16px; font-weight: bold; color: var(--secondary-color); margin: 25px 0 15px 0; border-bottom: 2px solid var(--border-color); padding-bottom: 5px; grid-column: 1 / -1; }
+    
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; }
+    .grid-5 { display: grid; grid-template-columns: 2fr repeat(4, 1fr); gap: 10px; align-items: center; margin-bottom: 10px; }
+    
+    .field { display: flex; flex-direction: column; }
+    .field label { font-weight: 600; margin-bottom: 5px; font-size: 14px; color: #57606f; }
+    .field label.required::after { content: " *"; color: red; }
+    .field input, .field select { padding: 10px; border: 2px solid var(--border-color); border-radius: 6px; font-size: 14px; outline: none; transition: 0.2s; }
+    .field input:focus { border-color: var(--secondary-color); }
+    
+    .floor-label { font-weight: 600; font-size: 14px; color: #2f3542; }
+    .floor-input { padding: 8px; border: 2px solid var(--border-color); border-radius: 4px; font-size: 14px; text-align: center; }
+    .floor-area-input { background-color: #fff9db; font-weight: bold; color: #2f3542; border: 2px solid #fab005; }
+
+    /* Search Box Input */
+    .search-box { width: 100%; padding: 12px; margin-bottom: 20px; border: 2px solid var(--success-color); border-radius: 6px; font-size: 15px; outline: none; font-weight: bold; }
+
+    /* Buttons */
+    .action-buttons { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-top: 30px; }
+    .btn { color: white; border: none; padding: 14px 20px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer; transition: 0.3s; display: flex; justify-content: center; align-items: center; gap: 10px; text-align: center; text-decoration: none; }
+    .btn-save { background: var(--primary-color); }
+    .btn-save:hover { background: var(--secondary-color); }
+    .btn-update { background: var(--success-color); display: none; }
+    .btn-update:hover { background: #26af5f; }
+    .btn-send { background: #6c5ce7; display: none; }
+    .btn-send:hover { background: #5b4cc4; }
+    .btn-clear { background: var(--danger-color); }
+    .btn-clear:hover { background: #e03d4b; }
+    .btn-report { background: #4a5568; }
+    .btn-report:hover { background: #2d3748; }
+
+    /* Table Styling */
+    .db-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
+    .db-table th, .db-table td { border: 1px solid var(--border-color); padding: 12px; text-align: left; }
+    .db-table th { background-color: #f1f2f6; color: var(--primary-color); font-weight: bold; }
+    .db-table tr:hover { background-color: #f8f9fa; }
+    
+    .action-btn { padding: 8px 14px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; margin-right: 5px; color: white; transition: 0.2s; }
+    .btn-edit { background-color: var(--warning-color); }
+    .btn-edit:hover { background-color: #ff7f50; }
+    .btn-delete { background-color: var(--accent-color); }
+    .btn-delete:hover { background-color: #b31212; }
+    .text-center { text-align: center !important; }
+  </style>
+</head>
+<body>
+
+  <div class="master-form-container">
+    <div class="form-header-container">
+      <div class="form-title">🏛️ गलकोट नगरपालिका - भूमि व्यवस्थापन तथा भवन डाटा प्रविष्टि प्रणाली</div>
+      <a href="report.html" target="_blank" class="btn btn-report">📊 रिपोर्टहरू (Reports)</a>
+    </div>
+    
+    <form id="masterDataForm">
+      <input type="hidden" id="record_id" value="">
+      
+      <div class="section-subtitle">जग्गा र जग्गाधनीको विवरण (Land And Landownership Details)</div>
+      <div class="grid-3">
+        <!-- दर्ता नं, दर्ता मिति, प्राविधिक र प्रतिवेदन मिति सबै हटाइएको छ -->
+        <div class="field"><label class="required">जग्गाधनीको नाम/थर</label><input type="text" id="owner" placeholder="उदा: खिम बहादुर थापा" required></div>
+        <div class="field"><label class="required">नागरिकता नं</label><input type="text" id="cit_no" placeholder="उदा: ४५३०-२९८" required></div>
+        <div class="field"><label class="required">जारी मिति</label><input type="text" id="cit_date" placeholder="उदा: २०६६-१०-१३" required></div>
+        <div class="field"><label class="required">जारी कार्यालय</label><input type="text" id="cit_office" placeholder="उदा: जि.प्र.का. बागलुङ" required></div>
+        <div class="field"><label class="required">बाजेको नाम/थर</label><input type="text" id="grandfather" placeholder="उदा: राम बहादुर थापा" required></div>
+        <div class="field"><label class="required">बाबुको नाम/थर</label><input type="text" id="father" placeholder="उदा: हरि बहादुर थापा" required></div>
+        <div class="field">
+          <label class="required">वडा नं.</label>
+          <select id="ward" required>
+            <option value="" disabled selected>वडा नं. छान्नुहोस्</option>
+            <option value="1">१</option><option value="2">२</option><option value="3">३</option>
+            <option value="4">४</option><option value="5">५</option><option value="6">६</option>
+            <option value="7">७</option><option value="8">८</option><option value="9">९</option>
+            <option value="10">१०</option><option value="11">११</option>
+          </select>
+        </div>
+        <div class="field"><label class="required">मार्ग / टोल</label><input type="text" id="tole" placeholder="उदा: आँगाखेत" required></div>
+        <div class="field">
+          <label class="required">साविक गाविस</label>
+          <select id="savik_gavis" required>
+            <option value="" disabled selected>साविक गाविस छान्नुहोस्</option>
+            <option value="दुदिलाभाटी">दुदिलाभाटी</option><option value="नरेठाँटी">नरेठाँटी</option>
+            <option value="हटिया">हटिया</option><option value="हरिचौँर">हरिचौँर</option>
+            <option value="मल्म">मल्म</option><option value="काँडेवास">काँडेवास</option>
+            <option value="पाण्डवखानी">पाण्डवखानी</option><option value="रिघा">रिघा</option>
+          </select>
+        </div>       
+        <div class="field">
+          <label class="required">साविक वडा नं.</label>
+          <select id="savik_ward" required>
+            <option value="" disabled selected>वडा नं. छान्नुहोस्</option>
+            <option value="1">१</option><option value="2">२</option><option value="3">३</option>
+            <option value="4">४</option><option value="5">५</option><option value="6">६</option>
+            <option value="7">७</option><option value="8">८</option><option value="9">९</option>
+          </select>
+        </div>
+        <div class="field"><label class="required">कित्ता नं.</label><input type="text" id="kitta" placeholder="उदा: १९९" required></div>
+        <div class="field"><label class="required">क्षेत्रफल (रोपनी-आना-पैसा-दाम)</label><input type="text" id="area" placeholder="उदा: १-८-३-२" required></div>
+        <div class="field"><label>घरको कुल लम्बाई (फिट)</label><input type="number" step="any" id="tot_length" placeholder="उदा: ३६"></div>
+        <div class="field"><label>घरको कुल चौडाई (फिट)</label><input type="number" step="any" id="tot_width" placeholder="उदा: २५"></div>
+        <div class="field"><label>घरको कुल उचाई (फिट)</label><input type="text" id="tot_height" placeholder="उदा: ३०"></div>
+        <div class="field"><label>कुल तल्ला संख्या</label><input type="text" id="total_floors" placeholder="उदा: ५.५"></div>
+        <div class="field"><label>कोठा संख्या</label><input type="text" id="room" placeholder="उदा: ५"></div>
+        <div class="field"><label>ढोकाको संख्या</label><input type="text" id="door" placeholder="उदा: ५"></div>
+        <div class="field"><label>झ्यालको संख्या</label><input type="text" id="window" placeholder="उदा: ५"></div>
+        <div class="field"><label>शटरको  संख्या</label><input type="text" id="shutter" placeholder="उदा: ५"></div>
+        <div class="field"><label>च्यानल गेटको संख्या</label><input type="text" id="cg" placeholder="उदा: ५"></div>
+        <div class="field"><label>घरले चर्चेको क्षेत्रफल (व.फि.)</label><input type="number" step="any" id="cov_area" placeholder="उदा: ९००"></div>
+        <div class="field"><label>भवनको कुल क्षेत्रफल (व.फि.)</label><input type="number" step="any" id="tot_area" placeholder="स्वचालित वा हातले लेख्न मिल्छ" style="background-color: #e8f4fd; font-weight: bold; color: #cf1b1b; border: 2px solid #2196f3;"></div>
+      </div>
+
+      <div class="section-subtitle">चारकिल्ला (Land Boundary Details)</div>
+      <div class="grid-3">
+        <div class="field"><label class="required">पूर्व</label><input type="text" id="east" placeholder="पूर्व सिमाना" required></div>
+        <div class="field"><label class="required">पश्चिम</label><input type="text" id="west" placeholder="पश्चिम सिमाना" required></div>        
+        <div class="field"><label class="required">उत्तर</label><input type="text" id="north" placeholder="उत्तर सिमाना" required></div>        
+        <div class="field"><label class="required">दक्षिण</label><input type="text" id="south" placeholder="दक्षिण सिमाना" required></div>
+      </div>
+
+      <div class="section-subtitle">मापदण्ड तथा प्राविधिक विवरण (Standards & Technical Details)</div>
+      <div class="grid-3">
+         <div class="field"><label class="required">बाटो चौँडाई</label><input type="text" id="road_width" placeholder="उदा: १० मिटर" required></div>
+        <div class="field"><label class="required">बाटो केन्द्रबाट छाड्नु पर्ने दुरी</label><input type="text" id="roadce" placeholder="उदा: १५ मिटर" required></div>
+        <div class="field"><label class="required">बाटो केन्द्रबाट छाडेको दुरी</label><input type="text" id="roadcex" placeholder="उदा: १५ मिटर" required></div>
+        <div class="field"><label class="required">छाड्नु पर्ने सेटब्याक</label><input type="text" id="setbac" placeholder="उदा: १.५ मिटर" required></div>
+        <div class="field"><label class="required">छाडेको सेटब्याक</label><input type="text" id="setbacx" placeholder="उदा: १.५ मिटर" required></div>
+        <div class="field"><label class="required">नदि किनारबाट छोड्नु पर्ने दुरी</label><input type="text" id="river" placeholder="उदा: १५ मिटर" required></div>
+        <div class="field"><label class="required">नदि किनारबाट छोडेको दुरी</label><input type="text" id="riverx" placeholder="उदा: १५ मिटर" required></div>
+        <div class="field"><label class="required">संधियार सिमानाबाट छोड्नु पर्ने दुरी</label><input type="text" id="land" placeholder="उदा: १.५ मिटर" required></div>
+        <div class="field"><label class="required">संधियार सिमानाबाट छोडेको दुरी</label><input type="text" id="landb" placeholder="उदा: १.५ मिटर" required></div>
+        <div class="field"><label class="required">राजश्व दर रु</label><input type="text" id="revinuerate" placeholder="उदा: १०" required></div>
+        <div class="field"><label class="required">गाउँ कभरेज प्रतिशत</label><input type="text" id="gc" placeholder="उदा: ७०" required></div>
+        <div class="field"><label class="required">फार (FAR)</label><input type="text" id="far" placeholder="उदा: १.५" required></div>
+      </div>
+
+      <div class="section-subtitle">तल्लागत विस्तृत नाप र क्षेत्रफल विवरण (५ औं तल्लासम्म) <span style="font-weight:normal; font-size:12px; color:red;">*(क्षेत्रफल आफैं पनि निस्किन्छ वा हातले फेर्न पनि मिल्छ)</span></div>
+
+      <div class="grid-5">
+        <div class="floor-label">बेसमेन्ट (भूमिगत)</div>
+        <input type="number" step="any" id="f_base_l" placeholder="लम्बाई" class="floor-input">
+        <input type="number" step="any" id="f_base_w" placeholder="चौडाई" class="floor-input">
+        <input type="text" id="f_base_h" placeholder="उचाई" class="floor-input">
+        <input type="number" step="any" id="f_base_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input">
+      </div>
+
+      <div class="grid-5">
+        <div class="floor-label">सेमिबेसमेन्ट (अर्ध भूमिगत)</div>
+        <input type="number" step="any" id="f_semi_l" placeholder="लम्बाई" class="floor-input">
+        <input type="number" step="any" id="f_semi_w" placeholder="चौडाई" class="floor-input">
+        <input type="text" id="f_semi_h" placeholder="उचाई" class="floor-input">
+        <input type="number" step="any" id="f_semi_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input">
+      </div>
+
+      <div class="grid-5">
+        <div class="floor-label">जमिन तल्ला (Ground Floor)</div>
+        <input type="number" step="any" id="f_ground_l" placeholder="लम्बाई" class="floor-input">
+        <input type="number" step="any" id="f_ground_w" placeholder="चौडाई" class="floor-input">
+        <input type="text" id="f_ground_h" placeholder="उचाई" class="floor-input">
+        <input type="number" step="any" id="f_ground_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input">
+      </div>
+
+      <div class="grid-5">
+        <div class="floor-label">पहिलो तल्ला (First Floor)</div>
+        <input type="number" step="any" id="f_1st_l" placeholder="लम्बाई" class="floor-input">
+        <input type="number" step="any" id="f_1st_w" placeholder="चौडाई" class="floor-input">
+        <input type="text" id="f_1st_h" placeholder="उचाई" class="floor-input">
+        <input type="number" step="any" id="f_1st_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input">
+      </div>
+
+      <div class="grid-5">
+        <div class="floor-label">दोस्रो तल्ला (Second Floor)</div>
+        <input type="number" step="any" id="f_2nd_l" placeholder="लम्बाई" class="floor-input">
+        <input type="number" step="any" id="f_2nd_w" placeholder="चौडाई" class="floor-input">
+        <input type="text" id="f_2nd_h" placeholder="उचाई" class="floor-input">
+        <input type="number" step="any" id="f_2nd_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input">
+      </div>
+
+      <div class="grid-5">
+        <div class="floor-label">तेस्रो तल्ला (Third Floor)</div>
+        <input type="number" step="any" id="f_3rd_l" placeholder="लम्बाई" class="floor-input">
+        <input type="number" step="any" id="f_3rd_w" placeholder="चौडाई" class="floor-input">
+        <input type="text" id="f_3rd_h" placeholder="उचाई" class="floor-input">
+        <input type="number" step="any" id="f_3rd_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input">
+      </div>
+
+      <div class="grid-5">
+        <div class="floor-label">चौतो तल्ला (Fourth Floor)</div>
+        <input type="number" step="any" id="f_4th_l" placeholder="लम्बाई" class="floor-input">
+        <input type="number" step="any" id="f_4th_w" placeholder="चौडाई" class="floor-input">
+        <input type="text" id="f_4th_h" placeholder="उचाई" class="floor-input">
+        <input type="number" step="any" id="f_4th_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input">
+      </div>
+
+      <div class="grid-5">
+        <div class="floor-label">पाँचौ तल्ला (Fifth Floor)</div>
+        <input type="number" step="any" id="f_5th_l" placeholder="लम्बाई" class="floor-input">
+        <input type="number" step="any" id="f_5th_w" placeholder="चौडाई" class="floor-input">
+        <input type="text" id="f_5th_h" placeholder="उचाई" class="floor-input">
+        <input type="number" step="any" id="f_5th_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input">
+      </div>
+
+      <div class="action-buttons">
+        <button type="submit" id="submitBtn" class="btn btn-save">💾 नयाँ रेकर्ड सेभ गर्नुस्</button>
+        <button type="button" id="updateBtn" class="btn btn-update" onclick="submitFormDirectly()">🔄 रेकर्ड अपडेट (Update) गर्नुस्</button>
+        <button type="button" id="sendBtn" class="btn btn-send" onclick="sendToMunicipality()">🏢 नगरपालिका पठाउनुहोस्</button>
+        <button type="button" class="btn btn-clear" onclick="clearForm()">🧹 फारम खाली गर्नुस्</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="database-container">
+    <div class="form-title">🗄️ जग्गाधनी तथा भवन रेकर्ड डाटाबेस (Supabase Cloud)</div>
+    
+    <input type="text" id="searchBar" class="search-box" placeholder="🔍 जग्गाधनीको नाम वा नागरिकता नम्बर टाइप गरेर खोज्नुहोस्..." oninput="filterDatabase()">
+
+    <div style="overflow-x: auto;">
+      <table class="db-table">
+        <thead>
+          <tr>
+            <th>नागरिकता नं.</th>
+            <th>जग्गाधनीको नाम</th>
+            <th>वडा</th>
+            <th>कित्ता नं.</th>
+            <th>कुल क्षेत्रफल (sq.ft)</th>
+            <th style="width:220px;">कार्यहरू (Actions)</th>
+          </tr>
+        </thead>
+        <tbody id="databaseTableBody">
+          <tr><td colspan="6" class="text-center">डाटा लोड हुँदैछ...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = "https://lyjokogftwtvnhwszqni.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_gxEL2-GVTVy8E0WxMBZHDQ_b5TzsDI9"; 
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let mapDatabase = [];
+    const floorsList = ['base', 'semi', 'ground', '1st', '2nd', '3rd', '4th', '5th'];
+
+    document.addEventListener("DOMContentLoaded", () => {
+      setupLiveCalculations();
+      fetchFromSupabase();
+    });
+
+    function setupLiveCalculations() {
+      floorsList.forEach(f => {
+        const lenInput = document.getElementById(`f_${f}_l`);
+        const widInput = document.getElementById(`f_${f}_w`);
+        const areaInput = document.getElementById(`f_${f}_a`);
+        
+        if (lenInput && widInput) {
+          lenInput.addEventListener('input', () => calculateSingleFloor(f));
+          widInput.addEventListener('input', () => calculateSingleFloor(f));
+        }
+        if (areaInput) {
+          areaInput.addEventListener('input', () => calculateGrandTotalFloorArea());
+        }
+      });
+    }
+
+    function calculateSingleFloor(floorKey) {
+      const l = parseFloat(document.getElementById(`f_${floorKey}_l`).value) || 0;
+      const w = parseFloat(document.getElementById(`f_${floorKey}_w`).value) || 0;
+      const area = l * w;
+      document.getElementById(`f_${floorKey}_a`).value = area > 0 ? area.toFixed(2) : "";
+      calculateGrandTotalFloorArea();
+    }
+
+    function calculateGrandTotalFloorArea() {
+      let total = 0;
+      floorsList.forEach(f => {
+        const val = parseFloat(document.getElementById(`f_${f}_a`).value) || 0;
+        total += val;
+      });
+      document.getElementById('tot_area').value = total > 0 ? total.toFixed(2) : "";
+    }
+
+    // Supabase: READ (दर्ताका लागि नपठाइएका 'Pending' रेकर्डहरू मात्र देखाउने)
+    async function fetchFromSupabase() {
+      try {
+        const { data, error } = await _supabase
+          .from('g_map_branch1')
+          .select('*')
+          .or('status.eq.Pending,status.is.null')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        mapDatabase = data;
+        renderDatabaseTable(mapDatabase);
+      } catch (err) {
+        console.error("Error fetching data:", err.message);
+      }
+    }
+
+    function renderDatabaseTable(dataArray) {
+      const tbody = document.getElementById('databaseTableBody');
+      tbody.innerHTML = '';
+
+      if (dataArray.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center" style="color:#999;">कुनै डाटा फेला परेन।</td></tr>`;
+        return;
+      }
+
+      dataArray.forEach(item => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td><b>${item.cit_no}</b></td>
+          <td>${item.owner}</td>
+          <td>${item.ward}</td>
+          <td>${item.kitta}</td>
+          <td><b style="color:red;">${item.tot_area || '0.00'}</b></td>
+          <td>
+            <button class="action-btn btn-edit" onclick="loadRecord(${item.id})">✏️ Edit</button>
+            <button class="action-btn btn-delete" onclick="deleteRecord(${item.id}, '${item.owner}')">❌ Delete</button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function filterDatabase() {
+      const query = document.getElementById('searchBar').value.toLowerCase().trim();
+      const filteredData = mapDatabase.filter(item => {
+        return (item.owner && item.owner.toLowerCase().includes(query)) || 
+               (item.cit_no && item.cit_no.toLowerCase().includes(query));
+      });
+      renderDatabaseTable(filteredData);
+    }
+
+    function getFormDataObject() {
+      const record = {
+        cit_no: document.getElementById('cit_no').value,
+        cit_date: document.getElementById('cit_date').value,
+        cit_office: document.getElementById('cit_office').value,
+        owner: document.getElementById('owner').value,
+        grandfather: document.getElementById('grandfather').value,
+        father: document.getElementById('father').value,
+        ward: document.getElementById('ward').value,
+        tole: document.getElementById('tole').value,
+        savik_gavis: document.getElementById('savik_gavis').value,
+        savik_ward: document.getElementById('savik_ward').value,
+        kitta: document.getElementById('kitta').value,
+        area: document.getElementById('area').value,
+        tot_length: parseFloat(document.getElementById('tot_length').value) || null,
+        tot_width: parseFloat(document.getElementById('tot_width').value) || null,
+        tot_height: document.getElementById('tot_height').value,
+        room: document.getElementById('room').value,
+        door: document.getElementById('door').value,
+        window: document.getElementById('window').value,
+        shutter: document.getElementById('shutter').value,
+        cg: document.getElementById('cg').value,
+        total_floors: document.getElementById('total_floors').value,
+        cov_area: parseFloat(document.getElementById('cov_area').value) || null,
+        tot_area: parseFloat(document.getElementById('tot_area').value) || null,
+        east: document.getElementById('east').value,
+        west: document.getElementById('west').value,
+        north: document.getElementById('north').value,
+        south: document.getElementById('south').value,
+        road_width: document.getElementById('road_width').value,
+        roadce: document.getElementById('roadce').value,
+        roadcex: document.getElementById('roadcex').value,
+        setbac: document.getElementById('setbac').value,
+        setbacx: document.getElementById('setbacx').value,
+        river: document.getElementById('river').value,
+        riverx: document.getElementById('riverx').value,
+        land: document.getElementById('land').value,
+        landb: document.getElementById('landb').value,
+        revinuerate: document.getElementById('revinuerate').value,
+        gc: document.getElementById('gc').value,
+        far: document.getElementById('far').value
+      };
+
+      floorsList.forEach(f => {
+        record[`f_${f}_l`] = parseFloat(document.getElementById(`f_${f}_l`).value) || null;
+        record[`f_${f}_w`] = parseFloat(document.getElementById(`f_${f}_w`).value) || null;
+        record[`f_${f}_h`] = document.getElementById(`f_${f}_h`).value || null;
+        record[`f_${f}_a`] = parseFloat(document.getElementById(`f_${f}_a`).value) || null;
+      });
+
+      return record;
+    }
+
+    // Supabase: INSERT / SAVE
+    document.getElementById('masterDataForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const recordId = document.getElementById('record_id').value;
+      if(recordId) {
+        submitFormDirectly();
+        return;
+      }
+
+      const dataToSave = getFormDataObject();
+      dataToSave.status = 'Pending'; 
+
+      try {
+        const { error } = await _supabase
+          .from('g_map_branch1')
+          .insert([dataToSave]);
+
+        if (error) throw error;
+        
+        alert("💾 नयाँ डाटा क्लाउड डाटाबेसमा सफलतापूर्वक सुरक्षित गरियो!");
+        clearForm();
+        fetchFromSupabase();
+      } catch (err) {
+        alert("डाटा सेभ गर्दा समस्या आयो: " + err.message);
+      }
+    });
+
+    // Supabase: LOAD RECORD INTO FORM FOR EDIT
+    function loadRecord(id) {
+      const record = mapDatabase.find(r => r.id === id);
+      if (!record) return;
+
+      document.getElementById('record_id').value = record.id;
+
+      Object.keys(record).forEach(key => {
+        const inputField = document.getElementById(key);
+        if (inputField) {
+          inputField.value = record[key] !== null ? record[key] : "";
+        }
+      });
+
+      floorsList.forEach(f => {
+        if (document.getElementById(`f_${f}_l`)) document.getElementById(`f_${f}_l`).value = record[`f_${f}_l`] !== null ? record[`f_${f}_l`] : "";
+        if (document.getElementById(`f_${f}_w`)) document.getElementById(`f_${f}_w`).value = record[`f_${f}_w`] !== null ? record[`f_${f}_w`] : "";
+        if (document.getElementById(`f_${f}_h`)) document.getElementById(`f_${f}_h`).value = record[`f_${f}_h`] !== null ? record[`f_${f}_h`] : "";
+        if (document.getElementById(`f_${f}_a`)) document.getElementById(`f_${f}_a`).value = record[`f_${f}_a`] !== null ? record[`f_${f}_a`] : "";
+      });
+
+      document.getElementById('submitBtn').style.display = 'none';
+      document.getElementById('updateBtn').style.display = 'flex';
+      document.getElementById('sendBtn').style.display = 'flex'; 
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Supabase: UPDATE
+    async function submitFormDirectly() {
+      const recordId = document.getElementById('record_id').value;
+      if (!recordId) return;
+
+      const dataToUpdate = getFormDataObject();
+
+      try {
+        const { error } = await _supabase
+          .from('g_map_branch1')
+          .update(dataToUpdate)
+          .eq('id', recordId);
+
+        if (error) throw error;
+        
+        alert("✔️ रेकर्ड सफलतापूर्वक परिमार्जन (Update) गरियो!");
+        clearForm();
+        fetchFromSupabase();
+      } catch (err) {
+        alert("डाटा अपडेट गर्दा समस्या आयो: " + err.message);
+      }
+    }
+
+    // परिमार्जित फङ्सन: कुनै जानकारी नमागी सोझै स्थिति (Status) बदलेर नगरपालिका पठाउने
+    async function sendToMunicipality() {
+      const recordId = document.getElementById('record_id').value;
+      if (!recordId) {
+        alert("कृपया पहिले तालिकाबाट कुन डाटा पठाउने हो Edit बटन थिचेर छान्नुहोस्।");
+        return;
+      }
+
+      if (confirm("के तपाईं यो रेकर्ड दर्ताको लागि नगरपालिका पठाउन निश्चित हुनुहुन्छ?\nपठाइसकेपछि यो यहाँबाट स्थायी रूपमा हट्नेछ र परिमार्जन गर्न मिल्ने छैन।")) {
+        try {
+          const { error } = await _supabase
+            .from('g_map_branch1')
+            .update({ status: 'Submitted' }) // सिधै status मात्र परिवर्तन गर्ने
+            .eq('id', recordId);
+
+          if (error) throw error;
+
+          alert("🚀 डाटा नगरपालिकामा सफलतापूर्वक पठाइयो र यहाँबाट हटाइयो!");
+          clearForm();
+          fetchFromSupabase(); 
+        } catch (err) {
+          alert("नगरपालिका पठाउँदा समस्या आयो: " + err.message);
+        }
+      }
+    }
+
+    // Supabase: DELETE
+    async function deleteRecord(id, ownerName) {
+      if (confirm(`के तपाईं जग्गाधनी [${ownerName}] को रेकर्ड स्थायी रूपमा हटाउन (Delete) चाहनुहुन्छ?`)) {
+        try {
+          const { error } = await _supabase
+            .from('g_map_branch1')
+            .delete()
+            .eq('id', id);
+
+          if (error) throw error;
+          
+          alert("रेकर्ड सफलतापूर्वक हटाइयो।");
+          fetchFromSupabase();
+          clearForm();
+        } catch (err) {
+          alert("हटाउन सकिएन: " + err.message);
+        }
+      }
+    }
+
+    function clearForm() {
+      document.getElementById('masterDataForm').reset();
+      document.getElementById('record_id').value = "";
+      document.getElementById('tot_area').value = "";
+      
+      document.getElementById('submitBtn').style.display = 'flex';
+      document.getElementById('updateBtn').style.display = 'none';
+      document.getElementById('sendBtn').style.display = 'none'; 
+    }
+  </script>
+
+</body>
+</html>
