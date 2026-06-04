@@ -353,18 +353,14 @@
       fetchFromSupabase();
     });
 
-    // टेक्स्ट इनपुटबाट अंक वा गणितीय सुत्र (उदा: ३०+१५) भए पनि पार्स गर्ने सुरक्षित प्रणाली
     function parseTextToNumber(value) {
       if (!value) return 0;
-      // केवल अंक, दशमलव, +, -, *, /, र कोष्ठकहरू मात्र स्वीकार्ने (सुरक्षाको लागि)
       let sanitized = value.replace(/[^0-9.+\-*/()]/g, '');
       if (!sanitized) return 0;
       try {
-        // eval को प्रयोग गरी "३०+१५" लाई ४५ बनाउने
         let result = Function(`"use strict"; return (${sanitized})`)();
         return parseFloat(result) || 0;
       } catch (e) {
-        // यदि फर्मुला अधुरो छ भने (जस्तै "३०+") सिधै पहिलो नम्बर मात्र निकाल्ने प्रयास गर्ने
         let firstNumber = sanitized.match(/^[\d.]+/);
         return firstNumber ? parseFloat(firstNumber[0]) : 0;
       }
@@ -527,7 +523,6 @@
       document.getElementById('returnBtn').style.display = 'flex';
       document.getElementById('formHeaderTitle').innerText = "🔎 फाइल पुनरावलोकन तथा प्रमाणीकरण मोड (Review Mode)";
       
-      // इन्टरफेसमा रीभ्यु मुड दर्साउन क्लास थप्ने
       document.getElementById('mainFormContainer').classList.add('review-mode-active');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -549,8 +544,8 @@
         savik_ward: document.getElementById('savik_ward').value, 
         kitta: document.getElementById('kitta').value, 
         area: document.getElementById('area').value,
-        tot_length: document.getElementById('tot_length').value, // Text Format 
-        tot_width: document.getElementById('tot_width').value,   // Text Format
+        tot_length: document.getElementById('tot_length').value, 
+        tot_width: document.getElementById('tot_width').value,   
         tot_height: document.getElementById('tot_height').value, 
         room: document.getElementById('room').value, 
         door: document.getElementById('door').value,
@@ -582,8 +577,8 @@
       };
 
       floorsList.forEach(f => {
-        record[`f_${f}_l`] = document.getElementById(`f_${f}_l`).value || null; // Text Format
-        record[`f_${f}_w`] = document.getElementById(`f_${f}_w`).value || null; // Text Format
+        record[`f_${f}_l`] = document.getElementById(`f_${f}_l`).value || null; 
+        record[`f_${f}_w`] = document.getElementById(`f_${f}_w`).value || null; 
         record[`f_${f}_h`] = document.getElementById(`f_${f}_h`).value || null;
         record[`f_${f}_a`] = parseFloat(document.getElementById(`f_${f}_a`).value) || null;
       });
@@ -649,10 +644,29 @@
       } catch (err) { alert(err.message); }
     }
 
+    /* परिमार्जित सुरक्षित डिलिट फङ्गसन */
     async function deleteRecord(id, ownerName) {
-      if (confirm(`के तपाईं जग्गाधनी [${ownerName}] को रेकर्ड हटाउन चाहनुहुन्छ?`)) {
-        await _supabase.from('g_map_branch1').delete().eq('id', id);
-        fetchFromSupabase(); clearForm();
+      const record = mapDatabase.find(r => r.id === id);
+      if (!record) return;
+
+      // यदि फाइल दर्ता भइसकेको छ (Approved छ) भने डिलिट प्रक्रिया रोक्ने
+      if (record.status === 'Approved') {
+        alert(`⚠️ सुरक्षा चेतावनी: जग्गाधनी [${ownerName}] को फाइल प्रणालीमा दर्ता (Approved) भइसकेको हुनाले यसलाई डिलिट गर्न मिल्दैन!`);
+        return;
+      }
+
+      // अदर्ता भएका (Pending/Returned) फाइलहरू मात्र सोधेर डिलिट गर्न दिने
+      if (confirm(`के तपाईं जग्गाधनी [${ownerName}] को रेकर्ड हटाउन चाहनुहुन्छ? (यो फाइल दर्ता भइसकेको छैन)`)) {
+        try {
+          const { error } = await _supabase.from('g_map_branch1').delete().eq('id', id);
+          if (error) throw error;
+          
+          alert("🗑️ रेकर्ड सफलतापूर्वक हटाइयो।");
+          fetchFromSupabase(); 
+          clearForm();
+        } catch (err) {
+          alert("त्रुटि: " + err.message);
+        }
       }
     }
 
