@@ -11,9 +11,9 @@
 
 <style>
 :root {
-  --primary: #0078d4; /* Microsoft Corporate Blue */
+  --primary: #0078d4; 
   --primary-tint: #eff6fc;
-  --secondary: #107c41; /* Microsoft Excel Green */
+  --secondary: #107c41; 
   --dark: #111111;
   --light: #f3f3f3;
   --bg-main: #fafafa;
@@ -52,8 +52,13 @@ body {
   background-image: radial-gradient(var(--border) 1px, transparent 1px);
   background-size: 24px 24px;
   color: var(--text);
-  overflow: hidden; /* Preloader नसकिँदासम्म स्क्रोल गर्न नमिल्ने बनाउन */
+  overflow-x: hidden;
+  width: 100%;
   transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body.loading {
+  overflow: hidden;
 }
 
 .container {
@@ -61,18 +66,18 @@ body {
   margin: auto;
 }
 
-/* MICROSOFT STYLE PRELOADER (5 SECONDS) */
+/* SMART PRELOADER - FIXED */
 #preloader {
   position: fixed;
   inset: 0;
-  background: #fafafa; /* Microsoft Clean Light Background */
+  background: #fafafa;
   z-index: 10000;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 24px;
-  transition: opacity 0.6s ease, visibility 0.6s ease;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
 }
 
 body.dark #preloader {
@@ -86,7 +91,6 @@ body.dark #preloader {
   animation: pulseLogo 2s infinite ease-in-out;
 }
 
-/* Microsoft Style Ring Spinner */
 .microsoft-spinner {
   width: 28px;
   height: 28px;
@@ -176,7 +180,7 @@ body.dark header {
 
 .menu-btn {
   display: none;
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   cursor: pointer;
   color: var(--text);
   padding: 8px;
@@ -189,7 +193,7 @@ body.dark header {
   grid-template-columns: 1.1fr 0.9fr;
   align-items: center;
   gap: 60px;
-  padding: 80px 0;
+  padding: 60px 0;
 }
 
 .hero-left h4 {
@@ -225,13 +229,14 @@ body.dark header {
 
 .btn {
   text-decoration: none;
-  padding: 10px 24px;
+  padding: 12px 24px;
   border-radius: 4px;
   font-weight: 600;
   font-size: 0.9rem;
   transition: all 0.15s ease;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
 }
 
@@ -295,8 +300,8 @@ body.dark header {
 }
 
 .social-icons a {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 4px;
   display: flex;
   align-items: center;
@@ -304,7 +309,7 @@ body.dark header {
   background: var(--light);
   color: var(--text);
   text-decoration: none;
-  font-size: 0.95rem;
+  font-size: 1rem;
   transition: 0.15s;
 }
 
@@ -339,14 +344,14 @@ body.dark header {
   font-weight: 600;
 }
 
-/* SLIDER */
+/* INTERACTIVE SLIDER WITH DOTS */
 .slider-section {
   padding: 40px 0;
 }
 
 .slider {
   position: relative;
-  height: 420px;
+  height: 450px;
   overflow: hidden;
   border-radius: var(--radius);
   border: 1px solid var(--border);
@@ -358,11 +363,13 @@ body.dark header {
   width: 100%;
   height: 100%;
   opacity: 0;
+  visibility: hidden;
   transition: opacity 0.6s ease;
 }
 
 .slide.active {
   opacity: 1;
+  visibility: visible;
 }
 
 .slide img {
@@ -374,20 +381,43 @@ body.dark header {
 .overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.1) 100%);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.1) 100%);
 }
 
 .slide-content {
   position: absolute;
   left: 32px;
-  bottom: 32px;
+  bottom: 40px;
   color: #fff;
 }
 
 .slide-content h2 {
-  font-size: 1.8rem;
+  font-size: 2rem;
   margin-bottom: 6px;
   font-weight: 700;
+}
+
+.slider-dots {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.dot.active {
+  background: #fff;
+  transform: scale(1.2);
 }
 
 /* SERVICES */
@@ -417,7 +447,7 @@ body.dark header {
 .service-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 16px;
+  gap: 20px;
 }
 
 .service-card {
@@ -426,13 +456,15 @@ body.dark header {
   padding: 28px;
   box-shadow: var(--shadow);
   border: 1px solid var(--border);
-  transition: all 0.2s ease-in-out;
+  transition: all 0.25s ease;
+  display: flex;
+  flex-direction: column;
 }
 
 .service-card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-5px);
   border-color: var(--primary);
-  box-shadow: 0 8px 24px rgba(0, 120, 212, 0.08);
+  box-shadow: 0 8px 24px rgba(0, 120, 212, 0.12);
 }
 
 .service-card i {
@@ -458,7 +490,7 @@ body.dark .service-card:nth-child(2n) i {
 
 .service-card h3 {
   margin-bottom: 10px;
-  font-size: 1.15rem;
+  font-size: 1.2rem;
   font-weight: 700;
 }
 
@@ -466,6 +498,7 @@ body.dark .service-card:nth-child(2n) i {
   color: var(--muted);
   line-height: 1.5;
   font-size: 0.9rem;
+  flex-grow: 1;
 }
 
 .service-card a {
@@ -475,7 +508,7 @@ body.dark .service-card:nth-child(2n) i {
   color: var(--primary);
   text-decoration: none;
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
 }
 
 .service-card a:hover {
@@ -494,6 +527,8 @@ body.dark .service-card:nth-child(2n) i {
   border: 1px solid var(--border);
   box-shadow: var(--shadow);
   padding: 12px;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 .video-card video {
@@ -506,6 +541,8 @@ body.dark .service-card:nth-child(2n) i {
 .timeline {
   margin-top: 30px;
   position: relative;
+  max-width: 800px;
+  margin: auto;
 }
 
 .timeline::before {
@@ -526,10 +563,10 @@ body.dark .service-card:nth-child(2n) i {
 .timeline-item::before {
   content: '';
   position: absolute;
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
-  left: 16px;
+  left: 15px;
   top: 26px;
   background: var(--primary);
   border: 2px solid var(--bg-main);
@@ -553,7 +590,7 @@ body.dark .service-card:nth-child(2n) i {
   font-weight: 600;
   font-size: 0.85rem;
   display: inline-block;
-  margin-top: 2px;
+  margin-top: 4px;
 }
 
 /* CONTACT */
@@ -564,7 +601,7 @@ body.dark .service-card:nth-child(2n) i {
 .contact-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 24px;
+  gap: 32px;
 }
 
 .contact-card {
@@ -577,26 +614,26 @@ body.dark .service-card:nth-child(2n) i {
 
 .contact-card h3 {
   margin-bottom: 20px;
-  font-size: 1.25rem;
+  font-size: 1.3rem;
   font-weight: 700;
 }
 
 .input-group {
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .input-group input,
 .input-group textarea {
   width: 100%;
-  padding: 12px;
+  padding: 14px;
   border: 1px solid var(--border);
   background: var(--bg-main);
   color: var(--text);
-  border-radius: 4px;
+  border-radius: 6px;
   font-family: inherit;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   outline: none;
-  transition: 0.15s;
+  transition: 0.2s;
 }
 
 .input-group input:focus,
@@ -628,19 +665,19 @@ footer {
 .footer-content h3 {
   color: var(--text);
   font-weight: 700;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
 }
 
 .footer-links {
   display: flex;
-  gap: 16px;
+  gap: 20px;
 }
 
 .footer-content a {
   color: var(--muted);
   text-decoration: none;
   font-weight: 600;
-  font-size: 0.88rem;
+  font-size: 0.9rem;
 }
 
 .footer-content a:hover {
@@ -654,36 +691,40 @@ footer {
   bottom: 24px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
   z-index: 999;
 }
 
 .float-buttons a, .dark-toggle {
-  width: 46px;
-  height: 46px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #fff;
   text-decoration: none;
-  font-size: 1.1rem;
-  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-  transition: 0.2s;
+  font-size: 1.2rem;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+  transition: transform 0.2s;
   border: none;
   cursor: pointer;
+}
+
+.float-buttons a:hover, .dark-toggle:hover {
+  transform: scale(1.1);
 }
 
 .whatsapp { background: #107c41; }
 .call { background: #d83b01; }
 .dark-toggle { background: var(--card); color: var(--text); border: 1px solid var(--border); }
 
-/* RESPONSIVE */
+/* RESPONSIVE CSS */
 @media(max-width:950px){
   .hero { grid-template-columns: 1fr; gap: 40px; text-align: center; }
   .contact-grid { grid-template-columns: 1fr; }
   .hero-buttons { justify-content: center; }
-  .profile-card { max-width: 400px; margin: auto; }
+  .profile-card { max-width: 450px; margin: auto; }
   .hero-left h2 { font-size: 2.5rem; }
 }
 
@@ -692,25 +733,27 @@ footer {
     position: fixed;
     top: 73px;
     right: -100%;
-    width: 260px;
+    width: 280px;
     height: calc(100vh - 73px);
     background: var(--card);
     flex-direction: column;
-    padding: 24px;
-    transition: 0.25s ease-in-out;
+    padding: 32px 24px;
+    transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border-left: 1px solid var(--border);
     box-shadow: var(--shadow);
+    z-index: 1000;
   }
   .nav-links.active { right: 0; }
   .menu-btn { display: block; }
-  .slider { height: 280px; }
+  .slider { height: 320px; }
+  .slide-content h2 { font-size: 1.5rem; }
 }
 </style>
 </head>
 
-<body>
+<body class="loading">
 
-<!-- 5-SECOND PRELOADER -->
+<!-- SMART PRELOADER -->
 <div id="preloader">
   <img src="brp.ico" alt="BRP Icon" class="preloader-icon" onerror="this.src='brp.jpg';">
   <div class="microsoft-spinner"></div>
@@ -727,7 +770,6 @@ footer {
       </div>
     </div>
 
-    <!-- अपडेट गरिएको लिङ्क: mapbranch.html खुल्ने बनाइएको -->
     <div class="nav-links" id="navLinks">
       <a href="#home" class="active">गृहपृष्ठ</a>
       <a href="#services">सेवाहरू</a>
@@ -738,7 +780,7 @@ footer {
     </div>
 
     <div class="menu-btn" id="menuBtn">
-      <i class="fa fa-bars"></i>
+      <i class="fa-solid fa-bars"></i>
     </div>
   </div>
 </header>
@@ -747,6 +789,7 @@ footer {
 <section class="hero container" id="home">
   <div class="hero-left">
     <h4>गलकोट नगरपालिका • Professional Surveyor</h4>
+    <h2>Dinesh Babu Roka</h2>
     <p>जग्गा वर्गीकरण, नक्सांकन, सम्पत्ति मूल्याङ्कन, भवन क्षेत्रफल हिसाब, भूमि सम्बन्धी परामर्श तथा प्रशासनिक कार्यमा अनुभवी Professional Surveyor।</p>
     
     <div class="hero-buttons">
@@ -789,9 +832,9 @@ footer {
   </div>
 </section>
 
-<!-- SLIDER -->
+<!-- INTERACTIVE SLIDER -->
 <section class="slider-section container">
-  <div class="slider">
+  <div class="slider" id="mainSlider">
     <div class="slide active">
       <img src="img1.jpg" alt="Land Survey">
       <div class="overlay"></div>
@@ -816,6 +859,7 @@ footer {
         <p>Modern Survey Technology</p>
       </div>
     </div>
+    <div class="slider-dots" id="sliderDots"></div>
   </div>
 </section>
 
@@ -870,7 +914,6 @@ footer {
         <a href="idcard2protait.html">Open Service →</a>
       </div>
 
-      <!-- अपडेट गरिएको सेवा कार्ड: mapbranch.html खुल्ने बनाइएको -->
       <div class="service-card">
         <i class="fa-solid fa-map-marked-alt"></i>
         <h3>नक्सा शाखा (Map Branch)</h3>
@@ -881,7 +924,7 @@ footer {
   </div>
 </section>
 
-<!-- VIDEO -->
+<!-- VIDEO TOUR -->
 <section class="video-section container">
   <div class="section-title">
     <p>Visual Tour</p>
@@ -925,7 +968,7 @@ footer {
     <div class="contact-grid">
       <div class="contact-card">
         <h3>Message Form</h3>
-        <form>
+        <form id="contactForm">
           <div class="input-group">
             <input type="text" placeholder="तपाईंको नाम" required>
           </div>
@@ -935,7 +978,7 @@ footer {
           <div class="input-group">
             <textarea rows="5" placeholder="सन्देश यहाँ लेख्नुहोस्..." required></textarea>
           </div>
-          <button class="btn btn-primary" type="submit" style="width:100%; justify-content:center; cursor:pointer;">
+          <button class="btn btn-primary" type="submit" style="width:100%; cursor:pointer;">
             <i class="fa fa-paper-plane"></i> सन्देश पठाउनुहोस्
           </button>
         </form>
@@ -951,8 +994,9 @@ footer {
           </p>
         </div>
         
+        <!-- WORKING GOOGLE MAP ENBED FOR GALKOT BAGLUNG -->
         <iframe
-          src="https://maps.google.com/maps?q=galkot&t=&z=13&ie=UTF8&iwloc=&output=embed"
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d56314.9458925232!2d83.2289659!3d28.17066925!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39963e6fa505dfad%3A0xcda8a96ba45d1f8c!2sGalkot!5e0!3m2!1sen!2snp!4v1710000000000!5m2!1sen!2snp"
           width="100%"
           height="200"
           style="border:1px solid var(--border); border-radius:4px; margin-top:16px;"
@@ -982,50 +1026,93 @@ footer {
 
 <!-- FLOAT BUTTONS -->
 <div class="float-buttons">
-  <button class="dark-toggle" id="darkToggle">
+  <button class="dark-toggle" id="darkToggle" title="Dark Mode Toggle">
     <i class="fa fa-moon"></i>
   </button>
-  <a href="https://wa.me/9779857626542" target="_blank" class="whatsapp">
+  <a href="https://wa.me/9779857626542" target="_blank" class="whatsapp" title="WhatsApp Chat">
     <i class="fab fa-whatsapp"></i>
   </a>
-  <a href="tel:+9779857626542" class="call">
+  <a href="tel:+9779857626542" class="call" title="Direct Call">
     <i class="fa fa-phone"></i>
   </a>
 </div>
 
 <!-- JAVASCRIPT -->
 <script>
-/* 5-SECOND PRELOADER SCRIPT */
-window.addEventListener('DOMContentLoaded', () => {
-  const preloader = document.getElementById('preloader');
-  
-  setTimeout(() => {
-    preloader.style.opacity = '0';
-    preloader.style.visibility = 'hidden';
-    document.body.style.overflow = 'auto';
-  }, 5000);
+/* FIX: OPTIMIZED PRELOADER (Force closes after 1 second even if images fail to load) */
+window.addEventListener('load', () => {
+  hidePreloader();
 });
 
-/* MOBILE MENU */
+// Backup safe closer if window load event delays
+setTimeout(() => {
+  hidePreloader();
+}, 1000); 
+
+function hidePreloader() {
+  const preloader = document.getElementById('preloader');
+  if(preloader && !preloader.classList.contains('hidden')) {
+    preloader.style.opacity = '0';
+    preloader.style.visibility = 'hidden';
+    document.body.classList.remove('loading');
+    preloader.classList.add('hidden');
+  }
+}
+
+/* MOBILE MENU INTERACTIVITY */
 const menuBtn = document.getElementById('menuBtn');
 const navLinks = document.getElementById('navLinks');
+const menuIcon = menuBtn.querySelector('i');
 
 menuBtn.onclick = () => {
   navLinks.classList.toggle('active');
+  if (navLinks.classList.contains('active')) {
+    menuIcon.classList.replace('fa-bars', 'fa-xmark');
+  } else {
+    menuIcon.classList.replace('fa-xmark', 'fa-bars');
+  }
 }
 
-/* SLIDER */
+document.querySelectorAll('.nav-links a').forEach(link => {
+  link.onclick = () => {
+    navLinks.classList.remove('active');
+    menuIcon.classList.replace('fa-xmark', 'fa-bars');
+  };
+});
+
+/* ENHANCED SLIDER SYSTEM */
 const slides = document.querySelectorAll('.slide');
-let index = 0;
+const dotsContainer = document.getElementById('sliderDots');
+let currentIndex = 0;
 
-function showSlide() {
-  slides.forEach(slide => slide.classList.remove('active'));
-  slides[index].classList.add('active');
-  index = (index + 1) % slides.length;
+if(slides.length > 0 && dotsContainer) {
+  slides.forEach((_, i) => {
+    const dot = document.createElement('div');
+    dot.classList.add('dot');
+    if(i === 0) dot.classList.add('active');
+    dot.onclick = () => goToSlide(i);
+    dotsContainer.appendChild(dot);
+  });
+
+  const dots = document.querySelectorAll('.dot');
+
+  function goToSlide(n) {
+    slides[currentIndex].classList.remove('active');
+    dots[currentIndex].classList.remove('active');
+    currentIndex = n;
+    slides[currentIndex].classList.add('active');
+    dots[currentIndex].classList.add('active');
+  }
+
+  function nextSlide() {
+    let next = (currentIndex + 1) % slides.length;
+    goToSlide(next);
+  }
+
+  let slideInterval = setInterval(nextSlide, 5000);
 }
-setInterval(showSlide, 4000);
 
-/* DARK MODE */
+/* DARK MODE ENGINE */
 const darkToggle = document.getElementById('darkToggle');
 const toggleIcon = darkToggle.querySelector('i');
 
@@ -1046,26 +1133,27 @@ darkToggle.onclick = () => {
 }
 
 /* FORM SUBMISSION */
-document.querySelector('form').addEventListener('submit', function(e) {
+document.getElementById('contactForm').addEventListener('submit', function(e) {
   e.preventDefault();
   alert('सन्देश सफलतापूर्वक पठाइयो ।');
   this.reset();
 });
 
 /* ACTIVE LINK ON SCROLL */
-const sections = document.querySelectorAll("section");
-const navs = document.querySelectorAll(".nav-links a");
-
+const sections = document.querySelectorAll("section[id]");
 window.addEventListener("scroll", () => {
   let current = "";
+  const scrollY = window.scrollY;
+
   sections.forEach(section => {
-    const sectionTop = section.offsetTop;
-    if (pageYOffset >= sectionTop - 100) {
+    const sectionTop = section.offsetTop - 120;
+    const sectionHeight = section.offsetHeight;
+    if (scrollY >= sectionTop && scrollY < sectionTop + sectionHeight) {
       current = section.getAttribute("id");
     }
   });
 
-  navs.forEach(a => {
+  document.querySelectorAll(".nav-links a").forEach(a => {
     a.classList.remove("active");
     if (a.getAttribute("href") === "#" + current) {
       a.classList.add("active");
