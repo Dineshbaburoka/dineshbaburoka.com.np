@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Employee Tracking System</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        #map { height: 400px; width: 100%; z-index: 1; }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+
+    <div class="flex h-screen overflow-hidden">
+        <div class="w-64 bg-slate-800 text-white flex flex-col justify-between hidden md:flex">
+            <div class="p-5">
+                <h1 class="text-2xl font-bold tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-map-location-dot text-emerald-400"></i> TrackAdmin
+                </h1>
+                <nav class="mt-10 space-y-2">
+                    <a href="#" onclick="switchTab('dashboard')" class="tab-btn flex items-center gap-3 px-4 py-3 bg-slate-700 rounded-lg text-white font-medium transition">
+                        <i class="fa-solid fa-chart-pie w-5"></i> Dashboard
+                    </a>
+                    <a href="#" onclick="switchTab('tracking')" class="tab-btn flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-700 hover:text-white rounded-lg font-medium transition">
+                        <i class="fa-solid fa-location-crosshairs w-5"></i> Live Tracking
+                    </a>
+                    <a href="#" onclick="switchTab('employees')" class="tab-btn flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-700 hover:text-white rounded-lg font-medium transition">
+                        <i class="fa-solid fa-users w-5"></i> Employees
+                    </a>
+                    <a href="#" onclick="switchTab('reports')" class="tab-btn flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-700 hover:text-white rounded-lg font-medium transition">
+                        <i class="fa-solid fa-file-invoice w-5"></i> History Reports
+                    </a>
+                </nav>
+            </div>
+            <div class="p-5 border-t border-slate-700">
+                <button onclick="logout()" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-medium transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </button>
+            </div>
+        </div>
+
+        <div class="flex-1 flex flex-col overflow-y-auto">
+            <header class="bg-white shadow-sm px-6 py-4 flex justify-between items-center border-b border-gray-200">
+                <h2 id="page-title" class="text-xl font-semibold text-gray-800">Dashboard Overview</h2>
+                <div class="flex items-center gap-4">
+                    <div id="connection-status" class="flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">
+                        <span class="h-2 w-2 rounded-full bg-amber-500 animate-pulse"></span> Connecting Supabase...
+                    </div>
+                    <div class="font-medium text-gray-700 flex items-center gap-2">
+                        <i class="fa-solid fa-user-shield text-slate-600"></i> Admin Panel
+                    </div>
+                </div>
+            </header>
+
+            <main class="p-6">
+                
+                <section id="dashboard-section" class="tab-content block space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500 uppercase">Total Staff</p>
+                                <h3 id="stat-total-staff" class="text-3xl font-bold text-gray-800 mt-1">0</h3>
+                            </div>
+                            <div class="p-4 bg-blue-50 text-blue-600 rounded-lg text-2xl"><i class="fa-solid fa-users"></i></div>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500 uppercase">Active Now (Online)</p>
+                                <h3 id="stat-active-staff" class="text-3xl font-bold text-emerald-600 mt-1">0</h3>
+                            </div>
+                            <div class="p-4 bg-emerald-50 text-emerald-600 rounded-lg text-2xl"><i class="fa-solid fa-signal"></i></div>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500 uppercase">Alerts / Offline</p>
+                                <h3 id="stat-offline-staff" class="text-3xl font-bold text-amber-600 mt-1">0</h3>
+                            </div>
+                            <div class="p-4 bg-amber-50 text-amber-600 rounded-lg text-2xl"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Realtime Activity Log</h3>
+                        <div id="activity-log" class="space-y-3 max-h-60 overflow-y-auto pr-2 text-sm text-gray-600">
+                            <p class="italic text-gray-400">Waiting for logs...</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="tracking-section" class="tab-content hidden space-y-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 lg:col-span-1">
+                            <h3 class="font-semibold text-gray-700 mb-3 border-b pb-2">Duty Staff List</h3>
+                            <div id="map-employee-list" class="space-y-2 overflow-y-auto max-h-[350px]">
+                                <p class="text-sm text-gray-400 italic">No employees online.</p>
+                            </div>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 lg:col-span-3">
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="text-sm font-medium text-gray-600"><i class="fa-solid fa-earth-asia text-blue-500"></i> Free Hybrid Satellite Engine</span>
+                                <button onclick="resetMapFocus()" class="text-xs bg-slate-100 hover:bg-slate-200 font-medium px-2.5 py-1.5 rounded border border-gray-300">Recenter Map</button>
+                            </div>
+                            <div id="map" class="rounded-lg border border-gray-300"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="employees-section" class="tab-content hidden space-y-6">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                            <h3 class="text-lg font-semibold text-gray-800">Register New Staff</h3>
+                        </div>
+                        <form id="employee-form" onsubmit="handleAddEmployee(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Full Name</label>
+                                <input type="text" id="emp-name" required class="w-full p-2 border border-gray-300 rounded text-sm bg-white" placeholder="John Doe">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Employee ID / Code</label>
+                                <input type="text" id="emp-code" required class="w-full p-2 border border-gray-300 rounded text-sm bg-white" placeholder="EMP-101">
+                            </div>
+                            <div class="flex items-end">
+                                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-4 rounded text-sm transition">
+                                    <i class="fa-solid fa-user-plus mr-1"></i> Add Employee
+                                </button>
+                            </div>
+                        </form>
+
+                        <div class="mt-8 overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-100 border-b border-gray-200 text-slate-700 text-sm font-semibold uppercase">
+                                        <th class="p-4">Employee ID</th>
+                                        <th class="p-4">Name</th>
+                                        <th class="p-4">Status</th>
+                                        <th class="p-4">Last Sync</th>
+                                        <th class="p-4 text-center">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="employee-table-body" class="text-sm text-gray-600 divide-y divide-gray-100">
+                                    <tr>
+                                        <td colspan="5" class="p-4 text-center italic text-gray-400">Loading staff database...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="reports-section" class="tab-content hidden space-y-6">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 border-b pb-4">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800">Location Log History</h3>
+                                <p class="text-xs text-gray-500">View and download complete GPS trail reports</p>
+                            </div>
+                            <button onclick="downloadExcelReport()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded font-medium text-sm transition flex items-center gap-2">
+                                <i class="fa-solid fa-file-excel"></i> Export as CSV
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 bg-slate-50 p-4 rounded-lg border border-gray-200">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Select Employee</label>
+                                <select id="report-filter-emp" class="w-full p-2 border border-gray-300 rounded text-sm bg-white">
+                                    <option value="all">All Employees</option>
+                                </select>
+                            </div>
+                            <div class="flex items-end">
+                                <button onclick="loadReportLogs()" class="w-full bg-slate-700 hover:bg-slate-800 text-white font-medium py-2 px-4 rounded text-sm transition">
+                                    <i class="fa-solid fa-filter mr-1"></i> Apply Filter
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse text-sm text-gray-600">
+                                <thead>
+                                    <tr class="bg-slate-100 border-b border-gray-200 text-slate-700 font-semibold uppercase">
+                                        <th class="p-3">Timestamp</th>
+                                        <th class="p-3">Emp Code</th>
+                                        <th class="p-3">Latitude</th>
+                                        <th class="p-3">Longitude</th>
+                                        <th class="p-3">Battery</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="report-table-body" class="divide-y divide-gray-100">
+                                    <tr>
+                                        <td colspan="5" class="p-4 text-center italic text-gray-400">Click Apply Filter to fetch data</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        // --- LIVE SUPABASE CONFIGURATION ---
+        const SUPABASE_URL = "https://fsoltknfkwptcrsmvjlh.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_PIXaEa6gmVIa8vWPRzhq1A_zY7o-AoT";
+        
+        let map = null;
+        let markers = {}; 
+        let globalEmployees = [];
+        let supabaseClient = null;
+
+        // App Initialization Flow
+        document.addEventListener("DOMContentLoaded", () => {
+            initSupabase();
+            initMap();
+            if(supabaseClient) {
+                fetchInitialData();
+                setupRealtimeSubscriptions();
+            }
+        });
+
+        // Initialize connection to Supabase Client Engine
+        function initSupabase() {
+            try {
+                supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                updateStatus("Supabase Connected", "bg-emerald-100 text-emerald-700", "bg-emerald-500");
+            } catch (error) {
+                console.error("Supabase Initialization Error:", error);
+                updateStatus("Connection Failed", "bg-red-100 text-red-700", "bg-red-500");
+            }
+        }
+
+        // OpenStreetMap र Esri Satellite Engine लाई API बिना लोड गर्ने फङ्सन
+        function initMap() {
+            // काठमाडौं, नेपालको कोअर्डिनेट्समा म्याप एङ्कर गर्ने
+            map = L.map('map').setView([27.7172, 85.3240], 13);
+
+            // Esri वर्ल्ड इमेजरी (नि:शुल्क स्याटेलाइट म्याप लेयर)
+            const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+            });
+
+            // सामान्य सडकहरू र ठाउँको नाम देखाउने लेयर (सजिलोका लागि स्याटेलाइट माथि ओभरले गरिएको)
+            const labelsLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+                subdomains: 'abcd',
+                maxZoom: 20
+            });
+
+            // दुवै लेयरलाई म्यापमा एक्टिभ गर्ने (स्याटेलाइट र ठाउँको नाम)
+            satelliteLayer.addTo(map);
+            labelsLayer.addTo(map);
+        }
+
+        // Header Connection Status Sync Indicator
+        function updateStatus(text, wrapperClass, pointClass) {
+            const el = document.getElementById("connection-status");
+            if (el) {
+                el.className = `flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold ${wrapperClass}`;
+                el.innerHTML = `<span class="h-2 w-2 rounded-full ${pointClass} ${pointClass.includes('emerald') ? '' : 'animate-pulse'}"></span> ${text}`;
+            }
+        }
+
+        // UI Tabs Navigator Logic Switching
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`${tabId}-section`).classList.remove('hidden');
+            
+            // Manage Active CSS Styles
+            const trigger = event.currentTarget;
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-slate-700', 'text-white');
+                btn.classList.add('text-slate-400');
+            });
+            
+            if (trigger && trigger.classList) {
+                trigger.classList.add('bg-slate-700', 'text-white');
+                trigger.classList.remove('text-slate-400');
+            }
+            
+            // Quick rendering recalibration fix for Leaflet dimensions
+            if (tabId === 'tracking' && map) {
+                setTimeout(() => map.invalidateSize(), 200);
+            }
+            
+            document.getElementById('page-title').innerText = tabId.charAt(0).toUpperCase() + tabId.slice(1) + " Panel";
+        }
+
+        // Fetch Baseline Dataset Matrix Core
+        async function fetchInitialData() {
+            if (!supabaseClient) return;
+
+            // 1. Core Profile Database Sync
+            const { data: employees, error } = await supabaseClient.from('employees').select('*');
+            if (error) { console.error(error); return; }
+            
+            globalEmployees = employees;
+            renderEmployeeTable();
+            populateDropdowns();
+
+            // 2. Map Pointer Track Record State Pull
+            const { data: locations, error: locError } = await supabaseClient.from('latest_locations').select('*');
+            if (!locError && locations) {
+                // Wipe old elements out from memory storage to cleanly overwrite
+                Object.keys(markers).forEach(k => {
+                    map.removeLayer(markers[k]);
+                    delete markers[k];
+                });
+                
+                locations.forEach(loc => updateMapMarker(loc));
+                calculateStats(locations);
+                updateLiveDutyStaffList(locations);
+            }
+        }
+
+        // Initialize Realtime Postgres Tracking Channel Pipelines
+        function setupRealtimeSubscriptions() {
+            if (!supabaseClient) return;
+
+            supabaseClient
+                .channel('live-tracking')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'latest_locations' }, payload => {
+                    const record = payload.new;
+                    if(record && record.emp_code) {
+                        updateMapMarker(record);
+                        logActivity(record);
+                        fetchInitialData(); // Trigger structural updates to matrix cards asynchronously
+                    }
+                })
+                .subscribe();
+        }
+
+        // Update Pointers on Live OpenStreetMap Wrapper Viewports
+        function updateMapMarker(data) {
+            if (!map || !data) return;
+            const { emp_code, latitude, longitude, updated_at } = data;
+            const empInfo = globalEmployees.find(e => e.emp_code === emp_code) || { name: emp_code };
+            
+            const popupContent = `
+                <div class="text-xs p-1 text-slate-900">
+                    <b class="text-sm text-slate-800">${empInfo.name}</b> (${emp_code})<br>
+                    <span class="text-gray-500">Coordinates: ${latitude}, ${longitude}</span><br>
+                    <span class="text-emerald-600 font-medium">Synced: ${new Date(updated_at).toLocaleTimeString()}</span>
+                </div>
+            `;
+
+            if (markers[emp_code]) {
+                markers[emp_code].setLatLng([latitude, longitude]).setPopupContent(popupContent);
+            } else {
+                markers[emp_code] = L.marker([latitude, longitude]).addTo(map).bindPopup(popupContent);
+            }
+        }
+
+        // Live Sidebar Duty Roster Update Engine
+        function updateLiveDutyStaffList(locations) {
+            const container = document.getElementById('map-employee-list');
+            if(!container) return;
+
+            if(locations.length === 0) {
+                container.innerHTML = `<p class="text-sm text-gray-400 italic">No employees online.</p>`;
+                return;
+            }
+
+            container.innerHTML = '';
+            locations.forEach(loc => {
+                const empInfo = globalEmployees.find(e => e.emp_code === loc.emp_code) || { name: loc.emp_code };
+                const item = document.createElement('div');
+                item.className = "p-2 hover:bg-slate-50 border border-gray-100 rounded-lg flex flex-col cursor-pointer transition text-slate-800";
+                item.onclick = () => {
+                    if(markers[loc.emp_code]) {
+                        map.setView([loc.latitude, loc.longitude], 15);
+                        markers[loc.emp_code].openPopup();
+                    }
+                };
+                item.innerHTML = `
+                    <span class="text-sm font-semibold text-slate-800">${empInfo.name}</span>
+                    <span class="text-xs text-gray-400 font-mono">${loc.emp_code}</span>
+                    <span class="text-[11px] text-emerald-600 mt-0.5"><i class="fa-solid fa-clock-rotate-left"></i> ${new Date(loc.updated_at).toLocaleTimeString()}</span>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // Log Mutation Streaming Entries Layout Row
+        function logActivity(data) {
+            const container = document.getElementById('activity-log');
+            if(!container) return;
+            if(container.querySelector('.italic')) container.innerHTML = ''; 
+            
+            const logRow = document.createElement('p');
+            logRow.className = "border-b border-gray-50 pb-1 font-mono text-xs text-slate-700";
+            logRow.innerHTML = `<span class="text-blue-500">[${new Date().toLocaleTimeString()}]</span> Staff <b>${data.emp_code}</b> pinged coordinate vector: <span class="text-emerald-600">${data.latitude}, ${data.longitude}</span>`;
+            
+            container.prepend(logRow);
+        }
+
+        // Metric Statistics Data Cards Processing Math
+        function calculateStats(locations) {
+            document.getElementById('stat-total-staff').innerText = globalEmployees.length;
+            
+            // Workers qualify as Active if the sync cycle occurred within the last 15 minutes
+            const fifteenMinsAgo = new Date(Date.now() - 15 * 60 * 1000);
+            const activeCount = locations.filter(l => new Date(l.updated_at) > fifteenMinsAgo).length;
+            
+            document.getElementById('stat-active-staff').innerText = activeCount;
+            document.getElementById('stat-offline-staff').innerText = Math.max(0, globalEmployees.length - activeCount);
+        }
+
+        // Render Profile List Directory Components Rows
+        function renderEmployeeTable() {
+            const tbody = document.getElementById('employee-table-body');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+            
+            if(globalEmployees.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center italic text-gray-400">No registered employees found.</td></tr>`;
+                return;
+            }
+
+            globalEmployees.forEach(emp => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50 transition";
+                tr.innerHTML = `
+                    <td class="p-4 font-semibold text-slate-700">${emp.emp_code}</td>
+                    <td class="p-4 font-medium">${emp.name}</td>
+                    <td class="p-4"><span class="bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs">Registered</span></td>
+                    <td class="p-4 text-xs text-gray-400">${new Date(emp.created_at || Date.now()).toLocaleDateString()}</td>
+                    <td class="p-4 text-center">
+                        <button class="text-red-500 hover:text-red-700 transition px-2 py-1 remove-btn-target"><i class="fa-regular fa-trash-can"></i> Remove</button>
+                    </td>
+                `;
+                tr.querySelector('.remove-btn-target').onclick = () => deleteEmployee(emp.id);
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Create Profile Records Elements Add Processing Hook
+        async function handleAddEmployee(e) {
+            e.preventDefault();
+            if(!supabaseClient) return;
+
+            const name = document.getElementById('emp-name').value;
+            const emp_code = document.getElementById('emp-code').value;
+
+            const { error } = await supabaseClient.from('employees').insert([{ name, emp_code }]);
+            if (error) {
+                alert("Error saving staff record structural profile entry: " + error.message);
+            } else {
+                document.getElementById('employee-form').reset();
+                fetchInitialData(); 
+            }
+        }
+
+        // Account Profile Removal Logic Pipeline Run
+        async function deleteEmployee(id) {
+            if(!confirm("Are you sure you want to completely delete this employee account account parameters?")) return;
+            const { error } = await supabaseClient.from('employees').delete().eq('id', id);
+            if(!error) {
+                fetchInitialData();
+            } else {
+                alert("Error deleting database configuration profile: " + error.message);
+            }
+        }
+
+        // History Log Target Filtering Dropdowns Loader
+        function populateDropdowns() {
+            const select = document.getElementById('report-filter-emp');
+            if(!select) return;
+            select.innerHTML = '<option value="all">All Employees</option>';
+            globalEmployees.forEach(emp => {
+                select.innerHTML += `<option value="${emp.emp_code}">${emp.name} (${emp.emp_code})</option>`;
+            });
+        }
+
+        // Pull Target History Elements Database Queries Array
+        async function loadReportLogs() {
+            if(!supabaseClient) return;
+            const filterValue = document.getElementById('report-filter-emp').value;
+            const tbody = document.getElementById('report-table-body');
+            if(!tbody) return;
+            tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center italic text-gray-400">Querying database rows...</td></tr>`;
+
+            let query = supabaseClient.from('location_logs').select('*').order('created_at', { ascending: false }).limit(100);
+            if(filterValue !== 'all') {
+                query = query.eq('emp_code', filterValue);
+            }
+
+            const { data: logs, error } = await query;
+            if (error || !logs || logs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center italic text-red-400">No historical tracker records found matching selections parameters.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = '';
+            logs.forEach(log => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50 text-xs">
+                        <td class="p-3 text-slate-500">${new Date(log.created_at).toLocaleString()}</td>
+                        <td class="p-3 font-semibold text-slate-700">${log.emp_code}</td>
+                        <td class="p-3">${log.latitude}</td>
+                        <td class="p-3">${log.longitude}</td>
+                        <td class="p-3"><i class="fa-solid fa-battery-three-quarters text-emerald-500 mr-1"></i> ${log.battery_level || '100'}%</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // DOWNLOAD LOGS REPORT AS EXCEL FORMATTED CSV
+        function downloadExcelReport() {
+            const rows = document.querySelectorAll('#report-table-body tr');
+            if(rows.length === 0 || rows[0].innerText.includes("Filter")) { alert("पहिले 'Apply Filter' बटन थिचेर डेटा लोड गर्नुहोस्!"); return; }
+            
+            let csvContent = "data:text/csv;charset=utf-8,Timestamp,Employee Code,Latitude,Longitude,Battery Level\n";
+            rows.forEach(row => {
+                const cols = row.querySelectorAll('td');
+                if(cols.length < 5) return;
+                const rowData = Array.from(cols).map(c => `"${c.innerText.replace(/"/g, '""')}"`).join(",");
+                csvContent += rowData + "\n";
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `GPS_Report_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function resetMapFocus() {
+            if(map) map.setView([27.7172, 85.3240], 13);
+        }
+
+        // Session reset configuration
+        function logout() {
+            alert("Admin dashboard operational session destroyed securely.");
+            window.location.reload();
+        }
+    </script>
+</body>
+</html>
