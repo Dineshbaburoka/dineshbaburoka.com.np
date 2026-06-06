@@ -145,20 +145,64 @@
             } catch (e) { console.error(e); }
         }
 
+        // ब्याट्री प्रतिशत सही तरिकाले मिलाउने परिमार्जित फङ्सन
         async function updateBatteryStatus() {
+            let rawBattery = 1.0; 
+
             if (window.Capacitor && window.Capacitor.Plugins.Device) {
                 try {
                     const info = await window.Capacitor.Plugins.Device.getBatteryInfo();
-                    currentBatteryLevel = Math.round(info.batteryLevel * 100);
+                    rawBattery = info.batteryLevel; 
                 } catch (e) { console.error(e); }
             } else if (navigator.getBattery) {
                 try {
                     const battery = await navigator.getBattery();
-                    currentBatteryLevel = Math.round(battery.level * 100);
+                    rawBattery = battery.level; 
+                    
+                    battery.onlevelchange = () => {
+                        let lvl = battery.level;
+                        currentBatteryLevel = (lvl <= 1 && lvl >= 0) ? Math.round(lvl * 100) : Math.round(lvl);
+                        renderBatteryUI();
+                    };
                 } catch (e) { console.error(e); }
             }
+
+            if (rawBattery <= 1 && rawBattery >= 0) {
+                currentBatteryLevel = Math.round(rawBattery * 100);
+            } else {
+                currentBatteryLevel = Math.round(rawBattery);
+            }
+
+            renderBatteryUI();
+        }
+
+        function renderBatteryUI() {
             const batDisplay = document.getElementById('battery-display');
-            if(batDisplay) batDisplay.innerHTML = `<i class="fa-solid fa-battery-three-quarters text-slate-400 mr-1"></i> ${currentBatteryLevel}%`;
+            if(!batDisplay) return;
+            
+            let icon = "fa-battery-full";
+            if (currentBatteryLevel <= 20) icon = "fa-battery-empty text-red-500 animate-pulse";
+            else if (currentBatteryLevel <= 50) icon = "fa-battery-quarter text-amber-500";
+            else if (currentBatteryLevel <= 80) icon = "fa-battery-half";
+            
+            batDisplay.innerHTML = `<i class="fa-solid ${icon} mr-1"></i> ${currentBatteryLevel}%`;
+        }
+
+        // डिभाइसको प्रकार पत्ता लगाउने फङ्सन
+        async function getDeviceName() {
+            if (window.Capacitor && window.Capacitor.Plugins.Device) {
+                try {
+                    const info = await window.Capacitor.Plugins.Device.getInfo();
+                    return `${info.operatingSystem.toUpperCase()} (${info.model || 'Unknown Model'})`;
+                } catch (e) { console.error(e); }
+            }
+            const ua = navigator.userAgent;
+            if (/android/i.test(ua)) return "Android Device";
+            if (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) return "iOS Device";
+            if (/Windows/i.test(ua)) return "Windows PC";
+            if (/Mac/i.test(ua)) return "MacBook/iMac";
+            if (/Linux/i.test(ua)) return "Linux PC";
+            return "Unknown Browser/Device";
         }
 
         function updateNetworkStatus(isOnline) {
@@ -242,13 +286,15 @@
             document.getElementById('lbl-time').innerText = new Date().toLocaleTimeString();
 
             await updateBatteryStatus();
+            const detectedDevice = await getDeviceName(); 
 
             const payload = {
                 emp_code: employeeCode,
-                reason1: trackingReason, // यहाँ reason1 बनाइयो
+                reason1: trackingReason, 
                 latitude: lat,
                 longitude: lng,
                 battery_level: currentBatteryLevel,
+                device_name: detectedDevice, 
                 created_at: new Date().toISOString()
             };
 
@@ -266,10 +312,11 @@
                 await supabaseClient.from('location_logs').insert([payload]);
                 await supabaseClient.from('latest_locations').upsert({
                     emp_code: payload.emp_code,
-                    reason1: payload.reason1, // यहाँ पनि reason1 बनाइयो
+                    reason1: payload.reason1, 
                     latitude: payload.latitude,
                     longitude: payload.longitude,
                     battery_level: payload.battery_level,
+                    device_name: payload.device_name, 
                     updated_at: payload.created_at
                 }, { onConflict: 'emp_code' });
                 updateNetworkStatus(true);
@@ -294,7 +341,7 @@
             isTrackingActive = false;
             localStorage.removeItem('active_emp_code');
             localStorage.removeItem('active_emp_reason');
-            alert("ड्युटी बन्द भयो। ब्याकग्राउन्ड ट्र्याकिङ रोकियो।");
+            alert("कार्यालय बाहिर गएर कार्य गर्नु भएकोमा धन्यवाद!");
             window.location.reload();
         }
     </script>

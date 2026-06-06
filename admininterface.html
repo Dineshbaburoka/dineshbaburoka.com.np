@@ -179,6 +179,7 @@
                                         <th class="p-3">Timestamp</th>
                                         <th class="p-3">Emp Code</th>
                                         <th class="p-3">Reason / उद्देश्य</th>
+                                        <th class="p-3">Device Used</th>
                                         <th class="p-3">Latitude</th>
                                         <th class="p-3">Longitude</th>
                                         <th class="p-3">Battery</th>
@@ -186,7 +187,7 @@
                                 </thead>
                                 <tbody id="report-table-body" class="divide-y divide-gray-100">
                                     <tr>
-                                        <td colspan="6" class="p-4 text-center italic text-gray-400">Click Apply Filter to fetch data</td>
+                                        <td colspan="7" class="p-4 text-center italic text-gray-400">Click Apply Filter to fetch data</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -305,18 +306,22 @@
 
         function updateMapMarker(data) {
             if (!map || !data) return;
-            const { emp_code, latitude, longitude, updated_at, reason1 } = data; // यहाँ reason1 राखियो
+            const { emp_code, latitude, longitude, updated_at, reason1, device_name, battery_level } = data; 
             const lat = parseFloat(latitude);
             const lng = parseFloat(longitude);
             if (isNaN(lat) || isNaN(lng) || lat === 0 || lng === 0) return;
 
             const empInfo = globalEmployees.find(e => e.emp_code === emp_code) || { name: emp_code };
             const currentReason = reason1 ? reason1 : "कारण खुलाइएको छैन";
+            const device = device_name ? device_name : "नखुलेको";
+            const bat = battery_level !== undefined ? battery_level : '100';
             
             const popupContent = `
                 <div class="text-xs p-1 text-slate-900">
                     <b class="text-sm text-slate-800">${empInfo.name}</b> (${emp_code})<br>
                     <span class="text-amber-600 font-bold">उद्देश्य: ${currentReason}</span><br>
+                    <span class="text-blue-600 font-medium">डिभाइस: <i class="fa-solid fa-mobile-screen-button text-[10px]"></i> ${device}</span><br>
+                    <span class="text-slate-600 font-medium">ब्याट्री: <i class="fa-solid fa-battery-three-quarters text-[10px]"></i> ${bat}%</span><br>
                     <span class="text-gray-500">Coords: ${lat.toFixed(6)}, ${lng.toFixed(6)}</span><br>
                     <span class="text-emerald-600 font-medium">Synced: ${new Date(updated_at).toLocaleTimeString()}</span>
                 </div>
@@ -339,7 +344,9 @@
             container.innerHTML = '';
             locations.forEach(loc => {
                 const empInfo = globalEmployees.find(e => e.emp_code === loc.emp_code) || { name: loc.emp_code };
-                const currentReason = loc.reason1 ? loc.reason1 : "कारण नखुलेको"; // यहाँ reason1 राखियो
+                const currentReason = loc.reason1 ? loc.reason1 : "कारण नखुलेको"; 
+                const device = loc.device_name ? loc.device_name : "Unknown Device";
+                const bat = loc.battery_level !== undefined ? loc.battery_level : '100';
                 const item = document.createElement('div');
                 item.className = "p-2 hover:bg-slate-50 border border-gray-100 rounded-lg flex flex-col cursor-pointer transition text-slate-800 bg-white shadow-xs";
                 item.onclick = () => {
@@ -354,7 +361,13 @@
                         <span class="text-[10px] font-mono bg-slate-100 px-1.5 py-0.5 rounded text-slate-600">${loc.emp_code}</span>
                     </div>
                     <span class="text-xs text-amber-600 font-medium mt-1 truncate max-w-full"><i class="fa-solid fa-file-pen text-[10px]"></i> ${currentReason}</span>
-                    <span class="text-[11px] text-emerald-600 mt-1"><i class="fa-solid fa-clock-rotate-left text-[10px]"></i> ${new Date(loc.updated_at).toLocaleTimeString()}</span>
+                    <div class="flex justify-between text-[10px] text-gray-500 mt-1">
+                        <span><i class="fa-solid fa-mobile-screen-button text-[9px]"></i> ${device}</span>
+                        <span><i class="fa-solid fa-battery-three-quarters text-[9px]"></i> ${bat}%</span>
+                    </div>
+                    <div class="text-[9px] text-emerald-600 text-right mt-0.5">
+                        <i class="fa-solid fa-clock-rotate-left"></i> ${new Date(loc.updated_at).toLocaleTimeString()}
+                    </div>
                 `;
                 container.appendChild(item);
             });
@@ -365,7 +378,7 @@
             if(!container) return;
             if(container.querySelector('.italic')) container.innerHTML = ''; 
             
-            const currentReason = data.reason1 ? data.reason1 : "कारण नखुलेको"; // यहाँ reason1 राखियो
+            const currentReason = data.reason1 ? data.reason1 : "कारण नखुलेको"; 
             const logRow = document.createElement('p');
             logRow.className = "border-b border-gray-50 pb-1 font-mono text-xs text-slate-700";
             logRow.innerHTML = `<span class="text-blue-500">[${new Date().toLocaleTimeString()}]</span> Staff <b>${data.emp_code}</b> (${currentReason}) pinged.`;
@@ -421,28 +434,31 @@
             if(!supabaseClient) return;
             const filterValue = document.getElementById('report-filter-emp').value;
             const tbody = document.getElementById('report-table-body');
-            tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center italic text-gray-400">Loading records...</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center italic text-gray-400">Loading records...</td></tr>`;
 
             let query = supabaseClient.from('location_logs').select('*').order('created_at', { ascending: false }).limit(100);
             if(filterValue !== 'all') query = query.eq('emp_code', filterValue);
 
             const { data: logs } = await query;
             if (!logs || logs.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center italic text-red-400">No records found.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center italic text-red-400">No records found.</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = '';
             logs.forEach(log => {
-                const currentReason = log.reason1 ? log.reason1 : "-"; // यहाँ reason1 राखियो
+                const currentReason = log.reason1 ? log.reason1 : "-"; 
+                const device = log.device_name ? log.device_name : "-";
+                const bat = log.battery_level !== undefined ? log.battery_level : '100';
                 tbody.innerHTML += `
                     <tr class="hover:bg-gray-50 text-xs">
                         <td class="p-3 text-slate-500">${new Date(log.created_at).toLocaleString()}</td>
                         <td class="p-3 font-semibold text-slate-700">${log.emp_code}</td>
                         <td class="p-3 font-medium text-amber-700 bg-amber-50/50">${currentReason}</td>
+                        <td class="p-3 text-slate-600 font-medium"><i class="fa-solid fa-mobile-screen-button text-gray-400 mr-1"></i> ${device}</td>
                         <td class="p-3">${log.latitude}</td>
                         <td class="p-3">${log.longitude}</td>
-                        <td class="p-3">${log.battery_level || '100'}%</td>
+                        <td class="p-3 font-semibold">${bat}%</td>
                     </tr>
                 `;
             });
@@ -451,10 +467,10 @@
         function downloadExcelReport() {
             const rows = document.querySelectorAll('#report-table-body tr');
             if(rows.length === 0 || rows[0].innerText.includes("Filter")) { alert("पहिले डाटा लोड गर्नुहोस्!"); return; }
-            let csvContent = "data:text/csv;charset=utf-8,Timestamp,Employee Code,Reason,Latitude,Longitude,Battery\n";
+            let csvContent = "data:text/csv;charset=utf-8,Timestamp,Employee Code,Reason,Device,Latitude,Longitude,Battery\n";
             rows.forEach(row => {
                 const cols = row.querySelectorAll('td');
-                if(cols.length >= 6) {
+                if(cols.length >= 7) {
                     csvContent += Array.from(cols).map(c => `"${c.innerText}"`).join(",") + "\n";
                 }
             });
