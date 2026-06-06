@@ -9,7 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        #map { height: 400px; width: 100%; z-index: 1; }
+        .map-instance { height: 400px; width: 100%; z-index: 1; }
     </style>
 </head>
 <body class="bg-gray-100 font-sans">
@@ -81,6 +81,18 @@
                         </div>
                     </div>
 
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                                <i class="fa-solid fa-earth-asia text-blue-500"></i> Dashboard Summary Map (All Staff Covered)
+                            </span>
+                            <button onclick="autoZoomAllStaff()" class="text-xs bg-blue-50 text-blue-600 hover:bg-blue-100 font-semibold px-2.5 py-1.5 rounded border border-blue-300 cursor-pointer">
+                                <i class="fa-solid fa-compress mr-1"></i> Zoom All Staff
+                            </button>
+                        </div>
+                        <div id="dashboard-map" class="map-instance rounded-lg border border-gray-300"></div>
+                    </div>
+
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                         <h3 class="text-lg font-semibold text-gray-800 mb-4">Realtime Activity Log</h3>
                         <div id="activity-log" class="space-y-3 max-h-60 overflow-y-auto pr-2 text-sm text-gray-600">
@@ -91,18 +103,21 @@
 
                 <section id="tracking-section" class="tab-content hidden space-y-6">
                     <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 lg:col-span-1">
-                            <h3 class="font-semibold text-gray-700 mb-3 border-b pb-2">Duty Staff & Reason</h3>
-                            <div id="map-employee-list" class="space-y-2 overflow-y-auto max-h-[350px]">
+                        <div class="lg:col-span-3 bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                                    <i class="fa-solid fa-circle-dot text-emerald-500 animate-pulse"></i> Live Tracking Engine
+                                </span>
+                                <button onclick="resetMapFocus(liveMap)" class="text-xs bg-slate-100 hover:bg-slate-200 font-medium px-2.5 py-1.5 rounded border border-gray-300 cursor-pointer">Recenter Map</button>
+                            </div>
+                            <div id="live-map" class="map-instance rounded-lg border border-gray-300"></div>
+                        </div>
+                        
+                        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                            <h3 class="font-semibold text-gray-700 mb-3 border-b pb-2">Duty Staff Status</h3>
+                            <div id="map-employee-list" class="space-y-3 overflow-y-auto max-h-[350px] p-1">
                                 <p class="text-sm text-gray-400 italic">No employees online.</p>
                             </div>
-                        </div>
-                        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 lg:col-span-3">
-                            <div class="flex justify-between items-center mb-3">
-                                <span class="text-sm font-medium text-gray-600"><i class="fa-solid fa-earth-asia text-blue-500"></i> Satellite Map Engine</span>
-                                <button onclick="resetMapFocus()" class="text-xs bg-slate-100 hover:bg-slate-200 font-medium px-2.5 py-1.5 rounded border border-gray-300">Recenter Map</button>
-                            </div>
-                            <div id="map" class="rounded-lg border border-gray-300"></div>
                         </div>
                     </div>
                 </section>
@@ -205,14 +220,21 @@
         const SUPABASE_URL = "https://fsoltknfkwptcrsmvjlh.supabase.co";
         const SUPABASE_KEY = "sb_publishable_PIXaEa6gmVIa8vWPRzhq1A_zY7o-AoT";
         
-        let map = null;
-        let markers = {}; 
+        let dashboardMap = null;
+        let liveMap = null;
+        
+        let dashboardMarkers = {}; 
+        let liveMarkers = {}; 
+
+        // Feature Group to dynamically track bounds on Dashboard
+        let dashboardFeatureGroup = null;
+        
         let globalEmployees = [];
         let supabaseClient = null;
 
         document.addEventListener("DOMContentLoaded", () => {
             initSupabase();
-            initMap();
+            initMaps();
             if(supabaseClient) {
                 fetchInitialData();
                 setupRealtimeSubscriptions();
@@ -229,12 +251,23 @@
             }
         }
 
-        function initMap() {
-            map = L.map('map').setView([27.7172, 85.3240], 13);
+        function initMaps() {
+            // Dashboard Map
+            dashboardMap = L.map('dashboard-map').setView([27.7172, 85.3240], 13);
             L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
                 attribution: 'Tiles &copy; Esri'
-            }).addTo(map);
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', { maxZoom: 20 }).addTo(map);
+            }).addTo(dashboardMap);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', { maxZoom: 20 }).addTo(dashboardMap);
+            
+            // Feature group created for automated zooming bounds
+            dashboardFeatureGroup = L.featureGroup().addTo(dashboardMap);
+
+            // Live Tracking Map
+            liveMap = L.map('live-map').setView([27.7172, 85.3240], 13);
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: 'Tiles &copy; Esri'
+            }).addTo(liveMap);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', { maxZoom: 20 }).addTo(liveMap);
         }
 
         function updateStatus(text, wrapperClass, pointClass) {
@@ -258,9 +291,16 @@
             if (trigger && trigger.classList) {
                 trigger.classList.add('bg-slate-700', 'text-white');
             }
-            if (tabId === 'tracking' && map) {
-                setTimeout(() => map.invalidateSize(), 200);
+            
+            if (tabId === 'dashboard' && dashboardMap) {
+                setTimeout(() => {
+                    dashboardMap.invalidateSize();
+                    autoZoomAllStaff(); // Auto fit bounds on switching tab
+                }, 200);
+            } else if (tabId === 'tracking' && liveMap) {
+                setTimeout(() => liveMap.invalidateSize(), 200);
             }
+            
             document.getElementById('page-title').innerText = tabId.charAt(0).toUpperCase() + tabId.slice(1) + " Panel";
         }
 
@@ -275,9 +315,12 @@
 
             const { data: locations } = await supabaseClient.from('latest_locations').select('*');
             if (locations) {
-                locations.forEach(loc => updateMapMarker(loc));
+                locations.forEach(loc => updateBothMaps(loc));
                 calculateStats(locations);
                 updateLiveDutyStaffList(locations);
+                
+                // Trigger auto zoom once initial data is rendered
+                setTimeout(() => autoZoomAllStaff(), 400);
             }
         }
 
@@ -288,7 +331,7 @@
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'latest_locations' }, payload => {
                     const record = payload.new;
                     if(record && record.emp_code) {
-                        updateMapMarker(record);
+                        updateBothMaps(record);
                         logActivity(record);
                         refreshStatsAndList();
                     }
@@ -304,8 +347,7 @@
             }
         }
 
-        function updateMapMarker(data) {
-            if (!map || !data) return;
+        function updateBothMaps(data) {
             const { emp_code, latitude, longitude, updated_at, reason1, device_name, battery_level } = data; 
             const lat = parseFloat(latitude);
             const lng = parseFloat(longitude);
@@ -322,15 +364,41 @@
                     <span class="text-amber-600 font-bold">उद्देश्य: ${currentReason}</span><br>
                     <span class="text-blue-600 font-medium">डिभाइस: <i class="fa-solid fa-mobile-screen-button text-[10px]"></i> ${device}</span><br>
                     <span class="text-slate-600 font-medium">ब्याट्री: <i class="fa-solid fa-battery-three-quarters text-[10px]"></i> ${bat}%</span><br>
-                    <span class="text-gray-500">Coords: ${lat.toFixed(6)}, ${lng.toFixed(6)}</span><br>
                     <span class="text-emerald-600 font-medium">Synced: ${new Date(updated_at).toLocaleTimeString()}</span>
                 </div>
             `;
 
-            if (markers[emp_code]) {
-                markers[emp_code].setLatLng([lat, lng]).setPopupContent(popupContent);
-            } else {
-                markers[emp_code] = L.marker([lat, lng]).addTo(map).bindPopup(popupContent);
+            // Update Map 1: Dashboard Map (Linked inside Feature Group)
+            if (dashboardMap) {
+                if (dashboardMarkers[emp_code]) {
+                    dashboardMarkers[emp_code].setLatLng([lat, lng]).setPopupContent(popupContent);
+                } else {
+                    const marker = L.marker([lat, lng]).bindPopup(popupContent);
+                    dashboardMarkers[emp_code] = marker;
+                    dashboardFeatureGroup.addLayer(marker);
+                }
+            }
+
+            // Update Map 2: Live Tracking Map
+            if (liveMap) {
+                if (liveMarkers[emp_code]) {
+                    liveMarkers[emp_code].setLatLng([lat, lng]).setPopupContent(popupContent);
+                } else {
+                    liveMarkers[emp_code] = L.marker([lat, lng]).addTo(liveMap).bindPopup(popupContent);
+                }
+            }
+        }
+
+        // AUTO ZOOM ENGINE FOR DASHBOARD MAP
+        function autoZoomAllStaff() {
+            if (dashboardFeatureGroup && dashboardMap) {
+                const bounds = dashboardFeatureGroup.getBounds();
+                if (bounds.isValid()) {
+                    dashboardMap.fitBounds(bounds, {
+                        padding: [50, 50],  // Adds margin around markers so they don't touch screen edges
+                        maxZoom: 15         // Prevents zooming in too close if there is only 1 staff
+                    });
+                }
             }
         }
 
@@ -345,14 +413,14 @@
             locations.forEach(loc => {
                 const empInfo = globalEmployees.find(e => e.emp_code === loc.emp_code) || { name: loc.emp_code };
                 const currentReason = loc.reason1 ? loc.reason1 : "कारण नखुलेको"; 
-                const device = loc.device_name ? loc.device_name : "Unknown Device";
                 const bat = loc.battery_level !== undefined ? loc.battery_level : '100';
                 const item = document.createElement('div');
-                item.className = "p-2 hover:bg-slate-50 border border-gray-100 rounded-lg flex flex-col cursor-pointer transition text-slate-800 bg-white shadow-xs";
+                item.className = "p-3 hover:bg-slate-50 border border-gray-200 rounded-lg flex flex-col cursor-pointer transition text-slate-800 bg-white shadow-xs";
+                
                 item.onclick = () => {
-                    if(markers[loc.emp_code]) {
-                        map.setView([loc.latitude, loc.longitude], 15);
-                        markers[loc.emp_code].openPopup();
+                    if(liveMarkers[loc.emp_code]) {
+                        liveMap.setView([loc.latitude, loc.longitude], 16);
+                        liveMarkers[loc.emp_code].openPopup();
                     }
                 };
                 item.innerHTML = `
@@ -362,11 +430,8 @@
                     </div>
                     <span class="text-xs text-amber-600 font-medium mt-1 truncate max-w-full"><i class="fa-solid fa-file-pen text-[10px]"></i> ${currentReason}</span>
                     <div class="flex justify-between text-[10px] text-gray-500 mt-1">
-                        <span><i class="fa-solid fa-mobile-screen-button text-[9px]"></i> ${device}</span>
-                        <span><i class="fa-solid fa-battery-three-quarters text-[9px]"></i> ${bat}%</span>
-                    </div>
-                    <div class="text-[9px] text-emerald-600 text-right mt-0.5">
-                        <i class="fa-solid fa-clock-rotate-left"></i> ${new Date(loc.updated_at).toLocaleTimeString()}
+                        <span>Battery: ${bat}%</span>
+                        <span class="text-emerald-600 font-medium">${new Date(loc.updated_at).toLocaleTimeString()}</span>
                     </div>
                 `;
                 container.appendChild(item);
@@ -403,7 +468,11 @@
                         <td class="p-4 font-medium">${emp.name}</td>
                         <td class="p-4"><span class="bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs">Registered</span></td>
                         <td class="p-4 text-xs text-gray-400">${new Date(emp.created_at || Date.now()).toLocaleDateString()}</td>
-                        <td class="p-4 text-center"><button onclick="deleteEmployee(${emp.id})" class="text-red-500 hover:text-red-700"><i class="fa-regular fa-trash-can"></i> Remove</button></td>
+                        <td class="p-4 text-center">
+                            <button onclick="deleteEmployee(${emp.id}, '${emp.emp_code}')" class="text-red-500 hover:text-red-700 font-medium cursor-pointer">
+                                <i class="fa-regular fa-trash-can mr-1"></i> Remove
+                            </button>
+                        </td>
                     </tr>
                 `;
             });
@@ -412,16 +481,31 @@
         async function handleAddEmployee(e) {
             e.preventDefault();
             const name = document.getElementById('emp-name').value;
-            const emp_code = document.getElementById('emp-code').value;
+            const emp_code = document.getElementById('emp-code').value.trim().toUpperCase();
             const { error } = await supabaseClient.from('employees').insert([{ name, emp_code }]);
             if (!error) { document.getElementById('employee-form').reset(); fetchInitialData(); }
         }
 
-        async function deleteEmployee(id) {
-            if(confirm("Delete this employee?")) {
-                await supabaseClient.from('employees').delete().eq('id', id);
-                fetchInitialData();
-            }
+        async function deleteEmployee(id, emp_code) {
+            if (!supabaseClient) return;
+            const confirmed = confirm(`के तपाईं कर्मचारी कोड: ${emp_code} लाई सिस्टमबाट हटाउन चाहनुहुन्छ?`);
+            if (!confirmed) return;
+
+            try {
+                await supabaseClient.from('latest_locations').delete().eq('emp_code', emp_code);
+                await supabaseClient.from('location_logs').delete().eq('emp_code', emp_code);
+                const { error } = await supabaseClient.from('employees').delete().eq('id', id);
+
+                if (!error) {
+                    alert(`कर्मचारी सफलतापूर्वक हटाइयो।`);
+                    if (dashboardMarkers[emp_code]) { 
+                        dashboardFeatureGroup.removeLayer(dashboardMarkers[emp_code]); 
+                        delete dashboardMarkers[emp_code]; 
+                    }
+                    if (liveMarkers[emp_code]) { liveMap.removeLayer(liveMarkers[emp_code]); delete liveMarkers[emp_code]; }
+                    fetchInitialData();
+                }
+            } catch (err) { console.error(err); }
         }
 
         function populateDropdowns() {
@@ -470,9 +554,7 @@
             let csvContent = "data:text/csv;charset=utf-8,Timestamp,Employee Code,Reason,Device,Latitude,Longitude,Battery\n";
             rows.forEach(row => {
                 const cols = row.querySelectorAll('td');
-                if(cols.length >= 7) {
-                    csvContent += Array.from(cols).map(c => `"${c.innerText}"`).join(",") + "\n";
-                }
+                if(cols.length >= 7) { csvContent += Array.from(cols).map(c => `"${c.innerText}"`).join(",") + "\n"; }
             });
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
@@ -481,7 +563,7 @@
             document.body.appendChild(link); link.click(); document.body.removeChild(link);
         }
 
-        function resetMapFocus() { if(map) map.setView([27.7172, 85.3240], 13); }
+        function resetMapFocus(mapTarget) { if(mapTarget) mapTarget.setView([27.7172, 85.3240], 13); }
         function logout() { window.location.reload(); }
     </script>
 </body>
