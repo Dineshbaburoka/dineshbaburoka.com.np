@@ -61,7 +61,7 @@
                         </div>
                     </div>
                 </div>
-                <button onclick="verifyAndStart()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 px-4 rounded-xl shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2.5 text-lg cursor-pointer">
+                <button onclick="verifyAndStart()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 px-4 rounded-xl flex items-center justify-center gap-2.5 text-lg cursor-pointer">
                     <i class="fa-solid fa-play text-base"></i> फिल्ड कार्य/कार्यालय बाहिरको काम शुरु गर्ने
                 </button>
             </div>
@@ -103,8 +103,8 @@
                     </div>
                 </div>
 
-                <button onclick="stopTracking()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-4 px-4 rounded-xl flex items-center justify-center gap-2 text-lg shadow-lg shadow-rose-600/10 cursor-pointer">
-                    <i class="fa-solid fa-stop"></i> फिल्ड वा कार्यालय बाहिरको काम सकेर कार्यालय फर्कि सक्नु भयो।
+                <button onclick="stopTracking()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-4 px-4 rounded-xl flex items-center justify-center gap-2 text-lg cursor-pointer">
+                    <i class="fa-solid fa-stop"></i> फिल्ड काम सकेर कार्यालय फर्किनु भयो।
                 </button>
             </div>
 
@@ -126,20 +126,15 @@
         const SUPABASE_KEY = "sb_publishable_PIXaEa6gmVIa8vWPRzhq1A_zY7o-AoT";
         let supabaseClient = null;
         let employeeCode = "";
-        let trackingReason = "";
+        let trackingReason = ""; 
         let offlineQueue = [];
         let isTrackingActive = false;
-        let lastPushedTime = 0; 
-        let currentBatteryLevel = 100; // Default ब्याट्री ब्याकअप मान
+        let currentBatteryLevel = 100;
 
         document.addEventListener("DOMContentLoaded", () => {
             initSupabase();
             checkSavedSession();
-            
-            window.addEventListener('online', () => {
-                updateNetworkStatus(true);
-                syncOfflineData();
-            });
+            window.addEventListener('online', syncOfflineData);
             window.addEventListener('offline', () => updateNetworkStatus(false));
         });
 
@@ -150,28 +145,20 @@
             } catch (e) { console.error(e); }
         }
 
-        // सुरक्षा नियम पास गरेर ब्याट्री तान्ने नयाँ लजिक
         async function updateBatteryStatus() {
-            // १. Capacitor एपको लागि
             if (window.Capacitor && window.Capacitor.Plugins.Device) {
                 try {
                     const info = await window.Capacitor.Plugins.Device.getBatteryInfo();
                     currentBatteryLevel = Math.round(info.batteryLevel * 100);
-                } catch (e) { console.error("Capacitor Battery Error:", e); }
-            } 
-            // २. ब्राउजर वा वेबभ्युको लागि
-            else if (navigator.getBattery) {
+                } catch (e) { console.error(e); }
+            } else if (navigator.getBattery) {
                 try {
                     const battery = await navigator.getBattery();
                     currentBatteryLevel = Math.round(battery.level * 100);
-                } catch (e) { console.error("Web Battery Error:", e); }
+                } catch (e) { console.error(e); }
             }
-            
-            // स्क्रिनमा तुरुन्तै वास्तविक ब्याट्री लेखिदिने
             const batDisplay = document.getElementById('battery-display');
-            if(batDisplay) {
-                batDisplay.innerHTML = `<i class="fa-solid fa-battery-three-quarters text-slate-400 mr-1"></i> ${currentBatteryLevel}%`;
-            }
+            if(batDisplay) batDisplay.innerHTML = `<i class="fa-solid fa-battery-three-quarters text-slate-400 mr-1"></i> ${currentBatteryLevel}%`;
         }
 
         function updateNetworkStatus(isOnline) {
@@ -181,6 +168,7 @@
             if(isOnline) {
                 dot.className = "h-2 w-2 rounded-full bg-emerald-400 pulse-emerald";
                 txt.innerText = "Connected";
+                syncOfflineData();
             } else {
                 dot.className = "h-2 w-2 rounded-full bg-amber-500 animate-pulse";
                 txt.innerText = "Offline Mode";
@@ -190,15 +178,9 @@
         function checkSavedSession() {
             const savedCode = localStorage.getItem('active_emp_code');
             const savedReason = localStorage.getItem('active_emp_reason');
-            const savedTime = localStorage.getItem('last_pushed_time');
-            
-            if(savedTime) lastPushedTime = parseInt(savedTime);
-
             if(savedCode) {
                 document.getElementById('emp-code-input').value = savedCode;
                 if(savedReason) document.getElementById('emp-reason-input').value = savedReason;
-                // प्रयोगकर्ताले पहिले नै लगइन गरिसकेको भए ब्याट्री पहिले नै अपडेट गरिदिने
-                updateBatteryStatus();
                 verifyAndStart();
             }
         }
@@ -214,7 +196,6 @@
             if(!trackingReason) { alert("कृपया बाहिर जानुको कारण राख्नुहोस्!"); return; }
             if(!supabaseClient) { alert("नेटवर्क समस्या!"); return; }
 
-            // बटन थिचेको मौका छोपेर तुरुन्त ब्याट्री जाँच गर्ने (यसले सुरक्षा नियम तोड्छ र सफल हुन्छ)
             await updateBatteryStatus();
 
             const { data, error } = await supabaseClient.from('employees').select('name').eq('emp_code', employeeCode).single();
@@ -228,7 +209,6 @@
             
             document.getElementById('lbl-emp-identity').innerText = `${data.name} (${employeeCode})`;
             document.getElementById('lbl-emp-reason').innerText = trackingReason;
-            
             document.getElementById('login-form-box').classList.add('hidden');
             document.getElementById('tracking-dashboard').classList.remove('hidden');
 
@@ -237,7 +217,6 @@
 
         function startBackgroundTracking() {
             isTrackingActive = true;
-            
             if (window.Capacitor && window.Capacitor.Plugins.BackgroundGeolocation) {
                 const BackgroundGeolocation = window.Capacitor.Plugins.BackgroundGeolocation;
                 BackgroundGeolocation.addWatcher({
@@ -251,7 +230,6 @@
                     if (location) { processIncomingCoords(location.latitude, location.longitude); }
                 });
             } else {
-                console.warn("Running in standard browser mode.");
                 navigator.geolocation.watchPosition((pos) => {
                     if(isTrackingActive) processIncomingCoords(pos.coords.latitude, pos.coords.longitude);
                 }, (err) => console.error(err), { enableHighAccuracy: true });
@@ -259,39 +237,27 @@
         }
 
         async function processIncomingCoords(lat, lng) {
-            const currentTime = Date.now();
-            const fifteenMinutes = 15 * 60 * 1000; 
-
             document.getElementById('lbl-lat').innerText = lat.toFixed(6);
             document.getElementById('lbl-lng').innerText = lng.toFixed(6);
+            document.getElementById('lbl-time').innerText = new Date().toLocaleTimeString();
 
-            if (lastPushedTime === 0 || (currentTime - lastPushedTime) >= fifteenMinutes) {
-                
-                lastPushedTime = currentTime;
-                localStorage.setItem('last_pushed_time', lastPushedTime);
-                document.getElementById('lbl-time').innerText = new Date().toLocaleTimeString();
+            await updateBatteryStatus();
 
-                // डाटा पठाउनु अघि ब्याट्री फ्रेस गर्ने
-                await updateBatteryStatus();
+            const payload = {
+                emp_code: employeeCode,
+                reason1: trackingReason, // यहाँ reason1 बनाइयो
+                latitude: lat,
+                longitude: lng,
+                battery_level: currentBatteryLevel,
+                created_at: new Date().toISOString()
+            };
 
-                const payload = {
-                    emp_code: employeeCode,
-                    reason: trackingReason, 
-                    latitude: lat,
-                    longitude: lng,
-                    battery_level: currentBatteryLevel, // वास्तविक ब्याट्री मान पठाइयो
-                    created_at: new Date().toISOString()
-                };
-
-                if(navigator.onLine) {
-                    transmitToSupabase(payload);
-                } else {
-                    const localData = localStorage.getItem('offline_gps_logs');
-                    offlineQueue = localData ? JSON.parse(localData) : [];
-                    offlineQueue.push(payload);
-                    localStorage.setItem('offline_gps_logs', JSON.stringify(offlineQueue));
-                    document.getElementById('offline-buffer-alert').classList.remove('hidden');
-                }
+            if(navigator.onLine) {
+                transmitToSupabase(payload);
+            } else {
+                offlineQueue.push(payload);
+                localStorage.setItem('offline_gps_logs', JSON.stringify(offlineQueue));
+                document.getElementById('offline-buffer-alert').classList.remove('hidden');
             }
         }
 
@@ -300,10 +266,10 @@
                 await supabaseClient.from('location_logs').insert([payload]);
                 await supabaseClient.from('latest_locations').upsert({
                     emp_code: payload.emp_code,
-                    reason: payload.reason, 
+                    reason1: payload.reason1, // यहाँ पनि reason1 बनाइयो
                     latitude: payload.latitude,
                     longitude: payload.longitude,
-                    battery_level: payload.battery_level, 
+                    battery_level: payload.battery_level,
                     updated_at: payload.created_at
                 }, { onConflict: 'emp_code' });
                 updateNetworkStatus(true);
@@ -315,36 +281,19 @@
         async function syncOfflineData() {
             const localData = localStorage.getItem('offline_gps_logs');
             if(!localData) return;
-            
             offlineQueue = JSON.parse(localData);
-            if(offlineQueue.length === 0) return;
-
-            const alertBox = document.getElementById('offline-buffer-alert');
-            alertBox.innerHTML = `<p class="text-xs text-amber-400 font-medium"><i class="fa-solid fa-sync animate-spin mr-1"></i> अनलाइन भेटियो। डाटाहरू पठाउँदै...</p>`;
-            alertBox.classList.remove('hidden');
-
             while(offlineQueue.length > 0) {
-                try {
-                    await transmitToSupabase(offlineQueue[0]);
-                    offlineQueue.shift();
-                    localStorage.setItem('offline_gps_logs', JSON.stringify(offlineQueue));
-                } catch (error) {
-                    break;
-                }
+                await transmitToSupabase(offlineQueue[0]);
+                offlineQueue.shift();
+                localStorage.setItem('offline_gps_logs', JSON.stringify(offlineQueue));
             }
-
-            if(offlineQueue.length === 0) {
-                alertBox.classList.add('hidden');
-                localStorage.removeItem('offline_gps_logs');
-                alertBox.innerHTML = `<p class="text-xs text-amber-400 font-medium"><i class="fa-solid fa-cloud-arrow-up mr-1 text-sm"></i> Connection weak. Saving logs locally...</p>`;
-            }
+            document.getElementById('offline-buffer-alert').classList.add('hidden');
         }
 
         function stopTracking() {
             isTrackingActive = false;
             localStorage.removeItem('active_emp_code');
             localStorage.removeItem('active_emp_reason');
-            localStorage.removeItem('last_pushed_time');
             alert("ड्युटी बन्द भयो। ब्याकग्राउन्ड ट्र्याकिङ रोकियो।");
             window.location.reload();
         }

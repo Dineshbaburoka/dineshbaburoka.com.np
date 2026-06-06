@@ -109,9 +109,6 @@
 
                 <section id="employees-section" class="tab-content hidden space-y-6">
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-                            <h3 class="text-lg font-semibold text-gray-800">Register New Staff</h3>
-                        </div>
                         <form id="employee-form" onsubmit="handleAddEmployee(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
                             <div>
                                 <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Full Name</label>
@@ -141,7 +138,7 @@
                                 </thead>
                                 <tbody id="employee-table-body" class="text-sm text-gray-600 divide-y divide-gray-100">
                                     <tr>
-                                        <td colspan="5" class="p-4 text-center italic text-gray-400">Loading staff database...</td>
+                                        <td colspan="5" class="p-4 text-center italic text-gray-400">Loading database...</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -154,7 +151,7 @@
                         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 border-b pb-4">
                             <div>
                                 <h3 class="text-lg font-semibold text-gray-800">Location Log History</h3>
-                                <p class="text-xs text-gray-500">View and download complete GPS trail reports with task reasons</p>
+                                <p class="text-xs text-gray-500">View complete GPS trails with reasons</p>
                             </div>
                             <button onclick="downloadExcelReport()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded font-medium text-sm transition flex items-center gap-2">
                                 <i class="fa-solid fa-file-excel"></i> Export as CSV
@@ -226,22 +223,17 @@
                 supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
                 updateStatus("Supabase Connected", "bg-emerald-100 text-emerald-700", "bg-emerald-500");
             } catch (error) {
-                console.error("Supabase Initialization Error:", error);
+                console.error(error);
                 updateStatus("Connection Failed", "bg-red-100 text-red-700", "bg-red-500");
             }
         }
 
         function initMap() {
             map = L.map('map').setView([27.7172, 85.3240], 13);
-            const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                attribution: 'Tiles &copy; Esri &mdash; Source: Esri'
-            });
-            const labelsLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', {
-                subdomains: 'abcd',
-                maxZoom: 20
-            });
-            satelliteLayer.addTo(map);
-            labelsLayer.addTo(map);
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: 'Tiles &copy; Esri'
+            }).addTo(map);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', { maxZoom: 20 }).addTo(map);
         }
 
         function updateStatus(text, wrapperClass, pointClass) {
@@ -264,9 +256,7 @@
             
             if (trigger && trigger.classList) {
                 trigger.classList.add('bg-slate-700', 'text-white');
-                trigger.classList.remove('text-slate-400');
             }
-            
             if (tabId === 'tracking' && map) {
                 setTimeout(() => map.invalidateSize(), 200);
             }
@@ -275,21 +265,15 @@
 
         async function fetchInitialData() {
             if (!supabaseClient) return;
+            const { data: employees } = await supabaseClient.from('employees').select('*');
+            if (employees) {
+                globalEmployees = employees;
+                renderEmployeeTable();
+                populateDropdowns();
+            }
 
-            const { data: employees, error } = await supabaseClient.from('employees').select('*');
-            if (error) { console.error(error); return; }
-            
-            globalEmployees = employees;
-            renderEmployeeTable();
-            populateDropdowns();
-
-            const { data: locations, error: locError } = await supabaseClient.from('latest_locations').select('*');
-            if (!locError && locations) {
-                Object.keys(markers).forEach(k => {
-                    map.removeLayer(markers[k]);
-                    delete markers[k];
-                });
-                
+            const { data: locations } = await supabaseClient.from('latest_locations').select('*');
+            if (locations) {
                 locations.forEach(loc => updateMapMarker(loc));
                 calculateStats(locations);
                 updateLiveDutyStaffList(locations);
@@ -298,57 +282,64 @@
 
         function setupRealtimeSubscriptions() {
             if (!supabaseClient) return;
-
             supabaseClient
-                .channel('live-tracking')
+                .channel('schema-db-changes')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'latest_locations' }, payload => {
                     const record = payload.new;
                     if(record && record.emp_code) {
                         updateMapMarker(record);
                         logActivity(record);
-                        fetchInitialData(); 
+                        refreshStatsAndList();
                     }
                 })
                 .subscribe();
         }
 
-        // MAP MARKER POPUP UPDATE (REASON थपिएको छ)
+        async function refreshStatsAndList() {
+            const { data: locations } = await supabaseClient.from('latest_locations').select('*');
+            if(locations) {
+                calculateStats(locations);
+                updateLiveDutyStaffList(locations);
+            }
+        }
+
         function updateMapMarker(data) {
             if (!map || !data) return;
-            const { emp_code, latitude, longitude, updated_at, reason } = data;
+            const { emp_code, latitude, longitude, updated_at, reason1 } = data; // यहाँ reason1 राखियो
+            const lat = parseFloat(latitude);
+            const lng = parseFloat(longitude);
+            if (isNaN(lat) || isNaN(lng) || lat === 0 || lng === 0) return;
+
             const empInfo = globalEmployees.find(e => e.emp_code === emp_code) || { name: emp_code };
-            const currentReason = reason ? reason : "खुलेको छैन";
+            const currentReason = reason1 ? reason1 : "कारण खुलाइएको छैन";
             
             const popupContent = `
                 <div class="text-xs p-1 text-slate-900">
                     <b class="text-sm text-slate-800">${empInfo.name}</b> (${emp_code})<br>
                     <span class="text-amber-600 font-bold">उद्देश्य: ${currentReason}</span><br>
-                    <span class="text-gray-500">Coordinates: ${latitude}, ${longitude}</span><br>
+                    <span class="text-gray-500">Coords: ${lat.toFixed(6)}, ${lng.toFixed(6)}</span><br>
                     <span class="text-emerald-600 font-medium">Synced: ${new Date(updated_at).toLocaleTimeString()}</span>
                 </div>
             `;
 
             if (markers[emp_code]) {
-                markers[emp_code].setLatLng([latitude, longitude]).setPopupContent(popupContent);
+                markers[emp_code].setLatLng([lat, lng]).setPopupContent(popupContent);
             } else {
-                markers[emp_code] = L.marker([latitude, longitude]).addTo(map).bindPopup(popupContent);
+                markers[emp_code] = L.marker([lat, lng]).addTo(map).bindPopup(popupContent);
             }
         }
 
-        // SIDEBAR STAFF LIST UPDATE (REASON थपिएको छ)
         function updateLiveDutyStaffList(locations) {
             const container = document.getElementById('map-employee-list');
             if(!container) return;
-
             if(locations.length === 0) {
                 container.innerHTML = `<p class="text-sm text-gray-400 italic">No employees online.</p>`;
                 return;
             }
-
             container.innerHTML = '';
             locations.forEach(loc => {
                 const empInfo = globalEmployees.find(e => e.emp_code === loc.emp_code) || { name: loc.emp_code };
-                const currentReason = loc.reason ? loc.reason : "कारण नखुलेको";
+                const currentReason = loc.reason1 ? loc.reason1 : "कारण नखुलेको"; // यहाँ reason1 राखियो
                 const item = document.createElement('div');
                 item.className = "p-2 hover:bg-slate-50 border border-gray-100 rounded-lg flex flex-col cursor-pointer transition text-slate-800 bg-white shadow-xs";
                 item.onclick = () => {
@@ -369,17 +360,15 @@
             });
         }
 
-        // LIVE ACTIVITY STREAM PING (REASON थपिएको छ)
         function logActivity(data) {
             const container = document.getElementById('activity-log');
             if(!container) return;
             if(container.querySelector('.italic')) container.innerHTML = ''; 
             
-            const currentReason = data.reason ? data.reason : "कारण नखुलेको";
+            const currentReason = data.reason1 ? data.reason1 : "कारण नखुलेको"; // यहाँ reason1 राखियो
             const logRow = document.createElement('p');
             logRow.className = "border-b border-gray-50 pb-1 font-mono text-xs text-slate-700";
-            logRow.innerHTML = `<span class="text-blue-500">[${new Date().toLocaleTimeString()}]</span> Staff <b>${data.emp_code}</b> (${currentReason}) pinged: <span class="text-emerald-600">${data.latitude}, ${data.longitude}</span>`;
-            
+            logRow.innerHTML = `<span class="text-blue-500">[${new Date().toLocaleTimeString()}]</span> Staff <b>${data.emp_code}</b> (${currentReason}) pinged.`;
             container.prepend(logRow);
         }
 
@@ -387,91 +376,65 @@
             document.getElementById('stat-total-staff').innerText = globalEmployees.length;
             const fifteenMinsAgo = new Date(Date.now() - 15 * 60 * 1000);
             const activeCount = locations.filter(l => new Date(l.updated_at) > fifteenMinsAgo).length;
-            
             document.getElementById('stat-active-staff').innerText = activeCount;
             document.getElementById('stat-offline-staff').innerText = Math.max(0, globalEmployees.length - activeCount);
         }
 
         function renderEmployeeTable() {
             const tbody = document.getElementById('employee-table-body');
-            if(!tbody) return;
-            tbody.innerHTML = '';
-            
-            if(globalEmployees.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center italic text-gray-400">No registered employees found.</td></tr>`;
-                return;
-            }
-
+            if(!tbody) return; tbody.innerHTML = '';
             globalEmployees.forEach(emp => {
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-gray-50 transition";
-                tr.innerHTML = `
-                    <td class="p-4 font-semibold text-slate-700">${emp.emp_code}</td>
-                    <td class="p-4 font-medium">${emp.name}</td>
-                    <td class="p-4"><span class="bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs">Registered</span></td>
-                    <td class="p-4 text-xs text-gray-400">${new Date(emp.created_at || Date.now()).toLocaleDateString()}</td>
-                    <td class="p-4 text-center">
-                        <button class="text-red-500 hover:text-red-700 transition px-2 py-1 remove-btn-target"><i class="fa-regular fa-trash-can"></i> Remove</button>
-                    </td>
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="p-4 font-semibold text-slate-700">${emp.emp_code}</td>
+                        <td class="p-4 font-medium">${emp.name}</td>
+                        <td class="p-4"><span class="bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs">Registered</span></td>
+                        <td class="p-4 text-xs text-gray-400">${new Date(emp.created_at || Date.now()).toLocaleDateString()}</td>
+                        <td class="p-4 text-center"><button onclick="deleteEmployee(${emp.id})" class="text-red-500 hover:text-red-700"><i class="fa-regular fa-trash-can"></i> Remove</button></td>
+                    </tr>
                 `;
-                tr.querySelector('.remove-btn-target').onclick = () => deleteEmployee(emp.id);
-                tbody.appendChild(tr);
             });
         }
 
         async function handleAddEmployee(e) {
             e.preventDefault();
-            if(!supabaseClient) return;
-
             const name = document.getElementById('emp-name').value;
             const emp_code = document.getElementById('emp-code').value;
-
             const { error } = await supabaseClient.from('employees').insert([{ name, emp_code }]);
-            if (error) {
-                alert("Error saving staff entry: " + error.message);
-            } else {
-                document.getElementById('employee-form').reset();
-                fetchInitialData(); 
-            }
+            if (!error) { document.getElementById('employee-form').reset(); fetchInitialData(); }
         }
 
         async function deleteEmployee(id) {
-            if(!confirm("Are you sure you want to completely delete this employee?")) return;
-            const { error } = await supabaseClient.from('employees').delete().eq('id', id);
-            if(!error) fetchInitialData();
+            if(confirm("Delete this employee?")) {
+                await supabaseClient.from('employees').delete().eq('id', id);
+                fetchInitialData();
+            }
         }
 
         function populateDropdowns() {
             const select = document.getElementById('report-filter-emp');
-            if(!select) return;
-            select.innerHTML = '<option value="all">All Employees</option>';
-            globalEmployees.forEach(emp => {
-                select.innerHTML += `<option value="${emp.emp_code}">${emp.name} (${emp.emp_code})</option>`;
-            });
+            if(!select) return; select.innerHTML = '<option value="all">All Employees</option>';
+            globalEmployees.forEach(emp => { select.innerHTML += `<option value="${emp.emp_code}">${emp.name}</option>`; });
         }
 
-        // HISTORY REPORT TABLE DATA FETCH (REASON कोलम थपिएको छ)
         async function loadReportLogs() {
             if(!supabaseClient) return;
             const filterValue = document.getElementById('report-filter-emp').value;
             const tbody = document.getElementById('report-table-body');
-            if(!tbody) return;
-            tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center italic text-gray-400">Querying database rows...</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center italic text-gray-400">Loading records...</td></tr>`;
 
             let query = supabaseClient.from('location_logs').select('*').order('created_at', { ascending: false }).limit(100);
-            if(filterValue !== 'all') {
-                query = query.eq('emp_code', filterValue);
-            }
+            if(filterValue !== 'all') query = query.eq('emp_code', filterValue);
 
-            const { data: logs, error } = await query;
-            if (error || !logs || logs.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center italic text-red-400">No historical tracker records found.</td></tr>`;
+            const { data: logs } = await query;
+            if (!logs || logs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center italic text-red-400">No records found.</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = '';
             logs.forEach(log => {
-                const currentReason = log.reason ? log.reason : "-";
+                const currentReason = log.reason1 ? log.reason1 : "-"; // यहाँ reason1 राखियो
                 tbody.innerHTML += `
                     <tr class="hover:bg-gray-50 text-xs">
                         <td class="p-3 text-slate-500">${new Date(log.created_at).toLocaleString()}</td>
@@ -479,42 +442,31 @@
                         <td class="p-3 font-medium text-amber-700 bg-amber-50/50">${currentReason}</td>
                         <td class="p-3">${log.latitude}</td>
                         <td class="p-3">${log.longitude}</td>
-                        <td class="p-3"><i class="fa-solid fa-battery-three-quarters text-emerald-500 mr-1"></i> ${log.battery_level || '100'}%</td>
+                        <td class="p-3">${log.battery_level || '100'}%</td>
                     </tr>
                 `;
             });
         }
 
-        // EXPORT EXCEL/CSV UPDATED (REASON स्तम्भ थपिएको छ)
         function downloadExcelReport() {
             const rows = document.querySelectorAll('#report-table-body tr');
-            if(rows.length === 0 || rows[0].innerText.includes("Filter")) { alert("पहिले 'Apply Filter' बटन थिचेर डेटा लोड गर्नुहोस्!"); return; }
-            
-            let csvContent = "data:text/csv;charset=utf-8,Timestamp,Employee Code,Reason,Latitude,Longitude,Battery Level\n";
+            if(rows.length === 0 || rows[0].innerText.includes("Filter")) { alert("पहिले डाटा लोड गर्नुहोस्!"); return; }
+            let csvContent = "data:text/csv;charset=utf-8,Timestamp,Employee Code,Reason,Latitude,Longitude,Battery\n";
             rows.forEach(row => {
                 const cols = row.querySelectorAll('td');
-                if(cols.length < 6) return;
-                const rowData = Array.from(cols).map(c => `"${c.innerText.replace(/"/g, '""')}"`).join(",");
-                csvContent += rowData + "\n";
+                if(cols.length >= 6) {
+                    csvContent += Array.from(cols).map(c => `"${c.innerText}"`).join(",") + "\n";
+                }
             });
-
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `GPS_Report_With_Reason_${new Date().toISOString().slice(0,10)}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            link.setAttribute("download", "GPS_Report.csv");
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
         }
 
-        function resetMapFocus() {
-            if(map) map.setView([27.7172, 85.3240], 13);
-        }
-
-        function logout() {
-            alert("Admin dashboard session ended.");
-            window.location.reload();
-        }
+        function resetMapFocus() { if(map) map.setView([27.7172, 85.3240], 13); }
+        function logout() { window.location.reload(); }
     </script>
 </body>
 </html>
