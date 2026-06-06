@@ -40,13 +40,25 @@
         <div class="p-6 space-y-6 flex-1 flex flex-col justify-center">
             
             <div id="login-form-box" class="space-y-5 w-full">
-                <div class="bg-slate-700/40 p-5 rounded-xl border border-slate-600/60 shadow-inner">
-                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Enter Employee ID / Code</label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
-                            <i class="fa-solid fa-id-card text-lg"></i>
-                        </span>
-                        <input type="text" id="emp-code-input" class="w-full bg-slate-900 border border-slate-600 rounded-xl pl-11 pr-4 py-3.5 text-white text-lg placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-mono tracking-wide uppercase transition-all" placeholder="e.g. EMP-101">
+                <div class="bg-slate-700/40 p-5 rounded-xl border border-slate-600/60 shadow-inner space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Enter Employee ID / Code</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+                                <i class="fa-solid fa-id-card text-lg"></i>
+                            </span>
+                            <input type="text" id="emp-code-input" class="w-full bg-slate-900 border border-slate-600 rounded-xl pl-11 pr-4 py-3.5 text-white text-lg placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-mono tracking-wide uppercase transition-all" placeholder="e.g. EMP-101">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">बाहिर जानुको कारण / Reason</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+                                <i class="fa-solid fa-pen-to-square text-lg"></i>
+                            </span>
+                            <input type="text" id="emp-reason-input" class="w-full bg-slate-900 border border-slate-600 rounded-xl pl-11 pr-4 py-3.5 text-white text-base placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-all" placeholder="उदा: बजार सर्वेक्षण, ग्राहक भेटघाट">
+                        </div>
                     </div>
                 </div>
                 <button onclick="verifyAndStart()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 px-4 rounded-xl shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2.5 text-lg cursor-pointer">
@@ -64,7 +76,7 @@
                     </div>
                     <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-700 text-center shadow-md">
                         <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Device Battery</p>
-                        <p id="battery-display" class="text-slate-200 font-bold text-base mt-1"><i class="fa-solid fa-battery-three-quarters text-slate-400 mr-1"></i> 100%</p>
+                        <p id="battery-display" class="text-slate-200 font-bold text-base mt-1"><i class="fa-solid fa-battery-three-quarters text-slate-400 mr-1"></i> Checking...</p>
                     </div>
                 </div>
 
@@ -72,6 +84,10 @@
                     <div class="flex justify-between border-b border-slate-800 pb-2">
                         <span class="text-slate-400">Employee:</span>
                         <span id="lbl-emp-identity" class="text-slate-200 font-bold">---</span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-800 pb-2">
+                        <span class="text-slate-400">Reason:</span>
+                        <span id="lbl-emp-reason" class="text-amber-400 font-bold max-w-[200px] truncate">---</span>
                     </div>
                     <div class="flex justify-between border-b border-slate-800 pb-2">
                         <span class="text-slate-400">Latitude:</span>
@@ -106,18 +122,24 @@
     </div>
 
     <script>
-        // --- SUPABASE SETUP ---
         const SUPABASE_URL = "https://fsoltknfkwptcrsmvjlh.supabase.co";
         const SUPABASE_KEY = "sb_publishable_PIXaEa6gmVIa8vWPRzhq1A_zY7o-AoT";
         let supabaseClient = null;
         let employeeCode = "";
+        let trackingReason = "";
         let offlineQueue = [];
         let isTrackingActive = false;
+        let lastPushedTime = 0; 
+        let currentBatteryLevel = 100; // Default ब्याट्री ब्याकअप मान
 
         document.addEventListener("DOMContentLoaded", () => {
             initSupabase();
             checkSavedSession();
-            window.addEventListener('online', syncOfflineData);
+            
+            window.addEventListener('online', () => {
+                updateNetworkStatus(true);
+                syncOfflineData();
+            });
             window.addEventListener('offline', () => updateNetworkStatus(false));
         });
 
@@ -128,6 +150,30 @@
             } catch (e) { console.error(e); }
         }
 
+        // सुरक्षा नियम पास गरेर ब्याट्री तान्ने नयाँ लजिक
+        async function updateBatteryStatus() {
+            // १. Capacitor एपको लागि
+            if (window.Capacitor && window.Capacitor.Plugins.Device) {
+                try {
+                    const info = await window.Capacitor.Plugins.Device.getBatteryInfo();
+                    currentBatteryLevel = Math.round(info.batteryLevel * 100);
+                } catch (e) { console.error("Capacitor Battery Error:", e); }
+            } 
+            // २. ब्राउजर वा वेबभ्युको लागि
+            else if (navigator.getBattery) {
+                try {
+                    const battery = await navigator.getBattery();
+                    currentBatteryLevel = Math.round(battery.level * 100);
+                } catch (e) { console.error("Web Battery Error:", e); }
+            }
+            
+            // स्क्रिनमा तुरुन्तै वास्तविक ब्याट्री लेखिदिने
+            const batDisplay = document.getElementById('battery-display');
+            if(batDisplay) {
+                batDisplay.innerHTML = `<i class="fa-solid fa-battery-three-quarters text-slate-400 mr-1"></i> ${currentBatteryLevel}%`;
+            }
+        }
+
         function updateNetworkStatus(isOnline) {
             const dot = document.getElementById('sync-dot');
             const txt = document.getElementById('sync-text');
@@ -135,7 +181,6 @@
             if(isOnline) {
                 dot.className = "h-2 w-2 rounded-full bg-emerald-400 pulse-emerald";
                 txt.innerText = "Connected";
-                syncOfflineData();
             } else {
                 dot.className = "h-2 w-2 rounded-full bg-amber-500 animate-pulse";
                 txt.innerText = "Offline Mode";
@@ -144,18 +189,33 @@
 
         function checkSavedSession() {
             const savedCode = localStorage.getItem('active_emp_code');
+            const savedReason = localStorage.getItem('active_emp_reason');
+            const savedTime = localStorage.getItem('last_pushed_time');
+            
+            if(savedTime) lastPushedTime = parseInt(savedTime);
+
             if(savedCode) {
                 document.getElementById('emp-code-input').value = savedCode;
+                if(savedReason) document.getElementById('emp-reason-input').value = savedReason;
+                // प्रयोगकर्ताले पहिले नै लगइन गरिसकेको भए ब्याट्री पहिले नै अपडेट गरिदिने
+                updateBatteryStatus();
                 verifyAndStart();
             }
         }
 
         async function verifyAndStart() {
             const inputField = document.getElementById('emp-code-input');
+            const reasonField = document.getElementById('emp-reason-input');
+            
             employeeCode = inputField.value.trim().toUpperCase();
+            trackingReason = reasonField.value.trim();
 
             if(!employeeCode) { alert("कृपया ID राख्नुहोस्!"); return; }
+            if(!trackingReason) { alert("कृपया बाहिर जानुको कारण राख्नुहोस्!"); return; }
             if(!supabaseClient) { alert("नेटवर्क समस्या!"); return; }
+
+            // बटन थिचेको मौका छोपेर तुरुन्त ब्याट्री जाँच गर्ने (यसले सुरक्षा नियम तोड्छ र सफल हुन्छ)
+            await updateBatteryStatus();
 
             const { data, error } = await supabaseClient.from('employees').select('name').eq('emp_code', employeeCode).single();
             if (error || !data) {
@@ -164,66 +224,74 @@
             }
 
             localStorage.setItem('active_emp_code', employeeCode);
+            localStorage.setItem('active_emp_reason', trackingReason);
+            
             document.getElementById('lbl-emp-identity').innerText = `${data.name} (${employeeCode})`;
+            document.getElementById('lbl-emp-reason').innerText = trackingReason;
+            
             document.getElementById('login-form-box').classList.add('hidden');
             document.getElementById('tracking-dashboard').classList.remove('hidden');
 
-            // वास्तविक ब्याकग्राउन्ड ट्र्याकिङ सुरु गर्ने
             startBackgroundTracking();
         }
 
-        // --- महत्वपूर्ण: क्यापासिटर ब्याकग्राउन्ड जियोलोकेसन इन्जिन ---
         function startBackgroundTracking() {
             isTrackingActive = true;
             
-            // यदि एप मोबाइलमा कन्भर्ट भइसकेको छ भने 'Capacitor' एक्टिभ हुन्छ
             if (window.Capacitor && window.Capacitor.Plugins.BackgroundGeolocation) {
                 const BackgroundGeolocation = window.Capacitor.Plugins.BackgroundGeolocation;
-
-                // ब्याकग्राउन्ड कन्फिगरेशन (स्क्रिन बन्द हुँदा पनि ब्याकग्राउन्डमा कति समयमा ट्र्याक गर्ने)
                 BackgroundGeolocation.addWatcher({
-                    backgroundMessage: "तपाईंको लोकेसन  ट्र्याक भइरहेको छ।",
+                    backgroundMessage: "तपाईंको लोकेसन ट्र्याक भइरहेको छ।",
                     backgroundTitle: "Staff Tracker Active",
                     requestPermissions: true,
                     stale: false,
-                    distanceFilter: 10 // प्रत्येक १० मिटरको दुरी पार गर्दा मात्र डाटा पठाउने (ब्याट्री बचाउन)
+                    distanceFilter: 10 
                 }, function(location, error) {
-                    if (error) {
-                        console.error(error);
-                        return;
-                    }
-                    if (location) {
-                        processIncomingCoords(location.latitude, location.longitude);
-                    }
+                    if (error) { console.error(error); return; }
+                    if (location) { processIncomingCoords(location.latitude, location.longitude); }
                 });
             } else {
-                // यदि मोबाइल एपमा कन्भर्ट नगरी सिधै ब्राउजरमा मात्र चलाएमा साधारण Geolocation चल्छ (यो ब्याकग्राउन्डमा रोकिन सक्छ)
-                console.warn("Running in standard browser mode. Install APK for true background tracking.");
+                console.warn("Running in standard browser mode.");
                 navigator.geolocation.watchPosition((pos) => {
                     if(isTrackingActive) processIncomingCoords(pos.coords.latitude, pos.coords.longitude);
                 }, (err) => console.error(err), { enableHighAccuracy: true });
             }
         }
 
-        function processIncomingCoords(lat, lng) {
+        async function processIncomingCoords(lat, lng) {
+            const currentTime = Date.now();
+            const fifteenMinutes = 15 * 60 * 1000; 
+
             document.getElementById('lbl-lat').innerText = lat.toFixed(6);
             document.getElementById('lbl-lng').innerText = lng.toFixed(6);
-            document.getElementById('lbl-time').innerText = new Date().toLocaleTimeString();
 
-            const payload = {
-                emp_code: employeeCode,
-                latitude: lat,
-                longitude: lng,
-                battery_level: 100,
-                created_at: new Date().toISOString()
-            };
+            if (lastPushedTime === 0 || (currentTime - lastPushedTime) >= fifteenMinutes) {
+                
+                lastPushedTime = currentTime;
+                localStorage.setItem('last_pushed_time', lastPushedTime);
+                document.getElementById('lbl-time').innerText = new Date().toLocaleTimeString();
 
-            if(navigator.onLine) {
-                transmitToSupabase(payload);
-            } else {
-                offlineQueue.push(payload);
-                localStorage.setItem('offline_gps_logs', JSON.stringify(offlineQueue));
-                document.getElementById('offline-buffer-alert').classList.remove('hidden');
+                // डाटा पठाउनु अघि ब्याट्री फ्रेस गर्ने
+                await updateBatteryStatus();
+
+                const payload = {
+                    emp_code: employeeCode,
+                    reason: trackingReason, 
+                    latitude: lat,
+                    longitude: lng,
+                    battery_level: currentBatteryLevel, // वास्तविक ब्याट्री मान पठाइयो
+                    created_at: new Date().toISOString()
+                };
+
+                if(navigator.onLine) {
+                    transmitToSupabase(payload);
+                } else {
+                    const localData = localStorage.getItem('offline_gps_logs');
+                    offlineQueue = localData ? JSON.parse(localData) : [];
+                    offlineQueue.push(payload);
+                    localStorage.setItem('offline_gps_logs', JSON.stringify(offlineQueue));
+                    document.getElementById('offline-buffer-alert').classList.remove('hidden');
+                }
             }
         }
 
@@ -232,8 +300,10 @@
                 await supabaseClient.from('location_logs').insert([payload]);
                 await supabaseClient.from('latest_locations').upsert({
                     emp_code: payload.emp_code,
+                    reason: payload.reason, 
                     latitude: payload.latitude,
                     longitude: payload.longitude,
+                    battery_level: payload.battery_level, 
                     updated_at: payload.created_at
                 }, { onConflict: 'emp_code' });
                 updateNetworkStatus(true);
@@ -245,18 +315,36 @@
         async function syncOfflineData() {
             const localData = localStorage.getItem('offline_gps_logs');
             if(!localData) return;
+            
             offlineQueue = JSON.parse(localData);
+            if(offlineQueue.length === 0) return;
+
+            const alertBox = document.getElementById('offline-buffer-alert');
+            alertBox.innerHTML = `<p class="text-xs text-amber-400 font-medium"><i class="fa-solid fa-sync animate-spin mr-1"></i> अनलाइन भेटियो। डाटाहरू पठाउँदै...</p>`;
+            alertBox.classList.remove('hidden');
+
             while(offlineQueue.length > 0) {
-                await transmitToSupabase(offlineQueue[0]);
-                offlineQueue.shift();
-                localStorage.setItem('offline_gps_logs', JSON.stringify(offlineQueue));
+                try {
+                    await transmitToSupabase(offlineQueue[0]);
+                    offlineQueue.shift();
+                    localStorage.setItem('offline_gps_logs', JSON.stringify(offlineQueue));
+                } catch (error) {
+                    break;
+                }
             }
-            document.getElementById('offline-buffer-alert').classList.add('hidden');
+
+            if(offlineQueue.length === 0) {
+                alertBox.classList.add('hidden');
+                localStorage.removeItem('offline_gps_logs');
+                alertBox.innerHTML = `<p class="text-xs text-amber-400 font-medium"><i class="fa-solid fa-cloud-arrow-up mr-1 text-sm"></i> Connection weak. Saving logs locally...</p>`;
+            }
         }
 
         function stopTracking() {
             isTrackingActive = false;
             localStorage.removeItem('active_emp_code');
+            localStorage.removeItem('active_emp_reason');
+            localStorage.removeItem('last_pushed_time');
             alert("ड्युटी बन्द भयो। ब्याकग्राउन्ड ट्र्याकिङ रोकियो।");
             window.location.reload();
         }
