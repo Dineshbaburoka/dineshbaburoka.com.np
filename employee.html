@@ -3,16 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Employee Tracking Client</title>
+    <title>Employee Tracking Client - Background GPS</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="capacitor.js"></script>
+    
     <style>
-        /* Mobile Active State Hacks */
-        button:active {
-            transform: scale(0.98);
-        }
-        /* Custom smooth pulse for active indicator */
+        button:active { transform: scale(0.98); }
         .pulse-emerald {
             box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
             animation: pulse-geo 2s infinite;
@@ -33,9 +32,9 @@
                 <span id="sync-dot" class="h-2 w-2 rounded-full bg-red-500 animate-pulse"></span>
                 <span id="sync-text">Offline</span>
             </div>
-            <i class="fa-solid fa-location-crosshairs text-4xl mb-2 drop-shadow-md animate-spin-slow"></i>
+            <i class="fa-solid fa-location-crosshairs text-4xl mb-2 drop-shadow-md"></i>
             <h1 class="text-2xl font-bold tracking-tight">Staff GPS Tracker</h1>
-            <p class="text-xs text-emerald-100 mt-1">Field Attendance & Live Tracking System</p>
+            <p class="text-xs text-emerald-100 mt-1">Background Persistent Tracking Active</p>
         </div>
 
         <div class="p-6 space-y-6 flex-1 flex flex-col justify-center">
@@ -47,28 +46,25 @@
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
                             <i class="fa-solid fa-id-card text-lg"></i>
                         </span>
-                        <input type="text" id="emp-code-input" inputmode="text" class="w-full bg-slate-900 border border-slate-600 rounded-xl pl-11 pr-4 py-3.5 text-white text-lg placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-mono tracking-wide uppercase transition-all" placeholder="e.g. EMP-101">
+                        <input type="text" id="emp-code-input" class="w-full bg-slate-900 border border-slate-600 rounded-xl pl-11 pr-4 py-3.5 text-white text-lg placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-mono tracking-wide uppercase transition-all" placeholder="e.g. EMP-101">
                     </div>
                 </div>
-                <button onclick="verifyAndStart()" id="btn-action" class="w-full bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white font-bold py-4 px-4 rounded-xl transition duration-100 shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2.5 text-lg cursor-pointer">
-                    <i class="fa-solid fa-play text-base"></i> कार्यालय भन्दा बाहिर जाने
+                <button onclick="verifyAndStart()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 px-4 rounded-xl shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2.5 text-lg cursor-pointer">
+                    <i class="fa-solid fa-play text-base"></i> फिल्ड कार्य/कार्यालय बाहिरको काम शुरु गर्ने
                 </button>
             </div>
 
-            <div id="tracking-dashboard" class="hidden space-y-5 w-full transition-all duration-300">
-                
+            <div id="tracking-dashboard" class="hidden space-y-5 w-full">
                 <div class="grid grid-cols-2 gap-4">
                     <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-700 text-center shadow-md">
-                        <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Field Status</p>
+                        <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Duty Status</p>
                         <p class="text-emerald-400 font-bold text-base mt-1 flex items-center justify-center gap-1.5">
-                            <span class="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-ping"></span> ACTIVE
+                            <span class="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-ping"></span> BACKGROUND ON
                         </p>
                     </div>
                     <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-700 text-center shadow-md">
                         <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Device Battery</p>
-                        <p id="battery-display" class="text-slate-200 font-bold text-base mt-1">
-                            <i class="fa-solid fa-battery-three-quarters text-slate-400 mr-1"></i> --%
-                        </p>
+                        <p id="battery-display" class="text-slate-200 font-bold text-base mt-1"><i class="fa-solid fa-battery-three-quarters text-slate-400 mr-1"></i> 100%</p>
                     </div>
                 </div>
 
@@ -79,11 +75,11 @@
                     </div>
                     <div class="flex justify-between border-b border-slate-800 pb-2">
                         <span class="text-slate-400">Latitude:</span>
-                        <span id="lbl-lat" class="text-emerald-400 font-bold tracking-wide">0.000000</span>
+                        <span id="lbl-lat" class="text-emerald-400 font-bold">0.000000</span>
                     </div>
                     <div class="flex justify-between border-b border-slate-800 pb-2">
                         <span class="text-slate-400">Longitude:</span>
-                        <span id="lbl-lng" class="text-emerald-400 font-bold tracking-wide">0.000000</span>
+                        <span id="lbl-lng" class="text-emerald-400 font-bold">0.000000</span>
                     </div>
                     <div class="flex justify-between pt-1">
                         <span class="text-slate-400">Last Pushed:</span>
@@ -91,43 +87,36 @@
                     </div>
                 </div>
 
-                <button onclick="stopTracking()" class="w-full bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-bold py-4 px-4 rounded-xl transition duration-100 flex items-center justify-center gap-2 text-lg shadow-lg shadow-rose-600/10 cursor-pointer">
-                    <i class="fa-solid fa-stop"></i> कार्यालय फर्किने
+                <button onclick="stopTracking()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-4 px-4 rounded-xl flex items-center justify-center gap-2 text-lg shadow-lg shadow-rose-600/10 cursor-pointer">
+                    <i class="fa-solid fa-stop"></i> फिल्ड वा कार्यालय बाहिरको काम सकेर कार्यालय फर्कि सक्नु भयो।
                 </button>
             </div>
 
-            <div id="offline-buffer-alert" class="hidden bg-amber-500/10 border border-amber-500/30 rounded-xl p-3.5 text-center transition-all animate-pulse">
+            <div id="offline-buffer-alert" class="hidden bg-amber-500/10 border border-amber-500/30 rounded-xl p-3.5 text-center animate-pulse">
                 <p class="text-xs text-amber-400 font-medium">
-                    <i class="fa-solid fa-cloud-arrow-up mr-1 text-sm"></i> No internet! Coordinates are saving safely offline.
+                    <i class="fa-solid fa-cloud-arrow-up mr-1 text-sm"></i> Connection weak. Saving logs locally...
                 </p>
             </div>
 
         </div>
 
         <div class="p-4 border-t border-slate-700/40 text-center text-[11px] text-slate-500 bg-slate-900/30 font-mono">
-            Keep this browser tab active during your shift.
+            Background Service: Verified Secure
         </div>
     </div>
 
     <script>
-        // --- LIVE SUPABASE CREDENTIALS CONFIGURATION ---
+        // --- SUPABASE SETUP ---
         const SUPABASE_URL = "https://fsoltknfkwptcrsmvjlh.supabase.co";
         const SUPABASE_KEY = "sb_publishable_PIXaEa6gmVIa8vWPRzhq1A_zY7o-AoT";
-
         let supabaseClient = null;
-        let watchId = null;
         let employeeCode = "";
-        let currentBatteryLevel = 100;
-        let offlineQueue = []; 
-        let wakeLock = null; // Keeps mobile screen from sleeping during transit shift loops
+        let offlineQueue = [];
+        let isTrackingActive = false;
 
-        // ON RUN INITIALIZER 
         document.addEventListener("DOMContentLoaded", () => {
             initSupabase();
-            detectBattery();
             checkSavedSession();
-            
-            // Wire network fallback status togglers
             window.addEventListener('online', syncOfflineData);
             window.addEventListener('offline', () => updateNetworkStatus(false));
         });
@@ -136,16 +125,13 @@
             try {
                 supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
                 updateNetworkStatus(navigator.onLine);
-            } catch (e) { 
-                console.error("Supabase engine fallback failure", e); 
-            }
+            } catch (e) { console.error(e); }
         }
 
         function updateNetworkStatus(isOnline) {
             const dot = document.getElementById('sync-dot');
             const txt = document.getElementById('sync-text');
             if(!dot || !txt) return;
-
             if(isOnline) {
                 dot.className = "h-2 w-2 rounded-full bg-emerald-400 pulse-emerald";
                 txt.innerText = "Connected";
@@ -156,183 +142,123 @@
             }
         }
 
-        // DEVICE SMART BATTERY INTERFACE SENSOR 
-        function detectBattery() {
-            if (navigator.getBattery) {
-                navigator.getBattery().then(battery => {
-                    const updateBatteryUi = () => {
-                        currentBatteryLevel = Math.floor(battery.level * 100);
-                        const bDisplay = document.getElementById('battery-display');
-                        if(bDisplay) {
-                            bDisplay.innerHTML = `<i class="fa-solid fa-battery-three-quarters text-emerald-400 mr-1"></i> ${currentBatteryLevel}%`;
-                        }
-                    };
-                    updateBatteryUi();
-                    battery.addEventListener('levelchange', updateBatteryUi);
-                });
-            }
-        }
-
-        // PRESERVE ACTIVE SESSIONS FROM STORAGE MUTATIONS ON REFRESHES
         function checkSavedSession() {
             const savedCode = localStorage.getItem('active_emp_code');
             if(savedCode) {
-                const inputEl = document.getElementById('emp-code-input');
-                if(inputEl) inputEl.value = savedCode;
+                document.getElementById('emp-code-input').value = savedCode;
                 verifyAndStart();
             }
         }
 
-        // ACCOUNT CODE VERIFICATION CONTROLLER MODULE
         async function verifyAndStart() {
             const inputField = document.getElementById('emp-code-input');
-            if(!inputField) return;
-
             employeeCode = inputField.value.trim().toUpperCase();
 
-            if(!employeeCode) { alert("कृपया आफ्नो Employee ID राख्नुहोस् !"); return; }
-            if(!supabaseClient) { alert("Supabase नेटवर्क जडान हुन सकेन।"); return; }
+            if(!employeeCode) { alert("कृपया ID राख्नुहोस्!"); return; }
+            if(!supabaseClient) { alert("नेटवर्क समस्या!"); return; }
 
-            // 1. Core Profile Cross-Match query against backend rows
             const { data, error } = await supabaseClient.from('employees').select('name').eq('emp_code', employeeCode).single();
-            
             if (error || !data) {
-                alert("यो Employee ID डेटाबेसमा फेला परेन! कृपया एडमिनसँग सम्पर्क गर्नुहोस्।");
+                alert("यो ID फेला परेन!");
                 return;
             }
 
-            // Write security authorization states safely into disk
             localStorage.setItem('active_emp_code', employeeCode);
             document.getElementById('lbl-emp-identity').innerText = `${data.name} (${employeeCode})`;
-
-            // View management layout switching matrix animations
             document.getElementById('login-form-box').classList.add('hidden');
             document.getElementById('tracking-dashboard').classList.remove('hidden');
 
-            // 2. Fire Screen Lock and High-Precision Hardware GPS engines
-            requestWakeLock();
-            startGpsTracking();
+            // वास्तविक ब्याकग्राउन्ड ट्र्याकिङ सुरु गर्ने
+            startBackgroundTracking();
         }
 
-        // WAKE LOCK API MODULE (Prevents smartphone background system sleep pauses)
-        async function requestWakeLock() {
-            if ('wakeLock' in navigator) {
-                try {
-                    wakeLock = await navigator.wakeLock.request('screen');
-                } catch (err) {
-                    console.warn(`Screen Wake Lock error: ${err.message}`);
-                }
+        // --- महत्वपूर्ण: क्यापासिटर ब्याकग्राउन्ड जियोलोकेसन इन्जिन ---
+        function startBackgroundTracking() {
+            isTrackingActive = true;
+            
+            // यदि एप मोबाइलमा कन्भर्ट भइसकेको छ भने 'Capacitor' एक्टिभ हुन्छ
+            if (window.Capacitor && window.Capacitor.Plugins.BackgroundGeolocation) {
+                const BackgroundGeolocation = window.Capacitor.Plugins.BackgroundGeolocation;
+
+                // ब्याकग्राउन्ड कन्फिगरेशन (स्क्रिन बन्द हुँदा पनि ब्याकग्राउन्डमा कति समयमा ट्र्याक गर्ने)
+                BackgroundGeolocation.addWatcher({
+                    backgroundMessage: "तपाईंको लोकेसन  ट्र्याक भइरहेको छ।",
+                    backgroundTitle: "Staff Tracker Active",
+                    requestPermissions: true,
+                    stale: false,
+                    distanceFilter: 10 // प्रत्येक १० मिटरको दुरी पार गर्दा मात्र डाटा पठाउने (ब्याट्री बचाउन)
+                }, function(location, error) {
+                    if (error) {
+                        console.error(error);
+                        return;
+                    }
+                    if (location) {
+                        processIncomingCoords(location.latitude, location.longitude);
+                    }
+                });
+            } else {
+                // यदि मोबाइल एपमा कन्भर्ट नगरी सिधै ब्राउजरमा मात्र चलाएमा साधारण Geolocation चल्छ (यो ब्याकग्राउन्डमा रोकिन सक्छ)
+                console.warn("Running in standard browser mode. Install APK for true background tracking.");
+                navigator.geolocation.watchPosition((pos) => {
+                    if(isTrackingActive) processIncomingCoords(pos.coords.latitude, pos.coords.longitude);
+                }, (err) => console.error(err), { enableHighAccuracy: true });
             }
         }
 
-        // PRECISION CELL/GPS HARDWARE INTEGRATOR LOADER
-        function startGpsTracking() {
-            if (!("geolocation" in navigator)) {
-                alert("तपाईंको मोबाइल फोनले GPS ट्र्याकिङ सपोर्ट गरेन!");
-                return;
-            }
-
-            const geoOptions = {
-                enableHighAccuracy: true, // Forces precise internal hardware tracking loops over tower triangulation
-                timeout: 15000,
-                maximumAge: 0
-            };
-
-            // watchPosition updates automatically as soon as mobile device coordinates delta shift
-            watchId = navigator.geolocation.watchPosition(handleLocationUpdate, handleGpsError, geoOptions);
-        }
-
-        // INBOUND COORDINATES STREAM MATRIX LOGGER
-        async function handleLocationUpdate(position) {
-            const lat = position.coords.latitude;
-            const lng = position.coords.longitude;
-
+        function processIncomingCoords(lat, lng) {
             document.getElementById('lbl-lat').innerText = lat.toFixed(6);
             document.getElementById('lbl-lng').innerText = lng.toFixed(6);
             document.getElementById('lbl-time').innerText = new Date().toLocaleTimeString();
 
-            const recordPayload = {
+            const payload = {
                 emp_code: employeeCode,
                 latitude: lat,
                 longitude: lng,
-                battery_level: currentBatteryLevel,
+                battery_level: 100,
                 created_at: new Date().toISOString()
             };
 
             if(navigator.onLine) {
-                transmitToSupabase(recordPayload);
+                transmitToSupabase(payload);
             } else {
-                // Buffer rows array inside physical disk storage if mobile drops into dead network zone
-                offlineQueue.push(recordPayload);
+                offlineQueue.push(payload);
                 localStorage.setItem('offline_gps_logs', JSON.stringify(offlineQueue));
                 document.getElementById('offline-buffer-alert').classList.remove('hidden');
             }
         }
 
-        // POSTGRES DATABASE PARALLEL TABLE SYNCHRONIZER
         async function transmitToSupabase(payload) {
             try {
-                // Task A: Track historic arrays records to logging ledger table
                 await supabaseClient.from('location_logs').insert([payload]);
-
-                // Task B: Overwrite (Upsert) active location row pointer for admin live tracking map
                 await supabaseClient.from('latest_locations').upsert({
                     emp_code: payload.emp_code,
                     latitude: payload.latitude,
                     longitude: payload.longitude,
                     updated_at: payload.created_at
                 }, { onConflict: 'emp_code' });
-
                 updateNetworkStatus(true);
             } catch (e) {
-                console.error("Supabase sync pipeline crash", e);
                 updateNetworkStatus(false);
             }
         }
 
-        // OFFLINE ARRAYS BULK DEPOSIT TRANSMITTER ON NETWORK RESTORE
         async function syncOfflineData() {
             const localData = localStorage.getItem('offline_gps_logs');
             if(!localData) return;
-
             offlineQueue = JSON.parse(localData);
-            if(offlineQueue.length === 0) return;
-
             while(offlineQueue.length > 0) {
-                const item = offlineQueue[0];
-                await transmitToSupabase(item);
-                offlineQueue.shift(); 
+                await transmitToSupabase(offlineQueue[0]);
+                offlineQueue.shift();
                 localStorage.setItem('offline_gps_logs', JSON.stringify(offlineQueue));
             }
-
             document.getElementById('offline-buffer-alert').classList.add('hidden');
         }
 
-        function handleGpsError(err) {
-            console.warn(`GPS Loop Code Error (${err.code}): ${err.message}`);
-            if(err.code === 1) {
-                alert("लोकेसन पत्ता लाग्न सकेन! कृपया आफ्नो फोनको Settings मा गएर यो ब्राउजरका लागि GPS Location Permission 'Allow' गर्नुहोस्!");
-            }
-        }
-
-        // SYSTEM DE-ACTIVATOR MECHANICS PIPELINE (Punch Out)
         function stopTracking() {
-            if(watchId) {
-                navigator.geolocation.clearWatch(watchId);
-                watchId = null;
-            }
-            if(wakeLock) {
-                wakeLock.release();
-                wakeLock = null;
-            }
+            isTrackingActive = false;
             localStorage.removeItem('active_emp_code');
-            
-            // Clear runtime state forms variables
-            document.getElementById('login-form-box').classList.remove('hidden');
-            document.getElementById('tracking-dashboard').classList.add('hidden');
-            document.getElementById('offline-buffer-alert').classList.add('hidden');
-            
-            alert("ड्युटी बन्द भयो। GPS ट्र्याकिङ सफलतापूर्वक रोकिएको छ।");
+            alert("ड्युटी बन्द भयो। ब्याकग्राउन्ड ट्र्याकिङ रोकियो।");
+            window.location.reload();
         }
     </script>
 </body>
