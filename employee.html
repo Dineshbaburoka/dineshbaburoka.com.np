@@ -23,71 +23,75 @@
         }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-100 font-sans flex items-center justify-center min-h-screen p-4 select-none">
+<body class="bg-slate-900 text-slate-100 font-sans flex items-center justify-center min-h-screen p-3 sm:p-4 select-none">
 
-    <div class="w-full max-w-md bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col justify-between min-h-[85vh] sm:min-h-0">
+    <div class="w-full max-w-md bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col justify-between min-h-[90vh] sm:min-h-0">
         
-        <div class="bg-gradient-to-r from-emerald-500 to-teal-600 p-6 text-center text-white relative shadow-md">
-            <div class="absolute top-4 right-4 flex items-center gap-1.5 bg-black/25 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm">
+        <div class="bg-gradient-to-r from-emerald-500 to-teal-600 p-5 text-center text-white relative shadow-md">
+            <div class="absolute top-3 right-3 flex items-center gap-1.5 bg-black/35 px-2.5 py-1 rounded-full text-[11px] font-semibold backdrop-blur-sm">
                 <span id="sync-dot" class="h-2 w-2 rounded-full bg-red-500 animate-pulse"></span>
                 <span id="sync-text">Offline</span>
             </div>
-            <i class="fa-solid fa-location-crosshairs text-4xl mb-2 drop-shadow-md"></i>
-            <h1 class="text-2xl font-bold tracking-tight">Staff GPS Tracker</h1>
-            <p class="text-xs text-emerald-100 mt-1">Background Persistent Tracking Active</p>
+            <i class="fa-solid fa-location-crosshairs text-3xl mb-1 drop-shadow-md"></i>
+            <h1 class="text-xl font-bold tracking-tight">Staff GPS Tracker</h1>
+            <p class="text-[11px] text-emerald-100 mt-0.5">Background Persistent Tracking Active</p>
         </div>
 
-        <div class="p-6 space-y-6 flex-1 flex flex-col justify-center">
+        <div class="p-4 sm:p-6 space-y-5 flex-1 flex flex-col justify-center">
             
-            <div id="login-form-box" class="space-y-5 w-full">
-                <div class="bg-slate-700/40 p-5 rounded-xl border border-slate-600/60 shadow-inner space-y-4">
+            <div id="login-form-box" class="space-y-4 w-full">
+                <div class="bg-slate-700/40 p-4 rounded-xl border border-slate-600/60 shadow-inner space-y-3.5">
                     <div>
-                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Enter Employee ID / Code</label>
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Enter Employee ID / Code</label>
                         <div class="relative">
-                            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
-                                <i class="fa-solid fa-id-card text-lg"></i>
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                                <i class="fa-solid fa-id-card text-base"></i>
                             </span>
-                            <input type="text" id="emp-code-input" class="w-full bg-slate-900 border border-slate-600 rounded-xl pl-11 pr-4 py-3.5 text-white text-lg placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-mono tracking-wide uppercase transition-all" placeholder="e.g. EMP-101">
+                            <input type="text" id="emp-code-input" class="w-full bg-slate-900 border border-slate-600 rounded-xl pl-10 pr-3 py-3 text-white text-base placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-mono tracking-wide uppercase transition-all" placeholder="e.g. EMP-101">
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">बाहिर जानुको कारण / Reason</label>
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">बाहिर जानुको कारण / Reason</label>
                         <div class="relative">
-                            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
-                                <i class="fa-solid fa-pen-to-square text-lg"></i>
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                                <i class="fa-solid fa-pen-to-square text-base"></i>
                             </span>
-                            <input type="text" id="emp-reason-input" class="w-full bg-slate-900 border border-slate-600 rounded-xl pl-11 pr-4 py-3.5 text-white text-base placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-all" placeholder="उदा: बजार सर्वेक्षण, ग्राहक भेटघाट">
+                            <input type="text" id="emp-reason-input" class="w-full bg-slate-900 border border-slate-600 rounded-xl pl-10 pr-3 py-3 text-white text-sm placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-all" placeholder="उदा: बजार सर्वेक्षण, ग्राहक भेटघाट">
                         </div>
                     </div>
                 </div>
-                <button onclick="verifyAndStart()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 px-4 rounded-xl flex items-center justify-center gap-2.5 text-lg cursor-pointer">
-                    <i class="fa-solid fa-play text-base"></i> फिल्ड कार्य/कार्यालय बाहिरको काम शुरु गर्ने
+                <button onclick="verifyAndStart()" class="w-full bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 text-base cursor-pointer transition-all shadow-lg shadow-emerald-900/20">
+                    <i class="fa-solid fa-play text-sm"></i> फिल्ड कार्य शुरु गर्ने
                 </button>
             </div>
 
-            <div id="tracking-dashboard" class="hidden space-y-5 w-full">
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-700 text-center shadow-md">
+            <div id="tracking-dashboard" class="hidden space-y-4 w-full">
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-slate-900/90 p-3 rounded-xl border border-slate-700 text-center shadow-md">
                         <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Duty Status</p>
-                        <p class="text-emerald-400 font-bold text-base mt-1 flex items-center justify-center gap-1.5">
-                            <span class="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-ping"></span> BACKGROUND ON
+                        <p class="text-emerald-400 font-bold text-sm mt-1 flex items-center justify-center gap-1.5">
+                            <span class="h-2 w-2 rounded-full bg-emerald-400 animate-ping"></span> ON FIELD
                         </p>
                     </div>
-                    <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-700 text-center shadow-md">
+                    <div class="bg-slate-900/90 p-3 rounded-xl border border-slate-700 text-center shadow-md">
                         <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Device Battery</p>
-                        <p id="battery-display" class="text-slate-200 font-bold text-base mt-1"><i class="fa-solid fa-battery-three-quarters text-slate-400 mr-1"></i> Checking...</p>
+                        <p id="battery-display" class="text-slate-200 font-bold text-sm mt-1"><i class="fa-solid fa-battery-three-quarters text-slate-400 mr-1"></i> Checking...</p>
                     </div>
                 </div>
 
-                <div class="bg-slate-900/60 p-5 rounded-xl border border-slate-700/80 font-mono text-sm space-y-3 shadow-inner backdrop-blur-sm">
+                <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700/80 font-mono text-xs space-y-2.5 shadow-inner backdrop-blur-sm">
                     <div class="flex justify-between border-b border-slate-800 pb-2">
                         <span class="text-slate-400">Employee:</span>
-                        <span id="lbl-emp-identity" class="text-slate-200 font-bold">---</span>
+                        <span id="lbl-emp-identity" class="text-slate-200 font-bold truncate max-w-[180px]">---</span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-800 pb-2">
+                        <span class="text-slate-400">Device Model:</span>
+                        <span id="lbl-device-name" class="text-blue-400 font-bold truncate max-w-[180px]">---</span>
                     </div>
                     <div class="flex justify-between border-b border-slate-800 pb-2">
                         <span class="text-slate-400">Reason:</span>
-                        <span id="lbl-emp-reason" class="text-amber-400 font-bold max-w-[200px] truncate">---</span>
+                        <span id="lbl-emp-reason" class="text-amber-400 font-bold max-w-[180px] truncate">---</span>
                     </div>
                     <div class="flex justify-between border-b border-slate-800 pb-2">
                         <span class="text-slate-400">Latitude:</span>
@@ -97,18 +101,18 @@
                         <span class="text-slate-400">Longitude:</span>
                         <span id="lbl-lng" class="text-emerald-400 font-bold">0.000000</span>
                     </div>
-                    <div class="flex justify-between pt-1">
+                    <div class="flex justify-between pt-0.5">
                         <span class="text-slate-400">Last Pushed:</span>
-                        <span id="lbl-time" class="text-slate-300 bg-slate-800 px-2 py-0.5 rounded text-xs">Never</span>
+                        <span id="lbl-time" class="text-slate-300 bg-slate-800 px-1.5 py-0.5 rounded text-[10px]">Never</span>
                     </div>
                 </div>
 
-                <button onclick="stopTracking()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-4 px-4 rounded-xl flex items-center justify-center gap-2 text-lg cursor-pointer">
-                    <i class="fa-solid fa-stop"></i> फिल्ड काम सकेर कार्यालय फर्किनु भयो।
+                <button onclick="stopTracking()" class="w-full bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 text-base cursor-pointer transition-all shadow-lg shadow-rose-900/20">
+                    <i class="fa-solid fa-stop text-sm"></i> फिल्ड काम सकेर कार्यालय फर्किने
                 </button>
             </div>
 
-            <div id="offline-buffer-alert" class="hidden bg-amber-500/10 border border-amber-500/30 rounded-xl p-3.5 text-center animate-pulse">
+            <div id="offline-buffer-alert" class="hidden bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 text-center animate-pulse">
                 <p class="text-xs text-amber-400 font-medium">
                     <i class="fa-solid fa-cloud-arrow-up mr-1 text-sm"></i> Connection weak. Saving logs locally...
                 </p>
@@ -116,7 +120,7 @@
 
         </div>
 
-        <div class="p-4 border-t border-slate-700/40 text-center text-[11px] text-slate-500 bg-slate-900/30 font-mono">
+        <div class="p-3 border-t border-slate-700/40 text-center text-[10px] text-slate-500 bg-slate-900/30 font-mono">
             Background Service: Verified Secure
         </div>
     </div>
@@ -131,10 +135,18 @@
         let isTrackingActive = false;
         let currentBatteryLevel = 100;
 
+        // Smart Filter Variables (15 Mins or 100 Meters)
+        let lastSavedLat = null;
+        let lastSavedLng = null;
+        let lastSavedTime = null;
+
         document.addEventListener("DOMContentLoaded", () => {
             initSupabase();
             checkSavedSession();
-            window.addEventListener('online', syncOfflineData);
+            window.addEventListener('online', () => {
+                updateNetworkStatus(true);
+                syncOfflineData();
+            });
             window.addEventListener('offline', () => updateNetworkStatus(false));
         });
 
@@ -145,7 +157,7 @@
             } catch (e) { console.error(e); }
         }
 
-        // ब्याट्री प्रतिशत सही तरिकाले मिलाउने परिमार्जित फङ्सन
+        // Exact Battery Percentage Fetcher
         async function updateBatteryStatus() {
             let rawBattery = 1.0; 
 
@@ -158,21 +170,14 @@
                 try {
                     const battery = await navigator.getBattery();
                     rawBattery = battery.level; 
-                    
                     battery.onlevelchange = () => {
-                        let lvl = battery.level;
-                        currentBatteryLevel = (lvl <= 1 && lvl >= 0) ? Math.round(lvl * 100) : Math.round(lvl);
+                        currentBatteryLevel = Math.round(battery.level * 100);
                         renderBatteryUI();
                     };
                 } catch (e) { console.error(e); }
             }
 
-            if (rawBattery <= 1 && rawBattery >= 0) {
-                currentBatteryLevel = Math.round(rawBattery * 100);
-            } else {
-                currentBatteryLevel = Math.round(rawBattery);
-            }
-
+            currentBatteryLevel = (rawBattery <= 1 && rawBattery >= 0) ? Math.round(rawBattery * 100) : Math.round(rawBattery);
             renderBatteryUI();
         }
 
@@ -180,29 +185,68 @@
             const batDisplay = document.getElementById('battery-display');
             if(!batDisplay) return;
             
-            let icon = "fa-battery-full";
+            let icon = "fa-battery-full text-emerald-400";
             if (currentBatteryLevel <= 20) icon = "fa-battery-empty text-red-500 animate-pulse";
             else if (currentBatteryLevel <= 50) icon = "fa-battery-quarter text-amber-500";
-            else if (currentBatteryLevel <= 80) icon = "fa-battery-half";
+            else if (currentBatteryLevel <= 80) icon = "fa-battery-half text-slate-300";
             
             batDisplay.innerHTML = `<i class="fa-solid ${icon} mr-1"></i> ${currentBatteryLevel}%`;
         }
 
-        // डिभाइसको प्रकार पत्ता लगाउने फङ्सन
+        // Advanced Mobile Brand and Model Finder
         async function getDeviceName() {
             if (window.Capacitor && window.Capacitor.Plugins.Device) {
                 try {
                     const info = await window.Capacitor.Plugins.Device.getInfo();
-                    return `${info.operatingSystem.toUpperCase()} (${info.model || 'Unknown Model'})`;
+                    const brand = info.manufacturer ? info.manufacturer.toUpperCase() : '';
+                    return `${brand} ${info.model} (${info.operatingSystem.toUpperCase()})`;
                 } catch (e) { console.error(e); }
             }
+
+            // Web-based exact brand & browser extraction
             const ua = navigator.userAgent;
-            if (/android/i.test(ua)) return "Android Device";
-            if (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) return "iOS Device";
-            if (/Windows/i.test(ua)) return "Windows PC";
-            if (/Mac/i.test(ua)) return "MacBook/iMac";
-            if (/Linux/i.test(ua)) return "Linux PC";
-            return "Unknown Browser/Device";
+            let modelStr = "Unknown Device";
+
+            if (navigator.userAgentData && navigator.userAgentData.brands) {
+                const brands = navigator.userAgentData.brands.map(b => b.brand).join(", ");
+                if (/android/i.test(ua)) return `Android (${brands})`;
+            }
+
+            // Regex parsing for popular mobile devices when running in browser
+            if (/android/i.test(ua)) {
+                const match = ua.match(/Android\s+[^;]+;\s+([^;)]+)/);
+                modelStr = match ? match[1] : "Android Phone";
+                if(ua.includes("Samsung") || ua.includes("SM-")) modelStr = "Samsung " + modelStr;
+                return modelStr;
+            }
+            if (/iPhone|iPad|iPod/.test(ua)) {
+                if(screen.width === 430 && screen.height === 932) return "iPhone 14/15 Pro Max";
+                if(screen.width === 393 && screen.height === 852) return "iPhone 14/15 Pro";
+                if(screen.width === 428 && screen.height === 926) return "iPhone 13/14 Plus";
+                if(screen.width === 390 && screen.height === 844) return "iPhone 13/14/12 Pro";
+                return /iPad/.test(ua) ? "Apple iPad" : "Apple iPhone";
+            }
+            if (/Windows NT 10.0/i.test(ua)) return "Windows 10/11 PC";
+            if (/Macintosh/i.test(ua)) return "MacBook/iMac";
+            if (/Linux/i.test(ua)) return "Linux Desktop";
+
+            return "Desktop/Laptop Browser";
+        }
+
+        // Haversine Formula: Calculate Distance in Meters between two points
+        function getDistanceMeters(lat1, lon1, lat2, lon2) {
+            const R = 6371e3; // Earth radius in meters
+            const phi1 = lat1 * Math.PI / 180;
+            const phi2 = lat2 * Math.PI / 180;
+            const deltaPhi = (lat2 - lat1) * Math.PI / 180;
+            const deltaLambda = (lon2 - lon1) * Math.PI / 180;
+
+            const a = Math.sin(deltaPhi/2) * Math.sin(deltaPhi/2) +
+                      Math.cos(phi1) * Math.cos(phi2) *
+                      Math.sin(deltaLambda/2) * Math.sin(deltaLambda/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+            return R * c; 
         }
 
         function updateNetworkStatus(isOnline) {
@@ -212,7 +256,6 @@
             if(isOnline) {
                 dot.className = "h-2 w-2 rounded-full bg-emerald-400 pulse-emerald";
                 txt.innerText = "Connected";
-                syncOfflineData();
             } else {
                 dot.className = "h-2 w-2 rounded-full bg-amber-500 animate-pulse";
                 txt.innerText = "Offline Mode";
@@ -227,6 +270,13 @@
                 if(savedReason) document.getElementById('emp-reason-input').value = savedReason;
                 verifyAndStart();
             }
+
+            // Sync queue load
+            const savedQueue = localStorage.getItem('offline_gps_logs');
+            if(savedQueue) {
+                offlineQueue = JSON.parse(savedQueue);
+                if(offlineQueue.length > 0) document.getElementById('offline-buffer-alert').classList.remove('hidden');
+            }
         }
 
         async function verifyAndStart() {
@@ -238,20 +288,26 @@
 
             if(!employeeCode) { alert("कृपया ID राख्नुहोस्!"); return; }
             if(!trackingReason) { alert("कृपया बाहिर जानुको कारण राख्नुहोस्!"); return; }
-            if(!supabaseClient) { alert("नेटवर्क समस्या!"); return; }
 
             await updateBatteryStatus();
+            const devName = await getDeviceName();
+            document.getElementById('lbl-device-name').innerText = devName;
 
-            const { data, error } = await supabaseClient.from('employees').select('name').eq('emp_code', employeeCode).single();
-            if (error || !data) {
-                alert("यो ID फेला परेन!");
-                return;
+            // Offline feature: Allow startup even if network is completely down
+            if(navigator.onLine && supabaseClient) {
+                const { data, error } = await supabaseClient.from('employees').select('name').eq('emp_code', employeeCode).single();
+                if (error || !data) {
+                    alert("यो ID फेला परेन!");
+                    return;
+                }
+                document.getElementById('lbl-emp-identity').innerText = `${data.name} (${employeeCode})`;
+            } else {
+                document.getElementById('lbl-emp-identity').innerText = `Offline User (${employeeCode})`;
             }
 
             localStorage.setItem('active_emp_code', employeeCode);
             localStorage.setItem('active_emp_reason', trackingReason);
             
-            document.getElementById('lbl-emp-identity').innerText = `${data.name} (${employeeCode})`;
             document.getElementById('lbl-emp-reason').innerText = trackingReason;
             document.getElementById('login-form-box').classList.add('hidden');
             document.getElementById('tracking-dashboard').classList.remove('hidden');
@@ -276,17 +332,38 @@
             } else {
                 navigator.geolocation.watchPosition((pos) => {
                     if(isTrackingActive) processIncomingCoords(pos.coords.latitude, pos.coords.longitude);
-                }, (err) => console.error(err), { enableHighAccuracy: true });
+                }, (err) => console.error(err), { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
             }
         }
 
         async function processIncomingCoords(lat, lng) {
+            const currentTime = new Date();
+
+            // Core Smart Filter Logic: Check 15 Minutes or 100 Meters
+            if (lastSavedLat !== null && lastSavedLng !== null && lastSavedTime !== null) {
+                const distanceMoved = getDistanceMeters(lastSavedLat, lastSavedLng, lat, lng);
+                const timeElapsedMs = currentTime - lastSavedTime;
+                const fifteenMinutesInMs = 15 * 60 * 1000;
+
+                // If neither 100 meters moved NOR 15 minutes passed, Skip saving.
+                if (distanceMoved < 100 && timeElapsedMs < fifteenMinutesInMs) {
+                    console.log(`Skipped log. Distance: ${distanceMoved.toFixed(1)}m, Time: ${Math.round(timeElapsedMs/1000)}s`);
+                    return; 
+                }
+            }
+
+            // Update UI
             document.getElementById('lbl-lat').innerText = lat.toFixed(6);
             document.getElementById('lbl-lng').innerText = lng.toFixed(6);
-            document.getElementById('lbl-time').innerText = new Date().toLocaleTimeString();
+            document.getElementById('lbl-time').innerText = currentTime.toLocaleTimeString();
 
             await updateBatteryStatus();
             const detectedDevice = await getDeviceName(); 
+
+            // Save state for next comparison
+            lastSavedLat = lat;
+            lastSavedLng = lng;
+            lastSavedTime = currentTime;
 
             const payload = {
                 emp_code: employeeCode,
@@ -295,19 +372,22 @@
                 longitude: lng,
                 battery_level: currentBatteryLevel,
                 device_name: detectedDevice, 
-                created_at: new Date().toISOString()
+                created_at: currentTime.toISOString()
             };
 
             if(navigator.onLine) {
                 transmitToSupabase(payload);
             } else {
+                // If offline, store safely inside LocalStorage queue
                 offlineQueue.push(payload);
                 localStorage.setItem('offline_gps_logs', JSON.stringify(offlineQueue));
                 document.getElementById('offline-buffer-alert').classList.remove('hidden');
+                updateNetworkStatus(false);
             }
         }
 
         async function transmitToSupabase(payload) {
+            if(!supabaseClient) return false;
             try {
                 await supabaseClient.from('location_logs').insert([payload]);
                 await supabaseClient.from('latest_locations').upsert({
@@ -319,22 +399,36 @@
                     device_name: payload.device_name, 
                     updated_at: payload.created_at
                 }, { onConflict: 'emp_code' });
-                updateNetworkStatus(true);
+                return true;
             } catch (e) {
-                updateNetworkStatus(false);
+                console.error("Supabase Push Error: ", e);
+                return false;
             }
         }
 
+        // Auto-Triggered on Network Restore
         async function syncOfflineData() {
-            const localData = localStorage.getItem('offline_gps_logs');
-            if(!localData) return;
-            offlineQueue = JSON.parse(localData);
-            while(offlineQueue.length > 0) {
-                await transmitToSupabase(offlineQueue[0]);
-                offlineQueue.shift();
-                localStorage.setItem('offline_gps_logs', JSON.stringify(offlineQueue));
+            if (!navigator.onLine || offlineQueue.length === 0) return;
+            
+            document.getElementById('offline-buffer-alert').classList.remove('hidden');
+            const queueLength = offlineQueue.length;
+            
+            // Loop and clear the local storage logs safely
+            for(let i = 0; i < queueLength; i++) {
+                const currentPayload = offlineQueue[0];
+                const success = await transmitToSupabase(currentPayload);
+                if(success) {
+                    offlineQueue.shift(); // Remove first element
+                    localStorage.setItem('offline_gps_logs', JSON.stringify(offlineQueue));
+                } else {
+                    break; // stop loop if upload fails midway
+                }
             }
-            document.getElementById('offline-buffer-alert').classList.add('hidden');
+
+            if(offlineQueue.length === 0) {
+                document.getElementById('offline-buffer-alert').classList.add('hidden');
+                updateNetworkStatus(true);
+            }
         }
 
         function stopTracking() {
