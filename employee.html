@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Employee Tracking Client</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Mobile Active State Hacks */
+        button:active {
+            transform: scale(0.98);
+        }
+        /* Custom smooth pulse for active indicator */
+        .pulse-emerald {
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            animation: pulse-geo 2s infinite;
+        }
+        @keyframes pulse-geo {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans flex items-center justify-center min-h-screen p-4 select-none">
+
+    <div class="w-full max-w-md bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col justify-between min-h-[85vh] sm:min-h-0">
+        
+        <div class="bg-gradient-to-r from-emerald-500 to-teal-600 p-6 text-center text-white relative shadow-md">
+            <div class="absolute top-4 right-4 flex items-center gap-1.5 bg-black/25 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm">
+                <span id="sync-dot" class="h-2 w-2 rounded-full bg-red-500 animate-pulse"></span>
+                <span id="sync-text">Offline</span>
+            </div>
+            <i class="fa-solid fa-location-crosshairs text-4xl mb-2 drop-shadow-md animate-spin-slow"></i>
+            <h1 class="text-2xl font-bold tracking-tight">Staff GPS Tracker</h1>
+            <p class="text-xs text-emerald-100 mt-1">Field Attendance & Live Tracking System</p>
+        </div>
+
+        <div class="p-6 space-y-6 flex-1 flex flex-col justify-center">
+            
+            <div id="login-form-box" class="space-y-5 w-full">
+                <div class="bg-slate-700/40 p-5 rounded-xl border border-slate-600/60 shadow-inner">
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Enter Employee ID / Code</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+                            <i class="fa-solid fa-id-card text-lg"></i>
+                        </span>
+                        <input type="text" id="emp-code-input" inputmode="text" class="w-full bg-slate-900 border border-slate-600 rounded-xl pl-11 pr-4 py-3.5 text-white text-lg placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-mono tracking-wide uppercase transition-all" placeholder="e.g. EMP-101">
+                    </div>
+                </div>
+                <button onclick="verifyAndStart()" id="btn-action" class="w-full bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white font-bold py-4 px-4 rounded-xl transition duration-100 shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2.5 text-lg cursor-pointer">
+                    <i class="fa-solid fa-play text-base"></i> Start Duty (Punch In)
+                </button>
+            </div>
+
+            <div id="tracking-dashboard" class="hidden space-y-5 w-full transition-all duration-300">
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-700 text-center shadow-md">
+                        <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Duty Status</p>
+                        <p class="text-emerald-400 font-bold text-base mt-1 flex items-center justify-center gap-1.5">
+                            <span class="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-ping"></span> ACTIVE
+                        </p>
+                    </div>
+                    <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-700 text-center shadow-md">
+                        <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Device Battery</p>
+                        <p id="battery-display" class="text-slate-200 font-bold text-base mt-1">
+                            <i class="fa-solid fa-battery-three-quarters text-slate-400 mr-1"></i> --%
+                        </p>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900/60 p-5 rounded-xl border border-slate-700/80 font-mono text-sm space-y-3 shadow-inner backdrop-blur-sm">
+                    <div class="flex justify-between border-b border-slate-800 pb-2">
+                        <span class="text-slate-400">Employee:</span>
+                        <span id="lbl-emp-identity" class="text-slate-200 font-bold">---</span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-800 pb-2">
+                        <span class="text-slate-400">Latitude:</span>
+                        <span id="lbl-lat" class="text-emerald-400 font-bold tracking-wide">0.000000</span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-800 pb-2">
+                        <span class="text-slate-400">Longitude:</span>
+                        <span id="lbl-lng" class="text-emerald-400 font-bold tracking-wide">0.000000</span>
+                    </div>
+                    <div class="flex justify-between pt-1">
+                        <span class="text-slate-400">Last Pushed:</span>
+                        <span id="lbl-time" class="text-slate-300 bg-slate-800 px-2 py-0.5 rounded text-xs">Never</span>
+                    </div>
+                </div>
+
+                <button onclick="stopTracking()" class="w-full bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-bold py-4 px-4 rounded-xl transition duration-100 flex items-center justify-center gap-2 text-lg shadow-lg shadow-rose-600/10 cursor-pointer">
+                    <i class="fa-solid fa-stop"></i> Stop Duty (Punch Out)
+                </button>
+            </div>
+
+            <div id="offline-buffer-alert" class="hidden bg-amber-500/10 border border-amber-500/30 rounded-xl p-3.5 text-center transition-all animate-pulse">
+                <p class="text-xs text-amber-400 font-medium">
+                    <i class="fa-solid fa-cloud-arrow-up mr-1 text-sm"></i> No internet! Coordinates are saving safely offline.
+                </p>
+            </div>
+
+        </div>
+
+        <div class="p-4 border-t border-slate-700/40 text-center text-[11px] text-slate-500 bg-slate-900/30 font-mono">
+            Keep this browser tab active during your shift.
+        </div>
+    </div>
+
+    <script>
+        // --- LIVE SUPABASE CREDENTIALS CONFIGURATION ---
+        const SUPABASE_URL = "https://fsoltknfkwptcrsmvjlh.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_PIXaEa6gmVIa8vWPRzhq1A_zY7o-AoT";
+
+        let supabaseClient = null;
+        let watchId = null;
+        let employeeCode = "";
+        let currentBatteryLevel = 100;
+        let offlineQueue = []; 
+        let wakeLock = null; // Keeps mobile screen from sleeping during transit shift loops
+
+        // ON RUN INITIALIZER 
+        document.addEventListener("DOMContentLoaded", () => {
+            initSupabase();
+            detectBattery();
+            checkSavedSession();
+            
+            // Wire network fallback status togglers
+            window.addEventListener('online', syncOfflineData);
+            window.addEventListener('offline', () => updateNetworkStatus(false));
+        });
+
+        function initSupabase() {
+            try {
+                supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                updateNetworkStatus(navigator.onLine);
+            } catch (e) { 
+                console.error("Supabase engine fallback failure", e); 
+            }
+        }
+
+        function updateNetworkStatus(isOnline) {
+            const dot = document.getElementById('sync-dot');
+            const txt = document.getElementById('sync-text');
+            if(!dot || !txt) return;
+
+            if(isOnline) {
+                dot.className = "h-2 w-2 rounded-full bg-emerald-400 pulse-emerald";
+                txt.innerText = "Connected";
+                syncOfflineData();
+            } else {
+                dot.className = "h-2 w-2 rounded-full bg-amber-500 animate-pulse";
+                txt.innerText = "Offline Mode";
+            }
+        }
+
+        // DEVICE SMART BATTERY INTERFACE SENSOR 
+        function detectBattery() {
+            if (navigator.getBattery) {
+                navigator.getBattery().then(battery => {
+                    const updateBatteryUi = () => {
+                        currentBatteryLevel = Math.floor(battery.level * 100);
+                        const bDisplay = document.getElementById('battery-display');
+                        if(bDisplay) {
+                            bDisplay.innerHTML = `<i class="fa-solid fa-battery-three-quarters text-emerald-400 mr-1"></i> ${currentBatteryLevel}%`;
+                        }
+                    };
+                    updateBatteryUi();
+                    battery.addEventListener('levelchange', updateBatteryUi);
+                });
+            }
+        }
+
+        // PRESERVE ACTIVE SESSIONS FROM STORAGE MUTATIONS ON REFRESHES
+        function checkSavedSession() {
+            const savedCode = localStorage.getItem('active_emp_code');
+            if(savedCode) {
+                const inputEl = document.getElementById('emp-code-input');
+                if(inputEl) inputEl.value = savedCode;
+                verifyAndStart();
+            }
+        }
+
+        // ACCOUNT CODE VERIFICATION CONTROLLER MODULE
+        async function verifyAndStart() {
+            const inputField = document.getElementById('emp-code-input');
+            if(!inputField) return;
+
+            employeeCode = inputField.value.trim().toUpperCase();
+
+            if(!employeeCode) { alert("कृपया आफ्नो Employee ID राख्नुहोस् !"); return; }
+            if(!supabaseClient) { alert("Supabase नेटवर्क जडान हुन सकेन।"); return; }
+
+            // 1. Core Profile Cross-Match query against backend rows
+            const { data, error } = await supabaseClient.from('employees').select('name').eq('emp_code', employeeCode).single();
+            
+            if (error || !data) {
+                alert("यो Employee ID डेटाबेसमा फेला परेन! कृपया एडमिनसँग सम्पर्क गर्नुहोस्।");
+                return;
+            }
+
+            // Write security authorization states safely into disk
+            localStorage.setItem('active_emp_code', employeeCode);
+            document.getElementById('lbl-emp-identity').innerText = `${data.name} (${employeeCode})`;
+
+            // View management layout switching matrix animations
+            document.getElementById('login-form-box').classList.add('hidden');
+            document.getElementById('tracking-dashboard').classList.remove('hidden');
+
+            // 2. Fire Screen Lock and High-Precision Hardware GPS engines
+            requestWakeLock();
+            startGpsTracking();
+        }
+
+        // WAKE LOCK API MODULE (Prevents smartphone background system sleep pauses)
+        async function requestWakeLock() {
+            if ('wakeLock' in navigator) {
+                try {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                } catch (err) {
+                    console.warn(`Screen Wake Lock error: ${err.message}`);
+                }
+            }
+        }
+
+        // PRECISION CELL/GPS HARDWARE INTEGRATOR LOADER
+        function startGpsTracking() {
+            if (!("geolocation" in navigator)) {
+                alert("तपाईंको मोबाइल फोनले GPS ट्र्याकिङ सपोर्ट गरेन!");
+                return;
+            }
+
+            const geoOptions = {
+                enableHighAccuracy: true, // Forces precise internal hardware tracking loops over tower triangulation
+                timeout: 15000,
+                maximumAge: 0
+            };
+
+            // watchPosition updates automatically as soon as mobile device coordinates delta shift
+            watchId = navigator.geolocation.watchPosition(handleLocationUpdate, handleGpsError, geoOptions);
+        }
+
+        // INBOUND COORDINATES STREAM MATRIX LOGGER
+        async function handleLocationUpdate(position) {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+
+            document.getElementById('lbl-lat').innerText = lat.toFixed(6);
+            document.getElementById('lbl-lng').innerText = lng.toFixed(6);
+            document.getElementById('lbl-time').innerText = new Date().toLocaleTimeString();
+
+            const recordPayload = {
+                emp_code: employeeCode,
+                latitude: lat,
+                longitude: lng,
+                battery_level: currentBatteryLevel,
+                created_at: new Date().toISOString()
+            };
+
+            if(navigator.onLine) {
+                transmitToSupabase(recordPayload);
+            } else {
+                // Buffer rows array inside physical disk storage if mobile drops into dead network zone
+                offlineQueue.push(recordPayload);
+                localStorage.setItem('offline_gps_logs', JSON.stringify(offlineQueue));
+                document.getElementById('offline-buffer-alert').classList.remove('hidden');
+            }
+        }
+
+        // POSTGRES DATABASE PARALLEL TABLE SYNCHRONIZER
+        async function transmitToSupabase(payload) {
+            try {
+                // Task A: Track historic arrays records to logging ledger table
+                await supabaseClient.from('location_logs').insert([payload]);
+
+                // Task B: Overwrite (Upsert) active location row pointer for admin live tracking map
+                await supabaseClient.from('latest_locations').upsert({
+                    emp_code: payload.emp_code,
+                    latitude: payload.latitude,
+                    longitude: payload.longitude,
+                    updated_at: payload.created_at
+                }, { onConflict: 'emp_code' });
+
+                updateNetworkStatus(true);
+            } catch (e) {
+                console.error("Supabase sync pipeline crash", e);
+                updateNetworkStatus(false);
+            }
+        }
+
+        // OFFLINE ARRAYS BULK DEPOSIT TRANSMITTER ON NETWORK RESTORE
+        async function syncOfflineData() {
+            const localData = localStorage.getItem('offline_gps_logs');
+            if(!localData) return;
+
+            offlineQueue = JSON.parse(localData);
+            if(offlineQueue.length === 0) return;
+
+            while(offlineQueue.length > 0) {
+                const item = offlineQueue[0];
+                await transmitToSupabase(item);
+                offlineQueue.shift(); 
+                localStorage.setItem('offline_gps_logs', JSON.stringify(offlineQueue));
+            }
+
+            document.getElementById('offline-buffer-alert').classList.add('hidden');
+        }
+
+        function handleGpsError(err) {
+            console.warn(`GPS Loop Code Error (${err.code}): ${err.message}`);
+            if(err.code === 1) {
+                alert("लोकेसन पत्ता लाग्न सकेन! कृपया आफ्नो फोनको Settings मा गएर यो ब्राउजरका लागि GPS Location Permission 'Allow' गर्नुहोस्!");
+            }
+        }
+
+        // SYSTEM DE-ACTIVATOR MECHANICS PIPELINE (Punch Out)
+        function stopTracking() {
+            if(watchId) {
+                navigator.geolocation.clearWatch(watchId);
+                watchId = null;
+            }
+            if(wakeLock) {
+                wakeLock.release();
+                wakeLock = null;
+            }
+            localStorage.removeItem('active_emp_code');
+            
+            // Clear runtime state forms variables
+            document.getElementById('login-form-box').classList.remove('hidden');
+            document.getElementById('tracking-dashboard').classList.add('hidden');
+            document.getElementById('offline-buffer-alert').classList.add('hidden');
+            
+            alert("ड्युटी बन्द भयो। GPS ट्र्याकिङ सफलतापूर्वक रोकिएको छ।");
+        }
+    </script>
+</body>
+</html>
