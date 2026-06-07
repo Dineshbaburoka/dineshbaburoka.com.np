@@ -176,15 +176,28 @@
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 bg-slate-50 p-4 rounded-lg border border-gray-200">
                             <div>
                                 <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Select Employee</label>
-                                <select id="report-filter-emp" class="w-full p-2 border border-gray-300 rounded text-sm bg-white">
+                                <select id="report-filter-emp" onchange="handleEmployeeChange()" class="w-full p-2 border border-gray-300 rounded text-sm bg-white">
                                     <option value="all">All Employees</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Select Reason / उद्देश्य</label>
+                                <select id="report-filter-reason" class="w-full p-2 border border-gray-300 rounded text-sm bg-white">
+                                    <option value="all">All Reasons (सबै उद्देश्य)</option>
                                 </select>
                             </div>
                             <div class="flex items-end">
                                 <button onclick="loadReportLogs()" class="w-full bg-slate-700 hover:bg-slate-800 text-white font-medium py-2 px-4 rounded text-sm transition">
-                                    <i class="fa-solid fa-filter mr-1"></i> Apply Filter
+                                    <i class="fa-solid fa-filter mr-1"></i> Apply Filter & Draw Route
                                 </button>
                             </div>
+                        </div>
+
+                        <div class="mb-6">
+                            <span class="text-sm font-semibold text-gray-700 flex items-center gap-2 mb-2">
+                                <i class="fa-solid fa-route text-indigo-500"></i> History Route Map (Polyline View)
+                            </span>
+                            <div id="history-map" class="map-instance rounded-lg border border-gray-300"></div>
                         </div>
 
                         <div class="overflow-x-auto">
@@ -209,7 +222,6 @@
                         </div>
                     </div>
                 </section>
-
             </main>
         </div>
     </div>
@@ -222,13 +234,13 @@
         
         let dashboardMap = null;
         let liveMap = null;
+        let historyMap = null; 
         
         let dashboardMarkers = {}; 
         let liveMarkers = {}; 
+        let historyLayers = []; 
 
-        // Feature Group to dynamically track bounds on Dashboard
         let dashboardFeatureGroup = null;
-        
         let globalEmployees = [];
         let supabaseClient = null;
 
@@ -252,22 +264,27 @@
         }
 
         function initMaps() {
-            // Dashboard Map
+            // Dashboard Map Initialize
             dashboardMap = L.map('dashboard-map').setView([27.7172, 85.3240], 13);
             L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
                 attribution: 'Tiles &copy; Esri'
             }).addTo(dashboardMap);
             L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', { maxZoom: 20 }).addTo(dashboardMap);
-            
-            // Feature group created for automated zooming bounds
             dashboardFeatureGroup = L.featureGroup().addTo(dashboardMap);
 
-            // Live Tracking Map
+            // Live Tracking Map Initialize
             liveMap = L.map('live-map').setView([27.7172, 85.3240], 13);
             L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
                 attribution: 'Tiles &copy; Esri'
             }).addTo(liveMap);
             L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', { maxZoom: 20 }).addTo(liveMap);
+
+            // Polyline History Route Map Initialize
+            historyMap = L.map('history-map').setView([27.7172, 85.3240], 13);
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: 'Tiles &copy; Esri'
+            }).addTo(historyMap);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', { maxZoom: 20 }).addTo(historyMap);
         }
 
         function updateStatus(text, wrapperClass, pointClass) {
@@ -295,10 +312,12 @@
             if (tabId === 'dashboard' && dashboardMap) {
                 setTimeout(() => {
                     dashboardMap.invalidateSize();
-                    autoZoomAllStaff(); // Auto fit bounds on switching tab
+                    autoZoomAllStaff();
                 }, 200);
             } else if (tabId === 'tracking' && liveMap) {
                 setTimeout(() => liveMap.invalidateSize(), 200);
+            } else if (tabId === 'reports' && historyMap) {
+                setTimeout(() => historyMap.invalidateSize(), 200);
             }
             
             document.getElementById('page-title').innerText = tabId.charAt(0).toUpperCase() + tabId.slice(1) + " Panel";
@@ -318,8 +337,6 @@
                 locations.forEach(loc => updateBothMaps(loc));
                 calculateStats(locations);
                 updateLiveDutyStaffList(locations);
-                
-                // Trigger auto zoom once initial data is rendered
                 setTimeout(() => autoZoomAllStaff(), 400);
             }
         }
@@ -368,7 +385,6 @@
                 </div>
             `;
 
-            // Update Map 1: Dashboard Map (Linked inside Feature Group)
             if (dashboardMap) {
                 if (dashboardMarkers[emp_code]) {
                     dashboardMarkers[emp_code].setLatLng([lat, lng]).setPopupContent(popupContent);
@@ -379,7 +395,6 @@
                 }
             }
 
-            // Update Map 2: Live Tracking Map
             if (liveMap) {
                 if (liveMarkers[emp_code]) {
                     liveMarkers[emp_code].setLatLng([lat, lng]).setPopupContent(popupContent);
@@ -389,15 +404,11 @@
             }
         }
 
-        // AUTO ZOOM ENGINE FOR DASHBOARD MAP
         function autoZoomAllStaff() {
             if (dashboardFeatureGroup && dashboardMap) {
                 const bounds = dashboardFeatureGroup.getBounds();
                 if (bounds.isValid()) {
-                    dashboardMap.fitBounds(bounds, {
-                        padding: [50, 50],  // Adds margin around markers so they don't touch screen edges
-                        maxZoom: 15         // Prevents zooming in too close if there is only 1 staff
-                    });
+                    dashboardMap.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
                 }
             }
         }
@@ -508,20 +519,59 @@
             } catch (err) { console.error(err); }
         }
 
+        // POPULATE EMPLOYEE DROPDOWN FILTER
         function populateDropdowns() {
             const select = document.getElementById('report-filter-emp');
-            if(!select) return; select.innerHTML = '<option value="all">All Employees</option>';
-            globalEmployees.forEach(emp => { select.innerHTML += `<option value="${emp.emp_code}">${emp.name}</option>`; });
+            if(!select) return; 
+            select.innerHTML = '<option value="all">All Employees</option>';
+            globalEmployees.forEach(emp => { 
+                select.innerHTML += `<option value="${emp.emp_code}">${emp.name}</option>`; 
+            });
+            handleEmployeeChange();
         }
 
+        // LOAD REASONS ACCORDING TO SELECTED EMPLOYEE
+        async function handleEmployeeChange() {
+            const empFilter = document.getElementById('report-filter-emp').value;
+            const reasonSelect = document.getElementById('report-filter-reason');
+            if(!reasonSelect || !supabaseClient) return;
+
+            reasonSelect.innerHTML = '<option value="all">Loading reasons...</option>';
+
+            let query = supabaseClient.from('location_logs').select('reason1');
+            if(empFilter !== 'all') {
+                query = query.eq('emp_code', empFilter);
+            }
+
+            const { data: logs } = await query;
+            reasonSelect.innerHTML = '<option value="all">All Reasons (सबै उद्देश्य)</option>';
+
+            if(logs && logs.length > 0) {
+                const uniqueReasons = [...new Set(logs.map(l => l.reason1 ? l.reason1.trim() : "").filter(r => r !== ""))];
+                uniqueReasons.forEach(reason => {
+                    reasonSelect.innerHTML += `<option value="${reason}">${reason}</option>`;
+                });
+            }
+        }
+
+        // APPLY FILTERS AND DRAW USERWISE/REASONWISE POLYLINE ON MAP
         async function loadReportLogs() {
             if(!supabaseClient) return;
-            const filterValue = document.getElementById('report-filter-emp').value;
+            const empFilter = document.getElementById('report-filter-emp').value;
+            const reasonFilter = document.getElementById('report-filter-reason').value;
             const tbody = document.getElementById('report-table-body');
+            
             tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center italic text-gray-400">Loading records...</td></tr>`;
 
-            let query = supabaseClient.from('location_logs').select('*').order('created_at', { ascending: false }).limit(100);
-            if(filterValue !== 'all') query = query.eq('emp_code', filterValue);
+            // Clear previous layer tracks from history map
+            historyLayers.forEach(layer => historyMap.removeLayer(layer));
+            historyLayers = [];
+
+            // Get data from oldest to newest (ascending: true) to preserve correct routing path line
+            let query = supabaseClient.from('location_logs').select('*').order('created_at', { ascending: true }).limit(500);
+            
+            if(empFilter !== 'all') query = query.eq('emp_code', empFilter);
+            if(reasonFilter !== 'all') query = query.eq('reason1', reasonFilter);
 
             const { data: logs } = await query;
             if (!logs || logs.length === 0) {
@@ -530,7 +580,9 @@
             }
 
             tbody.innerHTML = '';
-            logs.forEach(log => {
+            // Display Table rows in Reverse Order (Newest Logs First on UI)
+            const displayLogs = [...logs].reverse();
+            displayLogs.forEach(log => {
                 const currentReason = log.reason1 ? log.reason1 : "-"; 
                 const device = log.device_name ? log.device_name : "-";
                 const bat = log.battery_level !== undefined ? log.battery_level : '100';
@@ -546,11 +598,89 @@
                     </tr>
                 `;
             });
+
+            // Group Coordinates by unique Key (EmployeeCode + Reason)
+            let routesByGroup = {};
+            logs.forEach(log => {
+                const lat = parseFloat(log.latitude);
+                const lng = parseFloat(log.longitude);
+                const reason = log.reason1 ? log.reason1.trim() : "अन्य/नखुलेको";
+                
+                if (!isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0) {
+                    const groupKey = `${log.emp_code}_${reason}`;
+                    if (!routesByGroup[groupKey]) {
+                        routesByGroup[groupKey] = {
+                            emp_code: log.emp_code,
+                            reason: reason,
+                            coordinates: []
+                        };
+                    }
+                    routesByGroup[groupKey].coordinates.push([lat, lng]);
+                }
+            });
+
+            const routeColors = ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#ec4899', '#8b5cf6', '#06b6d4', '#f97316'];
+            let colorIndex = 0;
+            let bounds = L.latLngBounds();
+
+            // Draw individual separate Polylines for each group on Map
+            for (const key in routesByGroup) {
+                const routeData = routesByGroup[key];
+                const coordinates = routeData.coordinates;
+
+                if (coordinates.length > 0) {
+                    const color = routeColors[colorIndex % routeColors.length];
+                    colorIndex++;
+
+                    // 1. Draw Polyline Trail Line
+                    const polyline = L.polyline(coordinates, {
+                        color: color,
+                        weight: 5,
+                        opacity: 0.9
+                    }).addTo(historyMap);
+                    
+                    const empInfo = globalEmployees.find(e => e.emp_code === routeData.emp_code) || { name: routeData.emp_code };
+                    
+                    polyline.bindPopup(`
+                        <div class="text-xs">
+                            <b>कर्मचारी:</b> ${empInfo.name} (${routeData.emp_code})<br>
+                            <b class="text-indigo-600">दर्ता उद्देश्य:</b> ${routeData.reason}<br>
+                            <b>कुल GPS प्वाइन्ट:</b> ${coordinates.length}
+                        </div>
+                    `);
+                    historyLayers.push(polyline);
+
+                    // 2. Mark Journey Start Point (Circle Pin)
+                    const startPt = coordinates[0];
+                    const startCircle = L.circleMarker(startPt, {
+                        radius: 6, fillColor: color, color: '#fff', weight: 2, fillOpacity: 1
+                    }).addTo(historyMap).bindPopup(`<b>${empInfo.name}</b><br>शुरुवात विन्दु<br>उद्देश्य: ${routeData.reason}`);
+                    historyLayers.push(startCircle);
+
+                    // 3. Mark Journey Final/Latest Point (Standard Marker)
+                    const endPt = coordinates[coordinates.length - 1];
+                    const endMarker = L.marker(endPt).addTo(historyMap).bindPopup(`
+                        <div class="text-xs">
+                            <b>अन्तिम विन्दु:</b> ${empInfo.name}<br>
+                            <b>उद्देश्य:</b> <span class="font-bold text-emerald-600">${routeData.reason}</span>
+                        </div>
+                    `);
+                    historyLayers.push(endMarker);
+
+                    // Extend boundary view limits
+                    coordinates.forEach(coord => bounds.extend(coord));
+                }
+            }
+
+            // Automate focus zoom layout bounds
+            if (bounds.isValid()) {
+                historyMap.fitBounds(bounds, { padding: [50, 50] });
+            }
         }
 
         function downloadExcelReport() {
             const rows = document.querySelectorAll('#report-table-body tr');
-            if(rows.length === 0 || rows[0].innerText.includes("Filter")) { alert("पहिले डाटा लोड गर्नुहोस्!"); return; }
+            if(rows.length === 0 || rows[0].innerText.includes("Filter")) { alert("पहिलेडाटा लोड गर्नुहोस्!"); return; }
             let csvContent = "data:text/csv;charset=utf-8,Timestamp,Employee Code,Reason,Device,Latitude,Longitude,Battery\n";
             rows.forEach(row => {
                 const cols = row.querySelectorAll('td');
