@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>खरिद दररेट निर्धारण</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --success: #24b47e;
+            --success-hover: #1c8c61;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #334155;
+            --text-dark: #0f172a;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 950px;
+        }
+
+        h1 {
+            color: var(--text-dark);
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 24px;
+        }
+
+        h2 {
+            color: var(--text-dark);
+            font-size: 1.2rem;
+            margin-top: 0;
+            margin-bottom: 16px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 8px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            margin-bottom: 20px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+
+        label {
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 14px;
+            color: #475569;
+        }
+
+        select, input[type="text"] {
+            padding: 12px 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            font-size: 15px;
+            outline: none;
+            background: #fdfdfd;
+            font-family: inherit;
+        }
+
+        .checklist-container {
+            margin-top: 15px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 10px;
+            max-height: 250px;
+            overflow-y: auto;
+            background: #fff;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-bottom: 1px solid #f1f5f9;
+            cursor: pointer;
+        }
+
+        .checklist-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        button {
+            padding: 14px 20px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .btn-print-bulk {
+            background-color: var(--success);
+            color: white;
+            margin-top: 15px;
+        }
+
+        /* ---------------- PREVIEW MODAL ---------------- */
+        #printModal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-body {
+            background: white;
+            width: 100%;
+            max-width: 950px;
+            height: 95vh;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .modal-header-bar {
+            background: #f1f5f9;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #cbd5e1;
+        }
+        .letter-scroll-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+            background: #f8fafc;
+        }
+
+        /* PAGE 1: OFFICIAL LETTERHEAD DESIGN */
+        .official-letter {
+            background: white;
+            width: 210mm;
+            min-height: 297mm;
+            padding: 50px 60px;
+            box-sizing: border-box;
+            color: black;
+            position: relative;
+            margin: 0 auto 20px auto;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            page-break-after: always;
+        }
+        .letter-top-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        .gov-logo { width: 100px; height: auto; }
+        .center-heading { text-align: center; flex: 1; }
+        .center-heading .gov-title { color: #ff3333; font-size: 1.6rem; font-weight: bold; }
+        .center-heading .office-title { color: #ff3333; font-size: 2.1rem; font-weight: bold; margin-top: 4px; }
+        .center-heading .location-title { color: #ff3333; font-size: 1.3rem; font-weight: bold; margin-top: 5px; }
+        .right-meta-phone { text-align: right; font-size: 1.2rem; font-weight: bold; color: #4b5563; }
+        
+        .line1-meta { display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: bold; margin-top: 25px; }
+        .province-tag { color: #ff3333; font-size: 1.1rem; font-weight: bold; }
+        .horizontal-divider { border: none; border-bottom: 2px solid #000000; margin: 8px 0; width: 100%; }
+        .line2-meta { display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: 500; margin-top: 5px; }
+
+        .letter-subject { text-align: center; font-size: 1.35rem; font-weight: bold; margin: 40px 0 30px 0; }
+        .letter-receiver { font-size: 1.25rem; line-height: 1.7; margin-bottom: 25px; }
+        .letter-body-text { font-size: 1.25rem; line-height: 1.9; text-align: justify; text-indent: 60px; }
+        .signature-section { margin-top: 100px; float: right; text-align: center; width: 220px; font-size: 1.2rem; }
+
+        /* PAGE 2: RATE FIXING SPECIFICATION FORM */
+        .rate-fixing-page {
+            background: white;
+            width: 210mm;
+            min-height: 297mm;
+            padding: 40px 50px;
+            box-sizing: border-box;
+            color: black;
+            position: relative;
+            margin: 0 auto 40px auto;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            page-break-after: always;
+            font-family: Arial, sans-serif;
+        }
+        
+        .rf-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+        }
+        .rf-logo-container {
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+        .rf-header-text {
+            text-align: center;
+        }
+        .rf-header h2 { border: none; padding: 0; margin: 0; font-size: 1.65rem; color: #000; font-weight: bold; }
+        .rf-header h3 { margin: 4px 0; font-size: 1.4rem; font-weight: bold; }
+        .rf-header h4 { margin: 4px 0; font-size: 1.2rem; font-weight: normal; }
+        .rf-header .rf-title { margin: 12px 0 0 0; font-size: 1.35rem; font-weight: bold; text-decoration: underline; text-transform: uppercase; }
+        
+        .rf-meta-table {
+            width: 100%;
+            margin-bottom: 15px;
+            font-size: 1.15rem;
+        }
+        .rf-meta-table td {
+            padding: 6px 0;
+            border: none;
+        }
+
+        .editable-purchase-input {
+            width: 90%;
+            border: 1px dashed #cbd5e1;
+            background: #fff;
+            padding: 4px 8px;
+            font-size: 1.15rem;
+            font-weight: bold;
+            font-family: inherit;
+            color: #000;
+            outline: none;
+            border-radius: 4px;
+        }
+        .editable-purchase-input:focus {
+            border: 1px solid var(--primary);
+            background: #fff;
+        }
+
+        .spec-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .spec-table th, .spec-table td {
+            border: 1px solid #000000 !important;
+            padding: 6px 6px;
+            text-align: left;
+            font-size: 12px;
+            color: #000;
+            background: none;
+        }
+        .spec-table th {
+            text-align: center;
+            font-weight: bold;
+        }
+
+        /* ---------------- PRINT MEDIA CSS ---------------- */
+        @media print {
+            html, body {
+                height: auto !important;
+                overflow: visible !important;
+                background: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            body > *:not(#printModal) {
+                display: none !important;
+            }
+            
+            #printModal {
+                display: block !important;
+                position: relative !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100% !important;
+                height: auto !important;
+                background: white !important;
+                overflow: visible !important;
+            }
+            
+            .modal-body {
+                display: block !important;
+                position: relative !important;
+                height: auto !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                overflow: visible !important;
+                border-radius: 0 !important;
+                box-shadow: none !important;
+            }
+
+            .modal-header-bar {
+                display: none !important;
+            }
+            
+            .letter-scroll-area {
+                display: block !important;
+                overflow: visible !important;
+                padding: 0 !important;
+                background: white !important;
+                height: auto !important;
+            }
+
+            .official-letter, .rate-fixing-page {
+                display: block !important;
+                visibility: visible !important;
+                box-shadow: none !important;
+                margin: 0 auto !important;
+                padding: 5mm 5mm !important;
+                width: 210mm !important;
+                min-height: 297mm !important;
+                page-break-inside: avoid !important;
+                page-break-after: always !important;
+                
+                transform-origin: top center;
+                transform: scale(1); 
+            }
+
+            /* अन्तिम पेजमा ब्ल्यांक आउने समस्या हटाउनका लागि अन्तिम div को page-break-after हटाइएको */
+            #bulkLettersContainer > div:last-child {
+                page-break-after: avoid !important;
+            }
+
+            .editable-purchase-input {
+                border: none !important;
+                background: transparent !important;
+                padding: 0 !important;
+                width: 100% !important;
+            }
+
+            table {
+                page-break-inside: auto !important;
+            }
+            tr {
+                page-break-inside: avoid !important;
+                page-break-after: auto !important;
+            }
+        }
+    </style>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+
+        const SUPABASE_URL = 'https://megsdkaljpxrbiuxmghf.supabase.co'
+        const SUPABASE_ANON_KEY = 'sb_publishable_iFa88QFBWOzcNyX3iBCddg_hATgR1FI'
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+        let allExpenseData = [];
+        let allPurchaseData = [];
+        let allItemData = []; 
+
+        function convertToNepaliNumerals(num) {
+            if (num === null || num === undefined) return '';
+            const nepaliDigits = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
+            return num.toString().replace(/[0-9]/g, function (digit) {
+                return nepaliDigits[digit];
+            });
+        }
+
+        async function loadInitialData() {
+            const { data: expData } = await supabase.from('expenses').select('*').order('created_at', { ascending: false });
+            allExpenseData = expData || [];
+
+            const { data: purData } = await supabase.from('purchase_forms').select('*').order('id', { ascending: false });
+            allPurchaseData = purData || [];
+
+            const { data: itmData } = await supabase.from('purchase_items').select('*').order('id', { ascending: true });
+            allItemData = itmData || [];
+
+            populateExpenseDropdown();
+        }
+
+        function populateExpenseDropdown() {
+            const dropdown = document.getElementById('expense_dropdown');
+            dropdown.innerHTML = '<option value="">-- खरिद बजेट छनौट गर्नुहोस् --</option>';
+            allExpenseData.forEach(exp => {
+                const opt = document.createElement('option');
+                opt.value = exp.psn;
+                const nepaliPsn = convertToNepaliNumerals(exp.psn);
+                const workTitle = exp.purchase_work_name || exp.pname;
+                opt.textContent = `${nepaliPsn} | ${workTitle}`;
+                dropdown.appendChild(opt);
+            });
+        }
+
+        document.getElementById('expense_dropdown').addEventListener('change', (e) => {
+            const selectedPsn = e.target.value;
+            const checklistContainer = document.getElementById('forms_checklist');
+            checklistContainer.innerHTML = ''; 
+
+            if (!selectedPsn) {
+                checklistContainer.innerHTML = '<div id="no-data-msg">कृपया पहिले खरिद बजेट छनौट गर्नुहोस्।</div>';
+                return;
+            }
+
+            const filteredForms = allPurchaseData.filter(form => form.expense_psn === selectedPsn);
+
+            if (filteredForms.length === 0) {
+                checklistContainer.innerHTML = '<div id="no-data-msg">⚠️ यस खरिद बजेटसँग सम्बन्धित कुनै पनि फर्म दर्ता भएको पाइएको छैन।</div>';
+                return;
+            }
+
+            filteredForms.forEach(form => {
+                const div = document.createElement('div');
+                div.className = 'checklist-item';
+                const nepaliPan = form.pan_number ? convertToNepaliNumerals(form.pan_number) : '';
+                div.innerHTML = `
+                    <input type="checkbox" class="form-ticker" value="${form.id}" id="chk_${form.id}">
+                    <label for="chk_${form.id}" style="cursor:pointer; display:inline; font-weight:normal; color: var(--text-dark);">
+                        <strong>${form.formname}</strong> - (स्थान: ${form.formlocation}) ${nepaliPan ? '[प्यान: ' + nepaliPan + ']' : ''}
+                    </label>
+                `;
+                checklistContainer.appendChild(div);
+            });
+        });
+
+        document.getElementById('generateLettersBtn').addEventListener('click', () => {
+            const rawLetterDate = document.getElementById('letter_date').value.trim();
+            const selectedPsn = document.getElementById('expense_dropdown').value;
+            
+            if (!rawLetterDate) {
+                alert('कृपया पत्रको मिति अनिवार्य लेख्नुहोस्।');
+                return;
+            }
+
+            const letterDate = convertToNepaliNumerals(rawLetterDate);
+
+            const checkedBoxes = document.querySelectorAll('.form-ticker:checked');
+            if (checkedBoxes.length === 0) {
+                alert('कृपया सूचीमा कम्तीमा एक फर्म टिक लगाउनुहोस्।');
+                return;
+            }
+
+            const expenseDetail = allExpenseData.find(e => e.psn === selectedPsn);
+            const purchaseOfText = expenseDetail ? (expenseDetail.purchase_work_name || expenseDetail.pname) : ''; 
+            
+            const attachedItems = allItemData.filter(item => item.expense_psn === selectedPsn);
+
+            const container = document.getElementById('bulkLettersContainer');
+            container.innerHTML = ''; 
+
+            checkedBoxes.forEach(box => {
+                const formDetail = allPurchaseData.find(f => f.id == box.value);
+
+                if (formDetail) {
+                    // PAGE 1: Official Letterhead
+                    const letterHTML = `
+                        <div class="official-letter">
+                            <div class="letter-top-header">
+                                <img src="Emblem_of_Nepal.svg.png" class="gov-logo" alt="Emblem of Nepal">
+                                <div class="center-heading">
+                                    <div class="gov-title">गलकोट नगरपालिका</div>
+                                    <div class="office-title">नगर कार्यपालिकाको कार्यालय</div>
+                                    <div class="location-title">गलकोट, बागलुङ</div>
+                                </div>
+                                <div><div class="right-meta-phone">☎️ ०६८-४१२१११</div></div>
+                            </div>
+                            
+                            <div class="line1-meta">
+                                <div>प.सं.: ....................</div>
+                                <div class="province-tag">गण्डकी प्रदेश, नेपाल</div>
+                            </div>
+                            <hr class="horizontal-divider">
+                            <div class="line2-meta">
+                                <div style="letter-spacing: 2px;">च.न. ....................</div>
+                                <div>मिति: ${letterDate}</div>
+                            </div>
+                            
+                            <div class="letter-subject">विषय: दररेट उपलब्ध गराइदिनुहुने सम्बन्धमा।</div>
+                            <div class="letter-receiver"><strong>${formDetail.formname}</strong>,<br>${formDetail.formlocation}।</div>
+                            <div class="letter-body-text">
+                                प्रस्तुत विषयको सम्बन्धमा यसै पत्रसाथ संलग्न विवरण र Specification भएका मालसामानको दररेट एकिन गर्नुपर्ने भएकोले तहाँको फर्मबाट उक्त मालसामानको दररेट के कति पर्ने हो सो उपलब्ध गराइदिनु हुन अनुरोध छ।
+                            </div>
+                            <div class="signature-section">
+                                .......................................<br><strong>प्रमुख प्रशासकीय अधिकृत</strong>
+                            </div>
+                            <div style="clear: both;"></div>
+                        </div>
+                    `;
+
+                    // PAGE 2: Rate Fixing Form
+                    let tableRowsHTML = '';
+                    if (attachedItems.length > 0) {
+                        attachedItems.forEach((item, index) => {
+                            const nepaliSn = convertToNepaliNumerals(index + 1);
+                            tableRowsHTML += `
+                                <tr>
+                                    <td style="text-align: center; font-weight: bold;">${nepaliSn}</td>
+                                    <td>${item.item_name}</td>
+                                    <td style="white-space: pre-line;">${item.specification}</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            `;
+                        });
+                    } else {
+                        tableRowsHTML += `
+                                <tr>
+                                    <td colspan="6" style="text-align: center; color: red; padding: 20px;">
+                                        यस बजेट क्रियाकलापमा कुनै पनि सामान र Specification दर्ता गरिएको छैन।
+                                    </td>
+                                </tr>
+                        `;
+                    }
+
+                    const rateFormHTML = `
+                        <div class="rate-fixing-page">
+                            <div class="rf-header">
+                                <div class="rf-logo-container">
+                                    <img src="Emblem_of_Nepal.svg.png" class="gov-logo" alt="Emblem of Nepal">
+                                </div>
+                                <div class="rf-header-text">
+                                    <h2>Galkot Municipality</h2>
+                                    <h3>Municipal Executive Office</h3>
+                                    <h4>Galkot, Baglung</h4>
+                                    <div class="rf-title">Rate Fixing of per Units</div>
+                                </div>
+                            </div>
+
+                            <table class="rf-meta-table">
+                                <tr>
+                                    <td style="width: 50%; vertical-align: middle;">
+                                        <strong>Purchase of:</strong> 
+                                        <input type="text" class="editable-purchase-input" value="${purchaseOfText}" title="आवश्यकता अनुसार यो विवरण थपघट वा परिवर्तन गर्न सक्नुहुन्छ">
+                                    </td>
+                                    <td style="text-align: right; vertical-align: middle;"><strong>Date:</strong> ....... / ....... / ...........</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2"><strong>Address:</strong> <span>Galkot municipality, Galkot Baglung</span></td>
+                                </tr>
+                            </table>
+
+                            <table class="spec-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 4%;" rowspan="2">S.N.</th>
+                                        <th style="width: 14%;" rowspan="2">PARTICULARS</th>
+                                        <th style="width: 52%;" rowspan="2">SPECIFICATION</th>
+                                        <th colspan="2" style="width: 25%;">Rate</th>
+                                        <th style="width: 5%;" rowspan="2">Remarks</th>
+                                    </tr>
+                                    <tr>
+                                        <th style="width: 10%; font-size:11px; border: 1px solid #000 !important;">In figure</th>
+                                        <th style="width: 15%; font-size:11px; border: 1px solid #000 !important;">In word</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${tableRowsHTML}
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                    
+                    container.innerHTML += letterHTML + rateFormHTML;
+                }
+            });
+
+            document.getElementById('printModal').style.display = 'flex';
+        });
+
+        document.getElementById('closeModalBtn').addEventListener('click', () => {
+            document.getElementById('printModal').style.display = 'none';
+        });
+
+        document.getElementById('printLetterBtn').addEventListener('click', () => {
+            window.print();
+        });
+
+        loadInitialData();
+    </script>
+</head>
+<body>
+
+    <div class="container">
+        <h1>सोझै खरिद व्यवस्थापन प्रणाली</h1>
+
+        <div class="card">
+            <h2>१. पत्रको मिति र बजेट विवरण छनौट गर्नुहोस्</h2>
+            <div class="form-group">
+                <label for="letter_date">पत्रको मिति लेख्नुहोस् (अङ्ग्रेजी अंकमा लेखे पनि आफै नेपाली हुनेछ):</label>
+                <input type="text" id="letter_date" placeholder="उदा: 2083/01/04" required>
+            </div>
+            <div class="form-group">
+                <label for="expense_dropdown">सम्बन्धित बजेट क्रियाकलाप छनौट गर्नुहोस्:</label>
+                <select id="expense_dropdown"><option value="">-- लोड हुँदैछ --</option></select>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>२. दरररेटका लागि पत्रचार गर्ने फर्म छनौट गर्नुहोस् (Checklist)</h2>
+            <div class="checklist-container" id="forms_checklist">
+                <div id="no-data-msg">कृपया माथिबाट खरिद बजेट क्रियाकलाप छनौट गर्नुहोस्।</div>
+            </div>
+            <button type="button" id="generateLettersBtn" class="btn-print-bulk">📄 पत्र तयार गर्नुहोस</button>
+        </div>
+    </div>
+
+    <div id="printModal">
+        <div class="modal-body">
+            <div class="modal-header-bar">
+                <strong>दररेट निर्धारणका लागि पत्र तयार भयो print गर्नुहोस।</strong>
+                <div>
+                    <button id="printLetterBtn" style="background: #24b47e; color: white; padding: 8px 14px; width:auto; margin-right:5px; cursor:pointer;">🖨️Print गर्नुहोस्</button>
+                    <button id="closeModalBtn" style="background: #64748b; color: white; padding: 8px 14px; width:auto; cursor:pointer;">बन्द गर्नुहोस्</button>
+                </div>
+            </div>
+            <div class="letter-scroll-area" id="bulkLettersContainer"></div>
+        </div>
+    </div>
+
+</body>
+</html>

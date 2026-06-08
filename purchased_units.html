@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>गलकोट नगरपालिका - माइन्युट तथा तुलनात्मक तालिका प्रणाली</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Mukta:wght=400;600;700&display=swap');
+        body { font-family: 'Mukta', sans-serif; background-color: #f8fafc; }
+        .print-only { display: none; }
+        
+        /* सम्पादन मोड खुला हुँदा देखिने विशेष बोर्डर र ब्याकग्राउन्ड */
+        .editable-active {
+            border: 2px dashed #d97706 !important;
+            background-color: #fffdfa !important;
+            box-shadow: 0 0 10px rgba(217, 119, 6, 0.1) inset;
+        }
+        .editable-zone {
+            padding: 16px;
+            border: 1px solid #e2e8f0;
+            background-color: #ffffff;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: white; color: black; padding: 0; }
+        }
+    </style>
+</head>
+<body class="p-4 md:p-6 text-gray-800">
+
+    <div class="max-w-7xl mx-auto bg-white p-6 rounded-xl shadow-lg border border-gray-200 no-print">
+        
+        <div class="text-center border-b pb-4 mb-6">
+            <h1 class="text-2xl font-bold text-red-600">गलकोट नगरपालिका</h1>
+            <h2 class="text-md font-semibold text-gray-700">नगरकार्यपालिकाको कार्यालय, बागलुङ</h2>
+            <h3 class="text-sm font-bold text-blue-700 mt-1">खरिद एकाइ - दररेट प्रविष्टि, तुलनात्मक तालिका तथा माइन्युट प्रणाली</h3>
+        </div>
+
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-300 mb-6 text-sm">
+            <span class="block font-bold text-slate-800 mb-2">🔍 पुराना माइन्युटहरू खोज्नुहोस् तथा लोड गर्नुहोस्:</span>
+            <div class="flex flex-wrap gap-3 items-end">
+                <div class="flex-1 min-w-[250px]">
+                    <input type="text" id="search_query" placeholder="बैठक मिति (उदा: २०८३/०१/०९) वा बजेट क्र.नं. टाइप गर्नुहोस्..." class="w-full p-2 border rounded bg-white text-xs">
+                </div>
+                <button onclick="searchMinutes()" class="bg-slate-700 hover:bg-slate-800 text-white font-bold py-2 px-5 text-xs rounded shadow cursor-pointer transition-all">
+                    खोज्नुहोस्
+                </button>
+            </div>
+            <div id="search_results_container" class="w-full hidden bg-white border border-slate-300 rounded p-2 max-h-48 overflow-y-auto mt-2 space-y-1">
+                <span class="text-xs text-gray-400 italic">खोजिएको नतिजा लोड हुँदैछ...</span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <div class="lg:col-span-1 space-y-4">
+                
+                <div class="bg-gray-50 p-4 rounded-lg border border-gray-300 text-sm">
+                    <h3 class="font-bold text-gray-800 border-b pb-2 mb-3">📅 १. बैठक र समिति उपस्थिति प्रविष्टि</h3>
+                    <div class="grid grid-cols-2 gap-2 mb-2">
+                        <div>
+                            <label class="block text-xs font-semibold mb-1 text-gray-600">बैठक मिति</label>
+                            <input type="text" id="m_date" value="२०८३/०१/०९" class="w-full p-2 border rounded bg-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold mb-1 text-gray-600">बैठक समय</label>
+                            <input type="text" id="m_time" value="बेलुका २०:०० बजे" class="w-full p-2 border rounded bg-white">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="block text-xs font-semibold mb-1 text-gray-600">बैठक स्थान</label>
+                        <input type="text" id="m_place" value="नगरकार्यपालिकाको कार्यालयको हल" class="w-full p-2 border rounded bg-white">
+                    </div>
+                    <div class="space-y-2 border-t pt-2">
+                        <span class="font-bold text-gray-700 block text-xs">खरिद समितिको विविरण:</span>
+                        <input type="text" id="c_convener" value="श्री रामचन्द्र शर्मा (प्रशासकीय अधिकृत) - संयोजक" class="w-full p-1.5 border rounded bg-white text-xs">
+                        <input type="text" id="c_member1" value="श्री शिव खड्का (शिक्षा अधिकृत) - सदस्य" class="w-full p-1.5 border rounded bg-white text-xs">
+                        <input type="text" id="c_member2" value="श्री विनयराज अधिकारी (सहायक लेखा अधिकृत) - सदस्य" class="w-full p-1.5 border rounded bg-white text-xs">
+                        <span class="font-bold text-gray-700 block text-xs">अन्य उपस्थिति विवरण:(नाम पद लेखेर कमा दिएर फेरी अर्को नाम लेख्ने)</span>
+                        <textarea id="c_others" rows="2" class="w-full p-1.5 border rounded bg-white text-xs"></textarea>
+                    </div>
+                </div>
+
+                <div class="bg-blue-50 p-4 rounded-lg border border-blue-200 text-sm shadow-sm">
+                    <h3 class="font-bold text-blue-900 border-b pb-2 mb-3">🔄 २. बजेट, सामान र फर्मको दररेट प्रविष्टि</h3>
+                    <form id="minuteDataForm" class="space-y-3">
+                        
+                        <div>
+                            <label class="block font-semibold mb-1 text-gray-700">बजेट उपशीर्षक छनौट गर्नुहोस्:</label>
+                            <select id="budget_dropdown" required class="w-full p-2 border rounded bg-white font-medium text-xs">
+                                <option value="">-- लोड हुँदैछ... कृपया पर्खनुहोस् --</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block font-semibold mb-1 text-gray-700">सामान र विशिष्टीकरण (Specification):</label>
+                            <select id="item_dropdown" required class="w-full p-2 border rounded bg-white text-xs">
+                                <option value="">-- बजेट छनौट गरेपछि यहाँ सूची आउनेछ --</option>
+                            </select>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block font-semibold mb-1 text-gray-700">एकाइ (Unit)</label>
+                                <input type="text" id="unit" value="Set" required class="w-full p-2 border rounded bg-white">
+                            </div>
+                            <div>
+                                <label class="block font-semibold mb-1 text-gray-700">परिमाण (Qty)</label>
+                                <input type="number" id="qty" value="1" required class="w-full p-2 border rounded bg-white">
+                            </div>
+                        </div>
+
+                        <div class="border-t pt-2">
+                            <span class="font-bold text-blue-900 text-xs block mb-2">✉️ सम्बन्धित फर्महरूको प्राप्त दररेट (रु.):</span>
+                            <div id="firms_rates_container" class="space-y-2 bg-white p-3 rounded border max-h-48 overflow-y-auto">
+                                <span class="text-xs text-gray-400 italic">पहिले बजेट छनौट गर्नुहोस्...</span>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow transition-all cursor-pointer">
+                            दररेट तालिका र माइन्युटमा थप्नुहोस्
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+
+            <div class="lg:col-span-2 space-y-4">
+                
+                <div class="bg-white p-4 rounded-lg border border-gray-300 shadow-sm">
+                    <div class="flex flex-wrap justify-between items-center gap-2 mb-3">
+                        <h3 class="font-bold text-gray-800 text-sm">📊 स्वतः तयार भएको तुलनात्मक तालिका (Comparative Chart)</h3>
+                        <div class="flex gap-2">
+                            <button onclick="saveCompleteMinuteToSupabase()" class="bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold py-1.5 px-3 rounded shadow cursor-pointer transition-all">
+                                💾 डाटाबेसमा सेभ गर्नुहोस्
+                            </button>
+                            <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-1.5 px-3 rounded shadow cursor-pointer transition-all">
+                                🖨️ माइन्युट प्रिन्ट गर्नुहोस्
+                            </button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs border-collapse border border-gray-300">
+                            <thead>
+                                <tr class="bg-gray-100 text-gray-700 font-bold" id="table_header_row">
+                                    </tr>
+                            </thead>
+                            <tbody id="table_body_rows">
+                                <tr><td colspan="5" class="text-center p-3 text-gray-400 italic">हालसम्म कुनै दररेट प्रविष्टि गरिएको छैन।</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="bg-amber-50 p-5 rounded-lg border border-amber-200">
+                    <div class="flex justify-between items-center border-b border-amber-200 pb-2 mb-3">
+                        <h3 class="font-bold text-amber-950 text-sm">📝 निर्णय माइन्युट मस्यौदा (Draft Window)</h3>
+                        
+                        <div>
+                            <button id="editToggleBtn" onclick="toggleEditMode()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold py-1.5 px-4 rounded shadow cursor-pointer transition-all">
+                                ✍️ निर्णय सम्पादन गर्नुहोस्
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="minute_live_view" contenteditable="false" class="editable-zone text-xs text-gray-800 leading-relaxed space-y-3" oninput="syncToPrintView()"></div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="print-only">
+        <div id="print_document_body" class="text-sm leading-relaxed space-y-4 text-black"></div>
+    </div>
+
+<script>
+    // === १. SUPABASE INITIALIZATION ===
+    const SUPABASE_URL = "https://megsdkaljpxrbiuxmghf.supabase.co"; 
+    const SUPABASE_ANON_KEY = "sb_publishable_iFa88QFBWOzcNyX3iBCddg_hATgR1FI";
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // Global Project States
+    let budgetsData = [];
+    let itemsSpecificationData = [];
+    let allPurchaseForms = [];
+    let savedMinutesEntries = [];
+    let isEditModeActive = false; // सम्पादन अवस्था ट्र्याक गर्ने
+    let currentLoadedRecordId = null; // यदि पुरानाे सेभ्ड रेकर्ड खोलेको भए त्यसको आइडी राख्ने
+    
+    // Fallback default firms
+    let totalUniqueFirms = ["K3 It Traders", "Siddharttha pandey computer center", "Chip-Tech pvt.ltd."]; 
+
+    const budgetDropdown = document.getElementById('budget_dropdown');
+    const itemDropdown = document.getElementById('item_dropdown');
+    const firmsContainer = document.getElementById('firms_rates_container');
+    const minuteDataForm = document.getElementById('minuteDataForm');
+    const editToggleBtn = document.getElementById('editToggleBtn');
+    const minuteLiveView = document.getElementById('minute_live_view');
+
+    // अंग्रेजी अङ्कलाई नेपाली रैथाने अङ्कमा बदल्ने हेल्पर
+    function toNepaliNumber(num) {
+        if (num === undefined || num === null || num === '-') return '-';
+        const englishDigits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+        const nepaliDigits = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
+        let numStr = num.toString();
+        for (let i = 0; i < englishDigits.length; i++) {
+            numStr = numStr.split(englishDigits[i]).join(nepaliDigits[i]);
+        }
+        return numStr;
+    }
+
+    // २. सम्पादन (Edit) वा लक (Lock) स्विच गर्ने फङ्सन
+    function toggleEditMode() {
+        isEditModeActive = !isEditModeActive;
+        
+        if (isEditModeActive) {
+            minuteLiveView.contentEditable = "true";
+            minuteLiveView.classList.add('editable-active');
+            editToggleBtn.textContent = "🔒 मस्यौदा लक गर्नुहोस्";
+            editToggleBtn.className = "bg-green-600 hover:bg-green-700 text-white text-xs font-bold py-1.5 px-4 rounded shadow cursor-pointer transition-all";
+            minuteLiveView.focus();
+        } else {
+            minuteLiveView.contentEditable = "false";
+            minuteLiveView.classList.remove('editable-active');
+            editToggleBtn.textContent = "✍️ निर्णय सम्पादन गर्नुहोस्";
+            editToggleBtn.className = "bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold py-1.5 px-4 rounded shadow cursor-pointer transition-all";
+            syncToPrintView(); // लक गर्दा फाइनल रूपमा प्रिन्ट पानामा पठाउने
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', async () => {
+        rebuildTableHeaders();
+        setupDefaultFirms();
+        await loadAllRequiredData();
+        attachLiveChangeListeners();
+    });
+
+    function setupDefaultFirms() {
+        firmsContainer.innerHTML = '';
+        totalUniqueFirms.forEach(firm => {
+            firmsContainer.innerHTML += `
+                <div class="flex items-center justify-between border-b pb-1.5 gap-2">
+                    <label class="text-xs font-semibold text-gray-700">🏢 ${firm}</label>
+                    <input type="number" data-firm-name="${firm}" required class="dynamic-rate-input p-1 border rounded w-36 text-right bg-gray-50 focus:bg-white text-xs" placeholder="प्राप्त दर (रु.)">
+                </div>
+            `;
+        });
+    }
+
+    // ३. डेटाबेसबाट खर्च शीर्षक, सामानहरू र सूचीकृत फर्महरू तान्ने
+    async function loadAllRequiredData() {
+        try {
+            budgetDropdown.innerHTML = '<option value="">-- डाटाहरू लोड हुँदैछ... --</option>';
+            
+            const { data: expenses } = await supabaseClient.from('expenses').select('*'); 
+            const { data: items } = await supabaseClient.from('purchase_items').select('*'); 
+            const { data: forms } = await supabaseClient.from('purchase_forms').select('*');
+
+            budgetsData = expenses || [];
+            itemsSpecificationData = items || [];
+            allPurchaseForms = forms || [];
+
+            budgetDropdown.innerHTML = '<option value="">-- बजेट उपशीर्षक छनौट गर्नुहोस् --</option>';
+            budgetsData.forEach(b => {
+                let opt = document.createElement('option');
+                opt.value = b.psn || b.sn; 
+                const psnLabel = b.psn ? `[क्र.नं: ${toNepaliNumber(b.psn)}] ` : '';
+                opt.textContent = `${psnLabel}${b.purchase_work_name || b.pname || 'बजेट शीर्षक विवरण'}`;
+                budgetDropdown.appendChild(opt);
+            });
+
+            rebuildTableHeaders();
+            updateMinuteView();
+        } catch (err) { console.error("डाटा लोडमा त्रुटि: ", err); }
+    }
+
+    function rebuildTableHeaders() {
+        const headerRow = document.getElementById('table_header_row');
+        let html = `
+            <th class="border border-gray-300 p-2 text-center">सि.नं.</th>
+            <th class="border border-gray-300 p-2">सामान र स्पेसिफिकेसन</th>
+            <th class="border border-gray-300 p-2 text-center">एकाइ</th>
+        `;
+        totalUniqueFirms.forEach(firm => {
+            html += `<th class="border border-gray-300 p-2 text-right">${firm}</th>`;
+        });
+        html += `
+            <th class="border border-gray-300 p-2 text-right bg-green-100 text-green-800 font-bold">स्वीकृत दर (Fix Rate)</th>
+            <th class="border border-gray-300 p-2 text-center">कैफियत</th>
+        `;
+        headerRow.innerHTML = html;
+    }
+
+    budgetDropdown.addEventListener('change', (e) => {
+        const selectedPsn = e.target.value;
+        itemDropdown.innerHTML = '<option value="">-- सामान छनौट गर्नुहोस् --</option>';
+
+        if (!selectedPsn) {
+            totalUniqueFirms = ["K3 It Traders", "Siddharttha pandey computer center", "Chip-Tech pvt.ltd."];
+            setupDefaultFirms(); rebuildTableHeaders(); return;
+        }
+
+        const filteredItems = itemsSpecificationData.filter(item => String(item.expense_psn) === String(selectedPsn));
+        filteredItems.forEach(item => {
+            let opt = document.createElement('option');
+            opt.value = item.id;
+            opt.textContent = `${item.item_name || 'सामान'} [${item.specification || 'विवरण खुलाइएको छैन'}]`;
+            itemDropdown.appendChild(opt);
+        });
+
+        const filteredForms = allPurchaseForms.filter(form => String(form.expense_psn) === String(selectedPsn));
+        if (filteredForms.length > 0) {
+            totalUniqueFirms = filteredForms.map(f => f.formname);
+        } else {
+            totalUniqueFirms = ["K3 It Traders", "Siddharttha pandey computer center", "Chip-Tech pvt.ltd."];
+        }
+
+        setupDefaultFirms();
+        rebuildTableHeaders();
+        refreshChartGrid();
+    });
+
+    // ४. फारम बुझाउँदा सामान र न्यूनतम दररेट गणना गर्ने व्यवस्था
+    minuteDataForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        let selectedItemText = itemDropdown.options[itemDropdown.selectedIndex]?.text || "खरिद गरिने सामान विवरण";
+        const rateInputs = document.querySelectorAll('.dynamic-rate-input');
+        let ratesObject = {}; let minimumPrice = Infinity; let lowestFirmName = "";
+
+        rateInputs.forEach(input => {
+            const fName = input.getAttribute('data-firm-name');
+            const price = parseFloat(input.value) || 0;
+            ratesObject[fName] = price;
+            if (price < minimumPrice && price > 0) {
+                minimumPrice = price; lowestFirmName = fName;
+            }
+        });
+
+        if (minimumPrice === Infinity) minimumPrice = 0;
+
+        savedMinutesEntries.push({
+            particulars_spec: selectedItemText,
+            unit_label: document.getElementById('unit').value,
+            quantity: document.getElementById('qty').value,
+            all_rates: ratesObject,
+            final_fix_rate: minimumPrice,
+            winner_firm: lowestFirmName || "न्यूनतम दर कबोल गर्ने फर्म"
+        });
+
+        refreshChartGrid();
+
+        if (isEditModeActive) {
+            if(confirm("तपाईं हाल म्यानुअल सम्पादन मोडमा हुनुहुन्छ। नयाँ सामानको विवरण थप्न मस्यौदा रिफ्रेस गरौँ?")) {
+                toggleEditMode(); updateMinuteView();
+            }
+        } else {
+            updateMinuteView();
+        }
+
+        rateInputs.forEach(input => input.value = "");
+    });
+
+    function refreshChartGrid() {
+        const tbody = document.getElementById('table_body_rows');
+        tbody.innerHTML = '';
+
+        if (savedMinutesEntries.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="${totalUniqueFirms.length + 5}" class="text-center p-3 text-gray-400 italic">हालसम्म कुनै दररेट प्रविष्टि गरिएको छैन।</td></tr>`;
+            return;
+        }
+
+        savedMinutesEntries.forEach((entry, idx) => {
+            let tr = document.createElement('tr'); tr.className = "border-b border-gray-200 text-xs";
+            let rowHTML = `
+                <td class="border p-2 text-center">${toNepaliNumber(idx + 1)}</td>
+                <td class="border p-2 font-medium text-gray-900">${entry.particulars_spec}</td>
+                <td class="border p-2 text-center">${entry.unit_label}</td>
+            `;
+            totalUniqueFirms.forEach(firm => {
+                const rate = entry.all_rates[firm] || '-';
+                const isLowest = (rate == entry.final_fix_rate && entry.winner_firm === firm);
+                rowHTML += `<td class="border p-2 text-right ${isLowest ? 'bg-yellow-100 font-bold' : ''}">${rate != '-' ? 'रु. ' + toNepaliNumber(rate) : '-'}</td>`;
+            });
+            rowHTML += `
+                <td class="border p-2 text-right bg-green-50 text-green-700 font-bold">रु. ${toNepaliNumber(entry.final_fix_rate)}</td>
+                <td class="border p-2 text-center text-blue-700 font-semibold">${entry.winner_firm}</td>
+            `;
+            tr.innerHTML = rowHTML; tbody.appendChild(tr);
+        });
+    }
+
+    // ५. स्वचालित माइन्युट र डकुमेन्ट मस्यौदा लेखन संरचना
+    function updateMinuteView() {
+        if(isEditModeActive) return; // यदि युजरले एडिट गर्दैछ भने ओभरराइट नगर्ने
+
+        const mDate = document.getElementById('m_date').value;
+        const mTime = document.getElementById('m_time').value;
+        const mPlace = document.getElementById('m_place').value;
+        const convener = document.getElementById('c_convener').value;
+        const mem1 = document.getElementById('c_member1').value;
+        const mem2 = document.getElementById('c_member2').value;
+        const others = document.getElementById('c_others').value;
+
+        let extraAttendeesHTML = others.split(',').map(name => `<li>• ${name.trim()}</li>`).join('');
+
+        // निर्णयभित्र रहने हुबहु तुलनात्मक तालिका (प्रिन्ट योग्य)
+        let comparativeTableHTML = `
+            <div class="my-4 overflow-x-auto" contenteditable="false">
+                <table class="w-full text-left text-[11px] border-collapse border border-black font-normal text-black">
+                    <thead>
+                        <tr class="bg-gray-200 font-bold text-center">
+                            <th class="border border-black p-1">सि.नं.</th>
+                            <th class="border border-black p-1">सामान र स्पेसिफिकेसन</th>
+                            <th class="border border-black p-1">एकाइ</th>
+        `;
+        totalUniqueFirms.forEach(firm => { comparativeTableHTML += `<th class="border border-black p-1">${firm}</th>`; });
+        comparativeTableHTML += `
+                            <th class="border border-black p-1 bg-green-50">स्वीकृत दर (Fix Rate)</th>
+                            <th class="border border-black p-1">कैफियत</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+
+        if (savedMinutesEntries.length > 0) {
+            savedMinutesEntries.forEach((entry, idx) => {
+                comparativeTableHTML += `<tr class="text-center">`;
+                comparativeTableHTML += `<td class="border border-black p-1">${toNepaliNumber(idx + 1)}</td>`;
+                comparativeTableHTML += `<td class="border border-black p-1 text-left font-medium">${entry.particulars_spec}</td>`;
+                comparativeTableHTML += `<td class="border border-black p-1">${entry.unit_label}</td>`;
+                totalUniqueFirms.forEach(firm => {
+                    const rate = entry.all_rates[firm] || '-';
+                    const isLowest = (rate == entry.final_fix_rate && entry.winner_firm === firm);
+                    comparativeTableHTML += `<td class="border border-black p-1 text-right ${isLowest ? 'bg-yellow-50 font-bold' : ''}">${rate != '-' ? 'रु. ' + toNepaliNumber(rate) : '-'}</td>`;
+                });
+                comparativeTableHTML += `<td class="border border-black p-1 text-right font-bold bg-green-50">रु. ${toNepaliNumber(entry.final_fix_rate)}</td><td class="border border-black p-1 font-semibold text-blue-900">${entry.winner_firm}</td></tr>`;
+            });
+        } else {
+            comparativeTableHTML += `<tr><td colspan="${totalUniqueFirms.length + 5}" class="border border-black text-center p-2 italic text-gray-400">विवरण खाली छ।</td></tr>`;
+        }
+        comparativeTableHTML += `</tbody></table></div>`;
+
+        let decisionRowsText = "";
+        savedMinutesEntries.forEach(item => {
+            decisionRowsText += `<div>• <strong>${item.particulars_spec.split(' [')[0]}</strong> खरिद कार्यका लागि न्यूनतम दर कबोल गर्ने फर्म <strong>${item.winner_firm}</strong> को स्वीकृत दररेट रु. <strong>${toNepaliNumber(item.final_fix_rate)}/-</strong> कायम (Fix Rate) गर्ने निर्णय गरियो।</div>`;
+        });
+
+        minuteLiveView.innerHTML = `
+            <p>आज मिति <strong>${toNepaliNumber(mDate)}</strong> गते <strong>${toNepaliNumber(mTime)}</strong> यस <strong>गलकोट नगरपालिका</strong>, ${mPlace}मा खरिद समितिका संयोजकको अध्यक्षतामा बैठक बसी देहाय बमोजिमको उपस्थिति, प्रस्ताव र निर्णयहरू गरियो।</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-100 p-3 rounded border border-gray-300 font-medium my-2 text-xs" contenteditable="false">
+                <div>
+                    <span class="font-bold border-b pb-1 block mb-1 text-gray-800">खरिद समिति उपस्थिति:</span>
+                    <ul class="space-y-0.5">
+                        <li>१. ${convener}</li><li>२. ${mem1}</li><li>३. ${mem2}</li>
+                    </ul>
+                </div>
+                <div>
+                    <span class="font-bold border-b pb-1 block mb-1 text-gray-800">अन्य आमन्त्रित उपस्थिति:</span>
+                    <ul class="space-y-0.5">${extraAttendeesHTML}</ul>
+                </div>
+            </div>
+
+            <div class="space-y-2 text-justify">
+                <p><strong>प्रस्तावहरू:</strong></p>
+                <p class="pl-4">१. खरिद कार्यका लागि दररेट निर्धारण सम्बन्धमा।<br>
+                
+                <p><strong>निर्णय नं. १:</strong></p>
+                <p class="pl-4">प्रस्ताव नं. १ माथि विस्तृत छलफल गर्दा दररेट निर्धारणका लागि यस कार्यालयले माग गरेका फर्महरुबाट प्राप्त दररेटहरूलाई देहाय बमोजिमको <strong>तुलनात्मक तालिका (Comparative Chart)</strong> अनुसार सबैभन्दा न्यूनतम दरलाई खरिद कार्यका लागि दररेट कायम गर्ने निर्णय गरियो:</p>
+                
+                ${comparativeTableHTML}
+                <div class="my-2 space-y-1 text-blue-950">${decisionRowsText}</div>
+            </div>
+        `;
+        syncToPrintView();
+    }
+
+    function syncToPrintView() {
+        document.getElementById('print_document_body').innerHTML = minuteLiveView.innerHTML;
+    }
+
+    // ================= ६. SUPABASE DATABASE CONNECTIVITY (SAVE & SEARCH) =================
+
+    // ए. माइन्युट तथा तुलनात्मक तालिकालाई सुरक्षित (Save/Update) गर्ने फङ्सन
+    async function saveCompleteMinuteToSupabase() {
+        const payload = {
+            expense_psn: budgetDropdown.value || "0",
+            meeting_date: document.getElementById('m_date').value,
+            meeting_time: document.getElementById('m_time').value,
+            meeting_place: document.getElementById('m_place').value,
+            convener: document.getElementById('c_convener').value,
+            member1: document.getElementById('c_member1').value,
+            member2: document.getElementById('c_member2').value,
+            others: document.getElementById('c_others').value,
+            saved_entries: savedMinutesEntries,
+            edited_minute_html: minuteLiveView.innerHTML  // युजरले एडिट गरेको भए सोही सहित सेभ हुन्छ
+        };
+
+        try {
+            let result;
+            if (currentLoadedRecordId) {
+                // यदि पुरानाे डाटा संसोधन गरेर सेभ गर्दैछौँ भने (UPDATE)
+                result = await supabaseClient.from('saved_minutes').update(payload).eq('id', currentLoadedRecordId);
+            } else {
+                // यदि पूर्ण रुपमा नयाँ रेकर्ड हो भने (INSERT)
+                result = await supabaseClient.from('saved_minutes').insert([payload]);
+            }
+
+            if (result.error) throw result.error;
+            alert("💾 माइन्युट तथा तुलनात्मक तालिका Supabase मा सुरक्षित भयो!");
+        } catch (err) {
+            alert("❌ डाटा सेभ हुन सकेन: " + err.message);
+        }
+    }
+
+    // बी. मिति वा बजेट क्र.नं. को मद्दतले पुराना माइन्युटहरू खोज्ने (SEARCH)
+    async function searchMinutes() {
+        const query = document.getElementById('search_query').value.trim();
+        const resultsBox = document.getElementById('search_results_container');
+        if(!query) { alert("कृपया खोज्नको लागि मिति वा कुनै अक्षर टाइप गर्नुहोस्।"); return; }
+
+        resultsBox.innerHTML = "<span class='text-xs text-amber-600 animate-pulse font-bold'>🔍 डाटाबेसमा खोज्दैछ, कृपया पर्खनुहोस्...</span>";
+        resultsBox.classList.remove('hidden');
+
+        try {
+            const { data, error } = await supabaseClient
+                .from('saved_minutes')
+                .select('*')
+                .or(`meeting_date.like.%${query}%,expense_psn.eq.${query}`);
+
+            if (error) throw error;
+            if(!data || data.length === 0) {
+                resultsBox.innerHTML = "<span class='text-xs text-red-500 font-semibold'>⚠️ मिल्ने कुनै पनि अभिलेख फेला परेन।</span>";
+                return;
+            }
+
+            resultsBox.innerHTML = "";
+            data.forEach(row => {
+                let rowDiv = document.createElement('div');
+                rowDiv.className = "p-2 border-b border-gray-200 hover:bg-amber-50 flex justify-between items-center text-xs";
+                rowDiv.innerHTML = `
+                    <div>
+                        <strong>📅 मिति: ${toNepaliNumber(row.meeting_date)}</strong> | स्थान: ${row.meeting_place} (बजेट नं: ${toNepaliNumber(row.expense_psn)})
+                    </div>
+                    <button onclick="loadSpecificMinuteById(${row.id})" class="bg-blue-600 hover:bg-blue-700 text-white text-[10px] py-1 px-3 rounded shadow font-bold cursor-pointer">खोल्नुहोस्</button>
+                `;
+                resultsBox.appendChild(rowDiv);
+            });
+        } catch (err) {
+            resultsBox.innerHTML = "<span class='text-xs text-red-500'>त्रुटि: " + err.message + "</span>";
+        }
+    }
+
+    // सी. खोजिएको सूचीबाट क्लिक गर्दा सबै डाटा प्रणालीमा लोड (LOAD) गर्ने फङ्सन
+    async function loadSpecificMinuteById(id) {
+        try {
+            const { data, error } = await supabaseClient.from('saved_minutes').select('*').eq('id', id).single();
+            if (error) throw error;
+
+            if (data) {
+                currentLoadedRecordId = data.id; // रेकर्ड आइडी लक गर्ने ताकि अर्कोपटक सेभ थिच्दा अपडेट होस्
+                
+                // फारम इनपुटहरू पुनः भर्ने
+                document.getElementById('m_date').value = data.meeting_date;
+                document.getElementById('m_time').value = data.meeting_time;
+                document.getElementById('m_place').value = data.meeting_place;
+                document.getElementById('c_convener').value = data.convener;
+                document.getElementById('c_member1').value = data.member1;
+                document.getElementById('c_member2').value = data.member2;
+                document.getElementById('c_others').value = data.others;
+                
+                budgetDropdown.value = data.expense_psn;
+                savedMinutesEntries = data.saved_entries || [];
+                
+                // ग्रिड तालिका र सम्पादन गरिएको बडी लोड गर्ने
+                refreshChartGrid();
+                minuteLiveView.innerHTML = data.edited_minute_html;
+                syncToPrintView();
+
+                // परिणाम बक्स लुकाउने
+                document.getElementById('search_results_container').classList.add('hidden');
+                alert("📂 पुराना माइन्युट फाइल सफलतापूर्वक लोड भयो! अब तपाईंले एडिट वा प्रिन्ट गर्न सक्नुहुन्छ।");
+            }
+        } catch (err) { alert("फाइल लोड गर्न असमर्थ: " + err.message); }
+    }
+
+    function attachLiveChangeListeners() {
+        ['m_date', 'm_time', 'm_place', 'c_convener', 'c_member1', 'c_member2', 'c_others'].forEach(id => {
+            document.getElementById(id).addEventListener('input', () => { if(!isEditModeActive) updateMinuteView(); });
+        });
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>बजेट आधारित खरिद तथा सामान व्यवस्थापन प्रणाली</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --success: #24b47e;
+            --success-hover: #1c8c61;
+            --orange: #f97316;
+            --orange-hover: #ea580c;
+            --edit: #eab308;
+            --edit-hover: #ca8a04;
+            --delete: #dc2626;
+            --delete-hover: #b91c1c;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #334155;
+            --text-dark: #0f172a;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 950px;
+        }
+
+        h1 {
+            color: var(--text-dark);
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 24px;
+        }
+
+        h2 {
+            color: var(--text-dark);
+            font-size: 1.2rem;
+            margin-top: 0;
+            margin-bottom: 16px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 8px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 2px;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            background: #e2e8f0;
+            color: var(--text);
+            padding: 10px 16px;
+            border-radius: 8px 8px 0 0;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            margin-bottom: 20px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 14px;
+        }
+
+        @media (min-width: 640px) {
+            .form-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .full-width {
+                grid-column: span 2;
+            }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 14px;
+            color: #475569;
+        }
+
+        input[type="text"], input[type="number"], select, textarea {
+            padding: 12px 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.2s;
+            background: #fdfdfd;
+            font-family: inherit;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+            background: #fff;
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        button {
+            padding: 14px 20px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .btn-submit { background-color: var(--primary); color: white; flex: 1; }
+        .btn-submit:hover { background-color: var(--primary-hover); }
+        .btn-submit.purchase { background-color: var(--success); }
+        .btn-submit.purchase:hover { background-color: var(--success-hover); }
+        .btn-submit.item { background-color: var(--orange); color: white; }
+        .btn-submit.item:hover { background-color: var(--orange-hover); }
+        
+        .btn-cancel { background-color: #64748b; color: white; display: none; }
+        .btn-cancel:hover { background-color: #475569; }
+
+        .dashboard-bar {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        @media (min-width: 640px) {
+            .dashboard-bar {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+        }
+
+        .search-box {
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .total-box {
+            background: #f1f5f9;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--text-dark);
+            border-left: 4px solid var(--primary);
+            text-align: right;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 14px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 14px;
+        }
+
+        th {
+            background-color: #f1f5f9;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        .actions-cell {
+            display: flex;
+            gap: 6px;
+        }
+
+        .btn-action-edit { background-color: #fef08a; color: #854d0e; padding: 8px 12px; font-size: 13px; border-radius: 6px; font-weight: 500;}
+        .btn-action-edit:hover { background-color: #fde047; }
+        
+        .btn-action-delete { background-color: #fee2e2; color: #991b1b; padding: 8px 12px; font-size: 13px; border-radius: 6px; font-weight: 500;}
+        .btn-action-delete:hover { background-color: #fca5a5; }
+
+        .status {
+            text-align: center;
+            font-weight: 600;
+            margin-top: 14px;
+            font-size: 14px;
+            min-height: 20px;
+        }
+
+        .badge {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .badge-primary { background: #dbeafe; color: #1e40af; }
+    </style>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+
+        const SUPABASE_URL = 'https://megsdkaljpxrbiuxmghf.supabase.co'
+        const SUPABASE_ANON_KEY = 'sb_publishable_iFa88QFBWOzcNyX3iBCddg_hATgR1FI'
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+        // Tab Navigation Buttons
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                tabBtns.forEach(b => b.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(btn.dataset.tab).classList.add('active');
+            });
+        });
+
+        // Global arrays
+        let allExpenseData = [];
+        let allPurchaseData = [];
+        let allItemData = [];
+
+        // Update Dropdowns function
+        function updateExpenseDropdowns() {
+            const purchaseSelect = document.getElementById('purchase_expense_psn');
+            const itemSelect = document.getElementById('item_expense_psn');
+            
+            purchaseSelect.innerHTML = '<option value="">-- बजेट क्रियाकलाप छनौट गर्नुहोस् --</option>';
+            itemSelect.innerHTML = '<option value="">-- बजेट क्रियाकलाप छनौट गर्नुहोस् --</option>';
+
+            allExpenseData.forEach(exp => {
+                const optionText = `${exp.psn} | ${exp.pname} (${exp.purchase_work_name || 'खरिद कार्य नखुलेको'}) - रु ${exp.pamount}`;
+                
+                const opt1 = document.createElement('option');
+                opt1.value = exp.psn;
+                opt1.textContent = optionText;
+                purchaseSelect.appendChild(opt1);
+
+                const opt2 = document.createElement('option');
+                opt2.value = exp.psn;
+                opt2.textContent = optionText;
+                itemSelect.appendChild(opt2);
+            });
+        }
+
+        // ================= TAB 1: EXPENSES LOGIC =================
+        const expenseForm = document.getElementById('expenseForm');
+        const expenseTableBody = document.getElementById('expenseTableBody');
+        const statusMsg = document.getElementById('statusMsg');
+        const submitBtn = document.getElementById('submitBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const psnInput = document.getElementById('psn');
+        const searchInput = document.getElementById('searchInput');
+        const grandTotalEl = document.getElementById('grandTotal');
+
+        let isEditingExpense = false;
+        let originalPsn = "";
+
+        async function fetchExpenses() {
+            const { data, error } = await supabase.from('expenses').select('*').order('created_at', { ascending: false });
+            if (error) { console.error(error.message); return; }
+            allExpenseData = data;
+            updateExpenseDropdowns();
+            renderExpenseData(allExpenseData);
+        }
+
+        function renderExpenseData(dataList) {
+            expenseTableBody.innerHTML = '';
+            let totalAmount = 0;
+            if(dataList.length === 0) {
+                expenseTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#94a3b8;">कुनै विवरण फेला परेन।</td></tr>`;
+                grandTotalEl.textContent = "रु 0.00";
+                return;
+            }
+            dataList.forEach(expense => {
+                const amt = parseFloat(expense.pamount) || 0;
+                totalAmount += amt;
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${expense.psn}</strong></td>
+                    <td>${expense.pname}</td>
+                    <td><span style="color:#0284c7; font-weight:600;">${expense.purchase_work_name || '-'}</span></td>
+                    <td>${expense.pexpense_topic}</td>
+                    <td>रु ${amt.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+                    <td class="actions-cell">
+                        <button class="btn-action-edit edit-exp" data-id="${expense.psn}" data-name="${expense.pname}" data-work="${expense.purchase_work_name || ''}" data-topic="${expense.pexpense_topic}" data-amount="${expense.pamount}">सम्पादन</button>
+                        <button class="btn-action-delete delete-exp" data-id="${expense.psn}">हटाउने</button>
+                    </td>
+                `;
+                expenseTableBody.appendChild(row);
+            });
+            grandTotalEl.textContent = `रु ${totalAmount.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+            setupExpenseActions();
+        }
+
+        expenseForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const currentPsn = psnInput.value.trim();
+            const pname = document.getElementById('pname').value.trim();
+            const purchase_work_name = document.getElementById('purchase_work_name').value.trim();
+            const pexpense_topic = document.getElementById('pexpense_topic').value.trim();
+            const pamount = document.getElementById('pamount').value;
+
+            if (isEditingExpense) {
+                statusMsg.textContent = "अपडेट हुँदैछ...";
+                if (originalPsn !== currentPsn) {
+                    const { data: existingData } = await supabase.from('expenses').select('psn').eq('psn', currentPsn).maybeSingle();
+                    if (existingData) { showStatus(statusMsg, `त्रुटि: क्रियाकलाप नं. '${currentPsn}' पहिल्यै छ!`, '#dc2626'); return; }
+                    await supabase.from('expenses').insert([{ psn: currentPsn, pname, purchase_work_name, pexpense_topic, pamount: parseFloat(pamount) }]);
+                    await supabase.from('expenses').delete().eq('psn', originalPsn);
+                } else {
+                    await supabase.from('expenses').update({ pname, purchase_work_name, pexpense_topic, pamount: parseFloat(pamount) }).eq('psn', originalPsn);
+                }
+                showStatus(statusMsg, "सफलतापूर्वक अपडेट भयो!", '#16a34a');
+                resetExpenseForm(); fetchExpenses();
+            } else {
+                statusMsg.textContent = "सुरक्षित हुँदैछ...";
+                const { error } = await supabase.from('expenses').insert([{ psn: currentPsn, pname, purchase_work_name, pexpense_topic, pamount: parseFloat(pamount) }]);
+                if (error) { showStatus(statusMsg, `त्रुटि: ${error.message}`, '#dc2626'); }
+                else { showStatus(statusMsg, "सफलतापूर्वक सुरक्षित गरियो!", '#16a34a'); resetExpenseForm(); fetchExpenses(); }
+            }
+        });
+
+        function setupExpenseActions() {
+            document.querySelectorAll('.edit-exp').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    isEditingExpense = true;
+                    originalPsn = e.target.getAttribute('data-id');
+                    psnInput.value = originalPsn;
+                    document.getElementById('pname').value = e.target.getAttribute('data-name');
+                    document.getElementById('purchase_work_name').value = e.target.getAttribute('data-work');
+                    document.getElementById('pexpense_topic').value = e.target.getAttribute('data-topic');
+                    document.getElementById('pamount').value = e.target.getAttribute('data-amount');
+                    submitBtn.textContent = "विवरण अपडेट गर्नुहोस";
+                    cancelBtn.style.display = "block";
+                });
+            });
+            document.querySelectorAll('.delete-exp').forEach(button => {
+                button.addEventListener('click', async (e) => {
+                    const id = e.target.getAttribute('data-id');
+                    if (confirm(`क्रियाकलाप नम्बर ${id} हटाउने हो?`)) {
+                        await supabase.from('expenses').delete().eq('psn', id);
+                        fetchExpenses();
+                    }
+                });
+            });
+        }
+        function resetExpenseForm() { isEditingExpense = false; expenseForm.reset(); cancelBtn.style.display="none"; submitBtn.textContent="डेटाबेसमा सुरक्षित गर्नुहोस"; }
+        cancelBtn.addEventListener('click', resetExpenseForm);
+        searchInput.addEventListener('input', (e) => {
+            const k = e.target.value.toLowerCase();
+            renderExpenseData(allExpenseData.filter(i => i.psn.toLowerCase().includes(k) || i.pname.toLowerCase().includes(k) || (i.purchase_work_name && i.purchase_work_name.toLowerCase().includes(k))));
+        });
+
+
+        // ================= TAB 2: PURCHASE FORMS LOGIC =================
+        const purchaseForm = document.getElementById('purchaseForm');
+        const purchaseTableBody = document.getElementById('purchaseTableBody');
+        const purchaseStatusMsg = document.getElementById('purchaseStatusMsg');
+        const purchaseSubmitBtn = document.getElementById('purchaseSubmitBtn');
+        const purchaseCancelBtn = document.getElementById('purchaseCancelBtn');
+        const purchaseIdInput = document.getElementById('purchaseId');
+        const searchPurchaseInput = document.getElementById('searchPurchaseInput');
+
+        let isEditingPurchase = false;
+        let originalPan = "";
+
+        async function fetchPurchases() {
+            const { data, error } = await supabase.from('purchase_forms').select('*').order('id', { ascending: false });
+            if (error) { console.error(error.message); return; }
+            allPurchaseData = data;
+            renderPurchaseData(allPurchaseData);
+        }
+
+        function renderPurchaseData(dataList) {
+            purchaseTableBody.innerHTML = '';
+            if(dataList.length === 0) {
+                purchaseTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#94a3b8;">कुनै फारम फेला परेन।</td></tr>`;
+                return;
+            }
+            dataList.forEach(form => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${form.id}</strong></td>
+                    <td><span class="badge badge-primary">${form.expense_psn || 'नखुलेको'}</span></td>
+                    <td><span style="background:#e0f2fe; color:#0369a1; padding:4px 8px; border-radius:6px; font-weight:600;">${form.pan_number || '-'}</span></td>
+                    <td>${form.formname}</td>
+                    <td>${form.formlocation}</td>
+                    <td class="actions-cell">
+                        <button class="btn-action-edit edit-pur" data-id="${form.id}" data-psn="${form.expense_psn || ''}" data-pan="${form.pan_number || ''}" data-name="${form.formname}" data-location="${form.formlocation}">सम्पादन</button>
+                        <button class="btn-action-delete delete-pur" data-id="${form.id}">हटाउने</button>
+                    </td>
+                `;
+                purchaseTableBody.appendChild(row);
+            });
+            setupPurchaseActions();
+        }
+
+        purchaseForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = purchaseIdInput.value;
+            const expense_psn = document.getElementById('purchase_expense_psn').value;
+            const pan_number = document.getElementById('pan_number').value.trim();
+            const formname = document.getElementById('formname').value.trim();
+            const formlocation = document.getElementById('formlocation').value.trim();
+
+            if (!isEditingPurchase || (isEditingPurchase && originalPan !== pan_number)) {
+                purchaseStatusMsg.textContent = "प्यान जाँच गरिँदैछ...";
+                const { data: existingPan } = await supabase.from('purchase_forms').select('pan_number').eq('pan_number', pan_number).maybeSingle();
+                if (existingPan) { showStatus(purchaseStatusMsg, `⚠️ त्रुटि: प्यान '${pan_number}' पहिल्यै दर्ता छ! (Double Entry Blocked)`, '#dc2626'); return; }
+            }
+
+            if (isEditingPurchase) {
+                await supabase.from('purchase_forms').update({ expense_psn, pan_number, formname, formlocation }).eq('id', id);
+                showStatus(purchaseStatusMsg, "फारम अपडेट भयो!", '#16a34a');
+                resetPurchaseForm(); fetchPurchases();
+            } else {
+                await supabase.from('purchase_forms').insert([{ expense_psn, pan_number, formname, formlocation }]);
+                showStatus(purchaseStatusMsg, "फारम सुरक्षित भयो!", '#16a34a');
+                resetPurchaseForm(); fetchPurchases();
+            }
+        });
+
+        function setupPurchaseActions() {
+            document.querySelectorAll('.edit-pur').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    isEditingPurchase = true;
+                    purchaseIdInput.value = e.target.getAttribute('data-id');
+                    document.getElementById('purchase_expense_psn').value = e.target.getAttribute('data-psn');
+                    originalPan = e.target.getAttribute('data-pan');
+                    document.getElementById('pan_number').value = originalPan;
+                    document.getElementById('formname').value = e.target.getAttribute('data-name');
+                    document.getElementById('formlocation').value = e.target.getAttribute('data-location');
+                    purchaseSubmitBtn.textContent = "फारम अपडेट गर्नुहोस";
+                    purchaseCancelBtn.style.display = "block";
+                });
+            });
+            document.querySelectorAll('.delete-pur').forEach(button => {
+                button.addEventListener('click', async (e) => {
+                    if(confirm('फारम हटाउने हो?')) {
+                        await supabase.from('purchase_forms').delete().eq('id', e.target.getAttribute('data-id'));
+                        fetchPurchases();
+                    }
+                });
+            });
+        }
+        function resetPurchaseForm() { isEditingPurchase = false; purchaseForm.reset(); purchaseCancelBtn.style.display="none"; purchaseSubmitBtn.textContent="फारम सुरक्षित गर्नुहोस"; }
+        purchaseCancelBtn.addEventListener('click', resetPurchaseForm);
+        searchPurchaseInput.addEventListener('input', (e) => {
+            const k = e.target.value.toLowerCase();
+            renderPurchaseData(allPurchaseData.filter(i => (i.expense_psn && i.expense_psn.toLowerCase().includes(k)) || i.formname.toLowerCase().includes(k) || i.pan_number.includes(k)));
+        });
+
+
+        // ================= TAB 3: PURCHASE ITEMS & SPEC LOGIC =================
+        const itemForm = document.getElementById('itemForm');
+        const itemTableBody = document.getElementById('itemTableBody');
+        const itemStatusMsg = document.getElementById('itemStatusMsg');
+        const itemSubmitBtn = document.getElementById('itemSubmitBtn');
+        const itemCancelBtn = document.getElementById('itemCancelBtn');
+        const itemIdInput = document.getElementById('itemId');
+        const searchItemInput = document.getElementById('searchItemInput');
+
+        let isEditingItem = false;
+
+        async function fetchItems() {
+            const { data, error } = await supabase.from('purchase_items').select('*').order('id', { ascending: false });
+            if (error) { console.error(error.message); return; }
+            allItemData = data;
+            renderItemData(allItemData);
+        }
+
+        function renderItemData(dataList) {
+            itemTableBody.innerHTML = '';
+            if(dataList.length === 0) {
+                itemTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#94a3b8;">कुनै सामान फेला परेन।</td></tr>`;
+                return;
+            }
+            dataList.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${item.id}</strong></td>
+                    <td><span class="badge badge-primary">${item.expense_psn || 'नखुलेको'}</span></td>
+                    <td><strong>${item.item_name}</strong></td>
+                    <td style="white-space: pre-line;">${item.specification}</td>
+                    <td class="actions-cell">
+                        <button class="btn-action-edit edit-itm" data-id="${item.id}" data-psn="${item.expense_psn || ''}" data-name="${item.item_name}" data-spec="${item.specification}">सम्पादन</button>
+                        <button class="btn-action-delete delete-itm" data-id="${item.id}">हटाउने</button>
+                    </td>
+                `;
+                itemTableBody.appendChild(row);
+            });
+            setupItemActions();
+        }
+
+        itemForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = itemIdInput.value;
+            const expense_psn = document.getElementById('item_expense_psn').value;
+            const item_name = document.getElementById('item_name').value.trim();
+            const specification = document.getElementById('specification').value.trim();
+
+            if (isEditingItem) {
+                await supabase.from('purchase_items').update({ expense_psn, item_name, specification }).eq('id', id);
+                showStatus(itemStatusMsg, "विवरण अपडेट भयो!", '#16a34a');
+                resetItemForm(); fetchItems();
+            } else {
+                await supabase.from('purchase_items').insert([{ expense_psn, item_name, specification }]);
+                showStatus(itemStatusMsg, "विवरण सुरक्षित भयो!", '#16a34a');
+                resetItemForm(); fetchItems();
+            }
+        });
+
+        function setupItemActions() {
+            document.querySelectorAll('.edit-itm').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    isEditingItem = true;
+                    itemIdInput.value = e.target.getAttribute('data-id');
+                    document.getElementById('item_expense_psn').value = e.target.getAttribute('data-psn');
+                    document.getElementById('item_name').value = e.target.getAttribute('data-name');
+                    document.getElementById('specification').value = e.target.getAttribute('data-spec');
+                    itemSubmitBtn.textContent = "विवरण अपडेट गर्नुहोस";
+                    itemCancelBtn.style.display = "block";
+                });
+            });
+            document.querySelectorAll('.delete-itm').forEach(button => {
+                button.addEventListener('click', async (e) => {
+                    if(confirm('सामान विवरण हटाउने?')) {
+                        await supabase.from('purchase_items').delete().eq('id', e.target.getAttribute('data-id'));
+                        fetchItems();
+                    }
+                });
+            });
+        }
+        function resetItemForm() { isEditingItem = false; itemForm.reset(); itemCancelBtn.style.display="none"; itemSubmitBtn.textContent="सामान विवरण सुरक्षित गर्नुहोस"; }
+        itemCancelBtn.addEventListener('click', resetItemForm);
+        searchItemInput.addEventListener('input', (e) => {
+            const k = e.target.value.toLowerCase();
+            renderItemData(allItemData.filter(i => (i.expense_psn && i.expense_psn.toLowerCase().includes(k)) || i.item_name.toLowerCase().includes(k)));
+        });
+
+        // Helper Status Function
+        function showStatus(el, txt, col) { el.textContent = txt; el.style.color = col; }
+
+        // Initial Fetch
+        fetchExpenses();
+        fetchPurchases();
+        fetchItems();
+    </script>
+</head>
+<body>
+
+    <div class="container">
+        <h1>बजेट आधारित खरिद तथा सामान विवरण प्रणाली</h1>
+        
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="expenses-tab">💰 १. बजेट प्रविष्टि (Expenses)</button>
+            <button class="tab-btn" data-tab="purchase-tab">📄 २. खरिद फारम दर्ता (Purchase Forms)</button>
+            <button class="tab-btn" data-tab="items-tab">🛒 ३. सामान र Specification</button>
+        </div>
+
+        <div id="expenses-tab" class="tab-content active">
+            <div class="card">
+                <h2>बजेट खर्च विवरण प्रविष्टि फारम</h2>
+                <form id="expenseForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="psn">बजेट क्रियाकलाप नं. (psn)</label>
+                            <input type="text" id="psn" required placeholder="उदा: 2.1.3">
+                        </div>
+                        <div class="form-group">
+                            <label for="pname">बजेट शीर्षकको नाम (pname)</label>
+                            <input type="text" id="pname" required placeholder="उदा: प्रशासनिक खर्च">
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="purchase_work_name">खरिद कार्यको नाम (Purchase Work Name)</label>
+                            <input type="text" id="purchase_work_name" required placeholder="उदा: कार्यालयका लागि ल्यापटप तथा प्रिन्टर खरिद कार्य">
+                        </div>
+                        <div class="form-group">
+                            <label for="pexpense_topic">बजेट खर्च शीर्षक (pexpense_topic)</label>
+                            <input type="text" id="pexpense_topic" required placeholder="उदा: कार्यालय सामाग्री">
+                        </div>
+                        <div class="form-group">
+                            <label for="pamount">बजेट रकम रु (pamount)</label>
+                            <input type="number" id="pamount" step="0.01" min="0" required placeholder="0.00">
+                        </div>
+                    </div>
+                    <div class="btn-container">
+                        <button type="submit" id="submitBtn" class="btn-submit">डेटाबेसमा सुरक्षित गर्नुहोस</button>
+                        <button type="button" id="cancelBtn" class="btn-cancel">रद्द गर्नुहोस्</button>
+                    </div>
+                    <div id="statusMsg" class="status"></div>
+                </form>
+            </div>
+
+            <div class="dashboard-bar">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="🔍 खोज्नुहोस्...">
+                </div>
+                <div class="total-box">
+                    कुल जम्मा रकम: <span id="grandTotal" style="color: var(--primary);">रु 0.00</span>
+                </div>
+            </div>
+
+            <div class="card" style="padding: 10px;">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>क्रियाकलाप नं.</th>
+                                <th>बजेट शीर्षक</th>
+                                <th>खरिद कार्यको नाम</th>
+                                <th>खर्च शीर्षक</th>
+                                <th>बजेट रकम</th>
+                                <th>कार्य</th>
+                            </tr>
+                        </thead>
+                        <tbody id="expenseTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="purchase-tab" class="tab-content">
+            <div class="card">
+                <h2>खरिद फारम दर्ता (बजेट लिंक सहित)</h2>
+                <form id="purchaseForm">
+                    <input type="hidden" id="purchaseId">
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label for="purchase_expense_psn">सम्बन्धित बजेट क्रियाकलाप (Dropdown छनौट)</label>
+                            <select id="purchase_expense_psn" required>
+                                <option value="">-- बजेट छनौट गर्नुहोस् --</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="pan_number">प्यान नम्बर (PAN Number)</label>
+                            <input type="text" id="pan_number" required placeholder="अंक मात्र" pattern="[0-9]+">
+                        </div>
+                        <div class="form-group">
+                            <label for="formname">फारमको नाम (formname)</label>
+                            <input type="text" id="formname" required placeholder="उदा: ल्यापटप खरिद">
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="formlocation">फारमको स्थान (formlocation)</label>
+                            <input type="text" id="formlocation" required placeholder="उदा: पोखरा कार्यालय">
+                        </div>
+                    </div>
+                    <div class="btn-container">
+                        <button type="submit" id="purchaseSubmitBtn" class="btn-submit purchase">फारम सुरक्षित गर्नुहोस</button>
+                        <button type="button" id="purchaseCancelBtn" class="btn-cancel">रद्द गर्नुहोस्</button>
+                    </div>
+                    <div id="purchaseStatusMsg" class="status"></div>
+                </form>
+            </div>
+
+            <div class="dashboard-bar">
+                <div class="search-box">
+                    <input type="text" id="searchPurchaseInput" placeholder="🔍 खोज्नुहोस्...">
+                </div>
+            </div>
+
+            <div class="card" style="padding: 10px;">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>आईडी</th>
+                                <th>बजेट नं.</th>
+                                <th>प्यान नं</th>
+                                <th>फारमको नाम</th>
+                                <th>स्थान</th>
+                                <th>कार्य</th>
+                            </tr>
+                        </thead>
+                        <tbody id="purchaseTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="items-tab" class="tab-content">
+            <div class="card">
+                <h2>आवश्यक सामान र Specification दर्ता (बजेट लिंक सहित)</h2>
+                <form id="itemForm">
+                    <input type="hidden" id="itemId">
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label for="item_expense_psn">सम्बन्धित बजेट क्रियाकलाप (Dropdown छनौट)</label>
+                            <select id="item_expense_psn" required>
+                                <option value="">-- बजेट छनौट गर्नुहोस् --</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="item_name">सामानको नाम (Item Name)</label>
+                            <input type="text" id="item_name" required placeholder="उदा: ल्यापटप कोर आई-५">
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="specification">विशिष्टीकरण विवरण (Specification Details)</label>
+                            <textarea id="specification" required placeholder="उदा: 16GB RAM, 512GB SSD, Windows 11 PRO"></textarea>
+                        </div>
+                    </div>
+                    <div class="btn-container">
+                        <button type="submit" id="itemSubmitBtn" class="btn-submit item">सामान विवरण सुरक्षित गर्नुहोस</button>
+                        <button type="button" id="itemCancelBtn" class="btn-cancel">रद्द गर्नुहोस्</button>
+                    </div>
+                    <div id="itemStatusMsg" class="status"></div>
+                </form>
+            </div>
+
+            <div class="dashboard-bar">
+                <div class="search-box">
+                    <input type="text" id="searchItemInput" placeholder="🔍 खोज्नुहोस्...">
+                </div>
+            </div>
+
+            <div class="card" style="padding: 10px;">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>आईडी</th>
+                                <th>बजेट नं.</th>
+                                <th>सामानको नाम</th>
+                                <th>विशिष्टीकरण (Specification)</th>
+                                <th>कार्य</th>
+                            </tr>
+                        </thead>
+                        <tbody id="itemTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>
