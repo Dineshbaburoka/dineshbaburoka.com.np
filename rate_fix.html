@@ -35,13 +35,13 @@
         h1 {
             color: var(--text-dark);
             text-align: center;
-            font-size: 1.8rem;
+            font-size: 1.3rem;
             margin-bottom: 24px;
         }
 
         h2 {
             color: var(--text-dark);
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             margin-top: 0;
             margin-bottom: 16px;
             border-bottom: 2px solid #e2e8f0;
@@ -66,7 +66,7 @@
         label {
             font-weight: 600;
             margin-bottom: 6px;
-            font-size: 14px;
+            font-size: 11px;
             color: #475569;
         }
 
@@ -74,7 +74,7 @@
             padding: 12px 14px;
             border: 1px solid #cbd5e1;
             border-radius: 10px;
-            font-size: 15px;
+            font-size: 12px;
             outline: none;
             background: #fdfdfd;
             font-family: inherit;
@@ -110,7 +110,7 @@
             border: none;
             border-radius: 10px;
             font-weight: 600;
-            font-size: 15px;
+            font-size: 12px;
             cursor: pointer;
             width: 100%;
         }
@@ -186,9 +186,9 @@
         .horizontal-divider { border: none; border-bottom: 2px solid #000000; margin: 8px 0; width: 100%; }
         .line2-meta { display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: 500; margin-top: 5px; }
 
-        .letter-subject { text-align: center; font-size: 1.35rem; font-weight: bold; margin: 40px 0 30px 0; }
-        .letter-receiver { font-size: 1.25rem; line-height: 1.7; margin-bottom: 25px; }
-        .letter-body-text { font-size: 1.25rem; line-height: 1.9; text-align: justify; text-indent: 60px; }
+        .letter-subject { text-align: center; font-size: 1.1rem; font-weight: bold; margin: 40px 0 30px 0; }
+        .letter-receiver { font-size: 1rem; line-height: 1.5; margin-bottom: 25px; }
+        .letter-body-text { font-size: 1rem; line-height: 1.6; text-align: justify; text-indent: 60px; }
         .signature-section { margin-top: 100px; float: right; text-align: center; width: 220px; font-size: 1.2rem; }
 
         /* PAGE 2: RATE FIXING SPECIFICATION FORM */
@@ -222,15 +222,15 @@
         .rf-header-text {
             text-align: center;
         }
-        .rf-header h2 { border: none; padding: 0; margin: 0; font-size: 1.65rem; color: #000; font-weight: bold; }
-        .rf-header h3 { margin: 4px 0; font-size: 1.4rem; font-weight: bold; }
-        .rf-header h4 { margin: 4px 0; font-size: 1.2rem; font-weight: normal; }
-        .rf-header .rf-title { margin: 12px 0 0 0; font-size: 1.35rem; font-weight: bold; text-decoration: underline; text-transform: uppercase; }
+        .rf-header h2 { border: none; padding: 0; margin: 0; font-size: 1.5rem; color: #000; font-weight: bold; }
+        .rf-header h3 { margin: 4px 0; font-size: 1.1rem; font-weight: bold; }
+        .rf-header h4 { margin: 4px 0; font-size: 1rem; font-weight: normal; }
+        .rf-header .rf-title { margin: 12px 0 0 0; font-size: 1.08rem; font-weight: bold; text-decoration: underline; text-transform: uppercase; }
         
         .rf-meta-table {
             width: 100%;
             margin-bottom: 15px;
-            font-size: 1.15rem;
+            font-size: 1rem;
         }
         .rf-meta-table td {
             padding: 6px 0;
@@ -242,7 +242,7 @@
             border: 1px dashed #cbd5e1;
             background: #fff;
             padding: 4px 8px;
-            font-size: 1.15rem;
+            font-size: 1rem;
             font-weight: bold;
             font-family: inherit;
             color: #000;
@@ -263,7 +263,7 @@
             border: 1px solid #000000 !important;
             padding: 6px 6px;
             text-align: left;
-            font-size: 12px;
+            font-size: 10px;
             color: #000;
             background: none;
         }
@@ -476,17 +476,17 @@
                             </div>
                             
                             <div class="line1-meta">
-                                <div>प.सं.: ....................</div>
+                                <div>प.सं.:....</div>
                                 <div class="province-tag">गण्डकी प्रदेश, नेपाल</div>
                             </div>
                             <hr class="horizontal-divider">
                             <div class="line2-meta">
-                                <div style="letter-spacing: 2px;">च.न. ....................</div>
+                                <div style="letter-spacing: 2px;">च.न. ....</div>
                                 <div>मिति: ${letterDate}</div>
                             </div>
                             
-                            <div class="letter-subject">विषय: दररेट उपलब्ध गराइदिनुहुने सम्बन्धमा।</div>
-                            <div class="letter-receiver"><strong>${formDetail.formname}</strong>,<br>${formDetail.formlocation}।</div>
+                            <div class="letter-subject">विषय: दररेट उपलब्ध गराउने सम्बन्धमा।</div>
+                            <div class="letter-receiver"><strong>श्री ${formDetail.formname}</strong>,<br>${formDetail.formlocation}।</div>
                             <div class="letter-body-text">
                                 प्रस्तुत विषयको सम्बन्धमा यसै पत्रसाथ संलग्न विवरण र Specification भएका मालसामानको दररेट एकिन गर्नुपर्ने भएकोले तहाँको फर्मबाट उक्त मालसामानको दररेट के कति पर्ने हो सो उपलब्ध गराइदिनु हुन अनुरोध छ।
                             </div>
@@ -554,14 +554,14 @@
                                 <thead>
                                     <tr>
                                         <th style="width: 4%;" rowspan="2">S.N.</th>
-                                        <th style="width: 14%;" rowspan="2">PARTICULARS</th>
-                                        <th style="width: 52%;" rowspan="2">SPECIFICATION</th>
+                                        <th style="width: 8%;" rowspan="2">PARTICULARS</th>
+                                        <th style="width: 25%;" rowspan="2">SPECIFICATION</th>
                                         <th colspan="2" style="width: 25%;">Rate</th>
                                         <th style="width: 5%;" rowspan="2">Remarks</th>
                                     </tr>
                                     <tr>
                                         <th style="width: 10%; font-size:11px; border: 1px solid #000 !important;">In figure</th>
-                                        <th style="width: 15%; font-size:11px; border: 1px solid #000 !important;">In word</th>
+                                        <th style="width: 25%; font-size:11px; border: 1px solid #000 !important;">In word</th>
                                     </tr>
                                 </thead>
                                 <tbody>
