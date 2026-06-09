@@ -8,11 +8,11 @@
         :root {
             --primary: #0ea5e9;
             --primary-glow: rgba(14, 165, 233, 0.4);
-            --bg-overlay: rgba(15, 23, 42, 0.85);
+            --bg-overlay: rgba(15, 23, 42, 0.9);
             --card-bg: rgba(30, 41, 59, 0.7);
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
-            --border-color: rgba(255, 255, 255, 0.08);g
+            --border-color: rgba(255, 255, 255, 0.08);
             --danger: #ef4444;
             --success: #10b981;
         }
@@ -36,58 +36,69 @@
         .container { 
             max-width: 600px; 
             margin: auto; 
-            padding-bottom: 30px;
+            padding-bottom: 40px;
         }
 
+        /* Responsive Header Adjustments */
         .header {
             text-align: center;
-            margin: 20px 0 25px 0;
-            position: relative;
-        }
-
-        .header h1 {
-            font-size: 1.8rem;
-            margin: 0 0 8px 0;
-            background: linear-gradient(to right, #38bdf8, #818cf8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            margin: 15px 0 25px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
         }
 
         .header-buttons {
-            position: absolute;
-            top: -10px;
-            right: 0;
             display: flex;
-            gap: 8px;
+            justify-content: space-between;
+            width: 100%;
+            gap: 10px;
+            order: 2; /* Mobile mapping: show buttons below title if tight */
+        }
+
+        .header-title-block {
+            order: 1;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin: 0 0 4px 0;
+            background: linear-gradient(to right, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+
+        .btn-exam, .btn-logout {
+            flex: 1;
+            min-height: 42px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
         }
 
         .btn-exam {
             background: #10b981;
             color: white;
             border: none;
-            padding: 6px 14px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.25);
         }
 
         .btn-logout {
-            background: rgba(239, 68, 68, 0.15);
+            background: rgba(239, 68, 68, 0.12);
             border: 1px solid var(--danger);
             color: #f87171;
-            padding: 6px 14px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: all 0.2s;
         }
-        .btn-logout:active {
-            background: var(--danger);
-            color: white;
-        }
+
+        .btn-exam:active { transform: scale(0.97); background: #0d9668; }
+        .btn-logout:active { background: var(--danger); color: white; }
 
         .header p {
             color: var(--text-muted);
@@ -96,7 +107,7 @@
         }
 
         h2 {
-            font-size: 1.15rem;
+            font-size: 1.2rem;
             margin-bottom: 15px;
             color: #38bdf8;
             display: flex;
@@ -104,10 +115,11 @@
             gap: 8px;
         }
 
+        /* Smart Grid - auto wraps beautifully on tiny screens */
         .subject-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr); 
-            gap: 10px;
+            grid-template-columns: repeat(auto-fit, minmax(95px, 1fr)); 
+            gap: 12px;
             margin-bottom: 25px;
         }
 
@@ -117,15 +129,17 @@
             -webkit-backdrop-filter: blur(10px);
             border: 1px solid var(--border-color);
             border-radius: 14px;
-            padding: 14px 8px;
+            padding: 16px 8px;
             text-align: center;
             cursor: pointer;
             transition: all 0.2s ease;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
             gap: 8px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+            min-height: 100px;
         }
 
         .subject-card:active {
@@ -136,11 +150,12 @@
         .subject-card.active {
             background: linear-gradient(135deg, #0284c7, #4f46e5);
             border-color: #7dd3fc;
-            box-shadow: 0 0 15px rgba(2, 132, 199, 0.5);
+            box-shadow: 0 5px 15px rgba(2, 132, 199, 0.4);
         }
 
-        .subject-icon { font-size: 1.5rem; }
-        .subject-name { font-weight: 600; font-size: 0.85rem; line-height: 1.2; word-break: break-word; }
+        .subject-icon { font-size: 1.8rem; }
+        .subject-name { font-weight: 600; font-size: 0.9rem; line-height: 1.2; word-break: break-word; }
+        
         .content-section, .exam-section { display: none; animation: fadeIn 0.3s ease-out forwards; }
         .list-container { display: flex; flex-direction: column; gap: 12px; }
 
@@ -162,53 +177,72 @@
             align-items: center;
             background: rgba(255, 255, 255, 0.02);
             transition: background 0.2s;
+            min-height: 54px;
         }
 
         .item-header:active { background: rgba(14, 165, 233, 0.15); }
-        .title-block { display: flex; flex-direction: column; gap: 4px; padding-right: 10px; }
-        .item-title { font-weight: 600; font-size: 1rem; color: #f1f5f9; }
-        .item-subtitle { font-size: 0.85rem; color: #cbd5e1; }
-        .arrow-icon { color: #38bdf8; font-size: 0.8rem; transition: transform 0.2s ease; }
+        .title-block { display: flex; flex-direction: column; gap: 4px; padding-right: 10px; flex: 1; }
+        .item-title { font-weight: 600; font-size: 1rem; color: #f1f5f9; line-height: 1.4; }
+        .item-subtitle { font-size: 0.85rem; color: #cbd5e1; line-height: 1.3; }
+        .arrow-icon { color: #38bdf8; font-size: 0.8rem; transition: transform 0.2s ease; margin-left: 8px; }
 
         .item-details {
             display: none;
             padding: 16px;
-            background: rgba(15, 23, 42, 0.5);
+            background: rgba(15, 23, 42, 0.6);
             border-top: 1px solid rgba(255, 255, 255, 0.05);
             border-left: 4px solid #10b981;
         }
 
-        .detail-block { margin-bottom: 12px; }
+        .detail-block { margin-bottom: 14px; }
         .detail-block:last-child { margin-bottom: 0; }
-        .detail-block h4 { margin: 0 0 4px 0; color: #10b981; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; }
-        .detail-block p { margin: 0; color: #e2e8f0; line-height: 1.5; font-size: 0.9rem; white-space: pre-line; }
+        .detail-block h4 { margin: 0 0 6px 0; color: #10b981; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        .detail-block p { margin: 0; color: #e2e8f0; line-height: 1.6; font-size: 0.95rem; white-space: pre-line; }
 
         .remarks-block {
             background: rgba(245, 158, 11, 0.08);
             border-left: 3px solid #f59e0b;
-            padding: 8px 10px;
-            border-radius: 6px;
+            padding: 10px;
+            border-radius: 8px;
             margin-top: 14px;
         }
         .remarks-block h4 { color: #f59e0b; display: flex; align-items: center; gap: 4px; }
         .remarks-block p { font-style: italic; color: #e2e8f0; }
 
-        /* AI EXAM HOUSING STYLES */
-        .exam-card { background: rgba(15, 23, 42, 0.98); border: 2px solid #10b981; border-radius: 20px; padding: 20px; margin-top: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .exam-meta { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px; display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
-        .exam-question { font-size: 1.15rem; font-weight: bold; margin-bottom: 20px; color: #ffffff; line-height: 1.6; white-space: pre-line; }
-        .options-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
-        .exam-opt-btn { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px; text-align: left; color: #f1f5f9; font-size: 0.95rem; cursor: pointer; display: flex; gap: 10px; line-height: 1.4; transition: background 0.2s; }
+        /* MOBILE EXAM EXPERIENCES */
+        .exam-card { background: rgba(15, 23, 42, 0.98); border: 2px solid #10b981; border-radius: 20px; padding: 16px; margin-top: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .exam-meta { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 15px; display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        .exam-question { font-size: 1.1rem; font-weight: bold; margin-bottom: 20px; color: #ffffff; line-height: 1.6; white-space: pre-line; }
+        
+        .options-grid { display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px; }
+        .exam-opt-btn { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px; text-align: left; color: #f1f5f9; font-size: 0.95rem; cursor: pointer; display: flex; gap: 10px; line-height: 1.4; transition: background 0.2s; min-height: 50px; align-items: center; }
+        .exam-opt-btn:active { background: rgba(255,255,255,0.08); }
         .exam-opt-btn.correct { background: rgba(16, 185, 129, 0.25) !important; border-color: var(--success) !important; color: #10b981; font-weight: bold; }
         .exam-opt-btn.wrong { background: rgba(239, 68, 68, 0.25) !important; border-color: var(--danger) !important; color: #ef4444; }
         .exam-opt-btn.disabled { pointer-events: none; opacity: 0.5; }
         .exam-opt-btn.correct.disabled { opacity: 1; }
-        .exam-footer { display: flex; justify-content: space-between; align-items: center; }
-        .btn-exam-next { background: #10b981; color: white; border: none; padding: 10px 24px; border-radius: 8px; font-weight: bold; cursor: pointer; display: none; }
-        .btn-exam-quit { background: transparent; color: var(--text-muted); border: 1px solid var(--border-color); padding: 8px 16px; border-radius: 8px; cursor: pointer; }
-        .result-card { text-align: center; padding: 35px 15px; }
-        .result-score { font-size: 3.5rem; font-weight: 900; color: #10b981; margin: 10px 0; text-shadow: 0 0 15px rgba(16, 185, 129, 0.3); }
-        .btn-restart { background: #10b981; color: white; border: none; padding: 12px 28px; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 15px; }
+        
+        .exam-footer { display: flex; gap: 10px; justify-content: space-between; align-items: center; }
+        .btn-exam-next { background: #10b981; color: white; border: none; padding: 12px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; display: none; flex: 1; min-height: 45px; }
+        .btn-exam-quit { background: transparent; color: var(--text-muted); border: 1px solid var(--border-color); padding: 12px 16px; border-radius: 10px; cursor: pointer; min-height: 45px; }
+        
+        .result-card { text-align: center; padding: 30px 10px; }
+        .result-score { font-size: 3rem; font-weight: 900; color: #10b981; margin: 10px 0; text-shadow: 0 0 15px rgba(16, 185, 129, 0.3); }
+        
+        .result-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 25px; width: 100%; }
+        .btn-restart { width: 100%; background: #10b981; color: white; border: none; padding: 14px; border-radius: 12px; font-weight: bold; cursor: pointer; min-height: 48px; font-size: 1rem; }
+
+        /* Media Query for wider viewports */
+        @media (min-width: 480px) {
+            .header { flex-direction: row; justify-content: space-between; text-align: left; }
+            .header-buttons { width: auto; order: 1; }
+            .header-title-block { order: 2; text-align: right; width: 100%; }
+            .header { justify-content: flex-start; text-align: center; position: relative; display: block;}
+            .header-buttons { position: absolute; top: -5px; right: 0; width: auto; }
+            .header h1 { text-align: left; }
+            .header p { text-align: left; }
+            .result-actions { flex-direction: row; }
+        }
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(8px); }
@@ -227,12 +261,14 @@
             <button class="btn-exam" onclick="startFullAIExam()">📝 Exam</button>
             <button class="btn-logout" onclick="handleLogout()">🚪 Logout</button>
         </div>
-        <h1>ज्ञानकुञ्ज</h1>
-        <p>ज्ञानकुञ्जको विषय छान्नुहोस्</p>
+        <div class="header-title-block">
+            <h1>ज्ञानकुञ्ज</h1>
+            <p>ज्ञानकुञ्जको विषय छान्नुहोस्</p>
+        </div>
     </div>
 
     <div id="mainDashboard">
-        <h2>📊 उपलब्ध ज्ञानकुञ्जहरु(थप हुदै जाने)</h2>
+        <h2>📊 उपलब्ध ज्ञानकुञ्जहरु (थप हुँदै जाने)</h2>
         <div class="subject-grid" id="subjectGrid">
             <div class="no-data">लोड हुँदैछ...</div>
         </div>
@@ -254,10 +290,9 @@
     let allData = [];
     let inactivityTimer;
 
-    // Exam States
     let examQuestions = [];
     let currentExamIndex = 0;
-    let examScore = 0; // Stores number of correct answers
+    let examScore = 0;
 
     async function checkUserAuthentication() {
         const { data: { user }, error } = await supabaseClient.auth.getUser();
@@ -279,7 +314,7 @@
 
     async function handleLogout() {
         await supabaseClient.auth.signOut();
-        window.location.href = 'gyankunja.html';
+        window.location.href = 'login.html';
     }
 
     function resetInactivityTimer() {
@@ -358,7 +393,11 @@
         `).join('');
 
         document.getElementById('contentSection').style.display = 'block';
-        document.getElementById('contentSection').scrollIntoView({ behavior: 'smooth' });
+        
+        // Mobile smooth scroll helper
+        setTimeout(() => {
+            document.getElementById('contentSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
     }
 
     function toggleMobileDetails(headerElement, detailsId) {
@@ -373,8 +412,6 @@
         }
     }
 
-
-    /* MIXED ALL BODY PARSING 50 QUESTIONS ENGINE (MAX 30 WORDS PER QN) */
     function startFullAIExam() {
         const validItems = allData.filter(i => i.body && i.body.trim().length > 4);
         if (validItems.length === 0) { 
@@ -384,33 +421,28 @@
 
         document.getElementById('mainDashboard').style.display = 'none';
         document.getElementById('examSection').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
 
         let questionPool = [];
 
-        // १. डेटाबेसमा भएका सम्पूर्ण डेटाबेसको रो (Row) हरूलाई पालैपालो केलाउने
         validItems.forEach(item => {
             let fullText = item.body.trim();
-            // पूर्णविराम, प्रश्नवाचक वा न्यूलाइनको मद्दतले वाक्य विभाजन गर्ने
             let sentences = fullText.split(/[।!?\n\r]+/).map(s => s.trim()).filter(s => s.length > 5);
             if (sentences.length === 0) sentences = [fullText];
 
             sentences.forEach(sentence => {
                 let words = sentence.split(/\s+/);
                 
-                // वाक्य ३० शब्दभन्दा सानो र पूरा भएको सुनिश्चित गर्ने कन्डिसन
                 if (words.length > 3 && words.length <= 30) {
-                    
-                    // वाक्य भित्रबाट एउटा उपयुक्त र्‍यान्डम शब्द गायब गर्न छान्ने
                     let hideIdx = Math.floor(Math.random() * words.length);
                     let rightAns = words[hideIdx].replace(/[,;()।?!"'\s]/g, '').trim();
 
                     if (rightAns.length > 1) {
                         let questionWords = [...words];
-                        questionWords[hideIdx] = "_______"; // ब्लाङ्क चिन्ह
+                        questionWords[hideIdx] = "_______";
                         
                         let finalizedQuestionText = `[विषय: ${item.subject || 'सामान्य'} - ${item.title || 'विवरण'}]\nखाली ठाउँ भर्नुहोस्:\n"${questionWords.join(' ')} ।"`;
 
-                        // गलत अप्सनहरूको पुल निर्माण गर्ने
                         let distractorPool = ["छैन", "हो", "भनिन्छ", "भयो", "हुँदैन", "गर्दछ", "सबै", "रहन्छ", "मुख्य", "भाग", "अवस्था", "संकेत"].filter(w => w !== rightAns);
                         distractorPool.sort(() => 0.5 - Math.random());
 
@@ -426,7 +458,6 @@
             });
         });
 
-        // २. यदि वाक्यहरू थोरै भएर पुलमा ५० प्रश्न पुगेनन् भने, फरक शब्द ढाँचा लुकाएर ५० पुर्‍याउने मेकानिजम
         if (questionPool.length > 0 && questionPool.length < 50) {
             let originalLength = questionPool.length;
             while (questionPool.length < 50) {
@@ -434,7 +465,6 @@
                 questionPool.push(randomDuplicate);
             }
         } else if (questionPool.length === 0) {
-            // फल ब्याक यदि सबै वाक्यहरू ३० शब्द भन्दा लामा छन् भने
             validItems.forEach(item => {
                 let fallbackWords = item.body.substring(0, 120).split(/\s+/).slice(0, 25);
                 let rightAns = fallbackWords[fallbackWords.length - 1].replace(/[।]/g,'');
@@ -451,7 +481,6 @@
             }
         }
 
-        // ३. सबै विषयका प्रश्नहरूलाई मिक्स्ड (Shuffle) गर्ने र ठीक ५० वटा प्रश्नको सेट काट्ने
         examQuestions = questionPool.sort(() => 0.5 - Math.random()).slice(0, 50);
         currentExamIndex = 0; 
         examScore = 0;
@@ -470,25 +499,26 @@
         container.innerHTML = `
             <div class="exam-card">
                 <div class="exam-meta">
-                    <span>प्रश्न संख्या: <b>${currentExamIndex + 1} / ${examQuestions.length}</b></span>
+                    <span>प्रश्न: <b>${currentExamIndex + 1} / ${examQuestions.length}</b></span>
                     <span>भार: <b>२ अङ्क</b></span>
-                    <span>चालू स्कोर: <b>${examScore * 2}</b></span>
+                    <span>स्कोर: <b>${examScore * 2}</b></span>
                 </div>
                 <div class="exam-question">${currentQ.questionText}</div>
                 <div class="options-grid">
                     ${currentQ.options.map((opt, idx) => `
                         <button class="exam-opt-btn" onclick="checkAIAnswer(this, ${idx}, ${currentQ.correctIndex})">
-                            <span>${idx + 1}.</span>
+                            <span><b>${idx + 1}.</b></span>
                             <span style="flex:1;">${opt}</span>
                         </button>
                     `).join('')}
                 </div>
                 <div class="exam-footer">
-                    <button class="btn-exam-quit" onclick="quitAIExam()">🏳️ Quit Exam</button>
+                    <button class="btn-exam-quit" onclick="quitAIExam()">🏳️ Quit</button>
                     <button class="btn-exam-next" id="nextExamBtn" onclick="currentExamIndex++; showAIQuestion();">अर्को प्रश्न ➔</button>
                 </div>
             </div>
         `;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function checkAIAnswer(buttonElement, clickedIndex, correctIndex) {
@@ -510,6 +540,7 @@
         if(confirm("के तपाईँ चालू परीक्षा रद्द गरेर बाहिरिन चाहनुहुन्छ?")) { 
             document.getElementById('examSection').style.display = 'none'; 
             document.getElementById('mainDashboard').style.display = 'block'; 
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         } 
     }
 
@@ -522,14 +553,15 @@
             <div class="exam-card result-card">
                 <h2>📊 परीक्षाको अन्तिम नतिजा</h2>
                 <div class="result-score">${obtainedMarks} / ${totalMarks}</div>
-                <p style="font-size: 1rem; color: #cbd5e1;">तपाईँले कुल ५० वटा प्रश्नहरू मध्ये <b>${examScore}</b> वटाको सही उत्तर दिनुभयो।</p>
-                <p style="font-size: 1rem; color: #cbd5e1; margin-t: 5px;">कुल प्राप्तांक प्रतिशत: <b>${successPercentage}%</b></p>
-                <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
-                    <button class="btn-restart" onclick="startFullAIExam()">पुनः नयाँ परीक्षा दिनुहोस् 🔄</button>
-                    <button class="btn-restart" style="background:rgba(255,255,255,0.1); color:white;" onclick="location.reload()">मेनुमा फर्कनुहोस् 🏠</button>
+                <p style="font-size: 1rem; color: #cbd5e1; margin: 8px 0;">तपाईँले ५० मध्ये <b>${examScore}</b> वटा प्रश्नको सही उत्तर दिनुभयो।</p>
+                <p style="font-size: 1rem; color: #cbd5e1; margin-bottom: 20px;">प्राप्तांक प्रतिशत: <b>${successPercentage}%</b></p>
+                <div class="result-actions">
+                    <button class="btn-restart" onclick="startFullAIExam()">पुनः नयाँ परीक्षा 🔄</button>
+                    <button class="btn-restart" style="background:rgba(255,255,255,0.1); color:white; border: 1px solid rgba(255,255,255,0.2);" onclick="location.reload()">मेनुमा फर्कनुहोस् 🏠</button>
                 </div>
             </div>
         `;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     fetchPortalData();
