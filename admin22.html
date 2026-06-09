@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ज्ञानकुञ्ज - Admin Portal</title>
+    <style>
+        :root {
+            --primary: #0284c7;
+            --primary-hover: #0369a1;
+            --success: #10b981;
+            --success-hover: #059669;
+            --warning: #f59e0b;
+            --warning-hover: #d97706;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+            --excel: #16a34a;
+            --excel-hover: #15803d;
+            --bg-overlay: rgba(15, 23, 42, 0.75);
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            background: linear-gradient(var(--bg-overlay), var(--bg-overlay)), url('Brain-power.avif') no-repeat center center fixed;
+            background-size: cover;
+            color: var(--text-main);
+            padding: 15px; 
+            margin: 0; 
+            min-height: 100vh;
+        }
+
+        .container { 
+            max-width: 1050px;
+            margin: auto; 
+            padding-bottom: 40px;
+        }
+
+        /* --- Admin Header Row --- */
+        .admin-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            background: rgba(15, 23, 42, 0.4);
+            padding: 10px 15px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .admin-header-row h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: #38bdf8;
+        }
+
+        .btn-admin-logout {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid var(--danger);
+            color: #f87171;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-admin-logout:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* --- Top Navigation Bar --- */
+        .top-navbar {
+            display: flex;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 6px;
+            margin-bottom: 25px;
+            border: 1px solid var(--border-color);
+            gap: 10px;
+        }
+
+        .nav-tab {
+            flex: 1;
+            text-align: center;
+            padding: 14px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            color: var(--text-muted);
+            user-select: none;
+        }
+
+        .nav-tab:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-tab.active {
+            color: white;
+            background: var(--primary);
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.4);
+        }
+
+        /* Tab Content Control */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        h2 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            border-left: 4px solid var(--primary);
+            padding-left: 10px;
+        }
+
+        .header-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .card { 
+            background: var(--card-bg); 
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 24px; 
+            border-radius: 16px; 
+            margin-bottom: 24px; 
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); 
+            border: 1px solid var(--border-color);
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #38bdf8;
+            letter-spacing: 0.03em;
+        }
+
+        input, textarea, select { 
+            width: 100%; 
+            padding: 14px; 
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border-color); 
+            border-radius: 10px; 
+            box-sizing: border-box; 
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.3);
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        select option { background: #1e293b; color: white; }
+        textarea#body { min-height: 140px; resize: vertical; }
+        textarea#remarks { min-height: 80px; resize: vertical; }
+
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        @media (min-width: 480px) { .btn-group { flex-direction: row; } }
+
+        button { 
+            padding: 14px 20px; 
+            border: none; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            font-size: 1rem;
+            transition: background-color 0.2s, transform 0.1s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        button:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
+        button:active:not(:disabled) { transform: scale(0.98); }
+
+        .btn-save { background: var(--success); color: white; flex: 2; }
+        .btn-save:hover:not(:disabled) { background: var(--success-hover); }
+        .btn-cancel { background: #475569; color: white; flex: 1; }
+        .btn-cancel:hover { background: #334155; }
+        .btn-excel { background: var(--excel); color: white; padding: 10px 16px; font-size: 0.9rem; border-radius: 8px; }
+        .btn-excel:hover { background: var(--excel-hover); }
+
+        .btn-edit { background: var(--warning); color: white; padding: 6px 12px; font-size: 0.85rem; border-radius: 6px;}
+        .btn-edit:hover { background: var(--warning-hover); }
+        .btn-del { background: var(--danger); color: white; padding: 6px 12px; font-size: 0.85rem; border-radius: 6px;}
+        .btn-del:hover { background: var(--danger-hover); }
+        .btn-status-active { background: #0284c7; color: white; padding: 6px 12px; font-size: 0.85rem; border-radius: 6px; }
+        .btn-status-deactive { background: #64748b; color: white; padding: 6px 12px; font-size: 0.85rem; border-radius: 6px; }
+
+        .badge { padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; }
+        .badge-active { background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid #10b981; }
+        .badge-inactive { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid #ef4444; }
+
+        .table-wrapper { overflow-x: auto; padding: 0; }
+        table { width: 100%; border-collapse: collapse; }
+        th {
+            background: rgba(15, 23, 42, 0.5);
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.05em;
+        }
+        th, td { padding: 14px; border-bottom: 1px solid var(--border-color); text-align: left; }
+        td { font-size: 0.9rem; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: white; }
+        td:hover { white-space: normal; word-break: break-word; }
+        tr:last-child td { border-bottom: none; }
+        .actions-cell { display: flex; gap: 6px; flex-wrap: wrap; }
+        
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1000; opacity: 0; pointer-events: none; transition: all 0.3s ease;
+        }
+        .modal-overlay.open { opacity: 1; pointer-events: auto; }
+        .modal-box {
+            background: #1e293b; border: 1px solid var(--border-color);
+            padding: 30px; border-radius: 16px; width: 100%; max-width: 450px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+    
+    <div class="admin-header-row">
+        <h1>🛠️ ज्ञानकुञ्ज एड्मिन प्यानल</h1>
+        <button class="btn-admin-logout" onclick="handleLogout()">🚪 Logout</button>
+    </div>
+    
+    <div class="top-navbar">
+        <div class="nav-tab active" onclick="switchTab('knowledge-tab', this)">📝 नयाँ ज्ञानकुञ्ज बनाउने</div>
+        <div class="nav-tab" onclick="switchTab('user-tab', this)">👤 User Management</div>
+    </div>
+
+    <div id="knowledge-tab" class="tab-content active">
+        <h2 id="formTitle">नयाँ ज्ञानकुञ्ज बनाउने</h2>
+        <div class="card">
+            <input type="hidden" id="editId">
+            
+            <div class="form-group">
+                <label for="subject">१. विषय (Subject) *</label>
+                <input type="text" id="subject" list="subjectList" oninput="handleSubjectChange()" onchange="handleSubjectChange()" placeholder="विषय छान्नुहोस् वा नयाँ टाइप गर्नुहोस्">
+                <datalist id="subjectList"></datalist>
+            </div>
+
+            <div class="form-group">
+                <label for="title">२. शीर्षक (Title) *</label>
+                <input type="text" id="title" list="titleList" placeholder="शीर्षक छान्नुहोस् वा नयाँ टाइप गर्नुहोस्">
+                <datalist id="titleList"></datalist>
+            </div>
+
+            <div class="form-group">
+                <label for="subtitle">३. सहायक शीर्षक (Subtitle)</label>
+                <input type="text" id="subtitle" list="subtitleList" placeholder="सहायक शीर्षक छान्नुहोस् वा नयाँ टाइप गर्नुहोस्">
+                <datalist id="subtitleList"></datalist>
+            </div>
+
+            <div class="form-group">
+                <label for="body">४. मुख्य विवरण (Body)</label>
+                <textarea id="body" placeholder="मुख्य विवरण यहाँ विस्तृत रूपमा लेख्नुहोस्..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="remarks">५. कैफियत (Remarks)</label>
+                <textarea id="remarks" placeholder="थप केही खुलाउनु पर्ने भए यहाँ लेख्नुहोस्..."></textarea>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn-save" onclick="saveData()" id="saveBtn">🚀 पब्लिस गर्नुहोस्</button>
+                <button class="btn-cancel" onclick="resetForm()" id="cancelBtn" style="display:none;">रद्द गर्नुहोस्</button>
+            </div>
+        </div>
+
+        <div class="header-flex">
+            <h2>📋 सार्वजनिक गरिएका ज्ञानकुञ्ज </h2>
+            <button class="btn-excel" onclick="downloadExcel()">📊 Excel मा डाउनलोड गर्नुहोस्</button>
+        </div>
+
+        <div class="card table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>विषय</th>
+                        <th>शीर्षक</th>
+                        <th>सहायक शीर्षक</th>
+                        <th>मुख्य विवरण</th>
+                        <th>कैफियत</th>
+                        <th>कार्य</th>
+                    </tr>
+                </thead>
+                <tbody id="dataTableBody">
+                    <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">डाटा लोड हुँदैछ...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="user-tab" class="tab-content">
+        <h2>👤 नयाँ अकाउन्ट खोल्नुहोस् (Create Account)</h2>
+        <div class="card">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                <div class="form-group">
+                    <label>पूरा नाम (Full Name)</label>
+                    <input type="text" id="regName" placeholder="प्रयोगकर्ताको पूरा नाम">
+                </div>
+                <div class="form-group">
+                    <label>इमेल (Email)</label>
+                    <input type="email" id="regEmail" placeholder="इमेल ठेगाना">
+                </div>
+                <div class="form-group">
+                    <label>पासवर्ड (Password)</label>
+                    <input type="password" id="regPassword" placeholder="पासवर्ड राख्नुहोस्">
+                </div>
+                <div class="form-group">
+                    <label>भूमिका (Role)</label>
+                    <select id="regRole">
+                        <option value="Normal" selected>Normal</option>
+                        <option value="Admin">Admin</option>
+                    </select>
+                </div>
+            </div>
+            <button class="btn-save" style="margin-top: 15px;" onclick="handleSignUp()">🔐 अकाउन्ट सिर्जना गर्नुहोस्</button>
+        </div>
+
+        <h2>👥 प्रयोगकर्ताहरूको सूची (User List)</h2>
+        <div class="card table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>नाम (Name)</th>
+                        <th>इमेल (Email)</th>
+                        <th>भूमिका (Role)</th>
+                        <th>अवस्था (Status)</th>
+                        <th>कार्य (Actions)</th>
+                    </tr>
+                </thead>
+                <tbody id="userTableBody">
+                    <tr><td colspan="5" style="text-align: center; color: var(--text-muted);">प्रयोगकर्ता सूची लोड हुँदैछ...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<div class="modal-overlay" id="pwdModal">
+    <div class="modal-box">
+        <h3 style="margin-top:0; border-bottom:1px solid #334155; padding-bottom:10px; color: white;">🔒 पासवर्ड परिवर्तन गर्नुहोस्</h3>
+        <input type="hidden" id="modalUserId">
+        <div class="form-group" style="margin-top:15px;">
+            <label>प्रयोगकर्ताको इमेल</label>
+            <input type="text" id="modalUserEmail" readonly style="background:rgba(255,255,255,0.05); color:var(--warning);">
+        </div>
+        <div class="form-group">
+            <label>नयाँ पासवर्ड (New Password)</label>
+            <input type="password" id="modalNewPwd" placeholder="कम्तीमा ६ अक्षरको पासवर्ड">
+        </div>
+        <div class="modal-footer">
+            <button style="background:#475569; color:white;" onclick="closeModal()">रद्द गर्नुहोस्</button>
+            <button style="background:var(--warning); color:white;" onclick="submitPasswordChange()">अपडेट गर्नुहोस्</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="userEditModal">
+    <div class="modal-box">
+        <h3 style="margin-top:0; border-bottom:1px solid #334155; padding-bottom:10px; color: white;">✏️ प्रयोगकर्ता विवरण परिमार्जन</h3>
+        <input type="hidden" id="editUserId">
+        <div class="form-group" style="margin-top:15px;">
+            <label>पूरा नाम (Full Name)</label>
+            <input type="text" id="editUserName" placeholder="प्रयोगकर्ताको नाम">
+        </div>
+        <div class="form-group">
+            <label>भूमिका (Role)</label>
+            <select id="editUserRole">
+                <option value="Normal">Normal</option>
+                <option value="Admin">Admin</option>
+            </select>
+        </div>
+        <div class="modal-footer">
+            <button style="background:#475569; color:white;" onclick="closeUserEditModal()">रद्द गर्नुहोस्</button>
+            <button style="background:var(--success); color:white;" onclick="submitUserUpdate()">सुरक्षित गर्नुहोस्</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const supabaseClient = supabase.createClient('https://slsxseiawrayselbnorg.supabase.co', 'sb_publishable_BhbSNg9iAGBB6dV5J3CZaw_xyGi-fYq');
+    let allData = [];
+    let userList = [];
+    let inactivityTimer;
+
+    // === सुरक्षा जाँच तथा २० मिनेट निष्कृयता लगआउट टाइमर व्यवस्था ===
+    async function checkAdminAuthentication() {
+        const { data: { user }, error } = await supabaseClient.auth.getUser();
+        if (!user || error) {
+            window.location.href = 'login.html';
+            return;
+        }
+        const { data: profile } = await supabaseClient.from('profiles').select('role').eq('id', user.id).single();
+        if (!profile || profile.role !== 'Admin') {
+            window.location.href = 'index.html';
+        }
+    }
+
+    async function handleLogout() {
+        await supabaseClient.auth.signOut();
+        window.location.href = 'login.html';
+    }
+
+    // २० मिनेट नचलाए स्वतः बाहिर पठाइदिने (२० * ६० * १००० मिलिसेकेन्ड)
+    function resetInactivityTimer() {
+        clearTimeout(inactivityTimer);
+        inactivityTimer = setTimeout(async () => {
+            await handleLogout();
+        }, 20 * 60 * 1000);
+    }
+
+    window.onload = () => {
+        checkAdminAuthentication();
+        resetInactivityTimer();
+        
+        // प्रयोगकर्ता सक्रिय छ कि छैन ट्र्याक गर्ने इभेन्टहरू
+        const activityEvents = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+        activityEvents.forEach(event => {
+            document.addEventListener(event, resetInactivityTimer, true);
+        });
+    };
+
+    function switchTab(tabId, element) {
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.nav-tab').forEach(nav => nav.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        element.classList.add('active');
+        if(tabId === 'user-tab') { fetchUsersFromSupabase(); }
+    }
+
+    async function handleSignUp() {
+        const name = document.getElementById('regName').value.trim();
+        const email = document.getElementById('regEmail').value.trim();
+        const password = document.getElementById('regPassword').value;
+        const role = document.getElementById('regRole').value;
+
+        if(!name || !email || !password) {
+            alert("कृपया सबै फिल्डहरू सहीसँग भर्नुहोस्!");
+            return;
+        }
+
+        try {
+            const { data, error } = await supabaseClient.auth.signUp({
+                email: email, password: password,
+                options: { data: { name: name, role: role } }
+            });
+            if (error) throw error;
+            alert("अकाउन्ट सफलतापूर्वक सिर्जना भयो र प्रोफाइल सुरक्षित गरियो!");
+            document.getElementById('regName').value = '';
+            document.getElementById('regEmail').value = '';
+            document.getElementById('regPassword').value = '';
+            fetchUsersFromSupabase();
+        } catch (error) {
+            alert("त्रुटि: " + error.message);
+        }
+    }
+
+    async function fetchUsersFromSupabase() {
+        try {
+            const { data, error } = await supabaseClient.from('profiles').select('*').order('created_at', { ascending: false });
+            if (error) throw error;
+            userList = data || [];
+            renderUserTable();
+        } catch (error) {
+            document.getElementById('userTableBody').innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--danger);">डाटा लोड गर्न सकिएन।</td></tr>`;
+        }
+    }
+
+    function renderUserTable() {
+        const uBody = document.getElementById('userTableBody');
+        if(userList.length === 0) {
+            uBody.innerHTML = `<tr><td colspan="5" style="text-align:center;">कुनै पनि प्रयोगकर्ता फेला परेन।</td></tr>`;
+            return;
+        }
+        uBody.innerHTML = userList.map(user => {
+            const statusBadge = user.status === 'Active' ? `<span class="badge badge-active">Active</span>` : `<span class="badge badge-inactive">Inactive</span>`;
+            const statusBtn = user.status === 'Active' ? `<button class="btn-status-deactive" onclick="toggleUserStatus('${user.id}', 'Inactive')">Deactive</button>` : `<button class="btn-status-active" onclick="toggleUserStatus('${user.id}', 'Active')">Active</button>`;
+            const escapedName = user.name ? user.name.replace(/'/g, "\\'") : '';
+            return `
+                <tr>
+                    <td><b>${user.name || '-'}</b></td>
+                    <td>${user.email}</td>
+                    <td>${user.role || 'Normal'}</td>
+                    <td>${statusBadge}</td>
+                    <td>
+                        <div class="actions-cell">
+                            <button class="btn-edit" onclick="openUserEditModal('${user.id}', '${escapedName}', '${user.role || 'Normal'}')">✏️ Edit</button>
+                            <button class="btn-edit" style="background:#6366f1;" onclick="openPasswordModal('${user.id}', '${user.email}')">🔑 Pwd</button>
+                            ${statusBtn}
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    async function toggleUserStatus(userId, newStatus) {
+        try {
+            const { error } = await supabaseClient.from('profiles').update({ status: newStatus }).eq('id', userId);
+            if (error) throw error;
+            alert(`प्रयोगकर्ताको अवस्था सफल रूपमा "${newStatus}" मा परिवर्तन गरियो!`);
+            fetchUsersFromSupabase();
+        } catch (error) {
+            alert("अवस्था परिवर्तन गर्न सकिएन: " + error.message);
+        }
+    }
+
+    function openUserEditModal(id, name, role) {
+        document.getElementById('editUserId').value = id;
+        document.getElementById('editUserName').value = name;
+        document.getElementById('editUserRole').value = role;
+        document.getElementById('userEditModal').classList.add('open');
+    }
+
+    function closeUserEditModal() { document.getElementById('userEditModal').classList.remove('open'); }
+
+    async function submitUserUpdate() {
+        const userId = document.getElementById('editUserId').value;
+        const name = document.getElementById('editUserName').value.trim();
+        const role = document.getElementById('editUserRole').value;
+        if(!name) { alert("कृपया नाम खाली नछोड्नुहोस्!"); return; }
+        try {
+            const { error } = await supabaseClient.from('profiles').update({ name: name, role: role }).eq('id', userId);
+            if (error) throw error;
+            alert("प्रयोगकर्ताको विवरण सफलतापूर्वक अपडेट गरियो!");
+            closeUserEditModal();
+            fetchUsersFromSupabase();
+        } catch (error) { alert("अपडेट गर्न सकिएन: " + error.message); }
+    }
+
+    function openPasswordModal(id, email) {
+        document.getElementById('modalUserId').value = id;
+        document.getElementById('modalUserEmail').value = email;
+        document.getElementById('modalNewPwd').value = '';
+        document.getElementById('pwdModal').classList.add('open');
+    }
+    function closeModal() { document.getElementById('pwdModal').classList.remove('open'); }
+
+    async function submitPasswordChange() {
+        const userId = document.getElementById('modalUserId').value;
+        const newPassword = document.getElementById('modalNewPwd').value;
+        if(!newPassword || newPassword.length < 6) { alert("पासवर्ड कम्तीमा ६ अक्षरको हुनुपर्छ!"); return; }
+        try {
+            const { error } = await supabaseClient.from('profiles').update({ password: newPassword }).eq('id', userId);
+            if (error) throw error;
+            alert("पासवर्ड सफलतापूर्वक अपडेट गरियो!");
+            closeModal();
+        } catch(e) { alert("त्रुटि आयो।"); }
+    }
+
+    async function fetchPortalData() {
+        try {
+            const { data, error } = await supabaseClient.from('edportal').select('*').order('id', { ascending: false });
+            if (error) throw error;
+            allData = data || [];
+            renderTable();
+            populateSubjectDropdown();
+        } catch (error) {
+            document.getElementById('dataTableBody').innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--danger);">डाटा लोड गर्न सकिएन।</td></tr>`;
+        }
+    }
+
+    function renderTable() {
+        const body = document.getElementById('dataTableBody');
+        if (allData.length === 0) {
+            body.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">हालसम्म कुनै रेकर्डहरू उपलब्ध छैनन्।</td></tr>`;
+            return;
+        }
+        body.innerHTML = allData.map(item => `
+            <tr>
+                <td title="${item.subject || ''}">${item.subject || '-'}</td>
+                <td title="${item.title || ''}">${item.title || '-'}</td>
+                <td title="${item.subtitle || ''}">${item.subtitle || '-'}</td>
+                <td title="${item.body || ''}">${item.body || '-'}</td>
+                <td title="${item.remarks || ''}">${item.remarks || '-'}</td>
+                <td>
+                    <div class="actions-cell">
+                        <button class="btn-edit" onclick="editItem(${item.id})">Edit</button>
+                        <button class="btn-del" onclick="deleteItem(${item.id})">Del</button>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function populateSubjectDropdown() {
+        const subjects = [...new Set(allData.map(item => item.subject ? item.subject.trim() : '').filter(Boolean))];
+        document.getElementById('subjectList').innerHTML = subjects.map(s => `<option value="${s}">`).join('');
+    }
+
+    function handleSubjectChange() {
+        const subjectInput = document.getElementById('subject').value.trim().toLowerCase();
+        const titleList = document.getElementById('titleList');
+        const subtitleList = document.getElementById('subtitleList');
+        if (!subjectInput) { titleList.innerHTML = ''; subtitleList.innerHTML = ''; return; }
+        const filteredRecords = allData.filter(item => item.subject && item.subject.trim().toLowerCase() === subjectInput);
+        const uniqueTitles = [...new Set(filteredRecords.map(item => item.title ? item.title.trim() : '').filter(Boolean))];
+        const uniqueSubtitles = [...new Set(filteredRecords.map(item => item.subtitle ? item.subtitle.trim() : '').filter(Boolean))];
+        titleList.innerHTML = uniqueTitles.map(t => `<option value="${t}">`).join('');
+        subtitleList.innerHTML = uniqueSubtitles.map(st => `<option value="${st}">`).join('');
+    }
+
+    async function saveData() {
+        const id = document.getElementById('editId').value;
+        const subject = document.getElementById('subject').value.trim();
+        const title = document.getElementById('title').value.trim();
+        const subtitle = document.getElementById('subtitle').value.trim();
+        const bodyText = document.getElementById('body').value.trim();
+        const remarks = document.getElementById('remarks').value.trim();
+
+        if (!subject || !title) { alert('कृपया आवश्यक फिल्डहरू (विषय र शीर्षक) भर्नुहोस्!'); return; }
+        const payload = { subject, title, subtitle, body: bodyText, remarks };
+        const saveBtn = document.getElementById('saveBtn');
+        saveBtn.disabled = true; saveBtn.innerText = "⏳ पर्खनुहोस्...";
+
+        try {
+            if (id) {
+                const { error } = await supabaseClient.from('edportal').update(payload).eq('id', id);
+                if (error) throw error;
+            } else {
+                const { error } = await supabaseClient.from('edportal').insert([payload]);
+                if (error) throw error;
+            }
+            resetForm(); await fetchPortalData();
+        } catch (error) { alert("डाटा सुरक्षित गर्न समस्या आयाे।"); } finally { saveBtn.disabled = false; }
+    }
+
+    function editItem(id) {
+        const item = allData.find(i => i.id === id);
+        if (!item) return;
+        document.getElementById('editId').value = item.id;
+        document.getElementById('subject').value = item.subject || '';
+        handleSubjectChange();
+        document.getElementById('title').value = item.title || '';
+        document.getElementById('subtitle').value = item.subtitle || '';
+        document.getElementById('body').value = item.body || '';
+        document.getElementById('remarks').value = item.remarks || '';
+        document.getElementById('formTitle').innerText = "डाटा सम्पादन गर्नुहोस्";
+        document.getElementById('saveBtn').innerText = "🚀 अपडेट पब्लिस गर्नुहोस्";
+        document.getElementById('cancelBtn').style.display = "block";
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    async function deleteItem(id) {
+        if (confirm('मेटाउन निश्चित हुनुहुन्छ?')) {
+            try {
+                const { error } = await supabaseClient.from('edportal').delete().eq('id', id);
+                if (error) throw error;
+                await fetchPortalData();
+            } catch (error) { alert("डाटा मेटाउन सकिएन।"); }
+        }
+    }
+
+    function resetForm() {
+        document.getElementById('editId').value = '';
+        document.getElementById('formTitle').innerText = "नयाँ ज्ञानकुञ्ज बनाउने";
+        document.getElementById('saveBtn').innerText = "🚀 पब्लिस गर्नुहोस्";
+        document.getElementById('cancelBtn').style.display = "none";
+        document.getElementById('subject').value = '';
+        document.getElementById('title').value = '';
+        document.getElementById('subtitle').value = '';
+        document.getElementById('body').value = '';
+        document.getElementById('remarks').value = '';
+    }
+
+    function downloadExcel() {
+        if (allData.length === 0) { alert('डाउनलोड गर्नको लागि कुनै DATA छैन!'); return; }
+        const formatDataForExcel = allData.map(item => ({
+            'विषय (Subject)': item.subject || '-', 'शीर्षक (Title)': item.title || '-',
+            'सहायक शीर्षक (Subtitle)': item.subtitle || '-', 'मुख्य विवरण (Body)': item.body || '-', 'कैफियत (Remarks)': item.remarks || '-'
+        }));
+        const worksheet = XLSX.utils.json_to_sheet(formatDataForExcel);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "GyanKunj Data");
+        XLSX.writeFile(workbook, "GyanKunj_Records.xlsx");
+    }
+
+    fetchPortalData();
+</script>
+</body>
+</html>

@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ज्ञानकुञ्ज अध्ययन</title>
+    <style>
+        :root {
+            --primary: #0ea5e9;
+            --primary-glow: rgba(14, 165, 233, 0.4);
+            --bg-overlay: rgba(15, 23, 42, 0.85);
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --danger: #ef4444;
+            --success: #10b981;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            background: linear-gradient(var(--bg-overlay), var(--bg-overlay)), url('Brain-power.avif') no-repeat center center fixed;
+            background-size: cover;
+            color: var(--text-main);
+            padding: 12px; 
+            margin: 0; 
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container { 
+            max-width: 600px; 
+            margin: auto; 
+            padding-bottom: 30px;
+        }
+
+        .header {
+            text-align: center;
+            margin: 20px 0 25px 0;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            margin: 0 0 8px 0;
+            background: linear-gradient(to right, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-buttons {
+            position: absolute;
+            top: -10px;
+            right: 0;
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-exam {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
+        }
+
+        .btn-logout {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid var(--danger);
+            color: #f87171;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-logout:active {
+            background: var(--danger);
+            color: white;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        h2 {
+            font-size: 1.15rem;
+            margin-bottom: 15px;
+            color: #38bdf8;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .subject-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .subject-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 14px 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        .subject-card:active {
+            transform: scale(0.95);
+            background: rgba(30, 41, 59, 0.9);
+        }
+
+        .subject-card.active {
+            background: linear-gradient(135deg, #0284c7, #4f46e5);
+            border-color: #7dd3fc;
+            box-shadow: 0 0 15px rgba(2, 132, 199, 0.5);
+        }
+
+        .subject-icon { font-size: 1.5rem; }
+        .subject-name { font-weight: 600; font-size: 0.85rem; line-height: 1.2; word-break: break-word; }
+        .content-section, .exam-section { display: none; animation: fadeIn 0.3s ease-out forwards; }
+        .list-container { display: flex; flex-direction: column; gap: 12px; }
+
+        .item-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .item-header {
+            padding: 16px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.02);
+            transition: background 0.2s;
+        }
+
+        .item-header:active { background: rgba(14, 165, 233, 0.15); }
+        .title-block { display: flex; flex-direction: column; gap: 4px; padding-right: 10px; }
+        .item-title { font-weight: 600; font-size: 1rem; color: #f1f5f9; }
+        .item-subtitle { font-size: 0.85rem; color: #cbd5e1; }
+        .arrow-icon { color: #38bdf8; font-size: 0.8rem; transition: transform 0.2s ease; }
+
+        .item-details {
+            display: none;
+            padding: 16px;
+            background: rgba(15, 23, 42, 0.5);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            border-left: 4px solid #10b981;
+        }
+
+        .detail-block { margin-bottom: 12px; }
+        .detail-block:last-child { margin-bottom: 0; }
+        .detail-block h4 { margin: 0 0 4px 0; color: #10b981; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        .detail-block p { margin: 0; color: #e2e8f0; line-height: 1.5; font-size: 0.9rem; white-space: pre-line; }
+
+        .remarks-block {
+            background: rgba(245, 158, 11, 0.08);
+            border-left: 3px solid #f59e0b;
+            padding: 8px 10px;
+            border-radius: 6px;
+            margin-top: 14px;
+        }
+        .remarks-block h4 { color: #f59e0b; display: flex; align-items: center; gap: 4px; }
+        .remarks-block p { font-style: italic; color: #e2e8f0; }
+
+        /* AI EXAM HOUSING STYLES */
+        .exam-card { background: rgba(15, 23, 42, 0.98); border: 2px solid #10b981; border-radius: 20px; padding: 20px; margin-top: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .exam-meta { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px; display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        .exam-question { font-size: 1.15rem; font-weight: bold; margin-bottom: 20px; color: #ffffff; line-height: 1.6; white-space: pre-line; }
+        .options-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        .exam-opt-btn { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px; text-align: left; color: #f1f5f9; font-size: 0.95rem; cursor: pointer; display: flex; gap: 10px; line-height: 1.4; transition: background 0.2s; }
+        .exam-opt-btn.correct { background: rgba(16, 185, 129, 0.25) !important; border-color: var(--success) !important; color: #10b981; font-weight: bold; }
+        .exam-opt-btn.wrong { background: rgba(239, 68, 68, 0.25) !important; border-color: var(--danger) !important; color: #ef4444; }
+        .exam-opt-btn.disabled { pointer-events: none; opacity: 0.5; }
+        .exam-opt-btn.correct.disabled { opacity: 1; }
+        .exam-footer { display: flex; justify-content: space-between; align-items: center; }
+        .btn-exam-next { background: #10b981; color: white; border: none; padding: 10px 24px; border-radius: 8px; font-weight: bold; cursor: pointer; display: none; }
+        .btn-exam-quit { background: transparent; color: var(--text-muted); border: 1px solid var(--border-color); padding: 8px 16px; border-radius: 8px; cursor: pointer; }
+        .result-card { text-align: center; padding: 35px 15px; }
+        .result-score { font-size: 3.5rem; font-weight: 900; color: #10b981; margin: 10px 0; text-shadow: 0 0 15px rgba(16, 185, 129, 0.3); }
+        .btn-restart { background: #10b981; color: white; border: none; padding: 12px 28px; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 15px; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .no-data { text-align: center; color: var(--text-muted); padding: 30px; font-size: 0.95rem; grid-column: span 3; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <div class="header-buttons">
+            <button class="btn-exam" onclick="startFullAIExam()">📝 Exam</button>
+            <button class="btn-logout" onclick="handleLogout()">🚪 Logout</button>
+        </div>
+        <h1>ज्ञानकुञ्ज</h1>
+        <p>ज्ञानकुञ्जको विषय छान्नुहोस्</p>
+    </div>
+
+    <div id="mainDashboard">
+        <h2>📊 उपलब्ध ज्ञानकुञ्जहरु(थप हुदै जाने)</h2>
+        <div class="subject-grid" id="subjectGrid">
+            <div class="no-data">लोड हुँदैछ...</div>
+        </div>
+
+        <div class="content-section" id="contentSection">
+            <h2>📋 शीर्षकहरू (<span id="selectedSubjectName">-</span>)</h2>
+            <div class="list-container" id="detailsListContainer"></div>
+        </div>
+    </div>
+
+    <div class="exam-section" id="examSection">
+        <h2>🎯 अनलाइन परीक्षा कक्ष (२ अंक प्रतिप्रश्न)</h2>
+        <div id="examContainer"></div>
+    </div>
+</div>
+
+<script>
+    const supabaseClient = supabase.createClient('https://slsxseiawrayselbnorg.supabase.co', 'sb_publishable_BhbSNg9iAGBB6dV5J3CZaw_xyGi-fYq');
+    let allData = [];
+    let inactivityTimer;
+
+    // Exam States
+    let examQuestions = [];
+    let currentExamIndex = 0;
+    let examScore = 0; // Stores number of correct answers
+
+    async function checkUserAuthentication() {
+        const { data: { user }, error } = await supabaseClient.auth.getUser();
+        if (!user || error) {
+            window.location.href = 'login.html';
+            return;
+        }
+
+        const { data: profile } = await supabaseClient
+            .from('profiles')
+            .select('status')
+            .eq('id', user.id)
+            .single();
+
+        if (profile && profile.status === 'Inactive') {
+            await handleLogout();
+        }
+    }
+
+    async function handleLogout() {
+        await supabaseClient.auth.signOut();
+        window.location.href = 'login.html';
+    }
+
+    function resetInactivityTimer() {
+        clearTimeout(inactivityTimer);
+        inactivityTimer = setTimeout(async () => {
+            await handleLogout(); 
+        }, 5 * 60 * 1000); 
+    }
+
+    window.onload = () => {
+        checkUserAuthentication();
+        resetInactivityTimer();
+        
+        const activityEvents = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+        activityEvents.forEach(event => {
+            document.addEventListener(event, resetInactivityTimer, true);
+        });
+    };
+
+    const iconMapping = {
+        'नेपाली': '🇳🇵', 'गणित': '📐', 'विज्ञान': '🔬', 'अंग्रेजी': '🇬🇧', 
+        'सामाजिक': '🌍', 'कम्प्युटर': '💻', 'इतिहास': '📜', 'स्वास्थ्य': '🍎'
+    };
+
+    function getIcon(subject) { return iconMapping[subject.trim()] || '📘'; }
+
+    async function fetchPortalData() {
+        const { data } = await supabaseClient.from('edportal').select('*');
+        allData = data || [];
+        renderSubjectIcons();
+    }
+
+    function renderSubjectIcons() {
+        const grid = document.getElementById('subjectGrid');
+        const uniqueSubjects = [...new Set(allData.map(item => item.subject).filter(Boolean))];
+        if (uniqueSubjects.length === 0) {
+            grid.innerHTML = '<div class="no-data">कुनै विषय फेला परेन।</div>';
+            return;
+        }
+        grid.innerHTML = uniqueSubjects.map(subject => `
+            <div class="subject-card" onclick="selectSubject(this, '${subject}')">
+                <div class="subject-icon">${getIcon(subject)}</div>
+                <div class="subject-name">${subject}</div>
+            </div>
+        `).join('');
+    }
+
+    function selectSubject(element, subject) {
+        document.querySelectorAll('.subject-card').forEach(card => card.classList.remove('active'));
+        element.classList.add('active');
+        document.getElementById('selectedSubjectName').innerText = subject;
+
+        const filteredData = allData.filter(item => item.subject === subject);
+        const listContainer = document.getElementById('detailsListContainer');
+
+        listContainer.innerHTML = filteredData.map(item => `
+            <div class="item-card">
+                <div class="item-header" onclick="toggleMobileDetails(this, 'details-${item.id}')">
+                    <div class="title-block">
+                        <div class="item-title">${item.title || '-'}</div>
+                        <div class="item-subtitle">${item.subtitle || '-'}</div>
+                    </div>
+                    <div class="arrow-icon">▶</div>
+                </div>
+                <div class="item-details" id="details-${item.id}">
+                    <div class="detail-block">
+                        <h4>📝 मुख्य विवरण (Body)</h4>
+                        <p>${item.body || 'विवरण उपलब्ध छैन।'}</p>
+                    </div>
+                    <div class="detail-block remarks-block">
+                        <h4>📌 कैफियत (Remarks)</h4>
+                        <p>${item.remarks || '-'}</p>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+
+        document.getElementById('contentSection').style.display = 'block';
+        document.getElementById('contentSection').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function toggleMobileDetails(headerElement, detailsId) {
+        const detailsDiv = document.getElementById(detailsId);
+        const arrow = headerElement.querySelector('.arrow-icon');
+        if (detailsDiv.style.display === 'block') {
+            detailsDiv.style.display = 'none';
+            arrow.style.transform = 'rotate(0deg)';
+        } else {
+            detailsDiv.style.display = 'block';
+            arrow.style.transform = 'rotate(90deg)';
+        }
+    }
+
+
+    /* MIXED ALL BODY PARSING 50 QUESTIONS ENGINE (MAX 30 WORDS PER QN) */
+    function startFullAIExam() {
+        const validItems = allData.filter(i => i.body && i.body.trim().length > 4);
+        if (validItems.length === 0) { 
+            alert("परीक्षा सञ्चालन गर्न डेटाबेसमा कुनै पनि विवरण फेला परेन।"); 
+            return; 
+        }
+
+        document.getElementById('mainDashboard').style.display = 'none';
+        document.getElementById('examSection').style.display = 'block';
+
+        let questionPool = [];
+
+        // १. डेटाबेसमा भएका सम्पूर्ण डेटाबेसको रो (Row) हरूलाई पालैपालो केलाउने
+        validItems.forEach(item => {
+            let fullText = item.body.trim();
+            // पूर्णविराम, प्रश्नवाचक वा न्यूलाइनको मद्दतले वाक्य विभाजन गर्ने
+            let sentences = fullText.split(/[।!?\n\r]+/).map(s => s.trim()).filter(s => s.length > 5);
+            if (sentences.length === 0) sentences = [fullText];
+
+            sentences.forEach(sentence => {
+                let words = sentence.split(/\s+/);
+                
+                // वाक्य ३० शब्दभन्दा सानो र पूरा भएको सुनिश्चित गर्ने कन्डिसन
+                if (words.length > 3 && words.length <= 30) {
+                    
+                    // वाक्य भित्रबाट एउटा उपयुक्त र्‍यान्डम शब्द गायब गर्न छान्ने
+                    let hideIdx = Math.floor(Math.random() * words.length);
+                    let rightAns = words[hideIdx].replace(/[,;()।?!"'\s]/g, '').trim();
+
+                    if (rightAns.length > 1) {
+                        let questionWords = [...words];
+                        questionWords[hideIdx] = "_______"; // ब्लाङ्क चिन्ह
+                        
+                        let finalizedQuestionText = `[विषय: ${item.subject || 'सामान्य'} - ${item.title || 'विवरण'}]\nखाली ठाउँ भर्नुहोस्:\n"${questionWords.join(' ')} ।"`;
+
+                        // गलत अप्सनहरूको पुल निर्माण गर्ने
+                        let distractorPool = ["छैन", "हो", "भनिन्छ", "भयो", "हुँदैन", "गर्दछ", "सबै", "रहन्छ", "मुख्य", "भाग", "अवस्था", "संकेत"].filter(w => w !== rightAns);
+                        distractorPool.sort(() => 0.5 - Math.random());
+
+                        let optionChoices = [rightAns, distractorPool[0], distractorPool[1], distractorPool[2]].sort(() => 0.5 - Math.random());
+
+                        questionPool.push({
+                            questionText: finalizedQuestionText,
+                            correctIndex: optionChoices.indexOf(rightAns),
+                            options: optionChoices
+                        });
+                    }
+                }
+            });
+        });
+
+        // २. यदि वाक्यहरू थोरै भएर पुलमा ५० प्रश्न पुगेनन् भने, फरक शब्द ढाँचा लुकाएर ५० पुर्‍याउने मेकानिजम
+        if (questionPool.length > 0 && questionPool.length < 50) {
+            let originalLength = questionPool.length;
+            while (questionPool.length < 50) {
+                let randomDuplicate = { ...questionPool[Math.floor(Math.random() * originalLength)] };
+                questionPool.push(randomDuplicate);
+            }
+        } else if (questionPool.length === 0) {
+            // फल ब्याक यदि सबै वाक्यहरू ३० शब्द भन्दा लामा छन् भने
+            validItems.forEach(item => {
+                let fallbackWords = item.body.substring(0, 120).split(/\s+/).slice(0, 25);
+                let rightAns = fallbackWords[fallbackWords.length - 1].replace(/[।]/g,'');
+                fallbackWords[fallbackWords.length - 1] = "_______";
+                let opts = [rightAns, "होइन", "माथिका सबै", "उल्लेख छैन"].sort(() => 0.5 - Math.random());
+                questionPool.push({
+                    questionText: `[${item.title}] वाक्य पूरा गर्नुहोस्:\n"${fallbackWords.join(' ')} ..."`,
+                    correctIndex: opts.indexOf(rightAns),
+                    options: opts
+                });
+            });
+            while (questionPool.length < 50) {
+                questionPool.push({ ...questionPool[Math.floor(Math.random() * questionPool.length)] });
+            }
+        }
+
+        // ३. सबै विषयका प्रश्नहरूलाई मिक्स्ड (Shuffle) गर्ने र ठीक ५० वटा प्रश्नको सेट काट्ने
+        examQuestions = questionPool.sort(() => 0.5 - Math.random()).slice(0, 50);
+        currentExamIndex = 0; 
+        examScore = 0;
+        
+        showAIQuestion();
+    }
+
+    function showAIQuestion() {
+        const container = document.getElementById('examContainer');
+        if (currentExamIndex >= examQuestions.length) { 
+            showAIExamResult(); 
+            return; 
+        }
+
+        const currentQ = examQuestions[currentExamIndex];
+        container.innerHTML = `
+            <div class="exam-card">
+                <div class="exam-meta">
+                    <span>प्रश्न संख्या: <b>${currentExamIndex + 1} / ${examQuestions.length}</b></span>
+                    <span>भार: <b>२ अङ्क</b></span>
+                    <span>चालू स्कोर: <b>${examScore * 2}</b></span>
+                </div>
+                <div class="exam-question">${currentQ.questionText}</div>
+                <div class="options-grid">
+                    ${currentQ.options.map((opt, idx) => `
+                        <button class="exam-opt-btn" onclick="checkAIAnswer(this, ${idx}, ${currentQ.correctIndex})">
+                            <span>${idx + 1}.</span>
+                            <span style="flex:1;">${opt}</span>
+                        </button>
+                    `).join('')}
+                </div>
+                <div class="exam-footer">
+                    <button class="btn-exam-quit" onclick="quitAIExam()">🏳️ Quit Exam</button>
+                    <button class="btn-exam-next" id="nextExamBtn" onclick="currentExamIndex++; showAIQuestion();">अर्को प्रश्न ➔</button>
+                </div>
+            </div>
+        `;
+    }
+
+    function checkAIAnswer(buttonElement, clickedIndex, correctIndex) {
+        const allOptions = document.querySelectorAll('.exam-opt-btn');
+        allOptions.forEach((btn, idx) => { 
+            btn.classList.add('disabled'); 
+            if(idx === correctIndex) btn.classList.add('correct'); 
+        });
+
+        if (clickedIndex === correctIndex) { 
+            examScore++; 
+        } else { 
+            buttonElement.classList.add('wrong'); 
+        }
+        document.getElementById('nextExamBtn').style.display = 'block';
+    }
+
+    function quitAIExam() { 
+        if(confirm("के तपाईँ चालू परीक्षा रद्द गरेर बाहिरिन चाहनुहुन्छ?")) { 
+            document.getElementById('examSection').style.display = 'none'; 
+            document.getElementById('mainDashboard').style.display = 'block'; 
+        } 
+    }
+
+    function showAIExamResult() {
+        const totalMarks = examQuestions.length * 2;
+        const obtainedMarks = examScore * 2;
+        const successPercentage = Math.round((obtainedMarks / totalMarks) * 100);
+
+        document.getElementById('examContainer').innerHTML = `
+            <div class="exam-card result-card">
+                <h2>📊 परीक्षाको अन्तिम नतिजा</h2>
+                <div class="result-score">${obtainedMarks} / ${totalMarks}</div>
+                <p style="font-size: 1rem; color: #cbd5e1;">तपाईँले कुल ५० वटा प्रश्नहरू मध्ये <b>${examScore}</b> वटाको सही उत्तर दिनुभयो।</p>
+                <p style="font-size: 1rem; color: #cbd5e1; margin-t: 5px;">कुल प्राप्तांक प्रतिशत: <b>${successPercentage}%</b></p>
+                <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
+                    <button class="btn-restart" onclick="startFullAIExam()">पुनः नयाँ परीक्षा दिनुहोस् 🔄</button>
+                    <button class="btn-restart" style="background:rgba(255,255,255,0.1); color:white;" onclick="location.reload()">मेनुमा फर्कनुहोस् 🏠</button>
+                </div>
+            </div>
+        `;
+    }
+
+    fetchPortalData();
+</script>
+</body>
+</html>
