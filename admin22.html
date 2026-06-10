@@ -433,7 +433,7 @@
     async function checkAdminAuthentication() {
         const { data: { user }, error } = await supabaseClient.auth.getUser();
         if (!user || error) {
-            window.location.href = 'login.html';
+            window.location.href = 'gyankunja.html';
             return;
         }
         const { data: profile } = await supabaseClient.from('profiles').select('role').eq('id', user.id).single();
