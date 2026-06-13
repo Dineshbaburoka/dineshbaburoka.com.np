@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>कार्य सम्पादन जमानत गणना </title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Mukta:wght@400;500;600;700&display=swap');
+        
+        :root {
+            font-family: 'Mukta', sans-serif;
+        }
+
+        /* ----------------------------------------------------
+           मोबाइल र डेस्कटप दुवैमा काम गर्ने अत्याधुनिक ब्याकग्राउन्ड प्रविधि
+        ---------------------------------------------------- */
+        .bg-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            /* मोबाइल ब्राउजरहरूको एड्रेस बारको झन्झट हटाउन Dynamic Viewport Height */
+            height: 100dvh; 
+            /* तपाईंको तस्विरको नाम यहाँ url() भित्र सुरक्षित रूपमा राखिएको छ */
+            background-image: url('image1111.jpg');
+            background-size: cover;
+            background-position: center top;
+            background-repeat: no-repeat;
+            z-index: -1;
+            transform: translate3d(0, 0, 0); /* Mobile GPU Acceleration को लागि */
+        }
+
+        /* इनपुट बक्स र रिजल्ट कार्डहरूलाई थप आकर्षक बनाउन स्याडो र ट्रान्जिसन इफेक्ट */
+        .custom-input:focus {
+            border-color: #16a34a;
+            box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.2);
+        }
+
+        .result-card {
+            transition: all 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-3 sm:p-4 md:p-6 antialiased select-none">
+
+    <div class="bg-container"></div>
+
+    <div class="max-w-3xl w-full bg-white/95 backdrop-blur-md p-5 sm:p-6 md:p-8 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-gray-200/60 my-auto">
+        
+        <div class="text-center mb-6 border-b pb-4">
+            <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-950 tracking-tight">
+                कार्य सम्पादन जमानत गणना(Performance Security Calculation)
+            </h1>
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+            <div class="space-y-1.5">
+                <label class="block text-xs sm:text-sm font-bold text-gray-800 tracking-wide">
+                    लागत अनुमानित(मूल्य अभिवृद्धि कर र Contangency बाहेको) रकम (रु.):
+                </label>
+                <div class="relative rounded-lg shadow-sm">
+                    <input type="text" id="estAmount" 
+                           class="custom-input w-full p-3 border border-gray-300 rounded-lg outline-none transition text-base font-semibold bg-gray-50/50 text-gray-900" 
+                           placeholder="उदाहरण: १००००००">
+                </div>
+            </div>
+            <div class="space-y-1.5">
+                <label class="block text-xs sm:text-sm font-bold text-gray-800 tracking-wide">
+                    बोलपत्र कबोल अंक (रु.):
+                </label>
+                <div class="relative rounded-lg shadow-sm">
+                    <input type="text" id="quotedAmount" 
+                           class="custom-input w-full p-3 border border-gray-300 rounded-lg outline-none transition text-base font-semibold bg-gray-50/50 text-gray-900" 
+                           placeholder="उदाहरण: ८०००००">
+                </div>
+            </div>
+        </div>
+        
+        <button onclick="calculate()" 
+                class="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white py-3 rounded-lg font-bold transition-all duration-200 text-base sm:text-lg shadow-md hover:shadow-lg active:scale-[0.98] focus:outline-none">
+            हिसाब गर्नुहोस्
+        </button>
+
+        <div class="result mt-6 space-y-4" id="resultArea" style="display:none;"></div>
+    </div>
+
+<script>
+    // संख्या ढाँचालाई नेपाली लिपि (०-९) मा रूपान्तरण गर्ने फङ्सन
+    function toNepali(num) {
+        const nepaliDigits = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
+        return num.toString().replace(/\d/g, (d) => nepaliDigits[d]);
+    }
+
+    // युजरले नेपाली अंक टाइप गरेमा गणनाको लागि अङ्ग्रेजीमा बदल्ने फङ्सन
+    function toEnglish(str) {
+        const map = {'०':'0','१':'1','२':'2','३':'3','४':'4','५':'5','६':'6','७':'7','८':'8','९':'9'};
+        return str.replace(/[०-९]/g, d => map[d]);
+    }
+
+    function calculate() {
+        const estRaw = document.getElementById('estAmount').value.trim();
+        const quotedRaw = document.getElementById('quotedAmount').value.trim();
+        const resArea = document.getElementById('resultArea');
+        
+        const est = parseFloat(toEnglish(estRaw));
+        const quoted = parseFloat(toEnglish(quotedRaw));
+        
+        if (isNaN(est) || isNaN(quoted)) { 
+            alert("कृपया लागत अनुमान र कबोल अंक दुवै सही रूपमा भर्नुहोस्।"); 
+            return; 
+        }
+
+        const diffPercent = ((est - quoted) / est) * 100;
+        const perfSecurity = quoted * 0.05;
+        
+        let output = '';
+
+        // अवस्था १: यदि बोलपत्रदाताले १५% भन्दा बढी घटेर कबोल गरेमा (तस्विरको २-कलम लेआउट)
+        if (diffPercent > 15) {
+            const limit85 = est * 0.85;
+            const diffAmount = limit85 - quoted;
+            const additionalSecurity = diffAmount * 0.50;
+            const totalSecurity = perfSecurity + additionalSecurity;
+
+            output += `
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                
+                <div class="result-card p-4 bg-sky-50/90 border border-sky-200 rounded-xl text-xs sm:text-sm space-y-2 text-justify shadow-sm">
+                    <strong class="text-sky-950 block text-sm sm:text-base font-bold border-b border-sky-200 pb-1">
+                        १. कार्य सम्पादन जमानत (Performance Security):
+                    </strong>
+                    <div class="font-bold text-gray-900 bg-white p-2 rounded-md border border-sky-100 shadow-sm">
+                        गणना: रु. ${toNepali(quoted.toLocaleString('en-US'))} × ५% = <span class="text-green-700 text-sm sm:text-base">रु. ${toNepali(perfSecurity.toLocaleString('en-US'))}</span>
+                    </div>
+                    <p class="text-gray-700 leading-relaxed">
+                        <strong>व्याख्या:</strong> सार्वजनिक खरिद नियमावली, २०६४ को नियम ११०(४) मा भएको व्यवस्था अनुसार कुनै पनि ठेक्का सम्झौता गर्दा कबोल अंकको ५% कार्य सम्पादन जमानत अनिवार्य छ। यसको म्याद ठेक्का सम्पन्न हुने अवधिभन्दा कम्तीमा १३ महिना बढी हुनुपर्दछ।
+                    </p>
+                    <p class="text-[11px] text-gray-500 border-t border-dashed border-gray-300 pt-1.5 leading-normal">
+                        <strong>(कानुनी व्यवस्था):</strong> सार्वजनिक खरिद ऐन, २०६३ को दफा २७ (४) यसरी जमानत दाखिला गर्दा बोलपत्रदाताले लागत अनुमान भन्दा पन्ध्र प्रतिशतसम्म कम अंक कबुल गरेमा कबुल अङ्कको पाँच प्रतिशत कार्यसम्पादन जमानत बापत दाखिला गर्नु पर्नेछ।
+                    </p>
+                </div>
+
+                <div class="result-card p-4 bg-rose-50/90 border border-rose-200 rounded-xl text-xs sm:text-sm space-y-2 text-justify shadow-sm">
+                    <strong class="text-rose-950 block text-sm sm:text-base font-bold border-b border-rose-200 pb-1">
+                        २. थप जमानत (Additional Performance Security):
+                    </strong>
+                    <div class="space-y-1 text-gray-900 bg-white p-2 rounded-md border border-rose-100 shadow-sm font-bold">
+                        <div>• दररेट घटी: <span class="text-rose-600">${toNepali(diffPercent.toFixed(2))}%</span></div>
+                        <div class="text-xs sm:text-sm mt-0.5">• थप गणना: (रु. ${toNepali(limit85.toLocaleString('en-US'))} - रु. ${toNepali(quoted.toLocaleString('en-US'))}) × ५०% = <span class="text-rose-700">रु. ${toNepali(additionalSecurity.toLocaleString('en-US'))}</span></div>
+                    </div>
+                    <p class="text-gray-700 leading-relaxed">
+                        <strong>व्याख्या:</strong> सार्वजनिक खरिद नियमावली, २०६४ को नियम ११०(४) मा भएको व्यवस्था अनुसार बोलपत्रदाताले पन्ध्र प्रतिशतभन्दा जति रकमले घटी कबोल गरेको छ
+सोको पचास प्रतिशतले हुन आउने रकम बराबरको बैङ्क जमानत छुट्टै दाखिला गर्न
+सक्नेछ र उक्त बैङ्क जमानत दाखिला गर्दा बैड् जमानतको म्याद ठेक्का सम्पन्न हुने
+अवधिभन्दा कम्तीमा एक महिना बढी अवधिसम्मको हुनु पर्नेछ।
+                    </p>
+                    <p class="text-[11px] text-gray-500 border-t border-dashed border-gray-300 pt-1.5 leading-normal">
+                        <strong>(कानुनी व्यवस्था):</strong> सार्वजनिक खरिद ऐन, २०६३ को दफा २७(४) --यसरी लागत अनुमानको पन्ध्र प्रतिशतभन्दा बढी घटेर कबुल गरेको अवस्थामा पन्ध्र प्रतिशत भन्दा जति रकमले घटी कबुल गरेको छ सोको पचास प्रतिशतले हुन आउने रकमको थप कार्यसम्पादन जमानत बापत दाखिला गर्नु पर्नेछ।
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="result-card p-4 bg-amber-50 border-2 border-amber-300 rounded-xl shadow-sm">
+                <span class="text-amber-900 font-bold block text-xs tracking-wider uppercase">Summary</span>
+                <div class="text-gray-900 font-bold text-base sm:text-lg mt-1 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+                    <span>कूल जम्मा बुझाउनुपर्ने कार्य सम्पादन जमानत:</span>
+                    <span class="text-amber-800 text-xl sm:text-2xl font-extrabold bg-amber-200/60 px-3 py-1 rounded-lg border border-amber-300">
+                        रु. ${toNepali(totalSecurity.toLocaleString('en-US'))}
+                    </span>
+                </div>
+            </div>`;
+
+        } else {
+            // अवस्था २: यदि बोलपत्रदाताको कबोल १५% भन्दा कम घटेको भए
+            output += `
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="p-4 bg-sky-50/90 border border-sky-200 rounded-xl text-xs sm:text-sm space-y-1 shadow-sm">
+                    <strong class="text-sky-950 block text-sm font-bold">१. कार्य सम्पादन जमानत (५%):</strong>
+                    <p class="font-bold text-gray-900 text-base">रु. ${toNepali(quoted.toLocaleString('en-US'))} × ५% = रु. ${toNepali(perfSecurity.toLocaleString('en-US'))}</p>
+                    <p class="text-gray-600 text-[11px] mt-1">व्याख्या: सार्वजनिक खरिद नियमावली, २०६४ को नियम ११०(४) बमोजिम ठेक्का सम्झौताका लागि ५% नियमसम्मत जमानत आवश्यक पर्छ।</p>
+                </div>
+                <div class="p-4 bg-gray-50 border border-gray-300 rounded-xl text-xs sm:text-sm flex flex-col justify-center shadow-sm">
+                    <strong class="text-gray-800 block text-sm font-bold">२. थप जमानत (Additional):</strong>
+                    <p class="text-green-700 font-bold mt-1.5 bg-green-50 px-2 py-1 rounded border border-green-200 inline-block text-center text-xs">
+                        ✓ थप जमानत आवश्यक पर्दैन।
+                    </p>
+                    <p class="text-gray-500 text-[11px] mt-1">कबोल दररेट १५% को सुरक्षित सीमाभित्र (घटीमा ${toNepali(diffPercent.toFixed(2))}%) रहेकाले थप लेबी लाग्दैन।</p>
+                </div>
+            </div>
+            <div class="p-4 bg-amber-50 border border-amber-300 rounded-xl shadow-sm">
+                <span class="text-amber-900 font-bold block text-xs uppercase">Summary</span>
+                <div class="text-gray-900 font-bold text-base sm:text-lg mt-1 flex justify-between items-center">
+                    <span>कूल जम्मा कार्य सम्पादन जमानत:</span>
+                    <span class="text-amber-800 text-xl font-extrabold bg-amber-200/60 px-3 py-1 rounded-lg border border-amber-300">रु. ${toNepali(perfSecurity.toLocaleString('en-US'))}</span>
+                </div>
+            </div>`;
+        }
+
+        // डाटा इन्ट्री भएपछि रिजल्ट देखाउने र सहज भिजुअल दिने
+        resArea.innerHTML = output;
+        resArea.style.display = "block";
+        
+        // मोबाइलमा नतिजा देखिने बित्तिकै स्क्रिन आफैँ सहज रूपमा नतिजातिर सर्छ
+        resArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+</script>
+</body>
+</html>
