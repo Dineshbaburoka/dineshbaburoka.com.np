@@ -1,1211 +1,1184 @@
 <!DOCTYPE html>
 <html lang="ne">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>एडुभिडियो क्लासरुम - मल्टि-रोल एलएमएस र भिडियो कन्फरेन्सिङ प्रणाली</title>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            50: '#f0f7ff',
-                            100: '#e0effe',
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            700: '#1d4ed8',
-                            900: '#1e3a8a',
-                        },
-                        slate: {
-                            950: '#020617'
-                        }
-                    },
-                    animation: {
-                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'glow': 'glow 2s ease-in-out infinite alternate',
-                    }
-                }
-            }
-        }
-    </script>
-    
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <style>
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0f172a;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #334155;
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #475569;
-        }
-        .video-mask {
-            mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 80%, rgba(0,0,0,0) 100%);
-        }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Dinesh Babu Roka | Professional Surveyor</title>
+
+<link rel="icon" href="brp.ico">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@300;400;500;600;700;800&family=Segoe+UI:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --primary: #0078d4; 
+  --primary-tint: #eff6fc;
+  --secondary: #107c41; 
+  --dark: #111111;
+  --light: #f3f3f3;
+  --bg-main: #fafafa;
+  --card: #ffffff;
+  --text: #242424;
+  --muted: #616161;
+  --border: #e0e0e0;
+  --shadow: 0 4px 16px rgba(0,0,0,0.04), 0 1px 4px rgba(0,0,0,0.03);
+  --radius: 8px;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.dark {
+  --bg-main: #1f1f1f;
+  --light: #292929;
+  --card: #252525;
+  --text: #ffffff;
+  --muted: #adadad;
+  --border: #333333;
+  --primary-tint: #132839;
+  --shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Segoe UI', 'Noto Sans Devanagari', -apple-system, sans-serif;
+  background-color: var(--bg-main);
+  background-image: radial-gradient(var(--border) 1px, transparent 1px);
+  background-size: 24px 24px;
+  color: var(--text);
+  overflow-x: hidden;
+  width: 100%;
+  transition: var(--transition);
+}
+
+body.loading {
+  overflow: hidden;
+}
+
+.container {
+  width: min(1160px, 92%);
+  margin: auto;
+}
+
+/* SMART PRELOADER */
+#preloader {
+  position: fixed;
+  inset: 0;
+  background: #fafafa;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
+body.dark #preloader {
+  background: #1f1f1f;
+}
+
+.preloader-icon {
+  width: 90px;
+  height: 90px;
+  object-fit: contain;
+  animation: pulseLogo 2s infinite ease-in-out;
+}
+
+.microsoft-spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid rgba(0, 120, 212, 0.15);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulseLogo {
+  0%, 100% { transform: scale(1); opacity: 0.9; }
+  50% { transform: scale(1.05); opacity: 1; }
+}
+
+/* HEADER */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  background: rgba(250, 250, 250, 0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  transition: var(--transition);
+}
+
+body.dark header {
+  background: rgba(31, 31, 31, 0.85);
+}
+
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo img {
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
+  object-fit: cover;
+  border: 1px solid var(--border);
+}
+
+.logo h1 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.3px;
+}
+
+.logo p {
+  color: var(--muted);
+  font-size: .78rem;
+  font-weight: 400;
+}
+
+.nav-links {
+  display: flex;
+  gap: 4px;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: var(--text);
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 8px 16px;
+  border-radius: 4px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.nav-links a:hover, .nav-links a.active {
+  background: var(--light);
+  color: var(--primary);
+}
+
+.menu-btn {
+  display: none;
+  font-size: 1.3rem;
+  cursor: pointer;
+  color: var(--text);
+  padding: 8px;
+}
+
+/* HERO */
+.hero {
+  min-height: 75vh;
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  align-items: center;
+  gap: 60px;
+  padding: 60px 0;
+}
+
+.hero-left h4 {
+  color: var(--primary);
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.hero-left h2 {
+  font-size: 3rem;
+  line-height: 1.2;
+  margin-bottom: 20px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.8px;
+}
+
+.hero-left p {
+  color: var(--muted);
+  line-height: 1.6;
+  font-size: 1.05rem;
+  max-width: 540px;
+}
+
+.hero-buttons {
+  margin-top: 32px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.btn {
+  text-decoration: none;
+  padding: 12px 24px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+  border: 1px solid transparent;
+}
+
+.btn-primary:hover {
+  background: #005a9e;
+  transform: translateY(-2px);
+}
+
+.btn-outline {
+  border: 1px solid var(--border);
+  color: var(--text);
+  background: var(--card);
+}
+
+.btn-outline:hover {
+  background: var(--light);
+  transform: translateY(-2px);
+}
+
+/* PROFILE CARD */
+.profile-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 32px;
+  box-shadow: var(--shadow);
+  text-align: center;
+  border: 1px solid var(--border);
+  transition: var(--transition);
+}
+
+.profile-card img {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--border);
+  padding: 4px;
+  background: var(--card);
+}
+
+.profile-card h3 {
+  margin-top: 16px;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.profile-card p {
+  color: var(--muted);
+  margin-top: 4px;
+  font-size: 0.88rem;
+}
+
+.social-icons {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.social-icons a {
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--light);
+  color: var(--text);
+  text-decoration: none;
+  font-size: 1rem;
+  transition: var(--transition);
+}
+
+.social-icons a:hover {
+  background: var(--primary-tint);
+  color: var(--primary);
+  transform: scale(1.05);
+}
+
+/* STATS */
+.stats {
+  margin-top: 28px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.stat-box {
+  background: var(--light);
+  padding: 12px 8px;
+  border-radius: 4px;
+  transition: var(--transition);
+}
+
+.stat-box h3 {
+  font-size: 1.25rem;
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.stat-box p {
+  font-size: .75rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+/* INTERACTIVE SLIDER WITH DOTS */
+.slider-section {
+  padding: 40px 0;
+}
+
+.slider {
+  position: relative;
+  height: 450px;
+  overflow: hidden;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+.slide {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.6s;
+}
+
+.slide.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.1) 100%);
+}
+
+.slide-content {
+  position: absolute;
+  left: 32px;
+  bottom: 40px;
+  color: #fff;
+}
+
+.slide-content h2 {
+  font-size: 2rem;
+  margin-bottom: 6px;
+  font-weight: 700;
+}
+
+.slider-dots {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.dot.active {
+  background: #fff;
+  transform: scale(1.2);
+}
+
+/* SERVICES */
+.section-title {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.section-title h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.section-title p {
+  color: var(--primary);
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.services {
+  padding: 60px 0;
+}
+
+.service-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.service-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 28px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  transition: var(--transition);
+  display: flex;
+  flex-direction: column;
+}
+
+.service-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--primary);
+  box-shadow: 0 8px 24px rgba(0, 120, 212, 0.12);
+}
+
+.service-card i {
+  font-size: 1.5rem;
+  color: var(--primary);
+  background: var(--primary-tint);
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  transition: var(--transition);
+}
+
+.service-card:nth-child(2n) i {
+  color: var(--secondary);
+  background: #e6f4ea;
+}
+body.dark .service-card:nth-child(2n) i {
+  background: #132a1c;
+}
+
+.service-card h3 {
+  margin-bottom: 10px;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.service-card p {
+  color: var(--muted);
+  line-height: 1.5;
+  font-size: 0.9rem;
+  flex-grow: 1;
+}
+
+.service-card a {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 16px;
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: transform 0.2s;
+}
+
+.service-card a:hover {
+  text-decoration: underline;
+  transform: translateX(4px);
+}
+
+/* VIDEO */
+.video-section {
+  padding: 40px 0;
+}
+
+.video-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  padding: 12px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.video-card video {
+  width: 100%;
+  border-radius: 4px;
+  display: block;
+}
+
+/* EXPERIENCE */
+.timeline {
+  margin-top: 30px;
+  position: relative;
+  max-width: 800px;
+  margin: auto;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 20px;
+  top: 0;
+  width: 2px;
+  height: 100%;
+  background: var(--border);
+}
+
+.timeline-item {
+  position: relative;
+  padding-left: 50px;
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  left: 15px;
+  top: 26px;
+  background: var(--primary);
+  border: 2px solid var(--bg-main);
+}
+
+.timeline-card {
+  background: var(--card);
+  padding: 24px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+}
+
+.timeline-card h3 {
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+.timeline-card span {
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 0.85rem;
+  display: inline-block;
+  margin-top: 4px;
+}
+
+/* CONTACT */
+.contact {
+  padding: 60px 0;
+}
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+}
+
+.contact-card {
+  background: var(--card);
+  padding: 32px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+.contact-card h3 {
+  margin-bottom: 20px;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.input-group {
+  margin-bottom: 18px;
+}
+
+.input-group input,
+.input-group textarea {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid var(--border);
+  background: var(--bg-main);
+  color: var(--text);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  outline: none;
+  transition: var(--transition);
+}
+
+.input-group input:focus,
+.input-group textarea:focus {
+  border-color: var(--primary);
+  background: var(--card);
+  box-shadow: 0 0 0 3px rgba(0, 120, 212, 0.15);
+}
+
+/* FOOTER */
+footer {
+  margin-top: 60px;
+  padding: 40px 0 24px;
+  background: var(--card);
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  transition: var(--transition);
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 24px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 24px;
+}
+
+.footer-content h3 {
+  color: var(--text);
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+.footer-links {
+  display: flex;
+  gap: 20px;
+}
+
+.footer-content a {
+  color: var(--muted);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: color 0.2s;
+}
+
+.footer-content a:hover {
+  color: var(--primary);
+}
+
+/* FLOAT BUTTONS */
+.float-buttons {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 999;
+}
+
+.float-buttons a, .dark-toggle {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  text-decoration: none;
+  font-size: 1.2rem;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+  transition: transform 0.2s, background-color 0.3s;
+  border: none;
+  cursor: pointer;
+}
+
+.float-buttons a:hover, .dark-toggle:hover {
+  transform: scale(1.1);
+}
+
+.whatsapp { background: #107c41; }
+.call { background: #d83b01; }
+.dark-toggle { background: var(--card); color: var(--text); border: 1px solid var(--border); }
+
+/* RESPONSIVE CSS */
+@media(max-width:950px){
+  .hero { grid-template-columns: 1fr; gap: 40px; text-align: center; }
+  .contact-grid { grid-template-columns: 1fr; }
+  .hero-buttons { justify-content: center; }
+  .profile-card { max-width: 450px; margin: auto; }
+  .hero-left h2 { font-size: 2.5rem; }
+}
+
+@media(max-width:768px){
+  .nav-links {
+    position: fixed;
+    top: 73px;
+    right: -100%;
+    width: 280px;
+    height: calc(100vh - 73px);
+    background: var(--card);
+    flex-direction: column;
+    padding: 32px 24px;
+    transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-left: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    z-index: 1000;
+  }
+  .nav-links.active { right: 0; }
+  .menu-btn { display: block; }
+  .slider { height: 320px; }
+  .slide-content h2 { font-size: 1.5rem; }
+}
+</style>
 </head>
-<body class="bg-slate-900 text-slate-100 font-sans h-screen flex flex-col overflow-hidden antialiased">
 
-    <div id="auth-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/95 backdrop-blur-md p-4 overflow-y-auto">
-        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-blue-900/20 via-slate-950 to-slate-950 pointer-events-none"></div>
-        
-        <div class="relative bg-slate-900/80 border border-slate-800/80 p-8 rounded-2xl shadow-2xl w-full max-w-lg transition-all duration-500 backdrop-blur-xl">
-            
-            <div class="text-center mb-8">
-                <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white mb-4 shadow-xl shadow-blue-500/10 transform rotate-3 hover:rotate-0 transition-transform duration-300">
-                    <i class="fa-solid fa-graduation-cap text-3xl"></i>
-                </div>
-                <h2 id="auth-title" class="text-3xl font-black text-white tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-200 to-slate-400">विद्यार्थी लगइन कक्ष</h2>
-                <p id="auth-subtitle" class="text-slate-400 mt-2 text-sm font-medium">एड्युभिडियो एकीकृत भर्चुअल क्लासरुम इन्जिन</p>
-            </div>
-            
-            <div id="alert-box" class="hidden p-4 rounded-xl mb-6 text-sm text-center font-semibold transition-all duration-300 animate-bounce"></div>
+<body class="loading">
 
-            <div class="space-y-5">
-                
-                <div id="fullname-group" class="hidden transition-all duration-300 transform scale-95 opacity-0">
-                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">तपाईंको पूरा नाम</label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-500">
-                            <i class="fa-solid fa-user-tie"></i>
-                        </span>
-                        <input type="text" id="auth-fullname" placeholder="उदाहरण: हरि प्रसाद शर्मा" class="w-full pl-11 pr-4 py-3.5 bg-slate-950/60 border border-slate-800 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-white transition-all placeholder:text-slate-600">
-                    </div>
-                </div>
+<div id="preloader">
+  <img src="brp.ico" alt="BRP Icon" class="preloader-icon" onerror="this.src='brp.jpg';">
+  <div class="microsoft-spinner"></div>
+</div>
 
-                <div>
-                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">आधिकारिक इमेल ठेगाना</label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-500">
-                            <i class="fa-solid fa-envelope"></i>
-                        </span>
-                        <input type="email" id="auth-email" placeholder="example@domain.com" class="w-full pl-11 pr-4 py-3.5 bg-slate-950/60 border border-slate-800 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-white transition-all placeholder:text-slate-600">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">सुरक्षित पासवर्ड</label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-500">
-                            <i class="fa-solid fa-key"></i>
-                        </span>
-                        <input type="password" id="auth-password" placeholder="न्यूनतम ६ क्यारेक्टर" class="w-full pl-11 pr-4 py-3.5 bg-slate-950/60 border border-slate-800 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-white transition-all placeholder:text-slate-600">
-                    </div>
-                </div>
-
-                <div id="role-group" class="hidden transition-all duration-300 transform scale-95 opacity-0">
-                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">प्रणालीमा तपाईंको भूमिका (Role)</label>
-                    <div class="grid grid-cols-3 gap-3">
-                        <label class="relative border border-slate-800 bg-slate-950/40 p-4 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-blue-500/50 transition-all group">
-                            <input type="radio" name="auth-role" value="student" checked class="absolute top-3 right-3 accent-blue-500 w-4 h-4">
-                            <i class="fa-solid fa-user-graduate text-slate-400 group-hover:text-blue-400 mb-1 text-lg"></i>
-                            <span class="text-xs text-slate-300 font-bold tracking-wide">Student</span>
-                        </label>
-                        <label class="relative border border-slate-800 bg-slate-950/40 p-4 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-blue-500/50 transition-all group">
-                            <input type="radio" name="auth-role" value="teacher" class="absolute top-3 right-3 accent-blue-500 w-4 h-4">
-                            <i class="fa-solid fa-chalkboard-user text-slate-400 group-hover:text-emerald-400 mb-1 text-lg"></i>
-                            <span class="text-xs text-slate-300 font-bold tracking-wide">Teacher</span>
-                        </label>
-                        <label class="relative border border-slate-800 bg-slate-950/40 p-4 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-blue-500/50 transition-all group">
-                            <input type="radio" name="auth-role" value="admin" class="absolute top-3 right-3 accent-blue-500 w-4 h-4">
-                            <i class="fa-solid fa-user-shield text-slate-400 group-hover:text-amber-400 mb-1 text-lg"></i>
-                            <span class="text-xs text-slate-300 font-bold tracking-wide">Admin</span>
-                        </label>
-                    </div>
-                </div>
-
-                <div id="room-group" class="transition-all duration-300">
-                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">लाइभ क्लास रूम कोड (Room ID)</label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-500">
-                            <i class="fa-solid fa-door-open"></i>
-                        </span>
-                        <input type="text" id="auth-room" value="LIVE-CLASS-101" placeholder="LIVE-CLASS-101" class="w-full pl-11 pr-4 py-3.5 bg-slate-950/60 border border-slate-800 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-white font-mono font-bold tracking-widest transition-all text-blue-400">
-                    </div>
-                </div>
-                
-                <button id="auth-submit-btn" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-4 rounded-xl font-extrabold tracking-wide transition-all shadow-xl shadow-blue-600/20 active:scale-[0.99] mt-3 flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-right-to-bracket"></i> <span id="btn-text">कक्षा कोठामा प्रवेश गर्नुहोस्</span>
-                </button>
-            </div>
-
-            <div class="mt-8 text-center text-sm border-t border-slate-800/80 pt-5 flex items-center justify-center gap-1">
-                <span id="auth-toggle-text" class="text-slate-400">नयाँ सदस्य हुनुहुन्छ?</span> 
-                <a href="#" id="auth-toggle-link" class="text-blue-400 font-extrabold hover:text-blue-300 transition-colors underline underline-offset-4 decoration-blue-500/40">नयाँ खाता सिर्जना गर्नुहोस्</a>
-            </div>
-        </div>
+<header>
+  <div class="container navbar">
+    <div class="logo">
+      <img src="brp.jpg" alt="Dinesh Babu Roka">
+      <div>
+        <h1>Dinesh Babu Roka</h1>
+        <p>Professional Surveyor & Consultant</p>
+      </div>
     </div>
 
-    <div id="main-classroom" class="hidden flex-1 flex flex-col h-full overflow-hidden">
-        
-        <header class="bg-slate-950 border-b border-slate-800/80 px-6 py-4 flex items-center justify-between z-40 relative shadow-md">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                    <i class="fa-solid fa-circle-play text-white text-xl animate-pulse"></i>
-                </div>
-                <div>
-                    <h1 class="text-xl font-black text-white tracking-tight flex items-center gap-2">
-                        EduVideo Classroom Suite <span class="text-[10px] bg-blue-500/10 border border-blue-500/20 text-blue-400 px-2 py-0.5 rounded font-mono">v3.0 Production</span>
-                    </h1>
-                    <p class="text-xs text-slate-400 font-medium mt-0.5">सक्रिय कोठा पहिचानकर्ता: <span id="classroom-code" class="text-blue-400 font-mono font-bold bg-slate-900 px-2 py-0.5 rounded border border-slate-800 ml-1"></span></p>
-                </div>
-            </div>
+    <nav class="nav-links" id="navLinks" aria-label="Main Navigation">
+      <a href="#home" class="active">गृहपृष्ठ</a>
+      <a href="#services">सेवाहरू</a>
+      <a href="#experience">अनुभव</a>
+      <a href="#contact">सम्पर्क</a>
+      <a href="mapbranch.html"><i class="fa-solid fa-map-marked-alt"></i> नक्सा शाखा</a>
+      <a href="gyankunja.html"><i class="fa-solid fa-book"></i> ज्ञानकुञ्ज</a>
+      <a href="cv.html" download>CV</a>
+    </nav>
 
-            <div class="flex items-center gap-4">
-                <div class="text-right hidden sm:block">
-                    <div id="user-display-name" class="text-sm font-black text-slate-100">लोड हुँदैछ...</div>
-                    <div id="user-display-role" class="text-[9px] uppercase tracking-widest font-black text-blue-400 bg-blue-500/10 px-2.5 py-0.5 rounded-full border border-blue-500/20 mt-1 inline-block">STUDENT</div>
-                </div>
-                <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700/80 flex items-center justify-center text-slate-200 font-black text-lg shadow uppercase" id="user-avatar">
-                    ?
-                </div>
-                <div class="h-8 w-[1px] bg-slate-800 mx-1"></div>
-                <button id="logout-btn" title="Sign Out From App" class="w-11 h-11 rounded-xl border border-slate-800/80 bg-slate-900/40 flex items-center justify-center text-rose-500 hover:bg-rose-500/10 hover:border-rose-500/30 transition-all active:scale-95 group">
-                    <i class="fa-solid fa-power-off group-hover:rotate-45 transition-transform"></i>
-                </button>
-            </div>
-        </header>
+    <div class="menu-btn" id="menuBtn" role="button" aria-label="Toggle Navigation Menu">
+      <i class="fa-solid fa-bars"></i>
+    </div>
+  </div>
+</header>
 
-        <div class="flex-1 flex overflow-hidden relative">
-            
-            <aside class="w-24 bg-slate-950 border-r border-slate-800/60 flex flex-col items-center py-6 gap-6 z-30">
-                <button data-tab="zoom-tab" class="tab-btn w-16 h-16 rounded-2xl flex flex-col items-center justify-center text-blue-400 bg-blue-600/15 border border-blue-500/30 transition-all group shadow-lg shadow-blue-600/5" title="Live Video Room">
-                    <i class="fa-solid fa-video text-xl group-hover:scale-110 transition-transform"></i>
-                    <span class="text-[10px] font-extrabold mt-1.5 tracking-tight">भिडियो कल</span>
-                </button>
-                <button data-tab="notes-tab" class="tab-btn w-16 h-16 rounded-2xl flex flex-col items-center justify-center text-slate-400 hover:text-slate-100 hover:bg-slate-900/60 border border-transparent hover:border-slate-800 transition-all group" title="Learning Resources">
-                    <i class="fa-solid fa-folder-open text-xl group-hover:scale-110 transition-transform"></i>
-                    <span class="text-[10px] font-extrabold mt-1.5 tracking-tight">पाठ्यक्रम</span>
-                </button>
-                <button data-tab="payments-tab" class="tab-btn w-16 h-16 rounded-2xl flex flex-col items-center justify-center text-slate-400 hover:text-slate-100 hover:bg-slate-900/60 border border-transparent hover:border-slate-800 transition-all group" title="Financial Portal">
-                    <i class="fa-solid fa-receipt text-xl group-hover:scale-110 transition-transform"></i>
-                    <span class="text-[10px] font-extrabold mt-1.5 tracking-tight">लेखापद्धति</span>
-                </button>
-                
-                <button id="admin-sidebar-btn" data-tab="admin-tab" class="tab-btn w-16 h-16 rounded-2xl hidden flex flex-col items-center justify-center text-amber-500/80 hover:text-amber-400 hover:bg-slate-900/60 border border-transparent hover:border-amber-500/20 transition-all group" title="Master Control Panel">
-                    <i class="fa-solid fa-gears text-xl group-hover:rotate-90 transition-transform duration-500"></i>
-                    <span class="text-[10px] font-extrabold mt-1.5 tracking-tight">कमाण्ड कक्ष</span>
-                </button>
-            </aside>
+<section class="hero container" id="home">
+  <div class="hero-left">
+    <h4>गलकोट नगरपालिका • Professional Surveyor</h4>
+    <h2>Dinesh Babu Roka</h2>
+    <p>जग्गा वर्गीकरण, नक्सांकन, सम्पत्ति मूल्याङ्कन, भवन क्षेत्रफल हिसाब, भूमि सम्बन्धी परामर्श तथा प्रशासनिक कार्यमा अनुभवी Professional Surveyor।</p>
+    
+    <div class="hero-buttons">
+      <a href="#services" class="btn btn-primary">
+        <i class="fa fa-layer-group"></i> सेवाहरू हेर्नुहोस्
+      </a>
+      <a href="#contact" class="btn btn-outline">
+        <i class="fa fa-phone"></i> सम्पर्क गर्नुहोस्
+      </a>
+    </div>
+  </div>
 
-            <main class="flex-1 flex overflow-hidden relative bg-slate-900/40">
-                
-                <div id="zoom-tab" class="tab-content w-full h-full flex flex-col lg:flex-row overflow-hidden animate-fadeIn">
-                    
-                    <div class="flex-1 bg-slate-950 p-6 flex flex-col relative overflow-y-auto">
-                        
-                        <div class="absolute top-8 left-8 z-20 flex items-center gap-3">
-                            <span class="bg-rose-600 animate-pulse text-white text-[10px] uppercase font-black px-3 py-1.5 rounded-lg shadow-lg flex items-center gap-2" id="recording-badge" style="display:none;">
-                                <span class="w-2 h-2 bg-white rounded-full"></span> RECORDING NOW
-                            </span>
-                            <span class="bg-slate-900/90 backdrop-blur border border-slate-800 text-slate-300 text-xs font-bold px-4 py-1.5 rounded-xl shadow-md flex items-center gap-2">
-                                <i class="fa-solid fa-users text-blue-400"></i> सहभागी सङ्ख्या: <span id="participant-count" class="font-mono text-white bg-slate-950 px-1.5 py-0.5 rounded">१</span>
-                            </span>
-                        </div>
+  <div class="hero-right">
+    <div class="profile-card">
+      <img src="brp.jpg" alt="Profile Picture of Dinesh Babu Roka">
+      <h3>Dinesh Babu Roka</h3>
+      <p>Surveyor • Galkot Municipality</p>
 
-                        <div class="flex-1 grid grid-cols-1 xl:grid-cols-2 gap-6 items-center justify-center my-auto min-h-[380px]" id="video-grid-container">
-                            
-                            <div class="relative w-full h-full min-h-[260px] max-h-[440px] bg-slate-900 rounded-3xl overflow-hidden border border-slate-800/80 shadow-2xl flex items-center justify-center group/v1">
-                                <video id="local-video" autoplay playsinline muted class="w-full h-full object-cover scale-x-[-1] transition-all duration-500"></video>
-                                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent z-10 opacity-80 group-hover/v1:opacity-100 transition-opacity"></div>
-                                
-                                <div class="absolute bottom-5 left-5 z-20 bg-slate-950/90 backdrop-blur-md px-4 py-2 rounded-xl text-xs font-bold text-white flex items-center gap-2.5 border border-slate-800">
-                                    <div class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></div>
-                                    <i class="fa-solid fa-microphone text-emerald-400" id="local-mic-status-icon"></i>
-                                    <span id="local-video-name-label">तपाईं (मेरो क्यामेरा)</span>
-                                </div>
-                                
-                                <div id="local-video-avatar-fallback" class="hidden absolute inset-0 bg-slate-900 flex flex-col items-center justify-center z-15">
-                                    <div class="w-24 h-24 rounded-full bg-blue-600/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-4xl font-black uppercase shadow-inner shadow-blue-500/5" id="local-fallback-char">M</div>
-                                    <p class="text-xs text-slate-500 font-semibold mt-3">भिडियो फिड बन्द छ</p>
-                                </div>
-                            </div>
+      <div class="social-icons">
+        <a href="tel:+9779857626542" aria-label="Call Phone Number"><i class="fa fa-phone"></i></a>
+        <a href="mailto:dineshbaburoka82@gmail.com" aria-label="Send Email"><i class="fa fa-envelope"></i></a>
+        <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Visit Facebook Page"><i class="fab fa-facebook-f"></i></a>
+      </div>
 
-                            <div class="relative w-full h-full min-h-[260px] max-h-[440px] bg-slate-900 rounded-3xl overflow-hidden border border-slate-800/80 shadow-2xl flex items-center justify-center group/v2">
-                                <video id="remote-video" autoplay playsinline class="w-full h-full object-cover transition-all duration-500"></video>
-                                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent z-10 opacity-80 group-hover/v2:opacity-100 transition-opacity"></div>
-                                
-                                <div class="absolute bottom-5 left-5 z-20 bg-slate-950/90 backdrop-blur-md px-4 py-2 rounded-xl text-xs font-bold text-white flex items-center gap-2.5 border border-slate-800">
-                                    <i class="fa-solid fa-microphone text-slate-500" id="remote-mic-status-icon"></i>
-                                    <span id="remote-video-name-label">रिमोट युजर फिड</span>
-                                </div>
-                                
-                                <div id="remote-video-avatar-fallback" class="absolute inset-0 bg-slate-900/95 flex flex-col items-center justify-center z-15 border border-slate-800/50 rounded-3xl">
-                                    <div class="text-center transform scale-100 transition-transform duration-300">
-                                        <div class="w-20 h-20 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 text-2xl font-bold mx-auto mb-3 shadow-inner">
-                                            <i class="fa-solid fa-network-wired text-slate-500 animate-pulse"></i>
-                                        </div>
-                                        <p class="text-xs text-slate-400 font-extrabold tracking-wide uppercase">कनेक्सनको प्रतीक्षामा...</p>
-                                        <p class="text-[10px] text-slate-600 max-w-[180px] mx-auto mt-1 font-medium">अर्को युजर यो कोठामा प्रवेश गरेपछि लाइभ फिड खुल्नेछ।</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="bg-slate-900/90 border border-slate-800 p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4 mt-6 shadow-2xl backdrop-blur-md">
-                            <div class="flex items-center gap-2.5">
-                                <button id="btn-toggle-mic" class="w-12 h-12 rounded-xl bg-slate-800 text-slate-200 border border-slate-700/60 hover:bg-slate-700 hover:text-white flex items-center justify-center transition-all shadow active:scale-95" title="Mute/Unmute Mic">
-                                    <i class="fa-solid fa-microphone text-base"></i>
-                                </button>
-                                <button id="btn-toggle-video" class="w-12 h-12 rounded-xl bg-slate-800 text-slate-200 border border-slate-700/60 hover:bg-slate-700 hover:text-white flex items-center justify-center transition-all shadow active:scale-95" title="Video On/Off">
-                                    <i class="fa-solid fa-video text-base"></i>
-                                </button>
-                            </div>
-
-                            <div class="flex items-center gap-2.5">
-                                <button id="btn-share-screen" class="px-5 h-12 rounded-xl bg-slate-800 text-slate-200 hover:text-white border border-slate-700/60 hover:bg-slate-700 flex items-center justify-center gap-2 font-bold text-xs transition-all shadow active:scale-95">
-                                    <i class="fa-solid fa-desktop text-emerald-400"></i>
-                                    <span class="hidden sm:inline font-extrabold">स्क्रिन शेयर</span>
-                                </button>
-                                <button id="btn-record-class" class="px-5 h-12 rounded-xl bg-slate-800 text-slate-200 hover:text-white border border-slate-700/60 hover:bg-slate-700 flex items-center justify-center gap-2 font-bold text-xs transition-all shadow active:scale-95">
-                                    <i class="fa-solid fa-circle-dot text-rose-500 animate-pulse"></i>
-                                    <span class="hidden sm:inline font-extrabold">रेकर्डिङ</span>
-                                </button>
-                            </div>
-
-                            <div>
-                                <button id="btn-leave-call" class="px-6 h-12 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 text-white font-black text-xs tracking-wider uppercase transition-all shadow-lg shadow-rose-600/10 active:scale-95">
-                                    कक्षा छोड्नुहोस्
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="w-full lg:w-96 bg-slate-900 border-t lg:border-t-0 lg:border-l border-slate-800/80 flex flex-col h-96 lg:h-full z-20">
-                        <div class="p-4 bg-slate-950 border-b border-slate-800/80 flex items-center justify-between">
-                            <div class="flex items-center gap-2.5">
-                                <div class="w-2 h-2 rounded-full bg-blue-500 animate-ping"></div>
-                                <i class="fa-solid fa-comments text-blue-500"></i>
-                                <h3 class="font-black text-xs text-white tracking-wider uppercase">लाइभ सार्वजनिक छलफल (Chat)</h3>
-                            </div>
-                            <span class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest">अनलाइन</span>
-                        </div>
-                        
-                        <div id="chat-stream-box" class="flex-1 p-4 overflow-y-auto space-y-4 bg-slate-900/30 flex flex-col scrollbar">
-                            </div>
-
-                        <form id="chat-input-form" class="p-3 bg-slate-950 border-t border-slate-800/80 flex gap-2">
-                            <input type="text" id="chat-msg-field" placeholder="केही सोध्न यहाँ टाईप गर्नुहोस्..." autocomplete="off" class="flex-1 px-4 py-3 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white focus:outline-none focus:border-blue-500 placeholder:text-slate-600 font-medium transition-all">
-                            <button type="submit" class="w-12 h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-xl flex items-center justify-center shadow-md shadow-blue-600/10 transition-colors active:scale-95">
-                                <i class="fa-solid fa-paper-plane text-sm"></i>
-                            </button>
-                        </form>
-                    </div>
-                </div>
-
-                <div id="notes-tab" class="tab-content hidden w-full h-full flex flex-col p-8 overflow-y-auto animate-fadeIn">
-                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-800/80 pb-6 mb-6">
-                        <div>
-                            <h2 class="text-2xl font-black text-white tracking-tight">शैक्षिक सामग्री तथा स्रोत केन्द्र</h2>
-                            <p class="text-xs text-slate-400 mt-1 font-medium">शिक्षकहरूद्वारा अपलोड गरिएका विस्तृत नोटहरू र अध्ययन गाइडहरू</p>
-                        </div>
-                        <button id="btn-open-note-modal" class="hidden px-5 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-extrabold text-xs transition-all shadow-md active:scale-95 items-center gap-2">
-                            <i class="fa-solid fa-plus-circle text-sm"></i> नयाँ नोट थप्नुहोस्
-                        </button>
-                    </div>
-
-                    <div id="note-post-modal" class="hidden bg-slate-950 border border-slate-800 p-6 rounded-2xl max-w-xl w-full mb-6 shadow-2xl animate-fadeIn relative z-30">
-                        <div class="flex justify-between items-center mb-5 pb-3 border-b border-slate-800/60">
-                            <h3 class="text-xs font-black text-white uppercase tracking-wider flex items-center gap-2">
-                                <i class="fa-solid fa-file-pen text-blue-400"></i> नयाँ शैक्षिक सामग्री फारम
-                            </h3>
-                            <button id="btn-close-note-modal" class="text-slate-500 hover:text-white transition-colors"><i class="fa-solid fa-circle-xmark text-lg"></i></button>
-                        </div>
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">सामग्रीको मुख्य शीर्षक</label>
-                                <input type="text" id="note-title-field" placeholder="उदाहरण: अध्याय ३ - नेटवर्किङ र क्लाउड कम्प्युटिङ" class="w-full px-4 py-3 bg-slate-900 border border-slate-800 rounded-xl focus:outline-none focus:border-blue-500 text-white text-sm transition-all">
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">विस्तृत विवरण/नोट्स</label>
-                                <textarea id="note-content-field" rows="5" placeholder="यस पाठ्यांशमा भएका मुख्य परिभाषाहरू र बुँदाहरू यहाँ लेख्नुहोस्..." class="w-full px-4 py-3 bg-slate-900 border border-slate-800 rounded-xl focus:outline-none focus:border-blue-500 text-white text-sm transition-all scrollbar"></textarea>
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">बाहिरी फाइल लिङ्क (गुगल ड्राइभ वा ड्रपबक्स)</label>
-                                <input type="text" id="note-link-field" placeholder="https://drive.google.com/file/d/..." class="w-full px-4 py-3 bg-slate-900 border border-slate-800 rounded-xl focus:outline-none focus:border-blue-500 text-white text-sm font-mono transition-all">
-                            </div>
-                            <button id="btn-submit-new-note" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 rounded-xl font-extrabold text-xs uppercase tracking-wider transition-all shadow-md active:scale-99">
-                                क्लाउड सर्भरमा पोस्ट गर्नुहोस्
-                            </button>
-                        </div>
-                    </div>
-
-                    <div id="notes-grid-display" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div class="col-span-full text-center py-16 border-2 border-dashed border-slate-800 rounded-2xl bg-slate-950/20 text-slate-500">
-                            <i class="fa-solid fa-spinner fa-spin text-3xl mb-4 text-blue-500 block"></i>
-                            डेटाबेसबाट नोटहरू प्राप्त भइरहेको छ, कृपया प्रतीक्षा गर्नुहोस्...
-                        </div>
-                    </div>
-                </div>
-
-                <div id="payments-tab" class="tab-content hidden w-full h-full flex flex-col p-8 overflow-y-auto animate-fadeIn">
-                    <div class="border-b border-slate-800/80 pb-6 mb-6">
-                        <h2 class="text-2xl font-black text-white tracking-tight">लेखा तथा शैक्षिक शुल्क वित्तीय पोर्टल</h2>
-                        <p class="text-xs text-slate-400 mt-1 font-medium">मासिक ट्युसन शुल्क स्थिति, चलानी र वित्तीय इतिहास लग</p>
-                    </div>
-
-                    <div id="teacher-billing-controls" class="hidden bg-slate-950 border border-slate-800/80 p-6 rounded-2xl mb-8 shadow-2xl max-w-4xl animate-fadeIn">
-                        <h3 class="text-xs font-black text-amber-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                            <i class="fa-solid fa-calculator"></i> विद्यार्थी शुल्क चलानी जेनेरेटर प्यानल
-                        </h3>
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                            <div>
-                                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5">विद्यार्थीको इमेल</label>
-                                <input type="email" id="bill-student-email" placeholder="student@email.com" class="w-full px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-amber-500">
-                            </div>
-                            <div>
-                                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5">रकम (रु. नेपालीमा)</label>
-                                <input type="number" id="bill-amount" placeholder="रकम हाल्नुहोस्" class="w-full px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-amber-500">
-                            </div>
-                            <div>
-                                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5">भुक्तानीको अन्तिम भाका</label>
-                                <input type="date" id="bill-duedate" class="w-full px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-300 focus:outline-none focus:border-amber-500 bg-slate-950">
-                            </div>
-                            <div>
-                                <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5">बिल स्थिति (Status)</label>
-                                <select id="bill-status" class="w-full px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-300 focus:outline-none focus:border-amber-500 bg-slate-950">
-                                    <option value="Pending">Pending (बाँकी शुल्क)</option>
-                                    <option value="Paid">Paid (चुक्ता भइसकेको)</option>
-                                    <option value="Overdue">Overdue (भाका नाघेको)</option>
-                                </select>
-                            </div>
-                        </div>
-                        <button id="btn-update-billing" class="mt-4 px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-slate-950 font-black text-xs rounded-xl transition-all shadow-md active:scale-95 uppercase tracking-wider">
-                            चलानी रेकर्ड सुरक्षित गर्नुहोस्
-                        </button>
-                    </div>
-
-                    <div class="bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
-                        <div class="p-4 bg-slate-900/60 border-b border-slate-800 font-black text-xs tracking-wider text-slate-200 uppercase flex items-center justify-between">
-                            <span>केन्द्रीय बिलिङ रजिस्टर लगहरू</span>
-                            <span class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-mono">Secure TLS Ledger</span>
-                        </div>
-                        <div class="overflow-x-auto scrollbar">
-                            <table class="w-full text-left border-collapse text-xs">
-                                <thead>
-                                    <tr class="border-b border-slate-800 text-slate-400 font-bold bg-slate-950 text-xs uppercase tracking-wider">
-                                        <th class="p-4">सदस्य आइडेन्टिटी (Email)</th>
-                                        <th class="p-4">कुल रकम (Fee Amount)</th>
-                                        <th class="p-4">भुक्तानी स्थिति</th>
-                                        <th class="p-4">भाका मिति (Due Date)</th>
-                                        <th class="p-4">अन्तिम अपडेट मिति</th>
-                                        <th class="p-4">प्रमाणित गर्ने लेखापाल</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="billing-table-body" class="divide-y divide-slate-800/40 text-slate-300 font-medium">
-                                    <tr>
-                                        <td colspan="6" class="p-12 text-center text-slate-600 font-medium">
-                                            वित्तीय खाता जानकारी लोड भइरहेको छ...
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="admin-tab" class="tab-content hidden w-full h-full flex flex-col p-8 overflow-y-auto animate-fadeIn">
-                    <div class="border-b border-slate-800 pb-5 mb-6">
-                        <h2 class="text-2xl font-black text-amber-400 tracking-tight flex items-center gap-2">
-                            <i class="fa-solid fa-shield-halved"></i> मुख्य प्रणाली प्रशासन केन्द्र (Admin Control)
-                        </h2>
-                        <p class="text-xs text-slate-400 mt-1 font-medium">सुरक्षा र विशेषाधिकार व्यवस्थापन: यहाँबाट दर्ता भएका सबै सदस्यहरूको रोल तत्कालै परिवर्तन गर्न सकिन्छ।</p>
-                    </div>
-
-                    <div class="bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
-                        <div class="p-4 bg-slate-900/60 border-b border-slate-800 font-black text-xs text-slate-300 uppercase tracking-widest">
-                            प्रणालीमा दर्ता भएका सम्पूर्ण प्रयोगकर्ताहरूको सुरक्षा प्रोफाइल
-                        </div>
-                        <div class="overflow-x-auto scrollbar">
-                            <table class="w-full text-left text-xs border-collapse">
-                                <thead>
-                                    <tr class="border-b border-slate-800 text-slate-400 font-black bg-slate-950 text-xs uppercase tracking-wider">
-                                        <th class="p-4">पूरा नाम विवरण</th>
-                                        <th class="p-4">इमेल लगइन आइडी</th>
-                                        <th class="p-4">हालको भूमिका</th>
-                                        <th class="p-4">विशेषाधिकार स्तर परिवर्तन</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="admin-users-table" class="divide-y divide-slate-800/40 font-medium text-slate-300">
-                                    </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-            </main>
+      <div class="stats">
+        <div class="stat-box">
+          <h3>7+</h3>
+          <p>Years Exp</p>
         </div>
+        <div class="stat-box">
+          <h3>500+</h3>
+          <p>Projects</p>
+        </div>
+        <div class="stat-box">
+          <h3>100%</h3>
+          <p>Trusted</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slider-section container">
+  <div class="slider" id="mainSlider">
+    <div class="slide active">
+      <img src="img1.jpg" alt="Land Surveying Equipment and Fieldwork">
+      <div class="overlay"></div>
+      <div class="slide-content">
+        <h2>Land Survey & Mapping</h2>
+        <p>Professional Geographic Services</p>
+      </div>
+    </div>
+    <div class="slide">
+      <img src="img2.jpg" alt="Property Valuation Document Processing">
+      <div class="overlay"></div>
+      <div class="slide-content">
+        <h2>Property Valuation</h2>
+        <p>Reliable & Accurate Reports</p>
+      </div>
+    </div>
+    <div class="slide">
+      <img src="img3.jpg" alt="Digital Mapping System Interface">
+      <div class="overlay"></div>
+      <div class="slide-content">
+        <h2>Digital Mapping System</h2>
+        <p>Modern Survey Technology</p>
+      </div>
+    </div>
+    <div class="slider-dots" id="sliderDots"></div>
+  </div>
+</section>
+
+<section class="services" id="services">
+  <div class="container">
+    <div class="section-title">
+      <p>Our Specialization</p>
+      <h2>डिजिटल तथा भूमिसम्बन्धी सेवाहरू</h2>
     </div>
 
-    <script>
-        // १. सुपाबेस क्लाउड जडान क्रेडिन्सियल संरचाना (Supabase Database Connection)
-        const SUPABASE_URL = "https://yjncftixsuekzodkxwbo.supabase.co"; 
-        const SUPABASE_ANON_KEY = "sb_publishable_yP8tnH6T70xE6cSZU2MDeg_8z0uFBJC";
+    <div class="service-grid">
+      <div class="service-card">
+        <i class="fa-solid fa-layer-group"></i>
+        <h3>जग्गा वर्गीकरण</h3>
+        <p>गलकोट नगरपालिकाको स्वीकृत भूउपयोग वर्गीकरण विवरण सहजै हेर्नुहोस्।</p>
+        <a href="indexupdate.html">Open Service →</a>
+      </div>
+
+      <div class="service-card">
+        <i class="fa-solid fa-map-location-dot"></i>
+        <h3>जग्गा अवस्थिति</h3>
+        <p>जग्गाको वास्तविक Location तथा देशान्तर अवस्थिति विवरण ट्र्याक गर्ने।</p>
+        <a href="indexupdate1.html">Open Service →</a>
+      </div>
+
+      <div class="service-card">
+        <i class="fa-solid fa-calculator"></i>
+        <h3>सम्पत्तिकर हिसाब</h3>
+        <p>सम्पत्तिकर बक्यौता तथा डिजिटल मूल्याङ्कन हिसाब गणना प्रणाली।</p>
+        <a href="land valuation.html">Open Service →</a>
+      </div>
+
+      <div class="service-card">
+        <i class="fa-solid fa-ruler-combined"></i>
+        <h3>क्षेत्रफल हिसाब</h3>
+        <p>भवन तथा जग्गाको क्षेत्रफल वर्गमिटर र वर्गफिटमा अचुक हिसाब।</p>
+        <a href="covert.html">Open Service →</a>
+      </div>
+
+      <div class="service-card">
+        <i class="fa-solid fa-file-signature"></i>
+        <h3>वर्गीकरण सिफारिस</h3>
+        <p>मालपोत र नापी कार्यालयका लागि सरकारी वर्गीकरण सिफारिस प्रणाली।</p>
+        <a href="index2121.html">Open Service →</a>
+      </div>
+
+      <div class="service-card">
+        <i class="fa-solid fa-id-card"></i>
+        <h3>ID Card System</h3>
+        <p>नगरपालिकाका कर्मचारीहरूको आधुनिक परिचय पत्र व्यवस्थापन प्रणाली।</p>
+        <a href="idcard2protait.html">Open Service →</a>
+      </div>
+
+      <div class="service-card">
+        <i class="fa-solid fa-map-marked-alt"></i>
+        <h3>नक्सा शाखा (Map Branch)</h3>
+        <p>गलकोट नगरपालिकाको नक्सा पास सम्बन्धी कार्य।</p>
+        <a href="mapbranch.html">Open Service →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="video-section container">
+  <div class="section-title">
+    <p>Visual Tour</p>
+    <h2>परिचय भिडियो</h2>
+  </div>
+  <div class="video-card">
+    <video controls poster="brp.jpg" preload="none">
+      <source src="video.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+  </div>
+</section>
+
+<section class="container" id="experience">
+  <div class="section-title">
+    <p>Timeline</p>
+    <h2>कार्य अनुभव</h2>
+  </div>
+
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="timeline-card">
+        <h3>Surveyor — Galkot Municipality</h3>
+        <span>२०७६-११-२८ — हालसम्म कार्यरत</span>
+        <p style="margin-top:12px; color:var(--muted); line-height:1.6; font-size:0.95rem;">
+          जग्गा मापन, GIS Mapping, सम्पत्ति मूल्याङ्कन, भूउपयोग वर्गीकरण तथा नगरपालिका अन्तर्गतका प्राविधिक प्रशासनिक कार्यमा सक्रिय।
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="contact" id="contact">
+  <div class="container">
+    <div class="section-title">
+      <p>Get In Touch</p>
+      <h2>सम्पर्क गर्नुहोस्</h2>
+    </div>
+
+    <div class="contact-grid">
+      <div class="contact-card">
+        <h3>Message Form</h3>
+        <form id="contactForm">
+          <div class="input-group">
+            <input type="text" id="contactName" placeholder="तपाईंको नाम" required minlength="2">
+          </div>
+          <div class="input-group">
+            <input type="email" id="contactEmail" placeholder="इमेल ठेगाना" required>
+          </div>
+          <div class="input-group">
+            <textarea id="contactMessage" rows="5" placeholder="सन्देश यहाँ लेख्नुहोस्..." required minlength="10"></textarea>
+          </div>
+          <button class="btn btn-primary" type="submit" style="width:100%; cursor:pointer;">
+            <i class="fa fa-paper-plane"></i> सन्देश पठाउनुहोस्
+          </button>
+        </form>
+      </div>
+
+      <div class="contact-card" style="display:flex; flex-direction:column; justify-content:space-between;">
+        <div>
+          <h3>Office Information</h3>
+          <p style="line-height:2; color:var(--muted); font-size:0.95rem;">
+            <i class="fa fa-location-dot" style="color:var(--primary); width:20px;"></i> Galkot Municipality, Baglung<br>
+            <i class="fa fa-phone" style="color:var(--primary); width:20px;"></i> +9779857626542<br>
+            <i class="fa fa-envelope" style="color:var(--primary); width:20px;"></i> dineshbaburoka82@gmail.com
+          </p>
+        </div>
         
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        
-        // २. केन्द्रीय एप्लिकेसन मेमोरी स्टेट (State Management Variables)
-        let socketConnection = null;
-        let activeUserSession = null;
-        let currentUserProfile = null;
-        let roomID = "LIVE-CLASS-101";
-        let isAuthLoginMode = true; // सत्य हुँदा लगइन, झुटो हुँदा साइनअप मोड सक्रिय
+        <div style="width:100%; height:200px; margin-top:16px; border:1px solid var(--border); border-radius:4px; overflow:hidden; background:#e5e3df; position:relative; display:flex; align-items:center; justify-content:center; text-align:center;">
+          <div style="padding:20px; color:#555;">
+            <i class="fa-solid fa-map-location-dot" style="font-size:2rem; color:var(--primary); margin-bottom:8px;"></i>
+            <p style="font-size:0.85rem; font-weight:600;">Galkot Municipality, Baglung</p>
+            <a href="https://maps.google.com/?q=Galkot+Municipality+Baglung" target="_blank" rel="noopener noreferrer" style="font-size:0.8rem; color:var(--primary); text-decoration:none; font-weight:700; display:block; margin-top:4px;">View on Large Map →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-        // ३. मिडिया स्ट्रिमिङ र WebRTC आर्किटेक्चर स्टेट
-        let streamAudioVideo = null;
-        let webrtcPeerConnection = null;
-        let isMicrophoneActive = true;
-        let isCameraActive = true;
-        let isScreenSharingActive = false;
-        let isClassRecordingActive = false;
+<footer>
+  <div class="container footer-content">
+    <div>
+      <h3>Dinesh Babu Roka</h3>
+      <p>Professional Surveyor & Consultant</p>
+    </div>
+    <div class="footer-links">
+      <a href="mailto:dineshbaburoka82@gmail.com"><i class="fa fa-envelope"></i> Email</a>
+      <a href="tel:+9779857626542"><i class="fa fa-phone"></i> Call</a>
+    </div>
+  </div>
+  <div style="text-align:center; margin-top:24px; font-size:0.85rem;">
+    © 2026 Dinesh Babu Roka — All Rights Reserved
+  </div>
+</footer>
 
-        const iceServersConfig = {
-            iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
-        };
+<div class="float-buttons">
+  <button class="dark-toggle" id="darkToggle" title="Dark Mode Toggle">
+    <i class="fa fa-moon"></i>
+  </button>
+  <a href="https://wa.me/9779857626542" target="_blank" rel="noopener noreferrer" class="whatsapp" title="WhatsApp Chat">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+  <a href="tel:+9779857626542" class="call" title="Direct Call">
+    <i class="fa fa-phone"></i>
+  </a>
+</div>
 
-        // ४. DOM कम्पोनेन्ट क्याचरहरू
-        const authScreen = document.getElementById('auth-screen');
-        const mainClassroom = document.getElementById('main-classroom');
-        const authTitle = document.getElementById('auth-title');
-        const authSubtitle = document.getElementById('auth-subtitle');
-        const authSubmitBtn = document.getElementById('auth-submit-btn');
-        const btnText = document.getElementById('btn-text');
-        const authToggleLink = document.getElementById('auth-toggle-link');
-        const authToggleText = document.getElementById('auth-toggle-text');
-        const fullnameGroup = document.getElementById('fullname-group');
-        const roleGroup = document.getElementById('role-group');
-        const roomGroup = document.getElementById('room-group');
-        const alertBox = document.getElementById('alert-box');
+<script>
+/* OPTIMIZED PRELOADER */
+window.addEventListener('load', () => {
+  hidePreloader();
+});
 
-        // ==========================================
-        // कोर फिक्स १: लगइन र साइनअप बीचको इन्टरफेस टोगल मेकानिजम
-        // ==========================================
-        authToggleLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            isAuthLoginMode = !isAuthLoginMode;
-            alertBox.className = "hidden"; // पुरानो सूचनाहरू लुकाउने
-            
-            if(isAuthLoginMode) {
-                // लगइन ढाँचा कन्फिगर गर्ने
-                authTitle.innerText = "विद्यार्थी लगइन कक्ष";
-                authSubtitle.innerText = "एड्युभिडियो एकीकृत भर्चुअल क्लासरुम इन्जिन";
-                btnText.innerText = "कक्षा कोठामा प्रवेश गर्नुहोस्";
-                authToggleText.innerText = "नयाँ सदस्य हुनुहुन्छ?";
-                authToggleLink.innerText = "नयाँ खाता सिर्जना गर्नुहोस्";
-                
-                fullnameGroup.classList.add('hidden');
-                roleGroup.classList.add('hidden');
-                roomGroup.classList.remove('hidden');
-                
-                fullnameGroup.style.opacity = "0";
-                roleGroup.style.opacity = "0";
-            } else {
-                // नयाँ खाता सिर्जना गर्ने (Signup) ढाँचा कन्फिगर गर्ने
-                authTitle.innerText = "नयाँ खाता प्रणाली दर्ता";
-                authSubtitle.innerText = "एकीकृत मल्टि-रोल क्लाउड नेटवर्कमा अकाउन्ट बनाउनुहोस्";
-                btnText.innerText = "खाता सिर्जना गर्नुहोस्";
-                authToggleText.innerText = "खाता बनिसकेको छ?";
-                authToggleLink.innerText = "यहाँ लगइन गर्नुहोस्";
-                
-                fullnameGroup.classList.remove('hidden');
-                roleGroup.classList.remove('hidden');
-                roomGroup.classList.add('hidden');
-                
-                setTimeout(() => {
-                    fullnameGroup.style.opacity = "1";
-                    fullnameGroup.style.transform = "scale(1)";
-                    roleGroup.style.opacity = "1";
-                    roleGroup.style.transform = "scale(1)";
-                }, 50);
-            }
-        });
+setTimeout(() => {
+  hidePreloader();
+}, 1000); 
 
-        // ==========================================
-        // कोर फिक्स २: अत्याधुनिक सुरक्षित अथेन्टिकेसन इन्जिन (Sign Up / Sign In Handler)
-        // ==========================================
-        authSubmitBtn.addEventListener('click', async () => {
-            const emailInput = document.getElementById('auth-email').value.trim();
-            const passwordInput = document.getElementById('auth-password').value.trim();
-            const fullNameInput = document.getElementById('auth-fullname').value.trim();
-            roomID = document.getElementById('auth-room').value.trim() || "LIVE-CLASS-101";
+function hidePreloader() {
+  const preloader = document.getElementById('preloader');
+  if(preloader && !preloader.classList.contains('hidden')) {
+    preloader.style.opacity = '0';
+    preloader.style.visibility = 'hidden';
+    document.body.classList.remove('loading');
+    preloader.classList.add('hidden');
+  }
+}
 
-            // अनिवार्य क्रेडिन्सियल भ्यालिडेसन चेक
-            if(!emailInput || !passwordInput) {
-                renderNotificationAlert("त्रुटि: कृपया इमेल र पासवर्ड अनिवार्य रूपमा भर्नुहोस्।", "bg-rose-500/10 text-rose-400 border border-rose-500/20");
-                return;
-            }
-            if(passwordInput.length < 6) {
-                renderNotificationAlert("त्रुटि: सुरक्षाका लागि पासवर्ड कम्तीमा ६ क्यारेक्टरको हुनुपर्छ।", "bg-amber-500/10 text-amber-400 border border-amber-500/20");
-                return;
-            }
+/* MOBILE MENU INTERACTIVITY */
+const menuBtn = document.getElementById('menuBtn');
+const navLinks = document.getElementById('navLinks');
+const menuIcon = menuBtn.querySelector('i');
 
-            if(!isAuthLoginMode) {
-                // ------------------------------------------
-                // [इन्जिन क: नयाँ खाता सिर्जना (SIGNUP ENGINE)]
-                // ------------------------------------------
-                if(!fullNameInput) {
-                    renderNotificationAlert("त्रुटि: कृपया तपाईंको पूरा नाम फिल्ड भर्नुहोस्।", "bg-rose-500/10 text-rose-400 border border-rose-500/20");
-                    return;
-                }
-                const selectedRole = document.querySelector('input[name="auth-role"]:checked').value;
-                
-                authSubmitBtn.disabled = true;
-                btnText.innerText = "खाता प्रशोधन हुँदैछ...";
+menuBtn.onclick = () => {
+  navLinks.classList.toggle('active');
+  if (navLinks.classList.contains('active')) {
+    menuIcon.classList.replace('fa-bars', 'fa-xmark');
+  } else {
+    menuIcon.classList.replace('fa-xmark', 'fa-bars');
+  }
+}
 
-                // Supabase Auth SignUp को पछिल्लो सुरक्षित फंक्सन कल
-                const { data: registerPayload, error: registerError } = await supabase.auth.signUp({
-                    email: emailInput,
-                    password: passwordInput,
-                    options: {
-                        data: {
-                            full_name: fullNameInput,
-                            role: selectedRole
-                        }
-                    }
-                });
+document.querySelectorAll('.nav-links a').forEach(link => {
+  link.onclick = () => {
+    navLinks.classList.remove('active');
+    menuIcon.classList.replace('fa-xmark', 'fa-bars');
+  };
+});
 
-                if(registerError) {
-                    renderNotificationAlert("दर्ता असफल: " + registerError.message, "bg-rose-500/10 text-rose-400 border border-rose-500/20");
-                    authSubmitBtn.disabled = false;
-                    btnText.innerText = "खाता सिर्जना गर्नुहोस्";
-                    return;
-                }
+/* ENHANCED SLIDER SYSTEM */
+const slides = document.querySelectorAll('.slide');
+const dotsContainer = document.getElementById('sliderDots');
+let currentIndex = 0;
+let slideInterval;
 
-                // खाता सिर्जना भइसकेपछि प्रयोगकर्तालाई अलर्ट देखाई लगइनमा रिडाइरेक्ट गर्ने फिक्स
-                renderNotificationAlert("बधाई छ! खाता सफलतापूर्वक सिर्जना भयो। अब लगइन गर्नुहोस्।", "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20");
-                authSubmitBtn.disabled = false;
-                btnText.innerText = "खाता सिर्जना गर्नुहोस्";
-                
-                // स्वचालित रूपमा लगइन स्क्रिनमा फर्काइदिने ट्रिगर
-                isAuthLoginMode = false;
-                authToggleLink.click();
+if(slides.length > 0 && dotsContainer) {
+  slides.forEach((_, i) => {
+    const dot = document.createElement('div');
+    dot.classList.add('dot');
+    if(i === 0) dot.classList.add('active');
+    dot.onclick = () => {
+      goToSlide(i);
+      resetSliderTimer();
+    };
+    dotsContainer.appendChild(dot);
+  });
 
-            } else {
-                // ------------------------------------------
-                // [इन्जिन ख: कक्षा कोठामा प्रवेश (SIGNIN ENGINE)]
-                // ------------------------------------------
-                authSubmitBtn.disabled = true;
-                btnText.innerText = "प्रमाणिकता जाँच हुँदैछ...";
+  const dots = document.querySelectorAll('.dot');
 
-                const { data: loginPayload, error: loginError } = await supabase.auth.signInWithPassword({
-                    email: emailInput,
-                    password: passwordInput
-                });
+  function goToSlide(n) {
+    slides[currentIndex].classList.remove('active');
+    dots[currentIndex].classList.remove('active');
+    currentIndex = n;
+    slides[currentIndex].classList.add('active');
+    dots[currentIndex].classList.add('active');
+  }
 
-                if(loginError) {
-                    renderNotificationAlert("प्रवेश अस्वीकृत: " + loginError.message, "bg-rose-500/10 text-rose-400 border border-rose-500/20");
-                    authSubmitBtn.disabled = false;
-                    btnText.innerText = "कक्षा कोठामा प्रवेश गर्नुहोस्";
-                    return;
-                }
+  function nextSlide() {
+    let next = (currentIndex + 1) % slides.length;
+    goToSlide(next);
+  }
 
-                if(loginPayload?.user) {
-                    activeUserSession = loginPayload.user;
-                    
-                    // सुरक्षा बिशेषता: युजर प्रोफाइल डेटाबेसबाट रोल र विवरण निकाल्ने
-                    const { data: profileRow, error: profileError } = await supabase
-                        .from('user_profiles')
-                        .select('*')
-                        .eq('id', activeUserSession.id)
-                        .maybeSingle();
+  function resetSliderTimer() {
+    clearInterval(slideInterval);
+    slideInterval = setInterval(nextSlide, 5000);
+  }
 
-                    if(profileError || !profileRow) {
-                        // यदि ट्रिगर ढिलो भएमा फलब्याक ब्याकअप प्रोफाइल स्टेट सेट गर्ने
-                        const parsedName = emailInput.split('@')[0];
-                        currentUserProfile = { 
-                            id: activeUserSession.id, 
-                            email: emailInput, 
-                            role: 'student', 
-                            full_name: parsedName 
-                        };
-                    } else {
-                        currentUserProfile = profileRow;
-                    }
+  slideInterval = setInterval(nextSlide, 5000);
+}
 
-                    // अनुप्रयोगको मुख्य कार्यक्षेत्र लन्च गर्ने
-                    launchApplicationWorkspace();
-                }
-            }
-        });
+/* DARK MODE ENGINE */
+const darkToggle = document.getElementById('darkToggle');
+const toggleIcon = darkToggle.querySelector('i');
 
-        // सुप्रिम सूचना प्रदायक अलर्ट प्रणाली
-        function renderNotificationAlert(text, styleClasses) {
-            alertBox.innerText = text;
-            alertBox.className = `p-4 rounded-xl mb-6 text-sm text-center font-bold ${styleClasses} transition-all`;
-            alertBox.classList.remove('hidden');
-        }
+if(localStorage.getItem('theme') === 'dark') {
+  document.body.classList.add('dark');
+  toggleIcon.classList.replace('fa-moon', 'fa-sun');
+}
 
-        // ==========================================
-        // कोर फिक्स ३: एप्लिकेसन लेआउट लन्च र डेटा सिङ्क्रोनाइजेसन
-        // ==========================================
-        async function launchApplicationWorkspace() {
-            authScreen.classList.add('hidden');
-            mainClassroom.classList.remove('hidden');
+darkToggle.onclick = () => {
+  document.body.classList.toggle('dark');
+  if(document.body.classList.contains('dark')) {
+    localStorage.setItem('theme', 'dark');
+    toggleIcon.classList.replace('fa-moon', 'fa-sun');
+  } else {
+    localStorage.setItem('theme', 'light');
+    toggleIcon.classList.replace('fa-sun', 'fa-moon');
+  }
+}
 
-            // हेडर विवरणहरू अपडेट गर्ने
-            document.getElementById('classroom-code').innerText = roomID;
-            document.getElementById('user-display-name').innerText = currentUserProfile.full_name || currentUserProfile.email;
-            document.getElementById('user-display-role').innerText = currentUserProfile.role.toUpperCase();
-            
-            const firstLetter = (currentUserProfile.full_name || "U").charAt(0).toUpperCase();
-            document.getElementById('user-avatar').innerText = firstLetter;
-            document.getElementById('local-fallback-char').innerText = firstLetter;
-            document.getElementById('local-video-name-label').innerText = `${currentUserProfile.full_name} (तपाईं - ${currentUserProfile.role})`;
+/* VALIDATED FORM SUBMISSION */
+document.getElementById('contactForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const name = document.getElementById('contactName').value.trim();
+  const email = document.getElementById('contactEmail').value.trim();
+  const message = document.getElementById('contactMessage').value.trim();
+  
+  if(name && email && message) {
+    alert('धन्यवाद ' + name + ', तपाईंको सन्देश सफलतापूर्वक पठाइयो ।');
+    this.reset();
+  } else {
+    alert('कृपया सबै विवरणहरू सही रूपमा भर्नुहोस्।');
+  }
+});
 
-            // रोल अनुसार फिचरहरू लक वा अनलक गर्ने नियन्त्रक
-            applyRolePermissionsFilter();
-            
-            // डेटाबेसबाट लाइभ डेटा स्ट्रिमहरू सक्रिय गर्ने
-            fetchClassNotesFromDatabase();
-            fetchPaymentRecordsFromDatabase();
-            listenToLiveChatsFromDatabase();
+/* ACTIVE LINK ON SCROLL */
+const sections = document.querySelectorAll("section[id]");
+window.addEventListener("scroll", () => {
+  let current = "";
+  const scrollY = window.scrollY;
 
-            // एडमिन भएमा कमाण्ड कक्षको डेटा लोड गर्ने
-            if(currentUserProfile.role.toLowerCase() === 'admin') {
-                fetchUsersForAdminConsole();
-            }
+  sections.forEach(section => {
+    const sectionTop = section.offsetTop - 140;
+    const sectionHeight = section.offsetHeight;
+    if (scrollY >= sectionTop && scrollY < sectionTop + sectionHeight) {
+      current = section.getAttribute("id");
+    }
+  });
 
-            // लाइभ भिडियो च्याट इन्जिन सुरु गर्ने
-            initiateZoomVideoEngine();
-        }
+  document.querySelectorAll(".nav-links a").forEach(a => {
+    a.classList.remove("active");
+    if (a.getAttribute("href") === "#" + current) {
+      a.classList.add("active");
+    }
+  });
+});
+</script>
 
-        // विशेषाधिकार छनोट फिल्टर (Role Permission Filter)
-        function applyRolePermissionsFilter() {
-            const userRole = currentUserProfile.role.toLowerCase();
-            
-            if (userRole === 'teacher' || userRole === 'admin') {
-                document.getElementById('btn-open-note-modal').classList.remove('hidden');
-                document.getElementById('teacher-billing-controls').classList.remove('hidden');
-                
-                if(userRole === 'admin') {
-                    document.getElementById('admin-sidebar-btn').classList.remove('hidden');
-                } else {
-                    document.getElementById('admin-sidebar-btn').classList.add('hidden');
-                }
-            } else {
-                // सामान्य विद्यार्थीहरूका लागि थप्ने र सम्पादन गर्ने मेनुहरू हाइड गर्ने
-                document.getElementById('btn-open-note-modal').classList.add('hidden');
-                document.getElementById('teacher-billing-controls').classList.add('hidden');
-                document.getElementById('admin-sidebar-btn').classList.add('hidden');
-            }
-        }
-
-        // ==========================================
-        // कोर फिक्स ४: अत्याधुनिक WebRTC भिडियो स्ट्रिमिङ च्यानल इन्जिन
-        // ==========================================
-        async function initiateZoomVideoEngine() {
-            try {
-                streamAudioVideo = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                document.getElementById('local-video').srcObject = streamAudioVideo;
-            } catch (mediaDeviceError) {
-                console.warn("हार्डवेयर कमाण्ड त्रुटि: क्यामेरा वा माइक्रोफोन फेला परेन।", mediaDeviceError);
-                document.getElementById('local-video-avatar-fallback').classList.remove('hidden');
-            }
-
-            // सिग्नलिंग च्यानल जडान (Socket Server Endpoint)
-            try {
-                socketConnection = io('https://signaling-server-example.com');
-                
-                socketConnection.on('connect', () => {
-                    socketConnection.emit('join-room', roomID, socketConnection.id);
-                });
-                
-                socketConnection.on('user-connected', async (remoteSocketId) => {
-                    document.getElementById('participant-count').innerText = "२";
-                    document.getElementById('remote-video-avatar-fallback').classList.add('hidden');
-                    
-                    setupWebRTCPeerConnection(remoteSocketId);
-                    
-                    if(streamAudioVideo) {
-                        streamAudioVideo.getTracks().forEach(track => webrtcPeerConnection.addTrack(track, streamAudioVideo));
-                    }
-                    
-                    const callOffer = await webrtcPeerConnection.createOffer();
-                    await webrtcPeerConnection.setLocalDescription(callOffer);
-                    socketConnection.emit('offer', { offer: callOffer, target: remoteSocketId });
-                });
-                
-                socketConnection.on('offer', async (payload) => {
-                    document.getElementById('participant-count').innerText = "२";
-                    document.getElementById('remote-video-avatar-fallback').classList.add('hidden');
-                    
-                    setupWebRTCPeerConnection(payload.sender);
-                    
-                    if(streamAudioVideo) {
-                        streamAudioVideo.getTracks().forEach(track => webrtcPeerConnection.addTrack(track, streamAudioVideo));
-                    }
-                    
-                    await webrtcPeerConnection.setRemoteDescription(new RTCSessionDescription(payload.incomingOffer));
-                    const callAnswer = await webrtcPeerConnection.createAnswer();
-                    await webrtcPeerConnection.setLocalDescription(callAnswer);
-                    socketConnection.emit('answer', { answer: callAnswer, target: payload.sender });
-                });
-                
-                socketConnection.on('answer', async (payload) => {
-                    await webrtcPeerConnection.setRemoteDescription(new RTCSessionDescription(payload.incomingAnswer));
-                });
-                
-                socketConnection.on('ice-candidate', async (payload) => {
-                    if (webrtcPeerConnection) {
-                        await webrtcPeerConnection.addIceCandidate(new RTCIceCandidate(payload.candidate)).catch(() => {});
-                    }
-                });
-                
-                socketConnection.on('user-disconnected', () => {
-                    document.getElementById('participant-count').innerText = "१";
-                    document.getElementById('remote-video').srcObject = null;
-                    document.getElementById('remote-video-avatar-fallback').classList.remove('hidden');
-                });
-            } catch (connectionError) {
-                console.log("स्ट्यान्डअलोन सुरक्षित मोड सक्रिय भयो (सिग्नलिंग सर्भर बिना काम गर्दै)");
-            }
-        }
-
-        function setupWebRTCPeerConnection(targetId) {
-            webrtcPeerConnection = new RTCPeerConnection(iceServersConfig);
-            
-            webrtcPeerConnection.ontrack = (event) => {
-                document.getElementById('remote-video').srcObject = event.streams[0];
-            };
-            
-            webrtcPeerConnection.onicecandidate = (event) => {
-                if (event.candidate && socketConnection) {
-                    socketConnection.emit('ice-candidate', { candidate: event.candidate, target: targetId });
-                }
-            };
-        }
-
-        // ==========================================
-        // कोर फिक्स ५: हार्डवेयर नियन्त्रण बटन कमाण्डहरू (Mic, Camera, Recording)
-        // ==========================================
-        document.getElementById('btn-toggle-mic').addEventListener('click', () => {
-            if(streamAudioVideo && streamAudioVideo.getAudioTracks().length > 0) {
-                isMicrophoneActive = !isMicrophoneActive;
-                streamAudioVideo.getAudioTracks()[0].enabled = isMicrophoneActive;
-                
-                const micBtn = document.getElementById('btn-toggle-mic');
-                const micIcon = document.getElementById('local-mic-status-icon');
-                
-                if(isMicrophoneActive) {
-                    micBtn.className = "w-12 h-12 rounded-xl bg-slate-800 text-slate-200 border border-slate-700/60 hover:bg-slate-700 flex items-center justify-center transition-all shadow active:scale-95";
-                    micBtn.innerHTML = `<i class="fa-solid fa-microphone text-base"></i>`;
-                    micIcon.className = "fa-solid fa-microphone text-emerald-400";
-                } else {
-                    micBtn.className = "w-12 h-12 rounded-xl bg-rose-600/20 text-rose-500 border border-rose-500/40 flex items-center justify-center transition-all shadow active:scale-95";
-                    micBtn.innerHTML = `<i class="fa-solid fa-microphone-slash text-base"></i>`;
-                    micIcon.className = "fa-solid fa-microphone-slash text-rose-500";
-                }
-            }
-        });
-
-        document.getElementById('btn-toggle-video').addEventListener('click', () => {
-            if(streamAudioVideo && streamAudioVideo.getVideoTracks().length > 0) {
-                isCameraActive = !isCameraActive;
-                streamAudioVideo.getVideoTracks()[0].enabled = isCameraActive;
-                
-                const videoBtn = document.getElementById('btn-toggle-video');
-                const fallbackAvatar = document.getElementById('local-video-avatar-fallback');
-                
-                if(isCameraActive) {
-                    videoBtn.className = "w-12 h-12 rounded-xl bg-slate-800 text-slate-200 border border-slate-700/60 hover:bg-slate-700 flex items-center justify-center transition-all shadow active:scale-95";
-                    videoBtn.innerHTML = `<i class="fa-solid fa-video text-base"></i>`;
-                    fallbackAvatar.classList.add('hidden');
-                } else {
-                    videoBtn.className = "w-12 h-12 rounded-xl bg-rose-600/20 text-rose-500 border border-rose-500/40 flex items-center justify-center transition-all shadow active:scale-95";
-                    videoBtn.innerHTML = `<i class="fa-solid fa-video-slash text-base"></i>`;
-                    fallbackAvatar.classList.remove('hidden');
-                }
-            }
-        });
-
-        document.getElementById('btn-share-screen').addEventListener('click', async () => {
-            const shareBtn = document.getElementById('btn-share-screen');
-            if(!isScreenSharingActive) {
-                try {
-                    const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
-                    document.getElementById('local-video').srcObject = screenStream;
-                    shareBtn.className = "px-5 h-12 rounded-xl bg-emerald-600 text-slate-950 flex items-center justify-center gap-2 font-black text-xs shadow-lg shadow-emerald-500/10";
-                    isScreenSharingActive = true;
-                    
-                    screenStream.getVideoTracks()[0].onended = () => {
-                        document.getElementById('local-video').srcObject = streamAudioVideo;
-                        shareBtn.className = "px-5 h-12 rounded-xl bg-slate-800 text-slate-200 border border-slate-700/60 flex items-center justify-center gap-2 font-bold text-xs";
-                        isScreenSharingActive = false;
-                    };
-                } catch (err) { console.error("स्क्रिन शेयरिङ सुरु हुन सकेन", err); }
-            } else {
-                document.getElementById('local-video').srcObject = streamAudioVideo;
-                shareBtn.className = "px-5 h-12 rounded-xl bg-slate-800 text-slate-200 border border-slate-700/60 flex items-center justify-center gap-2 font-bold text-xs";
-                isScreenSharingActive = false;
-            }
-        });
-
-        document.getElementById('btn-record-class').addEventListener('click', () => {
-            isClassRecordingActive = !isClassRecordingActive;
-            const recordBadge = document.getElementById('recording-badge');
-            const recordBtn = document.getElementById('btn-record-class');
-            
-            if(isClassRecordingActive) {
-                recordBadge.style.display = 'inline-flex';
-                recordBtn.className = "px-5 h-12 rounded-xl bg-rose-600/20 text-rose-400 border border-rose-500/40 flex items-center justify-center gap-2 font-bold text-xs shadow animate-pulse";
-            } else {
-                recordBadge.style.display = 'none';
-                recordBtn.className = "px-5 h-12 rounded-xl bg-slate-800 text-slate-200 border border-slate-700/60 flex items-center justify-center gap-2 font-bold text-xs shadow";
-            }
-        });
-
-        document.getElementById('btn-leave-call').addEventListener('click', () => {
-            if(confirm("के तपाईं यो लाइभ भिडियो क्लास छोडेर बाहिरिन चाहनुहुन्छ?")) {
-                window.location.reload();
-            }
-        });
-
-        // ==========================================
-        // कोर फिक्स ६: सार्वजनिक च्याट म्यानेजर (Supabase Realtime Database Subscriptions)
-        // ==========================================
-        document.getElementById('chat-input-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const messageField = document.getElementById('chat-msg-field');
-            const messageContent = messageField.value.trim();
-            
-            if (messageContent) {
-                const userSender = currentUserProfile.full_name || currentUserProfile.email;
-                
-                // डेटाबेस तालिकामा सन्देश थप्ने (Insert Query)
-                await supabase.from('classroom_chats').insert([{ 
-                    room_id: roomID, 
-                    sender: userSender, 
-                    message: messageContent 
-                }]);
-                
-                messageField.value = '';
-            }
-        });
-
-        function listenToLiveChatsFromDatabase() {
-            document.getElementById('chat-stream-box').innerHTML = '';
-            
-            supabase
-                .channel('realtime:classroom_chats')
-                .on('postgres_changes', { 
-                    event: 'INSERT', 
-                    schema: 'public', 
-                    table: 'classroom_chats', 
-                    filter: `room_id=eq.${roomID}` 
-                }, payload => {
-                    renderSingleChatMessage(payload.new.sender, payload.new.message, payload.new.created_at);
-                })
-                .subscribe();
-        }
-
-        function renderSingleChatMessage(sender, text, timeStamp) {
-            const streamBox = document.getElementById('chat-stream-box');
-            const msgDiv = document.createElement('div');
-            
-            const matchesMyIdentity = sender === (currentUserProfile.full_name || currentUserProfile.email);
-            
-            if (matchesMyIdentity) {
-                msgDiv.className = "bg-blue-600/20 border border-blue-500/20 p-3.5 rounded-2xl rounded-tr-none max-w-[85%] self-end shadow-sm transform transition-all hover:scale-[1.01]";
-            } else {
-                msgDiv.className = "bg-slate-800 border border-slate-700/70 p-3.5 rounded-2xl rounded-tl-none max-w-[85%] self-start shadow-sm transform transition-all hover:scale-[1.01]";
-            }
-            
-            const clockString = timeStamp ? new Date(timeStamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'भर्खरै';
-            
-            msgDiv.innerHTML = `
-                <div class="text-[10px] text-blue-400 font-black uppercase tracking-wider mb-1">${sender.split('@')[0]}</div>
-                <div class="text-sm text-slate-200 leading-relaxed break-words font-medium">${text}</div>
-                <div class="text-[9px] text-slate-500 text-right mt-1.5 font-bold font-mono">${clockString}</div>
-            `;
-            
-            streamBox.appendChild(msgDiv);
-            streamBox.scrollTop = streamBox.scrollHeight;
-        }
-
-        // ==========================================
-        // कोर फिक्स ७: पाठ्यक्रम नोटहरू व्यवस्थापन मोड्युल (LMS Query Infrastructure)
-        // ==========================================
-        document.getElementById('btn-open-note-modal').addEventListener('click', () => {
-            document.getElementById('note-post-modal').classList.remove('hidden');
-        });
-        document.getElementById('btn-close-note-modal').addEventListener('click', () => {
-            document.getElementById('note-post-modal').classList.add('hidden');
-        });
-
-        document.getElementById('btn-submit-new-note').addEventListener('click', async () => {
-            const title = document.getElementById('note-title-field').value.trim();
-            const content = document.getElementById('note-content-field').value.trim();
-            const link = document.getElementById('note-link-field').value.trim();
-            const currentTeacher = currentUserProfile.full_name || currentUserProfile.email;
-
-            if(!title || !content) {
-                alert("विवरण अपूर्ण: कृपया नोटको शीर्षक र मुख्य विवरण अनिवार्य भर्नुहोस्।");
-                return;
-            }
-
-            const { error: insertNoteError } = await supabase.from('class_notes').insert([{ 
-                room_id: roomID, 
-                teacher_name: currentTeacher, 
-                title: title, 
-                content: content, 
-                file_url: link || null 
-            }]);
-            
-            if(insertNoteError) {
-                alert("त्रुटि: नोट सुरक्षित गर्न सकिएन। " + insertNoteError.message);
-            } else {
-                alert("सफलतापूर्वक नयाँ शैक्षिक सामग्री पोस्ट गरियो!");
-                document.getElementById('note-title-field').value = '';
-                document.getElementById('note-content-field').value = '';
-                document.getElementById('note-link-field').value = '';
-                document.getElementById('note-post-modal').classList.add('hidden');
-                
-                // सूची पुन: ताजा गर्ने
-                fetchClassNotesFromDatabase();
-            }
-        });
-
-        async function fetchClassNotesFromDatabase() {
-            const noteContainer = document.getElementById('notes-grid-display');
-            
-            const { data: notesList, error } = await supabase
-                .from('class_notes')
-                .select('*')
-                .eq('room_id', roomID)
-                .order('id', { ascending: false });
-
-            if(error) { 
-                noteContainer.innerHTML = `<div class="text-rose-400 p-4 font-bold">डेटाबेस लोड फेल त्रुटि।</div>`; 
-                return; 
-            }
-            if(!notesList || notesList.length === 0) {
-                noteContainer.innerHTML = `<div class="col-span-full text-center py-16 text-slate-500 font-bold border-2 border-dashed border-slate-800 rounded-3xl"><i class="fa-solid fa-box-open text-4xl mb-3 block text-slate-700"></i>यस क्लासरुममा कुनै पाठ्यक्रम सामग्री उपलब्ध छैन।</div>`;
-                return;
-            }
-            
-            noteContainer.innerHTML = '';
-            notesList.forEach(item => {
-                const cardElement = document.createElement('div');
-                cardElement.className = "bg-slate-950 border border-slate-800/80 rounded-2xl p-6 flex flex-col justify-between hover:border-slate-700 transition-all shadow-xl group";
-                
-                let linkTemplate = item.file_url ? `<a href="${item.file_url}" target="_blank" class="inline-flex items-center gap-1.5 text-xs text-blue-400 mt-3 font-bold hover:text-blue-300 transition-colors bg-blue-500/5 border border-blue-500/10 px-3 py-1.5 rounded-lg w-max"><i class="fa-solid fa-cloud-arrow-down"></i> एट्याचमेन्ट फाइल डाउनलोड</a>` : '';
-                
-                cardElement.innerHTML = `
-                    <div>
-                        <div class="w-10 h-10 rounded-xl bg-blue-600/10 border border-blue-500/20 flex items-center justify-center text-blue-400 mb-4 group-hover:bg-blue-600 group-hover:text-white transition-all"><i class="fa-solid fa-file-lines"></i></div>
-                        <h4 class="text-base font-black text-white group-hover:text-blue-400 transition-colors tracking-tight mb-2">${item.title}</h4>
-                        <p class="text-xs text-slate-400 leading-relaxed font-medium whitespace-pre-line">${item.content}</p>
-                    </div>
-                    <div class="mt-6 border-t border-slate-900 pt-3 text-[10px] text-slate-500 flex flex-col gap-1 font-bold">
-                        <span class="uppercase tracking-wider">प्रशिक्षक: ${item.teacher_name.split('@')[0]}</span>
-                        ${linkTemplate}
-                    </div>
-                `;
-                noteContainer.appendChild(cardElement);
-            });
-        }
-
-        // ==========================================
-        // कोर फिक्स ८: बिलिङ र वित्तीय व्यवस्थापन (Financial System Architecture)
-        // ==========================================
-        document.getElementById('btn-update-billing').addEventListener('click', async () => {
-            const targetStudent = document.getElementById('bill-student-email').value.trim();
-            const balanceAmount = parseFloat(document.getElementById('bill-amount').value);
-            const duedateValue = document.getElementById('bill-duedate').value || null;
-            const statusValue = document.getElementById('bill-status').value;
-
-            if(!targetStudent || isNaN(balanceAmount)) { 
-                alert("अपूर्ण फारम: कृपया विद्यार्थीको इमेल र सही रकम सुनिश्चित गर्नुहोस्।"); 
-                return; 
-            }
-            
-            const accountantSignature = currentUserProfile.full_name || currentUserProfile.email;
-
-            // पहिले नै विद्यार्थीको बिल रेकर्ड छ कि छैन जाँच्ने
-            const { data: existingLedger } = await supabase
-                .from('student_payments')
-                .select('*')
-                .eq('student_email', targetStudent)
-                .maybeSingle();
-                
-            let executionResponse;
-            if(existingLedger) {
-                // रेकर्ड अवस्थित भएमा अपडेट गर्ने
-                executionResponse = await supabase.from('student_payments').update({ 
-                    amount: balanceAmount, 
-                    status: statusValue, 
-                    due_date: duedateValue, 
-                    updated_by: accountantSignature, 
-                    updated_at: new Date() 
-                }).eq('id', existingLedger.id);
-            } else {
-                // रेकर्ड नभए नयाँ चलानी थप्ने
-                executionResponse = await supabase.from('student_payments').insert([{ 
-                    student_email: targetStudent, 
-                    amount: balanceAmount, 
-                    status: statusValue, 
-                    due_date: duedateValue, 
-                    updated_by: accountantSignature 
-                }]);
-            }
-
-            if(executionResponse.error) { 
-                alert("त्रुटि: खाता रेकर्ड बचत हुन सकेन। " + executionResponse.error.message); 
-            } else { 
-                alert("लेखा रेकर्ड सफलतापूर्वक अपडेट गरियो!"); 
-                fetchPaymentRecordsFromDatabase(); 
-            }
-        });
-
-        async function fetchPaymentRecordsFromDatabase() {
-            const ledgerBody = document.getElementById('billing-table-body');
-            let queryEngine = supabase.from('student_payments').select('*');
-            
-            // सुरक्षा नियम: यदि युजर 'Student' हो भने उसले आफ्नो मात्र बिल हेर्न पाउँछ
-            if(currentUserProfile.role.toLowerCase() === 'student') { 
-                queryEngine = queryEngine.eq('student_email', currentUserProfile.email); 
-            }
-            
-            const { data: ledgerRows, error } = await queryEngine.order('updated_at', { ascending: false });
-
-            if(error || !ledgerRows || ledgerRows.length === 0) { 
-                ledgerBody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-600 font-bold">लेखा खातामा कुनै पनि चलानी डाटा फेला परेन।</td></tr>`; 
-                return; 
-            }
-            
-            ledgerBody.innerHTML = '';
-            ledgerRows.forEach(row => {
-                const trRow = document.createElement('tr');
-                trRow.className = "border-b border-slate-900 text-xs hover:bg-slate-950/40 transition-colors";
-                
-                let statusBadge = '';
-                if(row.status === 'Paid') {
-                    statusBadge = `<span class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-black px-2 py-0.5 rounded text-[10px]">चुक्ता</span>`;
-                } else if(row.status === 'Overdue') {
-                    statusBadge = `<span class="bg-rose-500/10 border border-rose-500/20 text-rose-400 font-black px-2 py-0.5 rounded text-[10px]">भाका नाघेको</span>`;
-                } else {
-                    statusBadge = `<span class="bg-amber-500/10 border border-amber-500/20 text-amber-400 font-black px-2 py-0.5 rounded text-[10px]">बाँकी</span>`;
-                }
-                
-                trRow.innerHTML = `
-                    <td class="p-4 font-mono text-slate-200 font-semibold">${row.student_email}</td>
-                    <td class="p-4 font-black text-white text-sm">रु. ${parseFloat(row.amount).toLocaleString()}</td>
-                    <td class="p-4">${statusBadge}</td>
-                    <td class="p-4 font-mono font-bold text-slate-400">${row.due_date || 'N/A'}</td>
-                    <td class="p-4 text-slate-400">${new Date(row.updated_at).toLocaleDateString('ne-NP')}</td>
-                    <td class="p-4 text-slate-500 font-semibold">${row.updated_by ? row.updated_by.split('@')[0] : 'प्रणाली'}</td>
-                `;
-                ledgerBody.appendChild(trRow);
-            });
-        }
-
-        // ==========================================
-        // कोर फिक्स ९: केन्द्रीय कमाण्ड केन्द्र (Admin Master Console Engine)
-        // ==========================================
-        async function fetchUsersForAdminConsole() {
-            const usersTableBody = document.getElementById('admin-users-table');
-            const { data: profilesList, error } = await supabase
-                .from('user_profiles')
-                .select('*')
-                .order('created_at', { ascending: false });
-                
-            if (error || !profilesList) return;
-            
-            usersTableBody.innerHTML = '';
-            profilesList.forEach(user => {
-                const trUser = document.createElement('tr');
-                trUser.className = "border-b border-slate-900 text-xs hover:bg-slate-950/40 transition-colors";
-                
-                // आफैंले आफ्नै रोल परिवर्तन गर्न नमिल्ने सुरक्षा घेरा (Self Lock)
-                const isSelfLocked = user.id === activeUserSession.id ? 'disabled' : '';
-                
-                trUser.innerHTML = `
-                    <td class="p-4 font-black text-slate-200">${user.full_name || 'No Profile Name'}</td>
-                    <td class="p-4 font-mono text-slate-400">${user.email}</td>
-                    <td class="p-4"><span class="px-2.5 py-1 bg-slate-900 border border-slate-800 rounded-lg text-blue-400 font-black uppercase text-[9px] tracking-wider">${user.role}</span></td>
-                    <td class="p-4">
-                        <select onchange="updateUserRoleByAdmin('${user.id}', this.value)" ${isSelfLocked} class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs font-bold text-slate-300 focus:outline-none focus:border-amber-500 disabled:opacity-30 disabled:cursor-not-allowed">
-                            <option value="student" ${user.role === 'student' ? 'selected' : ''}>Student (विद्यार्थी)</option>
-                            <option value="teacher" ${user.role === 'teacher' ? 'selected' : ''}>Teacher (शिक्षक)</option>
-                            <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin (प्रशासक)</option>
-                        </select>
-                    </td>
-                `;
-                usersTableBody.appendChild(trUser);
-            });
-        }
-
-        // ग्लोबल स्कोपमा रोल सम्पादन प्रकार्य ट्रिगर
-        window.updateUserRoleByAdmin = async function(userId, selectedNewRole) {
-            if(confirm(`सुरक्षा चेतावनी: के तपाईं यो सदस्यको भूमिका स्तर परिवर्तन गरी "${selectedNewRole.toUpperCase()}" बनाउन चाहनुहुन्छ?`)) {
-                
-                const { error: patchError } = await supabase
-                    .from('user_profiles')
-                    .update({ role: selectedNewRole.toLowerCase() })
-                    .eq('id', userId);
-                    
-                if(patchError) {
-                    alert("परिवर्तन असफल: " + patchError.message);
-                } else {
-                    alert("सदस्यको विशेषाधिकार सफलतापूर्वक स्तरवृद्धि गरियो!");
-                    fetchUsersForAdminConsole();
-                }
-            }
-        };
-
-        // ==========================================
-        // कोर फिक्स १०: प्रिमियम ट्याब स्विचिङ र रिफ्रेस मेकानिजम
-        // ==========================================
-        const sidebarTabButtons = document.querySelectorAll('.tab-btn');
-        const internalTabContents = document.querySelectorAll('.tab-content');
-        
-        sidebarTabButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const selectedTarget = button.getAttribute('data-tab');
-                
-                // सबै बटनहरूको सक्रिय स्टाइल हटाउने
-                sidebarTabButtons.forEach(btn => btn.className = "tab-btn w-16 h-16 rounded-2xl flex flex-col items-center justify-center text-slate-400 hover:text-slate-100 hover:bg-slate-900/60 border border-transparent hover:border-slate-800 transition-all group");
-                // सबै विन्डोहरू लुकाउने
-                internalTabContents.forEach(content => content.classList.add('hidden'));
-                
-                // लक्षित विन्डो प्रदर्शन गर्ने
-                document.getElementById(selectedTarget).classList.remove('hidden');
-                
-                // सक्रिय बटनको लागि प्रिमियम थिम एप्लाई गर्ने
-                if (selectedTarget === 'zoom-tab') {
-                    button.className = "tab-btn w-16 h-16 rounded-2xl flex flex-col items-center justify-center text-blue-400 bg-blue-600/15 border border-blue-500/30 transition-all group shadow-lg shadow-blue-600/5";
-                } else if (selectedTarget === 'admin-tab') {
-                    button.className = "tab-btn w-16 h-16 rounded-2xl flex flex-col items-center justify-center text-amber-400 bg-amber-500/15 border border-amber-500/30 transition-all group shadow-lg shadow-amber-500/5";
-                } else {
-                    button.className = "tab-btn w-16 h-16 rounded-2xl flex flex-col items-center justify-center text-white bg-slate-800 border border-slate-700/80 transition-all group shadow-md";
-                }
-
-                // स्विच गर्दा सम्बन्धित ट्याबको डाटा सर्भरबाट ताजा (Fetch) गर्ने ट्रिगर
-                if (selectedTarget === 'notes-tab') fetchClassNotesFromDatabase();
-                if (selectedTarget === 'payments-tab') fetchPaymentRecordsFromDatabase();
-                if (selectedTarget === 'admin-tab') fetchUsersForAdminConsole();
-            });
-        });
-
-        // सुरक्षित लगआउट प्रक्रिया (Sign Out Control Trigger)
-        document.getElementById('logout-btn').addEventListener('click', async () => {
-            if(confirm("के तपाईं आफ्नो एडुभिडियो क्लासरुम अकाउन्ट सुरक्षित लगआउट गर्न चाहनुहुन्छ?")) { 
-                await supabase.auth.signOut(); 
-                window.location.reload(); 
-            }
-        });
-    </script>
 </body>
 </html>
