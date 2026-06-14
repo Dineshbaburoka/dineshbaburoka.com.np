@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>गलकोट नगरपालिका - एकीकृत रिपोर्टिङ ड्यासबोर्ड</title>
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+  <style>
+    :root { 
+      --primary: #0c2461; 
+      --pending: #e74c3c;    /* रातो: दर्ता हुन बाँकी */
+      --registered: #8e44ad; /* बैजनी: दर्ता भएको */
+      --temp: #f1c40f;       /* पहेँलो: अस्थायी */
+      --perm: #3498db;       /* निलो: स्थायी */
+      --done: #27ae60;       /* हरियो: सम्पन्न */
+      --bg-color: #f4f7f6;
+    }
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; background: var(--bg-color); padding: 20px; margin: 0; color: #333; }
+    h2 { color: var(--primary); text-align: center; margin-bottom: 5px; font-weight: 700; font-size: 22px; }
+    p.subtitle { text-align: center; color: #666; margin-bottom: 25px; font-size: 14px; }
+    
+    /* Responsive Grid */
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin-bottom: 25px; }
+    .card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-align: center; border-bottom: 5px solid var(--primary); transition: transform 0.2s; }
+    .card:hover { transform: translateY(-3px); }
+    .card h3 { font-size: 13px; color: #555; margin: 0 0 8px 0; font-weight: 600; }
+    .card p { font-size: 26px; font-weight: bold; margin: 0; color: var(--primary); }
+    
+    /* Responsive Charts */
+    .chart-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; }
+    .chart-box { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); position: relative; height: 350px; width: 100%; display: flex; justify-content: center; align-items: center; }
+    
+    /* Table Section */
+    .table-section { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+    .table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 15px; }
+    .table-header h3 { margin: 0; color: var(--primary); font-size: 16px; text-align: center; width: 100%; }
+    
+    .btn-excel { background-color: #1e7e34; color: white; border: none; padding: 12px 18px; font-size: 14px; font-weight: bold; border-radius: 6px; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; transition: background 0.2s; width: auto; }
+    .btn-excel:hover { background-color: #155d27; }
+    
+    /* Touch-friendly Scrollable Table */
+    .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 8px; border: 1px solid #e1e8ed; }
+    table { width: 100%; border-collapse: collapse; text-align: left; min-width: 700px; }
+    th { background-color: var(--primary); color: white; padding: 12px 10px; font-size: 13px; font-weight: 600; white-space: nowrap; }
+    td { padding: 12px 10px; border-bottom: 1px solid #e1e8ed; font-size: 13px; color: #444; }
+    tr:nth-child(even) { background-color: #f9fbfc; }
+    tr:hover { background-color: #f1f4f6; }
+    .badge { padding: 4px 10px; border-radius: 50px; font-size: 11px; font-weight: bold; color: white; display: inline-block; text-align: center; min-width: 80px; }
+
+    /* Mobile specific adjustments */
+    @media (max-width: 768px) {
+      body { padding: 10px; }
+      h2 { font-size: 18px; }
+      .chart-container { grid-template-columns: 1fr; }
+      .chart-box { height: 300px; }
+      .table-header { flex-direction: column; }
+      .btn-excel { width: 100%; }
+      .card p { font-size: 22px; }
+    }
+    
+    @media (max-width: 480px) {
+      .grid { grid-template-columns: repeat(2, 1fr); }
+      .card { padding: 10px; }
+      .table-header h3 { text-align: left; }
+    }
+  </style>
+</head>
+<body>
+
+  <h2>🏛️ गलकोट नगरपालिका - भूमि व्यवस्थापन तथा भवन नियमन शाखाको प्रगति प्रतिवेदन</h2>
+  <p class="subtitle">घरनक्सा तथा भवन निर्माण इजाजत सम्बन्धी एकीकृत तथ्याङ्क प्रणाली</p>
+  
+  <div class="grid">
+    <div class="card">
+      <h3>कुल फाइल (Total)</h3><p id="total">0</p>
+    </div>
+    <div class="card" style="border-bottom-color: var(--pending);">
+      <h3>दर्ता हुन बाँकी</h3><p id="pending" style="color: var(--pending);">0</p>
+    </div>
+    <div class="card" style="border-bottom-color: var(--registered);">
+      <h3>दर्ता भएको</h3><p id="registered" style="color: var(--registered);">0</p>
+    </div>
+    <div class="card" style="border-bottom-color: var(--temp);">
+      <h3>अस्थायी इजाजत</h3><p id="temp" style="color: var(--temp);">0</p>
+    </div>
+    <div class="card" style="border-bottom-color: var(--perm);">
+      <h3>स्थायी इजाजत</h3><p id="perm" style="color: var(--perm);">0</p>
+    </div>
+    <div class="card" style="border-bottom-color: var(--done);">
+      <h3>निर्माण सम्पन्न</h3><p id="done" style="color: var(--done);">0</p>
+    </div>
+  </div>
+
+  <div class="chart-container">
+    <div class="chart-box"><canvas id="pieChart"></canvas></div>
+    <div class="chart-box"><canvas id="barChart"></canvas></div>
+  </div>
+
+  <div class="table-section">
+    <div class="table-header">
+      <h3>📋 नक्सा पासको Track विवरण</h3>
+      <button class="btn-excel" onclick="exportToExcel()">🟢 Excel मा डाउनलोड गर्नुहोस्</button>
+    </div>
+    
+    <div class="table-responsive">
+      <table id="reportTable">
+        <thead>
+          <tr>
+            <th>क्र.सं.</th>
+            <th>जग्गाधनीको नाम</th>
+            <th>दर्ता नं.</th>
+            <th>अस्थायी मिति</th>
+            <th>स्थायी मिति</th>
+            <th>सम्पन्न मिति</th>
+            <th>हालको अवस्था (Status)</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <tr>
+            <td colspan="7" style="text-align: center; color: #888; padding: 20px;">डाटा लोड हुँदैछ, कृपया पर्खनुहोस्...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://lyjokogftwtvnhwszqni.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_gxEL2-GVTVy8E0WxMBZHDQ_b5TzsDI9';
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    async function loadDashboard() {
+      const { data, error } = await _supabase
+        .from('g_map_branch1')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) {
+        document.getElementById('tableBody').innerHTML = `<tr><td colspan="7" style="text-align: center; color: red;">त्रुटि: डाटा प्राप्त गर्न सकिएन।</td></tr>`;
+        return;
+      }
+
+      if (data) {
+        const total = data.length;
+        
+        const registered = data.filter(r => r.registrano && String(r.registrano).trim() !== "").length;
+        const pending = total - registered;
+
+        const temp = data.filter(r => r.tem_issued_date && String(r.tem_issued_date).trim() !== "").length;
+        const perm = data.filter(r => r.per_issued_date && String(r.per_issued_date).trim() !== "").length;
+        const done = data.filter(r => r.done_issued_date && String(r.done_issued_date).trim() !== "").length;
+
+        document.getElementById('total').innerText = total;
+        document.getElementById('pending').innerText = pending;
+        document.getElementById('registered').innerText = registered;
+        document.getElementById('temp').innerText = temp;
+        document.getElementById('perm').innerText = perm;
+        document.getElementById('done').innerText = done;
+
+        const chartLabels = ['दर्ता हुन बाँकी', 'दर्ता भएको', 'अस्थायी इजाजत', 'स्थायी इजाजत', 'निर्माण सम्पन्न'];
+        const chartData = [pending, registered, temp, perm, done];
+        const chartColors = ['#e74c3c', '#8e44ad', '#f1c40f', '#3498db', '#27ae60'];
+
+        const tooltipOptions = {
+          callbacks: {
+            label: function(context) { return ` ${context.label}: ${context.raw} वटा फाइल`; }
+          },
+          titleFont: { size: 13, weight: 'bold' }, bodyFont: { size: 13 }, padding: 10
+        };
+
+        new Chart(document.getElementById('pieChart'), {
+          type: 'doughnut',
+          data: {
+            labels: chartLabels,
+            datasets: [{ data: chartData, backgroundColor: chartColors, hoverOffset: 8 }]
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }, tooltip: tooltipOptions },
+            cutout: '60%'
+          }
+        });
+
+        new Chart(document.getElementById('barChart'), {
+          type: 'bar',
+          data: {
+            labels: chartLabels,
+            datasets: [{ label: 'फाइल संख्या', data: chartData, backgroundColor: chartColors, borderRadius: 4 }]
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            scales: { 
+              y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 11 } } },
+              x: { ticks: { font: { size: 10 }, maxRotation: 45, minRotation: 45 } }
+            },
+            plugins: { legend: { display: false }, tooltip: tooltipOptions }
+          }
+        });
+
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = "";
+
+        data.forEach((row, index) => {
+          let statusBadge = '';
+          
+          if (row.done_issued_date && String(row.done_issued_date).trim() !== "") {
+            statusBadge = `<span class="badge" style="background-color: var(--done);">सम्पन्न</span>`;
+          } else if (row.per_issued_date && String(row.per_issued_date).trim() !== "") {
+            statusBadge = `<span class="badge" style="background-color: var(--perm);">स्थायी</span>`;
+          } else if (row.tem_issued_date && String(row.tem_issued_date).trim() !== "") {
+            statusBadge = `<span class="badge" style="background-color: var(--temp); color: #333;">अस्थायी</span>`;
+          } else if (row.registrano && String(row.registrano).trim() !== "") {
+            statusBadge = `<span class="badge" style="background-color: var(--registered);">दर्ता भएको</span>`;
+          } else {
+            statusBadge = `<span class="badge" style="background-color: var(--pending);">दर्ता हुन बाँकी</span>`;
+          }
+
+          tbody.innerHTML += `
+            <tr>
+              <td>${index + 1}</td>
+              <td><strong>${row.owner || 'नाम नखुलेको'}</strong></td>
+              <td>${row.registrano || '<span style="color:red; font-size:11px;">(दर्ता छैन)</span>'}</td>
+              <td>${row.tem_issued_date || '-'}</td>
+              <td>${row.per_issued_date || '-'}</td>
+              <td>${row.done_issued_date || '-'}</td>
+              <td>${statusBadge}</td>
+            </tr>
+          `;
+        });
+      }
+    }
+
+    function exportToExcel() {
+      const table = document.getElementById("reportTable");
+      const wb = XLSX.utils.table_to_book(table, { sheet: "प्रगति विवरण" });
+      const today = new Date().toISOString().slice(0, 10);
+      XLSX.writeFile(wb, `Galkot_Report_${today}.xlsx`);
+    }
+
+    window.onload = loadDashboard;
+  </script>
+</body>
+</html>
