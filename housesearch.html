@@ -47,7 +47,7 @@
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen pb-16">
 
-    <!-- शीर्ष भाग (Header) - प्रिन्ट गर्दा स्वतः लुक्नेछ -->
+    <!-- शीर्ष भाग (Header) -->
     <header class="bg-blue-700 text-white shadow-md sticky top-0 z-50 no-print">
         <div class="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
             <div class="flex items-center space-x-3">
@@ -61,7 +61,7 @@
             </div>
             <div class="hidden sm:block text-right">
                 <span class="bg-blue-800 text-blue-100 text-xs px-3 py-1.5 rounded-full font-medium border border-blue-600">
-                    एड्मिन पोर्टल v3.5
+                    एड्मिन पोर्टल v4.0
                 </span>
             </div>
         </div>
@@ -73,7 +73,7 @@
         <!-- सूचना पप-अप (Toast Notification) -->
         <div id="statusToast" class="hidden fixed top-24 right-4 left-4 sm:left-auto sm:w-[450px] p-5 rounded-2xl shadow-2xl z-50 transition-all text-sm font-medium border no-print"></div>
 
-        <!-- खोजी सेक्सन (Search Box) - प्रिन्ट गर्दा स्वतः लुक्नेछ -->
+        <!-- खोजी सेक्सन (Search Box) -->
         <section class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-200/80 no-print transition-all hover:shadow-md">
             <div class="max-w-2xl">
                 <h3 class="text-lg font-bold text-slate-900 mb-2 flex items-center gap-2">
@@ -100,7 +100,7 @@
             <p class="text-sm text-slate-500 font-medium">डाटाबेसबाट विवरण खोजिँदैछ, कृपया प्रतिक्षा गर्नुहोस्...</p>
         </div>
 
-        <!-- नतिजा प्रदर्शन खण्ड (Result Display Block) - डाटा भेटिएपछि मात्र खुल्छ -->
+        <!-- नतिजा प्रदर्शन खण्ड (Result Display Block) -->
         <div id="resultCard" class="hidden grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8 animate-fade-in">
             
             <!-- भाग क: मुख्य तथा पारिवारिक विवरण कार्ड -->
@@ -121,9 +121,8 @@
                     </div>
                 </div>
 
-                <!-- डाटा ग्रिड (Data Grid) -->
+                <!-- डाटा ग्रिड -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    
                     <div class="bg-slate-50/80 p-4 rounded-2xl border border-slate-100 print-bg-fix">
                         <span class="text-xs font-semibold text-slate-400 tracking-wider uppercase block">सम्पर्क मोबाइल नम्बर</span>
                         <span class="font-bold text-slate-900 text-base mt-1 block" id="resMobile"></span>
@@ -155,7 +154,6 @@
                     </div>
                 </div>
 
-                <!-- थप सुरक्षा र प्रमाणीकरण फुटर -->
                 <div class="pt-4 border-t border-slate-100 flex items-center gap-2 text-xs text-slate-400">
                     <span>🛡️ यो नगरपालिकाको केन्द्रीय घरधुरी डाटाबेस प्रणालीसँग सीधा आवद्ध डिजिटल प्रतिलिपि हो।</span>
                 </div>
@@ -163,10 +161,7 @@
 
             <!-- भाग ख: डिजिटल स्मार्ट QR Code प्रमाणपत्र कार्ड -->
             <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-200 print-card flex flex-col items-center justify-center text-center relative overflow-hidden">
-                
-                <!-- कार्डको ब्याकग्राउन्ड सजावट -->
                 <div class="absolute top-0 left-0 right-0 h-2 bg-blue-700"></div>
-                
                 <span class="text-xs font-bold tracking-widest text-slate-400 uppercase mb-4">GALKOT MUNICIPALITY</span>
                 
                 <!-- QR Code मुख्य बक्स -->
@@ -174,14 +169,12 @@
                     <div id="qrcode"></div>
                 </div>
                 
-                <!-- QR कोडको मुनि देखिने घर नम्बर लेबल -->
                 <h4 class="text-lg font-black tracking-wider text-slate-900 mt-4 font-mono bg-slate-100 px-4 py-1 rounded-lg border" id="qrHouseLabel"></h4>
                 
                 <p class="text-xs text-slate-500 mt-4 leading-relaxed px-2 font-medium">
-                    यो यस घरधुरीको आधिकारिक क्युआर लिंक कोड हो। मोबाइल क्यामेराबाट स्क्यान गर्दा सिधै **सार्वजनिक विवरण पोर्टल (`details.html`)** मार्फत यो घरको प्रमाणीकृत विवरण स्वतः उपलब्ध हुनेछ।
+                    यो यस घरधुरीको आधिकारिक क्युआर लिंक कोड हो। मोबाइल क्यामेराबाट स्क्यान गर्दा सिधै **सार्वजनिक विवरण पोर्टल (`details.html`)** मार्फत यो घरको प्रमाणित पूर्ण विवरण देखिनेछ।
                 </p>
                 
-                <!-- प्रिन्ट कार्य बटन - प्रिन्ट गर्दा स्वतः लुक्नेछ -->
                 <button onclick="window.print()" class="mt-6 w-full bg-slate-950 hover:bg-black text-white text-sm font-bold py-3.5 px-6 rounded-xl transition-all shadow-md hover:shadow-lg transform active:scale-[0.98] flex items-center justify-center gap-2 no-print">
                     <span>🖨️ विवरण तथा QR प्रिन्ट गर्नुहोस्</span>
                 </button>
@@ -189,18 +182,15 @@
         </div>
     </main>
 
-    <!-- ========================================== -->
-    <!-- जाभास्क्रिप्ट कोर इन्जिन (JavaScript Core Engine) -->
-    <!-- ========================================== -->
+    <!-- जाभास्क्रिप्ट कोर इन्जिन -->
     <script>
-        // १. सुपाबेस क्लाइन्ट जडान कन्फिगरेसन
         const SUPABASE_URL = "https://dkkjdxqpuzzxtfgggmsk.supabase.co";
         const SUPABASE_ANON_KEY = "sb_publishable_JTChQbKVVVyfY7JiY5LQBw_2KNLBrXD";
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let qrInstance = null;
 
-        // २. मुख्य विवरण खोज्ने र क्युआर जेनेरेट गर्ने फङ्ग्सन
+        // मुख्य विवरण खोज्ने र क्युआर जेनेरेट गर्ने फङ्ग्सन
         async function fetchHouseDetails(forcedHouseNo = null) {
             const searchInput = document.getElementById('searchHouseNo');
             const resultCard = document.getElementById('resultCard');
@@ -218,20 +208,17 @@
                 return; 
             }
 
-            // लोडिङ र बटनको अवस्था परिवर्तन
             searchBtn.disabled = true;
             searchBtn.innerText = "प्रक्रियामा...";
             resultCard.classList.add('hidden');
             loadingIndicator.classList.remove('hidden');
 
             try {
-                // Households टेबलबाट घर नम्बर म्याच गराउने
                 const { data, error } = await _supabase
                     .from('households')
                     .select('*')
                     .eq('house_number', inputVal);
 
-                // त्रुटि वा डाटा नभेटिएमा
                 if (error || !data || data.length === 0) {
                     loadingIndicator.classList.add('hidden');
                     showToast("विवरण भेटिएन", "माफ गर्नुहोला, यो घर नम्बर देखिएन। कृपया जाँच गरी पुनः प्रयास गर्नुहोस्।", "error");
@@ -240,7 +227,6 @@
 
                 const houseRow = data[0];
 
-                // फारमका बक्सहरूमा विवरण भर्ने
                 document.getElementById('resHouseNo').innerText = houseRow.house_number;
                 document.getElementById('resOwnerName').innerText = houseRow.houseowner_name;
                 document.getElementById('resAddress').innerText = `वडा नं. ${houseRow.ward_number}, ${houseRow.tole_name}`;
@@ -253,17 +239,17 @@
                 document.getElementById('qrHouseLabel').innerText = houseRow.house_number;
 
                 // ==========================================
-                // 🔴 क्युआर कोड भित्र `details.html` को लिंक बनाउने मुख्य इन्जिन 🔴
+                // 🔴 क्युआर कोड भित्र डाइरेक्ट अनलाइन लिंक फिक्स गरिएको खण्ड 🔴
                 // ==========================================
                 const qrContainer = document.getElementById('qrcode');
                 qrContainer.innerHTML = ""; 
                 
-                // यसले search.html लाई हटाएर स्वचालित रूपमा details.html?id=GM-XX-XXXXX को पूर्ण अनलाइन यूआरएल बनाउँछ
-                const qrLinkWithDetailsPage = window.location.origin + window.location.pathname.replace('search.html', 'details.html') + `?id=${houseRow.house_number}`;
+                // तपाईंको आधिकारिक सेभ गरिएको अनलाइन डोमेन लिंक
+                const qrLinkWithDetailsPage = `https://dineshbaburoka.com/details.html?id=${houseRow.house_number}`;
                 
-                // क्युआर संरचना निर्माण
+                // क्युआर निर्माण
                 qrInstance = new QRCode(qrContainer, {
-                    text: qrLinkWithDetailsPage, // स्क्यान गर्दा सिधै यो अनलाइन लिंक खुल्छ र 'details.html' मा लैजान्छ
+                    text: qrLinkWithDetailsPage, // स्क्यान गर्दा सिधै यो फिक्स अनलाइन लिंक खुल्नेछ
                     width: 180,
                     height: 180,
                     colorDark: "#0f172a",   
@@ -271,13 +257,12 @@
                     correctLevel: QRCode.CorrectLevel.M 
                 });
 
-                // नतिजा स्क्रिन प्रदर्शन गर्ने
                 loadingIndicator.classList.add('hidden');
                 resultCard.classList.remove('hidden');
                 showToast("विवरण फेला पर्यो", "डिजिटल रेकर्ड र विवरण प्रदर्शन लिंक सहितको QR कोड सफलतापूर्वक लोड भयो।", "success");
 
             } catch (err) {
-                console.error("प्रणाली कन्सोल त्रुटि:", err);
+                console.error(err);
                 loadingIndicator.classList.add('hidden');
                 showToast("प्रणाली त्रुटि", "डाटाबेस सर्भरबाट विवरण तान्न सकिएन।", "error");
             } finally {
@@ -286,7 +271,7 @@
             }
         }
 
-        // ३. स्वचालित लिङ्क विश्लेषक (URL Parameter Reader Engine)
+        // स्वचालित लिङ्क विश्लेषक
         window.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const houseIdFromUrl = urlParams.get('id');
@@ -295,7 +280,7 @@
             }
         });
 
-        // ४. सन्देश प्रदर्शन गर्ने सूचना पप-अप प्रणाली (Toast Controller)
+        // टोस्ट नोटिफिकेसन कन्टोलर
         function showToast(title, message, type = "success") {
             const toast = document.getElementById('statusToast');
             toast.classList.remove('hidden', 'bg-emerald-50', 'border-emerald-200', 'text-emerald-900', 'bg-red-50', 'border-red-200', 'text-red-900');
@@ -320,12 +305,10 @@
                 </div>`;
             }
             
-            setTimeout(() => { 
-                toast.classList.add('hidden'); 
-            }, 6000);
+            setTimeout(() => { toast.classList.add('hidden'); }, 6000);
         }
 
-        // ५. की-बोर्डको 'Enter' बटन थिच्दा पनि स्वतः खोज्ने सुविधा
+        // Enter बटन थिच्दा खोज्ने पद्दति
         document.getElementById('searchHouseNo').addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
                 fetchHouseDetails();
