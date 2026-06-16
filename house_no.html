@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>स्मार्ट घरधुरी सर्वेक्षण फारम | गलकोट नगरपालिका</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>body { font-family: 'Poppins', sans-serif; }</style>
+</head>
+<body class="bg-slate-100 text-slate-800 antialiased min-h-screen pb-12">
+
+    <header class="bg-blue-700 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-white p-1 rounded-full w-12 h-12 flex items-center justify-center font-bold text-blue-700 text-xl shadow">जी.न.</div>
+                <div>
+                    <h1 class="text-lg font-bold leading-tight">गलकोट नगरपालिका</h1>
+                    <p class="text-xs text-blue-200">नगर कार्यपालिकाको कार्यालय, बागलुङ</p>
+                </div>
+            </div>
+            <span class="bg-emerald-600 text-xs px-3 py-1.5 rounded-full font-medium shadow-sm">Auto House No: ACTIVE</span>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 mt-6">
+        <!-- Toast Notification -->
+        <div id="statusToast" class="hidden fixed top-24 right-4 left-4 sm:left-auto sm:w-[450px] p-5 rounded-2xl shadow-2xl z-50 transition-all text-sm font-medium border"></div>
+
+        <form id="fullSurveyForm" class="space-y-6">
+
+            <!-- १. भौगोलिक तथा प्रशासनिक विवरण -->
+            <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                <div class="flex items-center space-x-2 border-b pb-2 mb-2">
+                    <span class="bg-blue-100 text-blue-700 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">१</span>
+                    <h3 class="text-md font-semibold text-slate-950">भौगोलिक तथा प्रशासनिक विवरण</h3>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">१. वडा नम्बर *</label>
+                        <select id="wardNumber" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="" disabled selected>वडा छान्नुहोस्</option>
+                            <option value="1">वडा नं. १</option><option value="2">वडा नं. २</option><option value="3">वडा नं. ३</option>
+                            <option value="4">वडा नं. ४</option><option value="5">वडा नं. ५</option><option value="6">वडा नं. ६</option>
+                            <option value="7">वडा नं. ७</option><option value="8">वडा नं. ८</option><option value="9">वडा नं. ९</option>
+                            <option value="10">वडा नं. १०</option><option value="11">वडा नं. ११</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">२. टोल / बस्तीको नाम *</label>
+                        <input type="text" id="toleName" required placeholder="उदा: हरिचौर, हटिया" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none">
+                    </div>
+                </div>
+            </section>
+
+            <!-- २. घरधनी तथा पारिवारिक विवरण (नागरिकता सहित) -->
+            <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                <div class="flex items-center space-x-2 border-b pb-2 mb-2">
+                    <span class="bg-blue-100 text-blue-700 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">२</span>
+                    <h3 class="text-md font-semibold text-slate-950">घरधनी तथा पारिवारिक विवरण</h3>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">३. घरधनी/घरमूलीको पूरा नाम *</label>
+                        <input type="text" id="ownerName" required placeholder="पूरा नाम" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">४. नागरिकता नम्बर *</label>
+                        <input type="text" id="citizenshipNumber" required placeholder="उदा: ४५३०-२८३ वा ७४८३९" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">५. बाबुको नाम *</label>
+                        <input type="text" id="fatherName" required placeholder="बुबाको नाम" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">६. बाजेको नाम *</label>
+                        <input type="text" id="grandfatherName" required placeholder="बाजेको नाम" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-sm">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">७. सम्पर्क मोबाइल नम्बर *</label>
+                        <input type="tel" id="mobileNumber" pattern="[0-9]{10}" required placeholder="98XXXXXXXX" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-sm">
+                    </div>
+                </div>
+            </section>
+
+            <!-- ३. घरको भौतिक विवरण (म्यानुअल र अोटो संयुक्त क्षेत्रफल) -->
+            <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                <div class="flex items-center space-x-2 border-b pb-2 mb-2">
+                    <span class="bg-blue-100 text-blue-700 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">३</span>
+                    <h3 class="text-md font-semibold text-slate-950">घरको भौतिक नाप, तला र संरचना</h3>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">८. घरको प्रकार *</label>
+                        <select id="houseType" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-sm">
+                            <option value="आरसीसी">पक्की (ढलान)</option>
+                            <option value="ढुङ्गा माटो जस्ता">ढुङ्गा माटो (जस्तापाता)</option>
+                            <option value="परम्परागत">ढुङ्गा माटो (खरको छाना)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">९. घरको तला संख्या *</label>
+                        <input type="number" id="floorCount" min="1" max="10" step="0.5" required placeholder="उदा: २.५" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">१०. लम्बाई (फिटमा)</label>
+                        <input type="number" id="houseLength" min="0" step="any" placeholder="नभए खाली छोड्नुहोस्" oninput="autoCalculateArea()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">११. चौडाई (फिटमा)</label>
+                        <input type="number" id="houseWidth" min="0" step="any" placeholder="नभए खाली छोड्नुहोस्" oninput="autoCalculateArea()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-sm">
+                    </div>
+                    <div class="lg:col-span-2">
+                        <label class="block text-sm font-medium text-blue-900 mb-1">१२. कुल भुइँ क्षेत्रफल (वर्ग फिटमा) *</label>
+                        <input type="number" id="totalArea" min="1" step="any" required placeholder="लम्बाईxचौडाईबाट स्वतः आउनेछ वा सिधै टाइप गर्नुहोस्" class="w-full bg-blue-50 border border-blue-300 text-blue-900 font-bold rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <p class="text-[11px] text-slate-500 mt-1">💡 लम्बाई/चौडाई नहाली सिधै मुख्य कुल क्षेत्रफल मात्र हातले भर्न पनि मिल्छ।</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ४. GPS र पारिवारिक सदस्य विवरण -->
+            <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                <div class="flex items-center space-x-2 border-b pb-2 mb-2">
+                    <span class="bg-blue-100 text-blue-700 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">४</span>
+                    <h3 class="text-md font-semibold text-slate-950">लोकेशन र पारिवारिक सदस्य प्रविष्टि</h3>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">१३. भौगोलिक अवस्थिति (GPS) *</label>
+                        <div class="flex flex-col sm:flex-row gap-2">
+                            <input type="text" id="gpsDisplay" required readonly placeholder="क्लिक गरेपछि अक्षांश, देशान्तर भरिनेछ" class="w-full bg-slate-100 border border-slate-300 text-slate-600 font-mono rounded-xl px-4 py-3 text-sm focus:outline-none">
+                            <button type="button" onclick="getHighAccuracyLocation()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm px-6 py-3 rounded-xl font-medium transition whitespace-nowrap shadow-sm">
+                                GPS लोकेसन तान्नुहोस्
+                            </button>
+                        </div>
+                        <p id="accuracyDisplay" class="text-xs text-slate-500 mt-1 italic"></p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">१४. जम्मा परिवार सदस्य संख्या *</label>
+                        <input type="number" id="memberCount" min="1" required placeholder="संख्या हाल्नुहोस्" class="w-full bg-blue-50 border border-blue-300 text-blue-900 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none" oninput="generateMemberFields()">
+                    </div>
+                </div>
+
+                <div id="membersContainer" class="space-y-4 mt-4 hidden">
+                    <h4 class="text-sm font-bold text-slate-900 border-t pt-4">सदस्यहरूको व्यक्तिगत विवरण तथा नाता:</h4>
+                    <div id="membersList" class="space-y-3"></div>
+                </div>
+            </section>
+
+            <button type="submit" id="submitBtn" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-semibold py-4 px-6 rounded-2xl shadow-md transition text-md">
+                विवरण सुरक्षित गर्नुहोस्
+            </button>
+        </form>
+    </main>
+
+    <script>
+        const SUPABASE_URL = "https://dkkjdxqpuzzxtfgggmsk.supabase.co";
+        const SUPABASE_ANON_KEY = "sb_publishable_JTChQbKVVVyfY7JiY5LQBw_2KNLBrXD";
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // १. क्षेत्रफल स्वतः गुणा गर्ने फङ्ग्सन (तर यसलाई युजरले केरमेट गर्न सक्छन्)
+        function autoCalculateArea() {
+            const length = parseFloat(document.getElementById('houseLength').value) || 0;
+            const width = parseFloat(document.getElementById('houseWidth').value) || 0;
+            if (length > 0 && width > 0) {
+                document.getElementById('totalArea').value = (length * width).toFixed(2);
+            }
+        }
+
+        // २. डाइनामिक सदस्य फारम जेनेरेटर
+        function generateMemberFields() {
+            const count = parseInt(document.getElementById('memberCount').value);
+            const container = document.getElementById('membersContainer');
+            const list = document.getElementById('membersList');
+            list.innerHTML = ''; 
+
+            if (isNaN(count) || count < 1) { container.classList.add('hidden'); return; }
+            container.classList.remove('hidden');
+
+            for (let i = 1; i <= count; i++) {
+                const memberDiv = document.createElement('div');
+                memberDiv.className = "member-row grid grid-cols-1 sm:grid-cols-4 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200";
+                memberDiv.innerHTML = `
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-medium text-slate-500 mb-1">सदस्य ${i} को पूरा नाम *</label>
+                        <input type="text" required class="member-name w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 mb-1">उमेर *</label>
+                        <input type="number" min="0" required class="member-age w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 mb-1">घरमूलीसँगको नाता *</label>
+                        <select required class="member-relation w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs">
+                            <option value="self">घरमूली आफैं</option><option value="spouse">श्रीमती/श्रीमान्</option>
+                            <option value="son">छोरा</option><option value="daughter">छोरी</option>
+                            <option value="mother">आमा</option><option value="father">बुबा</option>
+                            <option value="grandfather">हजुरबुवा</option><option value="grandmother">हजुरआमा</option>
+                            <option value="grandson">नाति</option><option value="granddaughter">नातिनी</option>
+                            <option value="daughter_in_law">बुहारी</option><option value="son_in_law">ज्वाइँ</option>
+                        </select>
+                    </div>
+                `;
+                list.appendChild(memberDiv);
+            }
+        }
+
+        // ३. GPS Location Fetcher
+        function getHighAccuracyLocation() {
+            const gpsInput = document.getElementById('gpsDisplay');
+            const accuracyDisplay = document.getElementById('accuracyDisplay');
+            if (!navigator.geolocation) { showToast("GPS सपोर्ट गरेन।", "error"); return; }
+            gpsInput.value = "स्याटेलाइट खोज्दै...";
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    gpsInput.value = `${position.coords.latitude.toFixed(7)}, ${position.coords.longitude.toFixed(7)}`;
+                    accuracyDisplay.innerText = `✓ GPS स्वीकृत: ${position.coords.accuracy.toFixed(1)} मिटर भित्र सटिक छ।`;
+                    accuracyDisplay.className = "text-xs text-emerald-600 mt-1 font-medium";
+                },
+                (error) => { showToast("GPS त्रुटि!", "error"); gpsInput.value = ""; },
+                { enableHighAccuracy: true, timeout: 15000 }
+            );
+        }
+
+        // ४. पप-अप नोटिफिकेसन (घर नम्बर सहित देखाउन परिमार्जित)
+        function showToast(title, message, type = "success") {
+            const toast = document.getElementById('statusToast');
+            toast.classList.remove('hidden', 'bg-emerald-50', 'border-emerald-200', 'text-emerald-900', 'bg-red-50', 'border-red-200', 'text-red-900');
+            
+            if (type === "success") {
+                toast.classList.add('bg-emerald-50', 'border-emerald-200', 'text-emerald-900');
+                toast.innerHTML = `<div class="font-bold text-lg text-emerald-700">🎉 ${title}</div><div class="mt-1 text-xs opacity-90">${message}</div>`;
+            } else {
+                toast.classList.add('bg-red-50', 'border-red-200', 'text-red-900');
+                toast.innerHTML = `<div class="font-bold text-md text-red-700">⚠️ ${title}</div><div class="mt-1 text-xs opacity-90">${message}</div>`;
+            }
+            setTimeout(() => { toast.classList.add('hidden'); }, 10000); // १० सेकेन्ड सम्म देखाउने
+        }
+
+        // ५. Form Submitting Logic
+        document.getElementById('fullSurveyForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerText = "सुरक्षित हुँदैछ...";
+
+            const lenVal = document.getElementById('houseLength').value;
+            const widVal = document.getElementById('houseWidth').value;
+
+            try {
+                // क) Households टेबलमा डेटा इन्सर्ट गर्ने
+                const { data: householdData, error: houseError } = await _supabase
+                    .from('households')
+                    .insert([{
+                        ward_number: parseInt(document.getElementById('wardNumber').value),
+                        tole_name: document.getElementById('toleName').value,
+                        houseowner_name: document.getElementById('ownerName').value,
+                        citizenship_number: document.getElementById('citizenshipNumber').value,
+                        father_name: document.getElementById('fatherName').value,
+                        grandfather_name: document.getElementById('grandfatherName').value,
+                        mobile_number: document.getElementById('mobileNumber').value,
+                        house_type: document.getElementById('houseType').value,
+                        floor_count: parseFloat(document.getElementById('floorCount').value),
+                        house_length: lenVal ? parseFloat(lenVal) : null,
+                        house_width: widVal ? parseFloat(widVal) : null,
+                        total_area: parseFloat(document.getElementById('totalArea').value), // यो म्यानुअल र भ्यालु दुबै लिन्छ
+                        gps_coordinates: document.getElementById('gpsDisplay').value,
+                        total_members: parseInt(document.getElementById('memberCount').value)
+                    }])
+                    .select();
+
+                if (houseError) throw houseError;
+
+                const generatedHouseNumber = householdData[0].house_number;
+                const householdId = householdData[0].id;
+                const memberCount = parseInt(document.getElementById('memberCount').value);
+
+                // ख) सदस्यहरूको विवरण संग्रह र सेभ गर्ने
+                const names = document.querySelectorAll('.member-name');
+                const ages = document.querySelectorAll('.member-age');
+                const relations = document.querySelectorAll('.member-relation');
+                const familyPayload = [];
+
+                for (let i = 0; i < memberCount; i++) {
+                    familyPayload.push({
+                        household_id: householdId,
+                        full_name: names[i].value,
+                        age: parseInt(ages[i].value),
+                        relation_to_head: relations[i].value
+                    });
+                }
+
+                if (familyPayload.length > 0) {
+                    const { error: membersError } = await _supabase
+                        .from('family_members')
+                        .insert(familyPayload);
+                    if (membersError) throw membersError;
+                }
+
+                // ग) जेनेरेट भएको घर नम्बर सहित सफलता सन्देश दिने
+                showToast(
+                    "सफलतापूर्वक दर्ता भयो!", 
+                    `यस घरधुरीको प्रणालीद्वारा स्वतः जेनेरेट गरिएको नयाँ डिजिटल **घर नम्बर: ${generatedHouseNumber}** हो। यो सुरक्षित राख्नुहोला।`, 
+                    "success"
+                );
+                
+                document.getElementById('fullSurveyForm').reset();
+                document.getElementById('membersContainer').classList.add('hidden');
+                document.getElementById('accuracyDisplay').innerText = "";
+
+            } catch (err) {
+                console.error(err);
+                showToast("त्रुटी देखापर्‍यो", err.message || "डाटा सेभ हुन सकेन।", "error");
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = "विवरण सुरक्षित गर्नुहोस्";
+            }
+        });
+    </script>
+</body>
+</html>क़

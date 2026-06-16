@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>डिजिटल घरधुरी नागरिक सूचना पोर्टल | गलकोट नगरपालिका</title>
+    
+    <!-- External Libraries & Fonts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Mukta:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
+    <style>
+        body { 
+            font-family: 'Mukta', 'Poppins', sans-serif; 
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* प्रिन्ट लेआउट नियन्त्रण */
+        @media print {
+            body { 
+                background: white !important; 
+                color: black !important; 
+            }
+            .no-print { 
+                display: none !important; 
+            }
+            .print-card { 
+                border: 2px solid #000000 !important; 
+                box-shadow: none !important; 
+                margin: 0 auto !important;
+                background: white !important;
+            }
+            .print-bg-fix {
+                background-color: #f8fafc !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen pb-16">
+
+    <!-- शीर्ष भाग (Header) - प्रिन्ट गर्दा स्वतः लुक्नेछ -->
+    <header class="bg-blue-700 text-white shadow-md sticky top-0 z-50 no-print">
+        <div class="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-white p-1 rounded-full w-12 h-12 flex items-center justify-center font-bold text-blue-700 text-xl shadow-md">
+                    नेपाल
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold leading-tight tracking-wide">गलकोट नगरपालिका</h1>
+                    <p class="text-xs text-blue-200">नगर कार्यपालिकाको कार्यालय, गण्डकी प्रदेश</p>
+                </div>
+            </div>
+            <div class="hidden sm:block text-right">
+                <span class="bg-blue-800 text-blue-100 text-xs px-3 py-1.5 rounded-full font-medium border border-blue-600">
+                    स्मार्ट डिजिटल प्रणाली v2.0
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- मुख्य सामग्री (Main Container) -->
+    <main class="max-w-5xl mx-auto px-4 mt-8">
+        
+        <!-- सूचना पप-अप (Toast Notification) -->
+        <div id="statusToast" class="hidden fixed top-24 right-4 left-4 sm:left-auto sm:w-[450px] p-5 rounded-2xl shadow-2xl z-50 transition-all text-sm font-medium border no-print"></div>
+
+        <!-- खोजी सेक्सन (Search Box) - प्रिन्ट गर्दा स्वतः लुक्नेछ -->
+        <section class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-200/80 no-print transition-all hover:shadow-md">
+            <div class="max-w-2xl">
+                <h3 class="text-lg font-bold text-slate-900 mb-2 flex items-center gap-2">
+                    🔍 डिजिटल घरधुरी विवरण खोज्नुहोस्
+                </h3>
+                <p class="text-sm text-slate-500 mb-6">
+                    नगरपालिकाद्वारा जारी गरिएको आधिकारिक डिजिटल घर नम्बर (उदा: <span class="font-mono font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">GM-01-00001</span>) प्रविष्टि गरी विवरण र स्मार्ट क्युआर कोड प्राप्त गर्नुहोस्।
+                </p>
+                
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <div class="relative flex-1">
+                        <input type="text" id="searchHouseNo" placeholder="यहाँ घर नम्बर राख्नुहोस्..." class="w-full bg-slate-50 border border-slate-300 rounded-xl pl-4 pr-4 py-3.5 text-base uppercase font-bold tracking-wider text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all">
+                    </div>
+                    <button onclick="fetchHouseDetails()" id="searchBtn" class="bg-blue-700 hover:bg-blue-800 text-white font-semibold px-8 py-3.5 rounded-xl shadow-md hover:shadow-lg transition-all transform active:scale-[0.98] whitespace-nowrap flex items-center justify-center gap-2">
+                        <span>विवरण खोज्नुहोस्</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- गन्तव्य/लोडिङ सूचक (Loading State Indicator) -->
+        <div id="loadingIndicator" class="hidden text-center py-12 no-print">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-700 border-r-transparent mb-3"></div>
+            <p class="text-sm text-slate-500 font-medium">डाटाबेसबाट विवरण खोजिँदैछ, कृपया प्रतिक्षा गर्नुहोस्...</p>
+        </div>
+
+        <!-- नतिजा प्रदर्शन खण्ड (Result Display Block) - डाटा भेटिएपछि मात्र खुल्छ -->
+        <div id="resultCard" class="hidden grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8 animate-fade-in">
+            
+            <!-- भाग क: मुख्य तथा पारिवारिक विवरण कार्ड -->
+            <div class="lg:col-span-2 bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-200 print-card space-y-6">
+                
+                <!-- कार्डको शीर्ष भाग -->
+                <div class="flex flex-col sm:flex-row justify-between items-start gap-4 border-b border-slate-100 pb-5">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-md uppercase tracking-wider font-mono shadow-sm" id="resHouseNo"></span>
+                            <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-md shadow-sm">प्रमाणित रेकर्ड</span>
+                        </div>
+                        <h2 class="text-2xl font-bold text-slate-900 mt-3 tracking-tight" id="resOwnerName"></h2>
+                        <p class="text-xs font-medium text-slate-400 uppercase tracking-wider mt-0.5">घरधनी / मुख्य घरमूलीको विवरण</p>
+                    </div>
+                    <div class="sm:text-right">
+                        <span class="inline-block text-sm bg-slate-100 text-slate-700 font-bold px-4 py-2 rounded-xl border border-slate-200/60" id="resAddress"></span>
+                    </div>
+                </div>
+
+                <!-- डाटा ग्रिड (Data Grid) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    
+                    <div class="bg-slate-50/80 p-4 rounded-2xl border border-slate-100 print-bg-fix">
+                        <span class="text-xs font-semibold text-slate-400 tracking-wider uppercase block">सम्पर्क मोबाइल नम्बर</span>
+                        <span class="font-bold text-slate-900 text-base mt-1 block" id="resMobile"></span>
+                    </div>
+
+                    <div class="bg-slate-50/80 p-4 rounded-2xl border border-slate-100 print-bg-fix">
+                        <span class="text-xs font-semibold text-slate-400 tracking-wider uppercase block">नागरिकता प्रमाणपत्र नम्बर</span>
+                        <span class="font-bold text-slate-900 text-base mt-1 block" id="resCitizenship"></span>
+                    </div>
+
+                    <div class="bg-slate-50/80 p-4 rounded-2xl border border-slate-100 print-bg-fix">
+                        <span class="text-xs font-semibold text-slate-400 tracking-wider uppercase block">बाबु / बाजेको नाम</span>
+                        <span class="font-semibold text-slate-800 text-base mt-1 block" id="resParents"></span>
+                    </div>
+
+                    <div class="bg-slate-50/80 p-4 rounded-2xl border border-slate-100 print-bg-fix">
+                        <span class="text-xs font-semibold text-slate-400 tracking-wider uppercase block">घरको संरचना र स्वरूप</span>
+                        <span class="font-semibold text-slate-800 text-base mt-1 block" id="resHouseType"></span>
+                    </div>
+
+                    <div class="bg-slate-50/80 p-4 rounded-2xl border border-slate-100 print-bg-fix">
+                        <span class="text-xs font-semibold text-slate-400 tracking-wider uppercase block">कुल निर्मित भुइँ क्षेत्रफल (Area)</span>
+                        <span class="font-black text-blue-700 text-base mt-1 block" id="resArea"></span>
+                    </div>
+
+                    <div class="bg-slate-50/80 p-4 rounded-2xl border border-slate-100 print-bg-fix">
+                        <span class="text-xs font-semibold text-slate-400 tracking-wider uppercase block">जम्मा परिवार सदस्य संख्या</span>
+                        <span class="font-bold text-slate-900 text-base mt-1 block" id="resMembers"></span>
+                    </div>
+                </div>
+
+                <!-- थप सुरक्षा र प्रमाणीकरण फुटर -->
+                <div class="pt-4 border-t border-slate-100 flex items-center gap-2 text-xs text-slate-400">
+                    <span>🛡️ यो नगरपालिकाको केन्द्रीय घरधुरी डाटाबेस प्रणालीसँग सीधा आवद्ध डिजिटल प्रतिलिपि हो।</span>
+                </div>
+            </div>
+
+            <!-- भाग ख: डिजिटल स्मार्ट QR Code प्रमाणपत्र कार्ड -->
+            <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-200 print-card flex flex-col items-center justify-center text-center relative overflow-hidden">
+                
+                <!-- कार्डको ब्याकग्राउन्ड सजावट -->
+                <div class="absolute top-0 left-0 right-0 h-2 bg-blue-700"></div>
+                
+                <span class="text-xs font-bold tracking-widest text-slate-400 uppercase mb-4">GALKOT MUNICIPALITY</span>
+                
+                <!-- QR Code मुख्य बक्स -->
+                <div class="p-4 bg-white border-4 border-blue-50/80 rounded-2xl shadow-inner flex items-center justify-center transition-transform hover:scale-105">
+                    <div id="qrcode"></div>
+                </div>
+                
+                <!-- QR कोडको मुनि देखिने घर नम्बर लेबल -->
+                <h4 class="text-lg font-black tracking-wider text-slate-900 mt-4 font-mono bg-slate-100 px-4 py-1 rounded-lg border" id="qrHouseLabel"></h4>
+                
+                <p class="text-xs text-slate-500 mt-4 leading-relaxed px-2 font-medium">
+                    यो यस घरधुरीको आधिकारिक क्युआर कोड हो। मोबाइल क्यामेरा वा स्क्यानरबाट स्क्यान गर्दा यस घरको अनलाइन विवरण सीधा प्राप्त हुनेछ। यसलाई प्रिन्ट गरेर ढोकामा टाँस्न योग्य बनाइएको छ।
+                </p>
+                
+                <!-- प्रिन्ट कार्य बटन - प्रिन्ट गर्दा स्वतः लुक्नेछ -->
+                <button onclick="window.print()" class="mt-6 w-full bg-slate-950 hover:bg-black text-white text-sm font-bold py-3.5 px-6 rounded-xl transition-all shadow-md hover:shadow-lg transform active:scale-[0.98] flex items-center justify-center gap-2 no-print">
+                    <span>🖨️ विवरण तथा QR प्रिन्ट गर्नुहोस्</span>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- ========================================== -->
+    <!-- जाभास्क्रिप्ट कोर इन्जिन (JavaScript Core Engine) -->
+    <!-- ========================================== -->
+    <script>
+        // १. सुपाबेस क्लाइन्ट जडान कन्फिगरेसन
+        const SUPABASE_URL = "https://dkkjdxqpuzzxtfgggmsk.supabase.co";
+        const SUPABASE_ANON_KEY = "sb_publishable_JTChQbKVVVyfY7JiY5LQBw_2KNLBrXD";
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let qrInstance = null;
+
+        // 🚨 मुख्य कन्फिगरेसन: तपाईंको वेबसाइट नेटलिफाई वा गिटहबमा होस्ट गरेपछि प्राप्त हुने लिङ्क यहाँ राख्नुहोस्
+        // उदाहरणका लागि: "https://galkot-portal.netlify.app"
+        const MY_LIVE_WEBSITE_URL = window.location.origin + window.location.pathname; 
+
+        // २. मुख्य विवरण खोज्ने र क्युआर जेनेरेट गर्ने फङ्ग्सन
+        async function fetchHouseDetails(forcedHouseNo = null) {
+            const searchInput = document.getElementById('searchHouseNo');
+            const resultCard = document.getElementById('resultCard');
+            const searchBtn = document.getElementById('searchBtn');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+
+            // यदि लिङ्कबाट अटो-लोड भएको हो भने प्यारामिटरको भ्यालु लिने, नत्र इनपुट बक्सको लिने
+            const inputVal = forcedHouseNo ? forcedHouseNo.trim().toUpperCase() : searchInput.value.trim().toUpperCase();
+            
+            if (forcedHouseNo) {
+                searchInput.value = forcedHouseNo; // इनपुट बक्समा पनि देखाइदिने
+            }
+
+            if (!inputVal) { 
+                showToast("चेतावनी", "कृपया खोज्नका लागि घर नम्बर प्रविष्टि गर्नुहोस्।", "error"); 
+                return; 
+            }
+
+            // लोडिङ र बटनको अवस्था परिवर्तन
+            searchBtn.disabled = true;
+            searchBtn.innerText = "प्रक्रियामा...";
+            resultCard.classList.add('hidden');
+            loadingIndicator.classList.remove('hidden');
+
+            try {
+                // Households टेबलबाट घर नम्बर म्याच गराउने
+                const { data, error } = await _supabase
+                    .from('households')
+                    .select('*')
+                    .eq('house_number', inputVal);
+
+                // त्रुटि वा डाटा नभेटिएमा
+                if (error || !data || data.length === 0) {
+                    loadingIndicator.classList.add('hidden');
+                    showToast("विवरण भेटिएन", "माफ गर्नुहोला, यो घर नम्बर डेटाबेसमा दर्ता भएको देखिएन। कृपया जाँच गरी पुनः प्रयास गर्नुहोस्।", "error");
+                    return;
+                }
+
+                // प्राप्त पहिलो रेकर्ड संकलन गर्ने
+                const houseRow = data[0];
+
+                // एनिमेसन र प्रदर्शनका लागि फारमका बक्सहरूमा विवरण भर्ने
+                document.getElementById('resHouseNo').innerText = houseRow.house_number;
+                document.getElementById('resOwnerName').innerText = houseRow.houseowner_name;
+                document.getElementById('resAddress').innerText = `वडा नं. ${houseRow.ward_number}, ${houseRow.tole_name}`;
+                document.getElementById('resMobile').innerText = houseRow.mobile_number || 'नभएको';
+                document.getElementById('resCitizenship').innerText = houseRow.citizenship_number || 'नभएको';
+                document.getElementById('resParents').innerText = `${houseRow.father_name || '-'} / ${houseRow.grandfather_name || '-'}`;
+                document.getElementById('resHouseType').innerText = `${houseRow.house_type || '-'} (${houseRow.floor_count || '१'} तला)`;
+                document.getElementById('resArea').innerText = houseRow.total_area ? `${houseRow.total_area} वर्ग फिट` : '-';
+                document.getElementById('resMembers').innerText = `${houseRow.total_members || '०'} जना`;
+                document.getElementById('qrHouseLabel').innerText = houseRow.house_number;
+
+                // क्युआर कोड जेनेरेशन व्यवस्थापन (QR Link Generation Setup)
+                const qrContainer = document.getElementById('qrcode');
+                qrContainer.innerHTML = ""; // पुराना इमेजहरू नष्ट गर्ने
+                
+                // 🔗 क्युआर कोड स्क्यान गर्दा सिधै यो अनलाइन लिंक खुल्नेछ र पछाडि ?id= थपिनेछ
+                const qrLinkWithId = `${MY_LIVE_WEBSITE_URL}?id=${houseRow.house_number}`;
+                
+                // क्युआर संरचना निर्माण (स्मार्टफोन रिडेबल अप्टिमाइज्ड)
+                qrInstance = new QRCode(qrContainer, {
+                    text: qrLinkWithId, 
+                    width: 170,
+                    height: 170,
+                    colorDark: "#0f172a", // गाढा नीलो/कालो रङ ताकि स्क्यान गर्न सजिलो होस्
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.M // मध्य स्तरको त्रुटि सुधार, जसले 'overflow' त्रुटि आउन दिँदैन
+                });
+
+                // नतिजा स्क्रिन प्रदर्शन गर्ने
+                loadingIndicator.classList.add('hidden');
+                resultCard.classList.remove('hidden');
+                showToast("विवरण फेला पर्यो", "डिजिटल रेकर्ड र अनलाइन लिङ्क सहितको QR कोड सफलता पुर्वक लोड भयो।", "success");
+
+            } catch (err) {
+                console.error("प्रणाली कन्सोल त्रुटि:", err);
+                loadingIndicator.classList.add('hidden');
+                showToast("प्रणाली त्रुटि", "डाटाबेस सर्भरबाट विवरण तान्न सकिएन। म्यासेज: " + (err.message || ""), "error");
+            } finally {
+                searchBtn.disabled = false;
+                searchBtn.innerText = "विवरण खोज्नुहोस्";
+            }
+        }
+
+        // ३. स्वचालित लिङ्क विश्लेषक (URL Parameter Auto-Loader Engine)
+        // यदि कसैले क्युआर कोड स्क्यान गरेर लिंक खोल्छ भने यो फङ्ग्सन स्वतः पहिलो सेकेन्डमै रन हुन्छ
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const houseIdFromUrl = urlParams.get('id'); // लिंकको पछाडि रहेको '?id=GM-xx-xxxx' खोज्छ
+            
+            if (houseIdFromUrl) {
+                // यदि युआरएलमा घर नम्बर फेला परेमा स्वतः खोजी प्रक्रिया सुरु गर्ने
+                fetchHouseDetails(houseIdFromUrl);
+            }
+        });
+
+        // ४. सन्देश प्रदर्शन गर्ने सूचना पप-अप प्रणाली (Toast Controller)
+        function showToast(title, message, type = "success") {
+            const toast = document.getElementById('statusToast');
+            toast.classList.remove('hidden', 'bg-emerald-50', 'border-emerald-200', 'text-emerald-900', 'bg-red-50', 'border-red-200', 'text-red-900');
+            
+            if (type === "success") {
+                toast.classList.add('bg-emerald-50', 'border-emerald-200', 'text-emerald-900');
+                toast.innerHTML = `<div class="flex items-start gap-3">
+                    <div class="text-xl">🎉</div>
+                    <div>
+                        <div class="font-bold text-base text-emerald-800">${title}</div>
+                        <div class="mt-0.5 text-xs text-emerald-700/90 leading-relaxed">${message}</div>
+                    </div>
+                </div>`;
+            } else {
+                toast.classList.add('bg-red-50', 'border-red-200', 'text-red-900');
+                toast.innerHTML = `<div class="flex items-start gap-3">
+                    <div class="text-xl">⚠️</div>
+                    <div>
+                        <div class="font-bold text-base text-red-800">${title}</div>
+                        <div class="mt-0.5 text-xs text-red-700/90 leading-relaxed">${message}</div>
+                    </div>
+                </div>`;
+            }
+            
+            // ६ सेकेन्ड पछि स्वतः हराउने व्यवस्था
+            setTimeout(() => { 
+                toast.classList.add('hidden'); 
+            }, 6000);
+        }
+
+        // ५. की-बोर्डको 'Enter' बटन थिच्दा पनि स्वतः खोज्ने सुविधा
+        document.getElementById('searchHouseNo').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                fetchHouseDetails();
+            }
+        });
+    </script>
+</body>
+</html>
