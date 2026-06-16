@@ -22,25 +22,84 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        /* प्रिन्ट लेआउट नियन्त्रण */
+
+        /* ==========================================================
+           🎯 १००% ग्यारेन्टीका साथ QR र House No मात्र प्रिन्ट गर्ने CSS 🎯
+           ========================================================== */
         @media print {
-            body { 
-                background: white !important; 
-                color: black !important; 
+            /* ब्राउजरलाई ब्याकग्राउन्ड र इमेजहरू अनिवार्य प्रिन्ट गर्न बाध्य बनाउने */
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
-            .no-print { 
+            
+            /* स्क्रिनका सबै सामाग्री लुकाउने */
+            body, html { 
+                background: white !important; 
+                color: black !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            header, main > section, #loadingIndicator, .lg\:col-span-2, .no-print, #statusToast { 
                 display: none !important; 
             }
-            .print-card { 
-                border: 2px solid #000000 !important; 
-                box-shadow: none !important; 
-                margin: 0 auto !important;
-                background: white !important;
+            
+            /* मुख्य रिजल्ट कार्ड र ग्रिडहरूलाई सफा गर्ने */
+            #resultCard {
+                display: block !important;
+                border: none !important;
+                box-shadow: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
             }
-            .print-bg-fix {
-                background-color: #f8fafc !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
+
+            /* क्युआर कोड भएको राइट-साइड कार्डलाई मात्र पेपरको बीचमा ल्याउने */
+            .print-card-only {
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: center !important;
+                border: none !important;
+                box-shadow: none !important;
+                background: white !important;
+                position: absolute !important;
+                top: 40% !important;
+                left: 50% !important;
+                transform: translate(-50%, -40%) scale(1.4) !important; /* साइज ठुलो बनाउन */
+                width: 100% !important;
+            }
+
+            /* क्युआर होल्डर भित्रका क्यानभास वा इमेजहरू प्रिन्टमा देखिने गराउने */
+            #qrcode {
+                display: block !important;
+                visibility: visible !important;
+                margin: 0 auto !important;
+            }
+            #qrcode img, #qrcode canvas {
+                display: inline-block !important;
+                visibility: visible !important;
+            }
+
+            /* क्युआर मुनिको घर नम्बर मात्र देखाउने */
+            #qrHouseLabel {
+                display: block !important;
+                visibility: visible !important;
+                background: transparent !important;
+                border: none !important;
+                font-size: 26px !important;
+                margin-top: 20px !important;
+                font-weight: 900 !important;
+                color: black !important;
+                text-align: center !important;
+                font-family: monospace !important;
+            }
+
+            /* अन्य अनावश्यक टेक्स्टहरू (लोगो नाम, विवरण आदि) प्रिन्टमा कडा रूपमा लुकाउने */
+            .print-card-only > span, 
+            .print-card-only > p, 
+            .print-card-only > div.absolute {
+                display: none !important;
+                opacity: 0 !important;
             }
         }
     </style>
@@ -49,38 +108,37 @@
 
     <!-- शीर्ष भाग (Header) -->
     <header class="bg-blue-700 text-white shadow-md sticky top-0 z-50 no-print">
-        <div class="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-                <div class="bg-white p-1 rounded-full w-12 h-12 flex items-center justify-center font-bold text-blue-700 text-xl shadow-md">
-                    नेपाल
-                </div>
+                <div class="bg-white p-1 rounded-full w-12 h-12 flex items-center justify-center font-bold text-blue-700 text-xl shadow-md">नेपाल</div>
                 <div>
                     <h1 class="text-xl font-bold leading-tight tracking-wide">गलकोट नगरपालिका</h1>
                     <p class="text-xs text-blue-200">नगर कार्यपालिकाको कार्यालय, गण्डकी प्रदेश</p>
                 </div>
             </div>
-            <div class="hidden sm:block text-right">
-                <span class="bg-blue-800 text-blue-100 text-xs px-3 py-1.5 rounded-full font-medium border border-blue-600">
-                    एड्मिन पोर्टल v4.0
+            <div class="text-right">
+                <span id="syncStatus" class="bg-blue-800 text-blue-100 text-xs px-3 py-1.5 rounded-full font-medium border border-blue-600 flex items-center gap-1.5">
+                    <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    लाइभ अनलाइन सिङ्क सक्रिय
                 </span>
             </div>
         </div>
     </header>
 
-    <!-- मुख्य सामग्री (Main Container) -->
-    <main class="max-w-5xl mx-auto px-4 mt-8">
+    <!-- मुख्य सामग्री -->
+    <main class="max-w-6xl mx-auto px-4 mt-8">
         
-        <!-- सूचना पप-अप (Toast Notification) -->
+        <!-- सूचना पप-अप -->
         <div id="statusToast" class="hidden fixed top-24 right-4 left-4 sm:left-auto sm:w-[450px] p-5 rounded-2xl shadow-2xl z-50 transition-all text-sm font-medium border no-print"></div>
 
-        <!-- खोजी सेक्सन (Search Box) -->
+        <!-- खोजी सेक्सन -->
         <section class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-200/80 no-print transition-all hover:shadow-md">
             <div class="max-w-2xl">
                 <h3 class="text-lg font-bold text-slate-900 mb-2 flex items-center gap-2">
                     🔍 डिजिटल घरधुरी विवरण खोज्नुहोस्
                 </h3>
                 <p class="text-sm text-slate-500 mb-6">
-                    नगरपालिकाद्वारा जारी गरिएको आधिकारिक डिजिटल घर नम्बर (उदा: <span class="font-mono font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">GM-01-00001</span>) प्रविष्टि गरी विवरण र स्मार्ट क्युआर कोड प्राप्त गर्नुहोस्।
+                    घर नम्बर राखेर खोज्नुहोस्। नयाँ इन्ट्री हुने बित्तिकै प्रणालीले उक्त विवरण स्वतः समातेर क्युआर सहित तल प्रदर्शन गर्नेछ।
                 </p>
                 
                 <div class="flex flex-col sm:flex-row gap-3">
@@ -94,24 +152,22 @@
             </div>
         </section>
 
-        <!-- लोडिङ सूचक (Loading State Indicator) -->
+        <!-- लोडिङ सूचक -->
         <div id="loadingIndicator" class="hidden text-center py-12 no-print">
             <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-700 border-r-transparent mb-3"></div>
-            <p class="text-sm text-slate-500 font-medium">डाटाबेसबाट विवरण खोजिँदैछ, कृपया प्रतिक्षा गर्नुहोस्...</p>
+            <p class="text-sm text-slate-500 font-medium">डाटाबेस खोतल्दैछ, कृपया प्रतिक्षा गर्नुहोस्...</p>
         </div>
 
-        <!-- नतिजा प्रदर्शन खण्ड (Result Display Block) -->
+        <!-- नतिजा प्रदर्शन खण्ड -->
         <div id="resultCard" class="hidden grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8 animate-fade-in">
             
-            <!-- भाग क: मुख्य तथा पारिवारिक विवरण कार्ड -->
-            <div class="lg:col-span-2 bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-200 print-card space-y-6">
-                
-                <!-- कार्डको शीर्ष भाग -->
+            <!-- भाग क: विस्तृत विवरण कार्ड (यो प्रिन्ट गर्दा स्वतः ३०१% लुक्छ) -->
+            <div class="lg:col-span-2 bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-200 space-y-6">
                 <div class="flex flex-col sm:flex-row justify-between items-start gap-4 border-b border-slate-100 pb-5">
                     <div>
                         <div class="flex items-center gap-2">
                             <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-md uppercase tracking-wider font-mono shadow-sm" id="resHouseNo"></span>
-                            <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-md shadow-sm">प्रमाणित रेकर्ड</span>
+                            <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-md shadow-sm" id="recordBadge">प्रमाणित रेकर्ड</span>
                         </div>
                         <h2 class="text-2xl font-bold text-slate-900 mt-3 tracking-tight" id="resOwnerName"></h2>
                         <p class="text-xs font-medium text-slate-400 uppercase tracking-wider mt-0.5">घरधनी / मुख्य घरमूलीको विवरण</p>
@@ -121,59 +177,51 @@
                     </div>
                 </div>
 
-                <!-- डाटा ग्रिड -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div class="bg-slate-50/80 p-4 rounded-2xl border border-slate-100 print-bg-fix">
+                    <div class="bg-slate-50/80 p-4 rounded-2xl border border-slate-100">
                         <span class="text-xs font-semibold text-slate-400 tracking-wider uppercase block">सम्पर्क मोबाइल नम्बर</span>
                         <span class="font-bold text-slate-900 text-base mt-1 block" id="resMobile"></span>
                     </div>
-
-                    <div class="bg-slate-50/80 p-4 rounded-2xl border border-slate-100 print-bg-fix">
+                    <div class="bg-slate-50/80 p-4 rounded-2xl border border-slate-100">
                         <span class="text-xs font-semibold text-slate-400 tracking-wider uppercase block">नागरिकता प्रमाणपत्र नम्बर</span>
                         <span class="font-bold text-slate-900 text-base mt-1 block" id="resCitizenship"></span>
                     </div>
-
-                    <div class="bg-slate-50/80 p-4 rounded-2xl border border-slate-100 print-bg-fix">
+                    <div class="bg-slate-50/80 p-4 rounded-2xl border border-slate-100">
                         <span class="text-xs font-semibold text-slate-400 tracking-wider uppercase block">बाबु / बाजेको नाम</span>
                         <span class="font-semibold text-slate-800 text-base mt-1 block" id="resParents"></span>
                     </div>
-
-                    <div class="bg-slate-50/80 p-4 rounded-2xl border border-slate-100 print-bg-fix">
-                        <span class="text-xs font-semibold text-slate-400 tracking-wider uppercase block">घरको संरचना र स्वरूप</span>
-                        <span class="font-semibold text-slate-800 text-base mt-1 block" id="resHouseType"></span>
-                    </div>
-
-                    <div class="bg-slate-50/80 p-4 rounded-2xl border border-slate-100 print-bg-fix">
-                        <span class="text-xs font-semibold text-slate-400 tracking-wider uppercase block">कुल निर्मित भुइँ क्षेत्रफल (Area)</span>
-                        <span class="font-black text-blue-700 text-base mt-1 block" id="resArea"></span>
-                    </div>
-
-                    <div class="bg-slate-50/80 p-4 rounded-2xl border border-slate-100 print-bg-fix">
+                    <div class="bg-slate-50/80 p-4 rounded-2xl border border-slate-100">
                         <span class="text-xs font-semibold text-slate-400 tracking-wider uppercase block">जम्मा परिवार सदस्य संख्या</span>
                         <span class="font-bold text-slate-900 text-base mt-1 block" id="resMembers"></span>
                     </div>
                 </div>
 
-                <div class="pt-4 border-t border-slate-100 flex items-center gap-2 text-xs text-slate-400">
-                    <span>🛡️ यो नगरपालिकाको केन्द्रीय घरधुरी डाटाबेस प्रणालीसँग सीधा आवद्ध डिजिटल प्रतिलिपि हो।</span>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                    <div class="bg-slate-50/80 p-4 rounded-2xl border border-slate-100">
+                        <span class="text-xs font-semibold text-slate-400 tracking-wider uppercase block">घरको संरचना र स्वरूप</span>
+                        <span class="font-semibold text-slate-800 text-base mt-1 block" id="resHouseType"></span>
+                    </div>
+                    <div class="bg-slate-50/80 p-4 rounded-2xl border border-slate-100">
+                        <span class="text-xs font-semibold text-slate-400 tracking-wider uppercase block">कुल निर्मित भुइँ क्षेत्रफल (Area)</span>
+                        <span class="font-black text-blue-700 text-base mt-1 block" id="resArea"></span>
+                    </div>
                 </div>
             </div>
 
-            <!-- भाग ख: डिजिटल स्मार्ट QR Code प्रमाणपत्र कार्ड -->
-            <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-200 print-card flex flex-col items-center justify-center text-center relative overflow-hidden">
+            <!-- भाग ख: क्युआर कोड प्रमाणपत्र कार्ड (यही मात्र प्रिन्ट आउट आउनेछ) -->
+            <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-200 flex flex-col items-center justify-center text-center relative overflow-hidden print-card-only">
                 <div class="absolute top-0 left-0 right-0 h-2 bg-blue-700"></div>
-                <span class="text-xs font-bold tracking-widest text-slate-400 uppercase mb-4">GALKOT MUNICIPALITY</span>
+                <span>GALKOT MUNICIPALITY</span>
                 
-                <!-- QR Code मुख्य बक्स -->
-                <div class="p-4 bg-white border-4 border-blue-50/80 rounded-2xl shadow-inner flex items-center justify-center transition-transform hover:scale-105 min-w-[180px] min-h-[180px]">
+                <!-- QR Code जेनेरेटर होल्डर -->
+                <div class="p-4 bg-white border-4 border-blue-50/80 rounded-2xl shadow-inner flex items-center justify-center min-w-[180px] min-h-[180px]">
                     <div id="qrcode"></div>
                 </div>
                 
+                <!-- घर नम्बर लेबल -->
                 <h4 class="text-lg font-black tracking-wider text-slate-900 mt-4 font-mono bg-slate-100 px-4 py-1 rounded-lg border" id="qrHouseLabel"></h4>
                 
-                <p class="text-xs text-slate-500 mt-4 leading-relaxed px-2 font-medium">
-                    यो यस घरधुरीको आधिकारिक क्युआर लिंक कोड हो। मोबाइल क्यामेराबाट स्क्यान गर्दा सिधै **सार्वजनिक विवरण पोर्टल (`details.html`)** मार्फत यो घरको प्रमाणित पूर्ण विवरण देखिनेछ।
-                </p>
+                <p class="text-xs text-slate-500 mt-4">आधिकारिक क्युआर लिंक कोड</p>
                 
                 <button onclick="window.print()" class="mt-6 w-full bg-slate-950 hover:bg-black text-white text-sm font-bold py-3.5 px-6 rounded-xl transition-all shadow-md hover:shadow-lg transform active:scale-[0.98] flex items-center justify-center gap-2 no-print">
                     <span>🖨️ विवरण तथा QR प्रिन्ट गर्नुहोस्</span>
@@ -190,7 +238,45 @@
 
         let qrInstance = null;
 
-        // मुख्य विवरण खोज्ने र क्युआर जेनेरेट गर्ने फङ्ग्सन
+        function renderHouseData(houseRow, isRealtime = false) {
+            document.getElementById('resOwnerName').innerText = `नमस्ते, ${houseRow.houseowner_name}`;
+            document.getElementById('resHouseNo').innerText = houseRow.house_number;
+            document.getElementById('resAddress').innerText = `वडा नं. ${houseRow.ward_number}, ${houseRow.tole_name}`;
+            document.getElementById('resMobile').innerText = houseRow.mobile_number || 'नभएको';
+            document.getElementById('resCitizenship').innerText = houseRow.citizenship_number || 'नभएको';
+            document.getElementById('resParents').innerText = `${houseRow.father_name || '-'} / ${houseRow.grandfather_name || '-'}`;
+            document.getElementById('resHouseType').innerText = `${houseRow.house_type || '-'} (${houseRow.floor_count || '१'} तला)`;
+            document.getElementById('resArea').innerText = houseRow.total_area ? `${houseRow.total_area} वर्ग फिट` : '-';
+            document.getElementById('resMembers').innerText = `${houseRow.total_members || '०'} जना`;
+            document.getElementById('qrHouseLabel').innerText = houseRow.house_number;
+
+            const badge = document.getElementById('recordBadge');
+            if(isRealtime) {
+                badge.innerText = "भर्खरै थपिएको नयाँ इन्ट्री";
+                badge.className = "bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-md shadow-sm animate-pulse";
+            } else {
+                badge.innerText = "प्रमाणित रेकर्ड";
+                badge.className = "bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-md shadow-sm";
+            }
+
+            // QR Code जेनेरेसन
+            const qrContainer = document.getElementById('qrcode');
+            qrContainer.innerHTML = ""; 
+            const qrLinkWithDetailsPage = `https://dineshbaburoka.com.np/details.html?id=${houseRow.house_number}`;
+            
+            qrInstance = new QRCode(qrContainer, {
+                text: qrLinkWithDetailsPage, 
+                width: 200, // प्रस्ट बुझिने गरी चौडाई थोरै बढाइएको
+                height: 200,
+                colorDark: "#000000",   
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H // त्रुटि सच्याउने स्तर High बनाइएको ताकि प्रिन्ट खोटरहित आओस्
+            });
+
+            document.getElementById('loadingIndicator').classList.add('hidden');
+            document.getElementById('resultCard').classList.remove('hidden');
+        }
+
         async function fetchHouseDetails(forcedHouseNo = null) {
             const searchInput = document.getElementById('searchHouseNo');
             const resultCard = document.getElementById('resultCard');
@@ -199,17 +285,11 @@
 
             const inputVal = forcedHouseNo ? forcedHouseNo.trim().toUpperCase() : searchInput.value.trim().toUpperCase();
             
-            if (forcedHouseNo) {
-                searchInput.value = forcedHouseNo;
-            }
-
-            if (!inputVal) { 
-                showToast("चेतावनी", "कृपया खोज्नका लागि घर नम्बर प्रविष्टि गर्नुहोस्।", "error"); 
-                return; 
-            }
+            if (forcedHouseNo) { searchInput.value = forcedHouseNo; }
+            if (!inputVal) { showToast("चेतावनी", "कृपया खोज्नका लागि घर नम्बर प्रविष्टि गर्नुहोस्।", "error"); return; }
 
             searchBtn.disabled = true;
-            searchBtn.innerText = "प्रक्रियामा...";
+            searchBtn.innerText = "खोजिँदैछ...";
             resultCard.classList.add('hidden');
             loadingIndicator.classList.remove('hidden');
 
@@ -221,66 +301,38 @@
 
                 if (error || !data || data.length === 0) {
                     loadingIndicator.classList.add('hidden');
-                    showToast("विवरण भेटिएन", "माफ गर्नुहोला, यो घर नम्बर देखिएन। कृपया जाँच गरी पुनः प्रयास गर्नुहोस्।", "error");
+                    showToast("विवरण भेटिएन", "यो घर नम्बर डाटाबेसमा उपलब्ध छैन।", "error");
                     return;
                 }
 
-                const houseRow = data[0];
-
-                document.getElementById('resHouseNo').innerText = houseRow.house_number;
-                document.getElementById('resOwnerName').innerText = houseRow.houseowner_name;
-                document.getElementById('resAddress').innerText = `वडा नं. ${houseRow.ward_number}, ${houseRow.tole_name}`;
-                document.getElementById('resMobile').innerText = houseRow.mobile_number || 'नभएको';
-                document.getElementById('resCitizenship').innerText = houseRow.citizenship_number || 'नभएको';
-                document.getElementById('resParents').innerText = `${houseRow.father_name || '-'} / ${houseRow.grandfather_name || '-'}`;
-                document.getElementById('resHouseType').innerText = `${houseRow.house_type || '-'} (${houseRow.floor_count || '१'} तला)`;
-                document.getElementById('resArea').innerText = houseRow.total_area ? `${houseRow.total_area} वर्ग फिट` : '-';
-                document.getElementById('resMembers').innerText = `${houseRow.total_members || '०'} जना`;
-                document.getElementById('qrHouseLabel').innerText = houseRow.house_number;
-
-                // ==========================================
-                // 🔴 क्युआर कोड भित्र डाइरेक्ट अनलाइन लिंक फिक्स गरिएको खण्ड 🔴
-                // ==========================================
-                const qrContainer = document.getElementById('qrcode');
-                qrContainer.innerHTML = ""; 
-                
-                // तपाईंको आधिकारिक सेभ गरिएको अनलाइन डोमेन लिंक
-                const qrLinkWithDetailsPage = `https://dineshbaburoka.com/details.html?id=${houseRow.house_number}`;
-                
-                // क्युआर निर्माण
-                qrInstance = new QRCode(qrContainer, {
-                    text: qrLinkWithDetailsPage, // स्क्यान गर्दा सिधै यो फिक्स अनलाइन लिंक खुल्नेछ
-                    width: 180,
-                    height: 180,
-                    colorDark: "#0f172a",   
-                    colorLight: "#ffffff",
-                    correctLevel: QRCode.CorrectLevel.M 
-                });
-
-                loadingIndicator.classList.add('hidden');
-                resultCard.classList.remove('hidden');
-                showToast("विवरण फेला पर्यो", "डिजिटल रेकर्ड र विवरण प्रदर्शन लिंक सहितको QR कोड सफलतापूर्वक लोड भयो।", "success");
+                renderHouseData(data[0], false);
+                showToast("सफलता", "डिजिटल रेकर्ड र क्युआर कोड लोड भयो।", "success");
 
             } catch (err) {
                 console.error(err);
                 loadingIndicator.classList.add('hidden');
-                showToast("प्रणाली त्रुटि", "डाटाबेस सर्भरबाट विवरण तान्न सकिएन।", "error");
+                showToast("त्रुटि", "सर्भर कनेक्सन फेल भयो।", "error");
             } finally {
                 searchBtn.disabled = false;
                 searchBtn.innerText = "विवरण खोज्नुहोस्";
             }
         }
 
-        // स्वचालित लिङ्क विश्लेषक
+        _supabase
+            .channel('realtime_households')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'households' }, (payload) => {
+                renderHouseData(payload.new, true);
+                document.getElementById('searchHouseNo').value = payload.new.house_number;
+                showToast("💥 नयाँ इन्ट्री स्वतः प्राप्त भयो!", `घर नम्बर ${payload.new.house_number} को पूर्ण विवरण र क्युआर कोड तयार भयो।`, "success");
+            })
+            .subscribe();
+
         window.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const houseIdFromUrl = urlParams.get('id');
-            if (houseIdFromUrl) {
-                fetchHouseDetails(houseIdFromUrl);
-            }
+            if (houseIdFromUrl) { fetchHouseDetails(houseIdFromUrl); }
         });
 
-        // टोस्ट नोटिफिकेसन कन्टोलर
         function showToast(title, message, type = "success") {
             const toast = document.getElementById('statusToast');
             toast.classList.remove('hidden', 'bg-emerald-50', 'border-emerald-200', 'text-emerald-900', 'bg-red-50', 'border-red-200', 'text-red-900');
@@ -304,15 +356,11 @@
                     </div>
                 </div>`;
             }
-            
-            setTimeout(() => { toast.classList.add('hidden'); }, 6000);
+            setTimeout(() => { toast.classList.add('hidden'); }, 7000);
         }
 
-        // Enter बटन थिच्दा खोज्ने पद्दति
         document.getElementById('searchHouseNo').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                fetchHouseDetails();
-            }
+            if (e.key === 'Enter') { fetchHouseDetails(); }
         });
     </script>
 </body>
