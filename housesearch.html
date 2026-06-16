@@ -61,7 +61,7 @@
             </div>
             <div class="hidden sm:block text-right">
                 <span class="bg-blue-800 text-blue-100 text-xs px-3 py-1.5 rounded-full font-medium border border-blue-600">
-                    स्मार्ट डिजिटल प्रणाली v2.0
+                    एड्मिन पोर्टल v3.5
                 </span>
             </div>
         </div>
@@ -94,7 +94,7 @@
             </div>
         </section>
 
-        <!-- गन्तव्य/लोडिङ सूचक (Loading State Indicator) -->
+        <!-- लोडिङ सूचक (Loading State Indicator) -->
         <div id="loadingIndicator" class="hidden text-center py-12 no-print">
             <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-700 border-r-transparent mb-3"></div>
             <p class="text-sm text-slate-500 font-medium">डाटाबेसबाट विवरण खोजिँदैछ, कृपया प्रतिक्षा गर्नुहोस्...</p>
@@ -170,7 +170,7 @@
                 <span class="text-xs font-bold tracking-widest text-slate-400 uppercase mb-4">GALKOT MUNICIPALITY</span>
                 
                 <!-- QR Code मुख्य बक्स -->
-                <div class="p-4 bg-white border-4 border-blue-50/80 rounded-2xl shadow-inner flex items-center justify-center transition-transform hover:scale-105">
+                <div class="p-4 bg-white border-4 border-blue-50/80 rounded-2xl shadow-inner flex items-center justify-center transition-transform hover:scale-105 min-w-[180px] min-h-[180px]">
                     <div id="qrcode"></div>
                 </div>
                 
@@ -178,7 +178,7 @@
                 <h4 class="text-lg font-black tracking-wider text-slate-900 mt-4 font-mono bg-slate-100 px-4 py-1 rounded-lg border" id="qrHouseLabel"></h4>
                 
                 <p class="text-xs text-slate-500 mt-4 leading-relaxed px-2 font-medium">
-                    यो यस घरधुरीको आधिकारिक क्युआर कोड हो। मोबाइल क्यामेरा वा स्क्यानरबाट स्क्यान गर्दा यस घरको अनलाइन विवरण सीधा प्राप्त हुनेछ। यसलाई प्रिन्ट गरेर ढोकामा टाँस्न योग्य बनाइएको छ।
+                    यो यस घरधुरीको आधिकारिक क्युआर लिंक कोड हो। मोबाइल क्यामेराबाट स्क्यान गर्दा सिधै **सार्वजनिक विवरण पोर्टल (`details.html`)** मार्फत यो घरको प्रमाणीकृत विवरण स्वतः उपलब्ध हुनेछ।
                 </p>
                 
                 <!-- प्रिन्ट कार्य बटन - प्रिन्ट गर्दा स्वतः लुक्नेछ -->
@@ -200,10 +200,6 @@
 
         let qrInstance = null;
 
-        // 🚨 मुख्य कन्फिगरेसन: तपाईंको वेबसाइट नेटलिफाई वा गिटहबमा होस्ट गरेपछि प्राप्त हुने लिङ्क यहाँ राख्नुहोस्
-        // उदाहरणका लागि: "https://galkot-portal.netlify.app"
-        const MY_LIVE_WEBSITE_URL = window.location.origin + window.location.pathname; 
-
         // २. मुख्य विवरण खोज्ने र क्युआर जेनेरेट गर्ने फङ्ग्सन
         async function fetchHouseDetails(forcedHouseNo = null) {
             const searchInput = document.getElementById('searchHouseNo');
@@ -211,11 +207,10 @@
             const searchBtn = document.getElementById('searchBtn');
             const loadingIndicator = document.getElementById('loadingIndicator');
 
-            // यदि लिङ्कबाट अटो-लोड भएको हो भने प्यारामिटरको भ्यालु लिने, नत्र इनपुट बक्सको लिने
             const inputVal = forcedHouseNo ? forcedHouseNo.trim().toUpperCase() : searchInput.value.trim().toUpperCase();
             
             if (forcedHouseNo) {
-                searchInput.value = forcedHouseNo; // इनपुट बक्समा पनि देखाइदिने
+                searchInput.value = forcedHouseNo;
             }
 
             if (!inputVal) { 
@@ -239,14 +234,13 @@
                 // त्रुटि वा डाटा नभेटिएमा
                 if (error || !data || data.length === 0) {
                     loadingIndicator.classList.add('hidden');
-                    showToast("विवरण भेटिएन", "माफ गर्नुहोला, यो घर नम्बर डेटाबेसमा दर्ता भएको देखिएन। कृपया जाँच गरी पुनः प्रयास गर्नुहोस्।", "error");
+                    showToast("विवरण भेटिएन", "माफ गर्नुहोला, यो घर नम्बर देखिएन। कृपया जाँच गरी पुनः प्रयास गर्नुहोस्।", "error");
                     return;
                 }
 
-                // प्राप्त पहिलो रेकर्ड संकलन गर्ने
                 const houseRow = data[0];
 
-                // एनिमेसन र प्रदर्शनका लागि फारमका बक्सहरूमा विवरण भर्ने
+                // फारमका बक्सहरूमा विवरण भर्ने
                 document.getElementById('resHouseNo').innerText = houseRow.house_number;
                 document.getElementById('resOwnerName').innerText = houseRow.houseowner_name;
                 document.getElementById('resAddress').innerText = `वडा नं. ${houseRow.ward_number}, ${houseRow.tole_name}`;
@@ -258,46 +252,45 @@
                 document.getElementById('resMembers').innerText = `${houseRow.total_members || '०'} जना`;
                 document.getElementById('qrHouseLabel').innerText = houseRow.house_number;
 
-                // क्युआर कोड जेनेरेशन व्यवस्थापन (QR Link Generation Setup)
+                // ==========================================
+                // 🔴 क्युआर कोड भित्र `details.html` को लिंक बनाउने मुख्य इन्जिन 🔴
+                // ==========================================
                 const qrContainer = document.getElementById('qrcode');
-                qrContainer.innerHTML = ""; // पुराना इमेजहरू नष्ट गर्ने
+                qrContainer.innerHTML = ""; 
                 
-                // 🔗 क्युआर कोड स्क्यान गर्दा सिधै यो अनलाइन लिंक खुल्नेछ र पछाडि ?id= थपिनेछ
-                const qrLinkWithId = `${MY_LIVE_WEBSITE_URL}?id=${houseRow.house_number}`;
+                // यसले search.html लाई हटाएर स्वचालित रूपमा details.html?id=GM-XX-XXXXX को पूर्ण अनलाइन यूआरएल बनाउँछ
+                const qrLinkWithDetailsPage = window.location.origin + window.location.pathname.replace('search.html', 'details.html') + `?id=${houseRow.house_number}`;
                 
-                // क्युआर संरचना निर्माण (स्मार्टफोन रिडेबल अप्टिमाइज्ड)
+                // क्युआर संरचना निर्माण
                 qrInstance = new QRCode(qrContainer, {
-                    text: qrLinkWithId, 
-                    width: 170,
-                    height: 170,
-                    colorDark: "#0f172a", // गाढा नीलो/कालो रङ ताकि स्क्यान गर्न सजिलो होस्
+                    text: qrLinkWithDetailsPage, // स्क्यान गर्दा सिधै यो अनलाइन लिंक खुल्छ र 'details.html' मा लैजान्छ
+                    width: 180,
+                    height: 180,
+                    colorDark: "#0f172a",   
                     colorLight: "#ffffff",
-                    correctLevel: QRCode.CorrectLevel.M // मध्य स्तरको त्रुटि सुधार, जसले 'overflow' त्रुटि आउन दिँदैन
+                    correctLevel: QRCode.CorrectLevel.M 
                 });
 
                 // नतिजा स्क्रिन प्रदर्शन गर्ने
                 loadingIndicator.classList.add('hidden');
                 resultCard.classList.remove('hidden');
-                showToast("विवरण फेला पर्यो", "डिजिटल रेकर्ड र अनलाइन लिङ्क सहितको QR कोड सफलता पुर्वक लोड भयो।", "success");
+                showToast("विवरण फेला पर्यो", "डिजिटल रेकर्ड र विवरण प्रदर्शन लिंक सहितको QR कोड सफलतापूर्वक लोड भयो।", "success");
 
             } catch (err) {
                 console.error("प्रणाली कन्सोल त्रुटि:", err);
                 loadingIndicator.classList.add('hidden');
-                showToast("प्रणाली त्रुटि", "डाटाबेस सर्भरबाट विवरण तान्न सकिएन। म्यासेज: " + (err.message || ""), "error");
+                showToast("प्रणाली त्रुटि", "डाटाबेस सर्भरबाट विवरण तान्न सकिएन।", "error");
             } finally {
                 searchBtn.disabled = false;
                 searchBtn.innerText = "विवरण खोज्नुहोस्";
             }
         }
 
-        // ३. स्वचालित लिङ्क विश्लेषक (URL Parameter Auto-Loader Engine)
-        // यदि कसैले क्युआर कोड स्क्यान गरेर लिंक खोल्छ भने यो फङ्ग्सन स्वतः पहिलो सेकेन्डमै रन हुन्छ
+        // ३. स्वचालित लिङ्क विश्लेषक (URL Parameter Reader Engine)
         window.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
-            const houseIdFromUrl = urlParams.get('id'); // लिंकको पछाडि रहेको '?id=GM-xx-xxxx' खोज्छ
-            
+            const houseIdFromUrl = urlParams.get('id');
             if (houseIdFromUrl) {
-                // यदि युआरएलमा घर नम्बर फेला परेमा स्वतः खोजी प्रक्रिया सुरु गर्ने
                 fetchHouseDetails(houseIdFromUrl);
             }
         });
@@ -327,7 +320,6 @@
                 </div>`;
             }
             
-            // ६ सेकेन्ड पछि स्वतः हराउने व्यवस्था
             setTimeout(() => { 
                 toast.classList.add('hidden'); 
             }, 6000);
