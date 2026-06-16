@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>घरधुरी प्रमाणित डिजिटल विवरण | गलकोट नगरपालिका</title>
+    
+    <!-- External Libraries & Fonts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Mukta:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        body { font-family: 'Mukta', 'Poppins', sans-serif; }
+        .animate-scale-up {
+            animation: scaleUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes scaleUp {
+            from { opacity: 0; transform: scale(0.96); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 antialiased min-h-screen pb-12">
+
+    <!-- शीर्ष लोगो र सरकारी छाप हेडर -->
+    <header class="bg-white border-b border-slate-200 py-6 px-4 shadow-sm">
+        <div class="max-w-3xl mx-auto flex flex-col sm:flex-row items-center justify-between text-center sm:text-left gap-4">
+            <div class="flex flex-col sm:flex-row items-center gap-3">
+                <!-- नेपाल सरकारको छाप स्वरुप टेक्स्ट/प्रतीक -->
+                <div class="bg-red-600 text-white font-bold p-3 rounded-full text-xs shadow-md w-14 h-14 flex items-center justify-center tracking-tighter leading-none">
+                    नेपाल सरकार
+                </div>
+                <div>
+                    <h1 class="text-xl font-black text-slate-900 tracking-wide">गलकोट नगरपालिका</h1>
+                    <p class="text-xs font-semibold text-red-600">नगर कार्यपालिकाको कार्यालय, गण्डकी प्रदेश</p>
+                    <p class="text-[11px] text-slate-400 font-medium">डिजिटल घरधुरी नागरिक सूचना प्रणाली</p>
+                </div>
+            </div>
+            <div>
+                <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold px-4 py-2 rounded-full shadow-sm flex items-center gap-1.5">
+                    🟢 आधिकारिक प्रमाणित रेकर्ड
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-3xl mx-auto px-4 mt-8">
+        
+        <!-- लोडिङ अवस्था (Loading State) -->
+        <div id="loadingBox" class="text-center py-20 bg-white rounded-3xl border border-slate-200 shadow-sm">
+            <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-blue-700 border-r-transparent mb-4"></div>
+            <p class="text-base text-slate-600 font-bold">डाटाबेसबाट सुरक्षित विवरण तानिँदैछ...</p>
+            <p class="text-xs text-slate-400 mt-1">कृपया केही सेकेन्ड पर्खनुहोस्।</p>
+        </div>
+
+        <!-- त्रुटि अवस्था (Error State) -->
+        <div id="errorBox" class="hidden text-center py-16 bg-white rounded-3xl border border-red-200 shadow-sm px-6">
+            <div class="text-5xl mb-4">⚠️</div>
+            <h3 class="text-lg font-bold text-red-800" id="errorTitle">विवरण फेला परेन</h3>
+            <p class="text-sm text-slate-500 mt-2 max-w-md mx-auto" id="errorDesc">लिंकमा भएको घरधुरी नम्बर डाटाबेसमा फेला परेन। कृपया क्युआर कोड सही भएको निश्चित गर्नुहोस्।</p>
+        </div>
+
+        <!-- मुख्य विवरण फर्म प्रतिलिपि (Full Details Template) -->
+        <div id="profileContainer" class="hidden space-y-6 animate-scale-up">
+            
+            <!-- मुख्य हाइलाइट कार्ड -->
+            <div class="bg-gradient-to-br from-blue-700 to-indigo-800 text-white p-6 sm:p-8 rounded-3xl shadow-xl relative overflow-hidden">
+                <div class="absolute right-0 bottom-0 text-white/5 font-black text-8xl pointer-events-none -mb-8 -mr-4">GALKOT</div>
+                
+                <span class="bg-white/20 text-white text-xs font-bold font-mono tracking-wider px-3 py-1 rounded-md uppercase" id="lblHouseNo"></span>
+                <h2 class="text-2xl sm:text-3xl font-black mt-3 tracking-tight" id="lblOwnerName"></h2>
+                
+                <div class="grid grid-cols-2 gap-4 mt-6 pt-6 border-t border-white/20 text-sm">
+                    <div>
+                        <span class="text-blue-200 block text-xs font-semibold uppercase tracking-wider">स्थानीय ठेगाना</span>
+                        <span class="font-bold text-base mt-0.5 block" id="lblAddress"></span>
+                    </div>
+                    <div>
+                        <span class="text-blue-200 block text-xs font-semibold uppercase tracking-wider">मोबाइल नम्बर</span>
+                        <span class="font-mono font-bold text-base mt-0.5 block" id="lblMobile"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- पूर्ण विवरण तालिका र ग्रिड (Full Spec Grid) -->
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="bg-slate-50 px-6 py-4 border-b border-slate-100 flex justify-between items-center">
+                    <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                        📋 नागरिक तथा आवास सम्बन्धी विस्तृत विवरण
+                    </h3>
+                </div>
+                
+                <div class="divide-y divide-slate-100">
+                    
+                    <!-- रो १ -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 p-5 gap-1 sm:gap-4 hover:bg-slate-50/50 transition-colors">
+                        <span class="text-sm font-medium text-slate-400">नागरिकता प्रमाणपत्र नं.</span>
+                        <span class="text-sm font-bold text-slate-900 sm:col-span-2" id="lblCitizenship"></span>
+                    </div>
+
+                    <!-- रो २ -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 p-5 gap-1 sm:gap-4 hover:bg-slate-50/50 transition-colors">
+                        <span class="text-sm font-medium text-slate-400">बाबुको नाम</span>
+                        <span class="text-sm font-semibold text-slate-800 sm:col-span-2" id="lblFather"></span>
+                    </div>
+
+                    <!-- रो ३ -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 p-5 gap-1 sm:gap-4 hover:bg-slate-50/50 transition-colors">
+                        <span class="text-sm font-medium text-slate-400">बाजेको नाम</span>
+                        <span class="text-sm font-semibold text-slate-800 sm:col-span-2" id="lblGrandfather"></span>
+                    </div>
+
+                    <!-- रो ४ -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 p-5 gap-1 sm:gap-4 hover:bg-slate-50/50 transition-colors">
+                        <span class="text-sm font-medium text-slate-400">घरको बनोट / प्रकार</span>
+                        <span class="text-sm font-semibold text-slate-800 sm:col-span-2" id="lblHouseType"></span>
+                    </div>
+
+                    <!-- रो ५ -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 p-5 gap-1 sm:gap-4 hover:bg-slate-50/50 transition-colors">
+                        <span class="text-sm font-medium text-slate-400">कुल भुइँ क्षेत्रफल</span>
+                        <span class="text-sm font-bold text-blue-700 sm:col-span-2" id="lblArea"></span>
+                    </div>
+
+                    <!-- रो ६ -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 p-5 gap-1 sm:gap-4 hover:bg-slate-50/50 transition-colors">
+                        <span class="text-sm font-medium text-slate-400">जम्मा परिवार सदस्य</span>
+                        <span class="text-sm font-bold text-slate-900 sm:col-span-2" id="lblMembers"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- सुरक्षा टिपोट फुटर -->
+            <footer class="text-center text-xs text-slate-400 font-medium py-4 px-4 leading-relaxed">
+                🛡️ सुरक्षा सुरक्षा तथा गोपनीयता नीति: यो विवरण नगरपालिकाको सुरक्षित सर्भरबाट सिधै प्रमाणीकरण गरिएको र डिजिटल हस्ताक्षर युक्त सार्वजनिक प्रतिलिपि हो।
+            </footer>
+        </div>
+    </main>
+
+    <script>
+        // १. सुपाबेस जडान प्यारामिटरहरू
+        const SUPABASE_URL = "https://dkkjdxqpuzzxtfgggmsk.supabase.co";
+        const SUPABASE_ANON_KEY = "sb_publishable_JTChQbKVVVyfY7JiY5LQBw_2KNLBrXD";
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // २. पेज लोड हुनासाथ युआरएल विश्लेषण गरी सुपाबेसबाट डाटा लोड गर्ने प्रणाली
+        window.addEventListener('DOMContentLoaded', async () => {
+            const loadingBox = document.getElementById('loadingBox');
+            const errorBox = document.getElementById('errorBox');
+            const profileContainer = document.getElementById('profileContainer');
+
+            // URL बाट ?id=GM-XX-XXXXX को मान लिने
+            const urlParams = new URLSearchParams(window.location.search);
+            const houseId = urlParams.get('id');
+
+            if (!houseId) {
+                loadingBox.classList.add('hidden');
+                document.getElementById('errorTitle').innerText = "अवैध लिङ्क";
+                document.getElementById('errorDesc').innerText = "यो लिङ्कमा कुनै घर नम्बर उपलब्ध छैन। कृपया सही क्युआर कोड स्क्यान गर्नुहोस्।";
+                errorBox.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                // सुपाबेस डाटाबेसबाट घर नम्बर म्याच गराई रो तान्ने
+                const { data, error } = await _supabase
+                    .from('households')
+                    .select('*')
+                    .eq('house_number', houseId.trim().toUpperCase());
+
+                if (error || !data || data.length === 0) {
+                    loadingBox.classList.add('hidden');
+                    errorBox.classList.remove('hidden');
+                    return;
+                }
+
+                const record = data[0];
+
+                // DOM एलीमेन्टहरूमा रेकर्ड सेट गर्ने
+                document.getElementById('lblHouseNo').innerText = record.house_number;
+                document.getElementById('lblOwnerName').innerText = record.houseowner_name;
+                document.getElementById('lblAddress').innerText = `वडा नं. ${record.ward_number}, ${record.tole_name}`;
+                document.getElementById('lblMobile').innerText = record.mobile_number || 'उपलब्ध नभएको';
+                document.getElementById('lblCitizenship').innerText = record.citizenship_number || 'खुलिरहेको नभएको';
+                document.getElementById('lblFather').innerText = record.father_name || '-';
+                document.getElementById('lblGrandfather').innerText = record.grandfather_name || '-';
+                document.getElementById('lblHouseType').innerText = `${record.house_type || '-'} (${record.floor_count || '१'} तला)`;
+                document.getElementById('lblArea').innerText = record.total_area ? `${record.total_area} वर्ग फिट` : 'नखुलेको';
+                document.getElementById('lblMembers').innerText = `${record.total_members || '०'} जना`;
+
+                // लोडिङ बन्द गरी प्रोफाइल देखाउने
+                loadingBox.classList.add('hidden');
+                profileContainer.classList.remove('hidden');
+
+            } catch (err) {
+                console.error(err);
+                loadingBox.classList.add('hidden');
+                document.getElementById('errorTitle').innerText = "प्रणालीमा समस्या";
+                document.getElementById('errorDesc').innerText = "नगरपालिकाको डाटाबेस सर्भरमा जडान हुन सकेन।";
+                errorBox.classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
