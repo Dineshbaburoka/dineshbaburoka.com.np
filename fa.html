@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>उन्नत पत्र बिल्डर, खोज प्रणाली र इमेज प्रबन्धक पोर्टल</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght=400;600;700&display=swap" rel="stylesheet">
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      --primary-color: #0c2461;
+      --secondary-color: #1e3799;
+      --admin-color: #cf1b1b;
+      --bg-slate: #57606f; 
+      --panel-bg: #ffffff;
+      --border-color: #b2bec3;
+      --tag-bg: #f1f2f6;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Noto Sans Devanagari', sans-serif; background: #2f3542; color: #2f3542; display: flex; flex-direction: column; height: 100vh; }
+
+    /* Top Navbar */
+    .top-navbar { background: var(--primary-color); color: white; padding: 12px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.2); z-index: 20; }
+    .cloud-badge { background: #2ed573; color: black; padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; display: flex; align-items: center; gap: 5px; }
+
+    /* Main Workspace Split Layout */
+    .workspace { display: flex; flex: 1; overflow: hidden; }
+
+    /* Left Control Sidebar */
+    .sidebar { width: 420px; background: var(--panel-bg); border-right: 2px solid var(--border-color); padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; z-index: 15; }
+    .section-title { font-size: 13.5px; font-weight: bold; color: var(--primary-color); border-bottom: 2px solid #f1f2f6; padding-bottom: 4px; margin-top: 5px; }
+    
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-control { width: 100%; padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13.5px; font-family: inherit; }
+    .search-control { background-color: #fff9e6; border: 1px solid #ecc860; font-weight: 600; }
+
+    /* Supabase Cloud Templates List UI */
+    .saved-list-box { background: #f8f9fa; border: 1px solid var(--border-color); border-radius: 6px; padding: 8px; max-height: 160px; overflow-y: auto; display: flex; flex-direction: column; gap: 5px; }
+    .saved-item-row { display: flex; justify-content: space-between; align-items: center; background: white; padding: 6px 10px; border-radius: 4px; border: 1px solid #e2e8f0; font-size: 12.5px; font-weight: 600; }
+    .item-actions { display: flex; gap: 4px; }
+    .action-sub-btn { padding: 4px 8px; font-size: 11px; border-radius: 3px; cursor: pointer; border: none; font-weight: bold; }
+    .btn-edit-load { background: #eccc68; color: black; }
+    .btn-del-tmpl { background: #ff4757; color: white; }
+
+    /* Exhaustive Scrollable Shortcode Tags Panel */
+    .tags-container-box { background: #fdfdfd; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; max-height: 260px; overflow-y: auto; }
+    .tag-category-title { font-size: 11.5px; font-weight: bold; color: #57606f; background: #e4e7eb; padding: 3px 8px; border-radius: 4px; margin: 8px 0 4px 0; }
+    .tags-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; }
+    .tag-btn { background: #e8f4fd; color: #1e3799; border: 1px solid #b3d7f7; padding: 6px; font-size: 11.5px; border-radius: 4px; cursor: pointer; font-weight: 600; text-align: left; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
+    .tag-btn:hover { background: #d0e8fc; }
+
+    /* WYSIWYG Text/Table Editor Toolbar */
+    .editor-toolbar { background: #f1f2f6; border-bottom: 2px solid var(--border-color); padding: 8px 20px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; position: sticky; top: 0; z-index: 10; width: 100%; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .tool-btn { padding: 6px 10px; background: white; border: 1px solid var(--border-color); border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12.5px; display: flex; align-items: center; gap: 4px; }
+    .tool-btn:hover { background: #dfe4ea; }
+    .tool-input { padding: 5px; border-radius: 4px; border: 1px solid var(--border-color); font-weight: bold; font-size: 12.5px; width: 60px; text-align: center; }
+    .tool-select { padding: 6px; border-radius: 4px; border: 1px solid var(--border-color); font-weight: bold; font-size: 12.5px; background: white; cursor: pointer; }
+    
+    /* Color Picker Wrapper Styling */
+    .color-tool-wrapper { display: flex; align-items: center; gap: 4px; background: white; padding: 4px 8px; border: 1px solid var(--border-color); border-radius: 4px; height: 32px; }
+    .color-input-field { cursor: pointer; border: none; background: transparent; width: 24px; height: 24px; }
+
+    /* Contextual Floating Image Settings Adjustment Panel Bar */
+    .image-modifier-bar { background: #fff3cd; border: 1px solid #ffeaa7; padding: 8px 20px; display: none; gap: 10px; align-items: center; flex-wrap: wrap; border-bottom: 2px solid var(--border-color); }
+    .img-tool-title { font-size: 12px; font-weight: bold; color: #856404; }
+
+    /* Sheet Preview Presentation Area */
+    .preview-container { flex: 1; padding: 40px 20px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; background: var(--bg-slate); position: relative; }
+    
+    /* A4 Page Framework View */
+    .a4-sheet { 
+      width: 210mm; 
+      min-height: 297mm; 
+      background: white; 
+      padding: 25mm 20mm 20mm 20mm; 
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+      box-sizing: border-box; 
+      color: #000; 
+      position: relative; 
+      display: flex; 
+      flex-direction: column; 
+      border: 1px solid #747d8c;
+    }
+    
+    /* Rich Text Active Canvas Area */
+    .editable-body-area { width: 100%; height: 100%; min-height: 250mm; outline: none; font-size: 16px; line-height: 1.8; text-align: justify; position: relative; }
+    .editable-body-area:focus { background: #fffcf4; }
+
+    /* Native Resizable Interactive Paste Images Styles Setup */
+    .editable-body-area img { cursor: move; max-width: 100%; height: auto; transition: transform 0.1s; user-select: none; }
+    .editable-body-area img:hover { outline: 2px dashed var(--secondary-color); }
+    .editable-body-area img.selected-img-node { outline: 3px solid var(--admin-color) !important; background-color: rgba(207, 27, 27, 0.05); }
+
+    /* Custom Tables Stylings Inside Content Area */
+    .editable-body-area table { width: 100%; border-collapse: collapse; margin: 15px 0; table-layout: fixed; }
+    .editable-body-area table th, .editable-body-area table td { border: 1px solid #000; padding: 8px; text-align: left; font-size: 13.5px; min-width: 30px; word-wrap: break-word; }
+    .editable-body-area table th { background-color: #f2f2f2; font-weight: bold; }
+
+    /* Action Buttons Styles */
+    .btn { padding: 10px; font-size: 13.5px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; text-align: center; }
+    .btn-save-template { background: var(--admin-color); color: white; width: 100%; margin-top: 5px; }
+    .btn-new-clear { background: #747d8c; color: white; width: 100%; margin-top: 5px; }
+    .btn-print { background: var(--secondary-color); color: white; width: 100%; margin-top: 10px; }
+
+    /* Perfect Print Standard Media Configuration */
+    @media print {
+      body, .workspace, .preview-container { background: white !important; padding: 0 !important; overflow: visible !important; height: auto !important; display: block !important; }
+      .sidebar, .top-navbar, .editor-toolbar, .image-modifier-bar { display: none !important; }
+      .preview-container { padding: 0 !important; margin: 0 !important; background: none !important; }
+      .a4-sheet { 
+        box-shadow: none !important; 
+        border: none !important;
+        width: 210mm !important; 
+        min-height: 297mm !important; 
+        padding: 25mm 20mm 20mm 20mm !important; 
+        margin: 0 !important; 
+        box-sizing: border-box !important;
+        page-break-after: always;
+      }
+      .editable-body-area img { outline: none !important; }
+      @page { 
+        size: A4; 
+        margin: 0; 
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="top-navbar">
+    <h3>🏛️ उन्नत सरकारी पत्र र टेबल बिल्डर पोर्टल (Admin Setup)</h3>
+    <div class="cloud-badge">☁️ Supabase Cloud Database Active</div>
+  </header>
+
+  <div class="workspace">
+    
+    <aside class="sidebar">
+      
+      <div class="section-title">🗄️ Supabase Cloud मा सुरक्षित ढाँचाहरू (Templates)</div>
+      
+      <div class="form-group">
+        <input type="text" id="searchTemplateInput" class="form-control search-control" placeholder="🔍 ढाँचा खोज्नुहोस् (Search)..." oninput="handleTemplatesLiveSearchFilter()">
+      </div>
+
+      <div class="saved-list-box" id="supabaseTemplatesList">
+        <p style="font-size:12px; color:gray; padding:5px;">ढाँचाहरू लोड हुँदैछ...</p>
+      </div>
+
+      <div class="section-title">✍️ पत्र ढाँचाको नाम (Template Name)</div>
+      <div class="form-group">
+        <input type="text" id="templateNameInput" class="form-control" placeholder="उदा: नक्सा पास इजाजत पत्र ढाँचा">
+        <input type="hidden" id="editingTemplateId" value="">
+      </div>
+
+      <button class="btn btn-save-template" onclick="saveOrUpdateTemplateToSupabase()">💾 ढाँचा Supabase मा सेभ / अपडेट गर्नुहोस्</button>
+      <button class="btn btn-new-clear" onclick="clearCanvasToBlankState()">➕ नयाँ खाली पत्र ड्राफ्ट गर्नुहोस</button>
+
+      <div class="section-title">🎯 क्लिक गरी पत्र वा टेबल भन्तर शर्टकोड ट्याग थप्नुहोस्</div>
+      
+      <div class="tags-container-box">
+        
+        <div class="tag-category-title">🏢 कार्यालय कर्मचारी तथा दर्ता विवरण</div>
+        <div class="tags-grid">
+          <button class="tag-btn" onclick="insertShortcode('[registrano]')">🔢 दर्ता नम्बर</button>
+          <button class="tag-btn" onclick="insertShortcode('[registrano_date]')">📅 दर्ता मिति</button>
+          <button class="tag-btn" onclick="insertShortcode('[se]')">👷 दर्ता गर्ने कर्मचारी</button>
+          <button class="tag-btn" onclick="insertShortcode('[date_reg]')">📅 कार्यबाही मिति</button>
+          <button class="tag-btn" onclick="insertShortcode('[remarks]')">📝 कैफियत (Remarks)</button>
+        </div>
+
+        <div class="tag-category-title">👤 जग्गाधनी विवरण (Landowner Details)</div>
+        <div class="tags-grid">
+          <button class="tag-btn" onclick="insertShortcode('[owner]')">👤 जग्गाधनी नाम</button>
+          <button class="tag-btn" onclick="insertShortcode('[phone]')">📞 फोन नम्बर</button>
+          <button class="tag-btn" onclick="insertShortcode('[cit_no]')">🪪 नागरिकता नं</button>
+          <button class="tag-btn" onclick="insertShortcode('[cit_date]')">📅 जारी मिति</button>
+          <button class="tag-btn" onclick="insertShortcode('[cit_office]')">🏛️ जारी कार्यालय</button>
+          <button class="tag-btn" onclick="insertShortcode('[father]')">👨 बाबुको नाम</button>
+          <button class="tag-btn" onclick="insertShortcode('[grandfather]')">👴 बाजेको नाम</button>
+        </div>
+
+        <div class="tag-category-title">🗺️ ठेगाना तथा जग्गाको नाप</div>
+        <div class="tags-grid">
+          <button class="tag-btn" onclick="insertShortcode('[ward]')">🗺️ हाल वडा नं</button>
+          <button class="tag-btn" onclick="insertShortcode('[tole]')">🛣️ मार्ग / टोल</button>
+          <button class="tag-btn" onclick="insertShortcode('[savik_gavis]')">🏘️ साविक गाविस</button>
+          <button class="tag-btn" onclick="insertShortcode('[savik_ward]')">🏘️ साविक वडा</button>
+          <button class="tag-btn" onclick="insertShortcode('[kitta]')">📍 कित्ता नं.</button>
+          <button class="tag-btn" onclick="insertShortcode('[area]')">📐 कुल क्षेत्रफल</button>
+        </div>
+
+        <div class="tag-category-title">🏠 भवन संरचना नाप विवरण</div>
+        <div class="tags-grid">
+          <button class="tag-btn" onclick="insertShortcode('[tot_length]')">📏 कुल लम्बाई</button>
+          <button class="tag-btn" onclick="insertShortcode('[tot_width]')">📏 कुल चौडाई</button>
+          <button class="tag-btn" onclick="insertShortcode('[tot_height]')">🏢 कुल उचाई</button>
+          <button class="tag-btn" onclick="insertShortcode('[total_floors]')">🔢 कुल तल्ला संख्या</button>
+          <button class="tag-btn" onclick="insertShortcode('[room]')">🚪 कोठा संख्या</button>
+          <button class="tag-btn" onclick="insertShortcode('[door]')">🚪 ढोका संख्या</button>
+          <button class="tag-btn" onclick="insertShortcode('[window]')">🪟 झ्याल संख्या</button>
+          <button class="tag-btn" onclick="insertShortcode('[shutter]')">🏪 शटर संख्या</button>
+          <button class="tag-btn" onclick="insertShortcode('[cg]')">🚧 च्यानल गेट संख्या</button>
+          <button class="tag-btn" onclick="insertShortcode('[cov_area]')">📐 चर्चेको क्षेत्रफल</button>
+          <button class="tag-btn" onclick="insertShortcode('[tot_area]')">📊 भवन कुल क्षेत्रफल</button>
+        </div>
+
+        <div class="tag-category-title">🧭 चारकिल्ला विवरण (Boundaries)</div>
+        <div class="tags-grid">
+          <button class="tag-btn" onclick="insertShortcode('[east]')">➡️ पूर्व सिमाना</button>
+          <button class="tag-btn" onclick="insertShortcode('[west]')">⬅️ पश्चिम सिमाना</button>
+          <button class="tag-btn" onclick="insertShortcode('[north]')">⬆️ उत्तर सिमाना</button>
+          <button class="tag-btn" onclick="insertShortcode('[south]')">⬇️ दक्षिण सिमाना</button>
+        </div>
+
+        <div class="tag-category-title">📋 प्राविधिक मापदण्ड विवरण</div>
+        <div class="tags-grid">
+          <button class="tag-btn" onclick="insertShortcode('[road_width]')">🛣️ बाटो चौँडाई</button>
+          <button class="tag-btn" onclick="insertShortcode('[roadce]')">📏 बाटो केन्द्र मापदण्ड</button>
+          <button class="tag-btn" onclick="insertShortcode('[roadcex]')">📏 बाटो केन्द्र छाडेको</button>
+          <button class="tag-btn" onclick="insertShortcode('[setbac]')">🚧 छाड्नुपर्ने सेटब्याक</button>
+          <button class="tag-btn" onclick="insertShortcode('[setbacx]')">🚧 छाडेको सेटब्याक</button>
+          <button class="tag-btn" onclick="insertShortcode('[river]')">🌊 नदि मापदण्ड दुरी</button>
+          <button class="tag-btn" onclick="insertShortcode('[riverx]')">🌊 नदिबाट छाडेको दुरी</button>
+          <button class="tag-btn" onclick="insertShortcode('[land]')">📐 संधियार मापदण्ड</button>
+          <button class="tag-btn" onclick="insertShortcode('[landb]')">📐 संधियार छाडेको</button>
+          <button class="tag-btn" onclick="insertShortcode('[revinuerate]')">💰 राजश्व दर रु</button>
+          <button class="tag-btn" onclick="insertShortcode('[gc]')">📊 गाउँ कभरेज %</button>
+          <button class="tag-btn" onclick="insertShortcode('[far]')">📐 फार (FAR)</button>
+        </div>
+
+        <div class="tag-category-title">🏢 तल्लागत विस्तृत क्षेत्रफल</div>
+        <div class="tags-grid">
+          <button class="tag-btn" onclick="insertShortcode('[f_ground_a]')"> जमिन तल्ला क्षेत्रफल</button>
+          <button class="tag-btn" onclick="insertShortcode('[f_1st_a]')"> पहिलो तल्ला क्षेत्रफल</button>
+          <button class="tag-btn" onclick="insertShortcode('[f_2nd_a]')"> दोस्रो तल्ला क्षेत्रफल</button>
+          <button class="tag-btn" onclick="insertShortcode('[f_3rd_a]')"> तेस्रो तल्ला क्षेत्रफल</button>
+          <button class="tag-btn" onclick="insertShortcode('[f_4th_a]')"> चौथो तल्ला क्षेत्रफल</button>
+          <button class="tag-btn" onclick="insertShortcode('[f_5th_a]')"> पाँचौ तल्ला क्षेत्रफल</button>
+        </div>
+
+      </div>
+
+      <button class="btn btn-print" onclick="window.print()">🖨️ तयारी पत्र प्रिन्ट गर्नुहोस् (A4 Print)</button>
+
+    </aside>
+
+    <main style="flex: 1; display: flex; flex-direction: column; overflow: hidden;">
+      
+      <div class="editor-toolbar" id="wysiwygToolbar">
+        <button class="tool-btn" onclick="execFormattingCommand('bold')" title="बोल्ड गर्ने / हटाउने"><b>B</b></button>
+        <button class="tool-btn" onclick="execFormattingCommand('italic')" title="इटलिक गर्ने / हटाउने"><i>I</i></button>
+        <button class="tool-btn" onclick="execFormattingCommand('underline')" title="अन्डरलाइन गर्ने / हटाउने"><u>U</u></button>
+        
+        <!-- थपिएको नयाँ फिचर: टेक्स्ट कलर चेन्जर (Text Color Picker) -->
+        <div class="color-tool-wrapper" title="अक्षरको रङ बदल्नुहोस्">
+          <span style="font-size: 11px; font-weight: bold; color: #57606f;">🎨 रङ:</span>
+          <input type="color" id="textColorPicker" class="color-input-field" value="#000000" oninput="applyTextColorToSelection()">
+        </div>
+
+        <div style="height: 18px; width: 1px; background: var(--border-color);"></div>
+
+        <button class="tool-btn" onclick="execFormattingCommand('justifyLeft')">⬅️ Left</button>
+        <button class="tool-btn" onclick="execFormattingCommand('justifyCenter')">⏹️ Center</button>
+        <button class="tool-btn" onclick="execFormattingCommand('justifyRight')">➡️ Right</button>
+        <button class="tool-btn" onclick="execFormattingCommand('justifyFull')">↔️ Justify</button>
+
+        <div style="height: 18px; width: 1px; background: var(--border-color);"></div>
+
+        <div style="display: flex; align-items: center; gap: 4px;">
+          <span style="font-size: 11px; font-weight: bold;">↕️ लाइन स्पेस:</span>
+          <select id="lineSpacingSelect" class="tool-select" onchange="applyLineSpacingToSelection()">
+            <option value="1.2">1.2 (साँघुरो)</option>
+            <option value="1.5">1.5 (साधारण)</option>
+            <option value="1.8" selected>1.8 (डिफल्ट)</option>
+            <option value="2.0">2.0 (मझौला)</option>
+            <option value="2.5">2.5 (चौडा)</option>
+            <option value="3.0">3.0 (धेरै खुल्ला)</option>
+          </select>
+        </div>
+
+        <div style="height: 18px; width: 1px; background: var(--border-color);"></div>
+
+        <button class="tool-btn" onclick="insertHorizontalLine()" title="तेर्सो धर्को थप्नुहोस्">➖ तेर्सो धर्को</button>
+        <button class="tool-btn" onclick="deleteHorizontalLine()" style="color:red;" title="धर्को हटाउनुहोस्">❌ धर्को हटाउनुहोस्</button>
+
+        <div style="height: 18px; width: 1px; background: var(--border-color);"></div>
+
+        <div style="display: flex; align-items: center; gap: 4px;">
+          <input type="number" id="customFontSizeInput" class="tool-input" placeholder="16" min="8" max="72" value="16">
+          <span style="font-size: 11px; font-weight: bold;">px</span>
+          <button class="tool-btn" onclick="applyCustomFontSize()" style="padding: 5px 8px; background: #2ed573; color: white; border: none;">लागु</button>
+        </div>
+
+        <div style="height: 18px; width: 1px; background: var(--border-color);"></div>
+
+        <button class="tool-btn" onclick="createNewTableGridMarkup()" style="background: #eccc68; color:#000;">📊 टेबल थप्नुहोस्</button>
+        <button class="tool-btn" onclick="modifyTableStructureGridNodes('ADD_ROW')">➕ Row</button>
+        <button class="tool-btn" onclick="modifyTableStructureGridNodes('DEL_ROW')" style="color:red;">❌ Row</button>
+        <button class="tool-btn" onclick="modifyTableStructureGridNodes('ADD_COL')">➕ Col</button>
+        <button class="tool-btn" onclick="modifyTableStructureGridNodes('DEL_COL')" style="color:red;">❌ Col</button>
+        <button class="tool-btn" onclick="modifyTableStructureGridNodes('REMOVE_TABLE')" style="background: #ff4757; color:white;">🗑️ तालिका हटाउनुहोस्</button>
+      </div>
+
+      <div class="image-modifier-bar" id="imageModifierToolbar">
+        <span class="img-tool-title">🖼️ तस्बिर व्यवस्थापन प्रबन्धक (Image Options):</span>
+        <button class="tool-btn" onclick="adjustSelectedImageStyle('WRAP_FRONT', null)" style="background:#2ed573; color:black; font-weight:bold;">🔝 In Front of Text</button>
+        <div style="height: 18px; width: 1px; background: #ecc860;"></div>
+        <button class="tool-btn" onclick="adjustSelectedImageStyle('WIDTH', '150px')">📐 सानो (Logo)</button>
+        <button class="tool-btn" onclick="adjustSelectedImageStyle('WIDTH', '300px')">📐 मझौला (Sign)</button>
+        <button class="tool-btn" onclick="adjustSelectedImageStyle('WIDTH', '500px')">📐 ठूलो साइज</button>
+        <button class="tool-btn" onclick="adjustSelectedImageStyle('WIDTH', '100%')">↔️ पूर्ण चौडाई</button>
+        <div style="height: 18px; width: 1px; background: #ecc860;"></div>
+        <button class="tool-btn" onclick="adjustSelectedImageStyle('ALIGN', 'left')">⬅️ बायाँ राख्नुहोस्</button>
+        <button class="tool-btn" onclick="adjustSelectedImageStyle('ALIGN', 'center')">⏹️ केन्द्रमा पार्नुहोस्</button>
+        <button class="tool-btn" onclick="adjustSelectedImageStyle('ALIGN', 'right')">➡️ दायाँ राख्नुहोस्</button>
+        <div style="height: 18px; width: 1px; background: #ecc860;"></div>
+        <button class="tool-btn" onclick="adjustSelectedImageStyle('REMOVE', null)" style="background:#ff4757; color:white;">🗑️ फोटो हटाउनुहोस्</button>
+      </div>
+
+      <div class="preview-container">
+        <div class="a4-sheet">
+          <div class="editable-body-area" id="masterLetterCanvas" contenteditable="true">
+            
+            <div style="text-align: center; margin-bottom: 12px;">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/2/23/Emblem_of_Nepal.svg" style="width: 65px; height: auto; margin-bottom: 5px;" contenteditable="false" id="defaultGovLogo"><br>
+              <span style="font-size: 22px; color: red; font-weight: bold;">गलकोट नगरपालिका</span><br>
+              <span style="font-size: 16px; color: blue; font-weight: bold;">नगर कार्यपालिकाको कार्यालय</span><br>
+              <span style="font-size: 14px; font-weight: bold;">हटिया, बागलुङ, गण्डकी प्रदेश</span><br>
+              <span style="font-size: 13px; font-weight: bold; text-decoration: underline;">(भूमि व्यवस्थापन तथा भवन नियमन शाखा)</span>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 13.5px;">
+              <div>प.सं: २०८२/०८३<br>च.नं: [registrano]</div>
+              <div style="text-align: right;">मिति: [registrano_date]</div>
+            </div>
+
+            <div style="text-align: center; font-size: 17px; font-weight: bold; margin: 15px 0; text-decoration: underline;">
+              विषय :- भवन निर्माण/नक्सा पास इजाजत पत्र आदेश।
+            </div>
+
+            <p>गलकोट नगरपालिका वडा नं. <b>[ward]</b> (साविक <b>[savik_gavis]</b>) अन्तर्गत पर्ने <b>[tole]</b> मार्गमा अवस्थित कित्ता नम्बर <b>[kitta]</b> को कुल क्षेत्रफल <b>[area]</b> भएको जग्गामा भवन निर्माण गर्न जग्गाधनी श्री/श्रीमती/सुश्री <b>[owner]</b> ले यस कार्यालयमा दर्ता नम्बर <b>[registrano]</b> अन्तर्गत माग गर्नुभएको नक्सा पास इजाजत आदेश जारी गरिएको छ।</p>
+            
+            <table>
+              <thead>
+                <tr>
+                  <th>स्वीकृत तल्ला विवरण</th>
+                  <th>कुल भवन क्षेत्रफल (व.फि.)</th>
+                  <th>बाटो मापदण्ड चौडाई</th>
+                  <th>छाडेको सेटब्याक दुरी</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><b>जमिन तल्ला र अन्य संरचना</b></td>
+                  <td><b>[tot_area]</b> वर्गफिट</td>
+                  <td><b>[road_width]</b> फिट</td>
+                  <td><b>[setbacx]</b> फिट</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <p style="margin-top: 10px;">यहाँ तपाईंले कम्प्युटरबाट कुनै पनि छवि/हस्ताक्षर कपी गरेर सिधै <b>Paste (Ctrl+V)</b> गर्न सक्नुहुन्छ र साइज मिलाउन सक्नुहुन्छ।</p>
+
+            <div style="display: flex; justify-content: space-between; margin-top: 50px; font-size: 13.5px; font-weight: bold;">
+              <div style="text-align: center; border-top: 1px dashed #000; width: 150px; padding-top: 4px;">पेस गर्ने प्राविधिक<br><span style="font-size:11px; color:gray;">[se]</span></div>
+              <div style="text-align: center; border-top: 1px dashed #000; width: 150px; padding-top: 4px;">शाखा प्रमुख अधिकारी</div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </main>
+
+  </div>
+
+  <script>
+    const SUPABASE_URL = "https://lyjokogftwtvnhwszqni.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_gxEL2-GVTVy8E0WxMBZHDQ_b5TzsDI9"; 
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let globalCloudTemplates = [];
+    let currentlySelectedImgNode = null; 
+
+    document.addEventListener("DOMContentLoaded", () => {
+      fetchTemplatesFromSupabase();
+      initializeImagePasteAndClickHandlers();
+    });
+
+    function initializeImagePasteAndClickHandlers() {
+      const canvas = document.getElementById('masterLetterCanvas');
+
+      canvas.addEventListener('paste', function(e) {
+        const clipboardItems = (e.clipboardData || window.clipboardData).items;
+        for (let item of clipboardItems) {
+          if (item.type.indexOf('image') === 0) {
+            e.preventDefault(); 
+            const blobFile = item.getAsFile();
+            const fileReader = new FileReader();
+            
+            fileReader.onload = function(event) {
+              const pastedImgNode = document.createElement('img');
+              pastedImgNode.src = event.target.result; 
+              pastedImgNode.style.width = '200px'; 
+              pastedImgNode.style.display = 'block';
+              pastedImgNode.style.margin = '10px 0';
+              
+              const selection = window.getSelection();
+              if (selection.rangeCount) {
+                const range = selection.getRangeAt(0);
+                range.deleteContents();
+                range.insertNode(pastedImgNode);
+                
+                range.setStartAfter(pastedImgNode);
+                range.setEndAfter(pastedImgNode);
+                selection.removeAllRanges();
+                selection.addRange(range);
+              }
+            };
+            fileReader.readAsDataURL(blobFile);
+          }
+        }
+      });
+
+      canvas.addEventListener('click', function(e) {
+        if (e.target.tagName === 'IMG') {
+          if (currentlySelectedImgNode) {
+            currentlySelectedImgNode.classList.remove('selected-img-node');
+          }
+          currentlySelectedImgNode = e.target;
+          currentlySelectedImgNode.classList.add('selected-img-node');
+          document.getElementById('imageModifierToolbar').style.display = 'flex';
+        } else {
+          resetImageFocusSelectionState();
+        }
+      });
+    }
+
+    function resetImageFocusSelectionState() {
+      if (currentlySelectedImgNode) {
+        currentlySelectedImgNode.classList.remove('selected-img-node');
+      }
+      currentlySelectedImgNode = null;
+      document.getElementById('imageModifierToolbar').style.display = 'none';
+    }
+
+    function adjustSelectedImageStyle(actionType, targetValue) {
+      if (!currentlySelectedImgNode) return;
+
+      if (actionType === 'WIDTH') {
+        currentlySelectedImgNode.style.width = targetValue;
+        currentlySelectedImgNode.style.height = 'auto'; 
+      } 
+      else if (actionType === 'ALIGN') {
+        currentlySelectedImgNode.style.position = 'static';
+        currentlySelectedImgNode.style.zIndex = 'auto';
+        
+        if (targetValue === 'center') {
+          currentlySelectedImgNode.style.display = 'block';
+          currentlySelectedImgNode.style.marginLeft = 'auto';
+          currentlySelectedImgNode.style.marginRight = 'auto';
+          currentlySelectedImgNode.style.float = 'none';
+        } else if (targetValue === 'right') {
+          currentlySelectedImgNode.style.display = 'inline';
+          currentlySelectedImgNode.style.float = 'right';
+          currentlySelectedImgNode.style.margin = '10px 0 10px 15px';
+        } else {
+          currentlySelectedImgNode.style.display = 'inline';
+          currentlySelectedImgNode.style.float = 'left';
+          currentlySelectedImgNode.style.margin = '10px 15px 10px 0';
+        }
+      } 
+      else if (actionType === 'WRAP_FRONT') {
+        currentlySelectedImgNode.style.position = 'absolute';
+        currentlySelectedImgNode.style.zIndex = '100';
+        currentlySelectedImgNode.style.float = 'none';
+        currentlySelectedImgNode.style.display = 'block';
+        currentlySelectedImgNode.style.margin = '0';
+        
+        if (!currentlySelectedImgNode.style.top || currentlySelectedImgNode.style.top === 'auto') {
+          currentlySelectedImgNode.style.top = '150px';
+          currentlySelectedImgNode.style.left = '150px';
+        }
+        
+        makeImageElementDraggableEngine(currentlySelectedImgNode);
+      }
+      else if (actionType === 'REMOVE') {
+        currentlySelectedImgNode.remove();
+        resetImageFocusSelectionState();
+      }
+    }
+
+    function makeImageElementDraggableEngine(imgElement) {
+      let firstX = 0, firstY = 0, nextX = 0, nextY = 0;
+      imgElement.onmousedown = startDragging;
+
+      function startDragging(e) {
+        e = e || window.event;
+        e.preventDefault();
+        nextX = e.clientX;
+        nextY = e.clientY;
+        document.onmouseup = stopDragging;
+        document.onmousemove = dragImage;
+      }
+
+      function dragImage(e) {
+        e = e || window.event;
+        e.preventDefault();
+        firstX = nextX - e.clientX;
+        firstY = nextY - e.clientY;
+        nextX = e.clientX;
+        nextY = e.clientY;
+        imgElement.style.top = (imgElement.offsetTop - firstY) + "px";
+        imgElement.style.left = (imgElement.offsetLeft - firstX) + "px";
+      }
+
+      function stopDragging() {
+        document.onmouseup = null;
+        document.onmousemove = null;
+      }
+    }
+
+    async function fetchTemplatesFromSupabase() {
+      try {
+        const { data, error } = await _supabase
+          .from('letter_templates')
+          .select('*')
+          .order('id', { ascending: false });
+
+        if (error) throw error;
+        globalCloudTemplates = data || [];
+        renderCloudTemplatesListUI(globalCloudTemplates);
+      } catch (err) {
+        console.error("Supabase Error:", err.message);
+        document.getElementById('supabaseTemplatesList').innerHTML = `<p style="font-size:11px; color:red; padding:5px;">त्रुटि: लोड हुन सकेन।</p>`;
+      }
+    }
+
+    function renderCloudTemplatesListUI(templatesArray) {
+      const listBox = document.getElementById('supabaseTemplatesList');
+      listBox.innerHTML = "";
+
+      if (!templatesArray || templatesArray.length === 0) {
+        listBox.innerHTML = `<p style="font-size:12px; color:gray; padding:5px;">कुनै पनि मिल्दो ढाँचा भेटिएन।</p>`;
+        return;
+      }
+
+      templatesArray.forEach((item) => {
+        const row = document.createElement('div');
+        row.className = "saved-item-row";
+        row.innerHTML = `
+          <div style="max-width:210px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${item.name}">📄 ${item.name}</div>
+          <div class="item-actions">
+            <button class="action-sub-btn btn-edit-load" onclick="loadSelectedCloudTemplateToCanvas(${item.id})">📝 लोड</button>
+            <button class="action-sub-btn btn-del-tmpl" onclick="deleteTemplateFromSupabase(${item.id})">❌</button>
+          </div>
+        `;
+        listBox.appendChild(row);
+      });
+    }
+
+    function handleTemplatesLiveSearchFilter() {
+      const searchKey = document.getElementById('searchTemplateInput').value.toLowerCase().trim();
+      const filteredResults = globalCloudTemplates.filter(item => item.name.toLowerCase().includes(searchKey));
+      renderCloudTemplatesListUI(filteredResults);
+    }
+
+    function loadSelectedCloudTemplateToCanvas(id) {
+      const match = globalCloudTemplates.find(t => t.id === id);
+      if (!match) return;
+
+      resetImageFocusSelectionState();
+      document.getElementById('templateNameInput').value = match.name;
+      document.getElementById('editingTemplateId').value = match.id;
+      document.getElementById('masterLetterCanvas').innerHTML = match.html_content;
+      
+      const loadedImgs = document.getElementById('masterLetterCanvas').querySelectorAll('img');
+      loadedImgs.forEach(img => {
+        if(img.style.position === 'absolute') {
+          makeImageElementDraggableEngine(img);
+        }
+      });
+    }
+
+    async function saveOrUpdateTemplateToSupabase() {
+      resetImageFocusSelectionState(); 
+      const nameInput = document.getElementById('templateNameInput').value.trim();
+      const existingId = document.getElementById('editingTemplateId').value;
+      const canvasMarkup = document.getElementById('masterLetterCanvas').innerHTML;
+
+      if (!nameInput) {
+        alert("⚠️ त्रुटि: कृपया ढाँचा सुरक्षित गर्नका लागि एउटा नाम (Template Name) अनिवार्य रूपमा राख्नुहोस्!");
+        return;
+      }
+
+      try {
+        if (existingId) {
+          const { error } = await _supabase
+            .from('letter_templates')
+            .update({ name: nameInput, html_content: canvasMarkup })
+            .eq('id', existingId);
+
+          if (error) throw error;
+          alert(`✅ सफलता: '${nameInput}' ढाँचा Supabase क्लाउडमा परिमार्जित (Update) गरियो!`);
+        } else {
+          const { data, error } = await _supabase
+            .from('letter_templates')
+            .insert([{ name: nameInput, html_content: canvasMarkup }])
+            .select();
+
+          if (error) throw error;
+          if (data && data.length > 0) {
+            document.getElementById('editingTemplateId').value = data[0].id;
+          }
+          alert(`✅ सफलता: नयाँ ढाँचा '${nameInput}' सफलतापूर्वक Supabase मा सेभ गरियो!`);
+        }
+        document.getElementById('searchTemplateInput').value = "";
+        await fetchTemplatesFromSupabase();
+      } catch (err) {
+        alert("⚠️ Supabase सेभ त्रुटि: " + err.message);
+      }
+    }
+
+    async function deleteTemplateFromSupabase(id) {
+      if (!confirm("के तपाईं यो ढाँचा Supabase क्लाउड डाटाबेसबाट सधैंको लागि हटाउन चाहनुहुन्छ?")) return;
+
+      try {
+        const { error } = await _supabase.from('letter_templates').delete().eq('id', id);
+        if (error) throw error;
+        
+        if (document.getElementById('editingTemplateId').value == id) {
+          clearCanvasToBlankState();
+        }
+        document.getElementById('searchTemplateInput').value = "";
+        await fetchTemplatesFromSupabase();
+        alert("🗑️ ढाँचा सफलतापूर्वक हटाइयो!");
+      } catch (err) {
+        alert("⚠️ हटाउन सकिएन: " + err.message);
+      }
+    }
+
+    function clearCanvasToBlankState() {
+      resetImageFocusSelectionState();
+      document.getElementById('templateNameInput').value = "";
+      document.getElementById('editingTemplateId').value = "";
+      document.getElementById('masterLetterCanvas').innerHTML = `
+        <div style="text-align:center; margin-bottom:20px;"><h3>[यहाँ नयाँ कार्यालय प्रमुख विवरण वा शीर्षक राख्नुहोस्]</h3></div>
+        <p>यहाँ नयाँ व्यहोरा टाइप गर्नुहोस् वा शर्टकोड राख्नुहोस्...</p>
+      `;
+    }
+
+    function insertShortcode(tagString) {
+      const selection = window.getSelection();
+      if (!selection.rangeCount) {
+        alert("⚠️ ध्यान दिनुहोस्: पहिले पत्र वा तालिकाको कुनै कोठा भन्तर माउसले कर्सर राख्नुहोस् र त्यसपछि ट्याग बटन क्लिक गर्नुहोस्!");
+        return;
+      }
+      const range = selection.getRangeAt(0);
+      range.deleteContents();
+      const node = document.createTextNode(tagString);
+      range.insertNode(node);
+      
+      range.setStartAfter(node);
+      range.setEndAfter(node);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+
+    function execFormattingCommand(command) {
+      document.execCommand(command, false, null);
+    }
+
+    // नयाँ फिचर फङ्सन: सेलेक्टेड टेक्स्टको रङ परिवर्तन गर्ने
+    function applyTextColorToSelection() {
+      const colorValue = document.getElementById('textColorPicker').value;
+      const selection = window.getSelection();
+      if (!selection.rangeCount || selection.toString().trim() === "") {
+        return; // टेक्स्ट सेलेक्ट नभएको खण्डमा केहि नगर्ने
+      }
+      document.execCommand('foreColor', false, colorValue);
+    }
+
+    function applyLineSpacingToSelection() {
+      const spacingValue = document.getElementById('lineSpacingSelect').value;
+      const selection = window.getSelection();
+      
+      if (!selection.rangeCount) return;
+
+      const range = selection.getRangeAt(0);
+      let container = range.commonAncestorContainer;
+
+      if (container.nodeType === Node.TEXT_NODE) {
+        container = container.parentNode;
+      }
+
+      if (container.id === 'masterLetterCanvas') {
+        if (selection.anchorNode) {
+          let node = selection.anchorNode.parentNode;
+          while (node && node.parentNode !== container) {
+            node = node.parentNode;
+          }
+          if (node) node.style.lineHeight = spacingValue;
+        }
+      } else {
+        container.style.lineHeight = spacingValue;
+      }
+    }
+
+    function insertHorizontalLine() {
+      const selection = window.getSelection();
+      if (!selection.rangeCount) return;
+      const range = selection.getRangeAt(0);
+      const hr = document.createElement('hr');
+      hr.style.border = "none";
+      hr.style.borderTop = "1px solid #000";
+      hr.style.margin = "15px 0";
+      range.insertNode(hr);
+      
+      range.setStartAfter(hr);
+      range.setEndAfter(hr);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+
+    function deleteHorizontalLine() {
+      const selection = window.getSelection();
+      if (!selection.rangeCount) return;
+      
+      const range = selection.getRangeAt(0);
+      let container = range.startContainer;
+      
+      if (container.nodeType === Node.TEXT_NODE) {
+        container = container.parentNode;
+      }
+      
+      if (container.tagName === 'HR') {
+        container.remove();
+        return;
+      }
+      
+      let hrElement = container.querySelector('hr') || 
+                      (container.nextElementSibling && container.nextElementSibling.tagName === 'HR' ? container.nextElementSibling : null) ||
+                      (container.previousElementSibling && container.previousElementSibling.tagName === 'HR' ? container.previousElementSibling : null);
+      
+      if (hrElement) {
+        hrElement.remove();
+      } else {
+        document.execCommand('delete', false, null);
+      }
+    }
+
+    function applyCustomFontSize() {
+      const sizeValue = document.getElementById('customFontSizeInput').value;
+      if (!sizeValue) return;
+      
+      const selectNode = window.getSelection();
+      if (!selectNode.rangeCount || selectNode.toString().trim() === "") {
+        alert("⚠️ कृपया पहिले साइज परिवर्तन गर्न चाहेको अक्षर/टेक्स्ट माउसले सेलेक्ट (Highlight) गर्नुहोस्!");
+        return;
+      }
+      
+      const range = selectNode.getRangeAt(0);
+      const span = document.createElement('span');
+      span.style.fontSize = sizeValue + "px";
+      span.appendChild(range.extractContents());
+      range.insertNode(span);
+    }
+
+    function createNewTableGridMarkup() {
+      const rows = prompt("तालिकामा कतिवटा रो (Rows) राख्ने?", "3");
+      const cols = prompt("तालिकामा कतिवटा कोलम (Columns) राख्ने?", "4");
+      if (!rows || !cols) return;
+
+      let tableHtml = "<table><thead><tr>";
+      for (let i = 0; i < parseInt(cols); i++) { tableHtml += `<th>शीर्षक ${i+1}</th>`; }
+      tableHtml += "</tr></thead><tbody>";
+      
+      for (let j = 0; j < parseInt(rows) - 1; j++) {
+        tableHtml += "<tr>";
+        for (let i = 0; i < parseInt(cols); i++) { tableHtml += "<td>विवरण</td>"; }
+        tableHtml += "</tr>";
+      }
+      tableHtml += "</tbody></table><p>&nbsp;</p>";
+
+      const selection = window.getSelection();
+      if (selection.rangeCount) {
+        const range = selection.getRangeAt(0);
+        const el = document.createElement('div');
+        el.innerHTML = tableHtml;
+        range.insertNode(el.firstElementChild);
+      }
+    }
+
+    function locateParentTableTagNode(node, targetTag) {
+      while (node && node.id !== 'masterLetterCanvas') {
+        if (node.tagName === targetTag) return node;
+        node = node.parentNode;
+      }
+      return null;
+    }
+
+    function modifyTableStructureGridNodes(action) {
+      const selection = window.getSelection();
+      if (!selection.rangeCount) return;
+      
+      const anchor = selection.anchorNode;
+      const currentCell = locateParentTableTagNode(anchor, 'TD') || locateParentTableTagNode(anchor, 'TH');
+      const currentRow = locateParentTableTagNode(anchor, 'TR');
+      const currentTable = locateParentTableTagNode(anchor, 'TABLE');
+
+      if (!currentTable) {
+        alert("⚠️ कार्य विफल: कृपया पहिले तालिकाको कुनै कोठा (Cell) मा माउसले क्लिक गर्नुहोस्!");
+        return;
+      }
+
+      if (action === 'REMOVE_TABLE') {
+        if (confirm("के तपाईं यो तालिका पूर्ण रूपमा हटाउन चाहनुहुन्छ?")) currentTable.remove();
+        return;
+      }
+
+      if (action === 'ADD_ROW') {
+        const newRow = currentTable.insertRow(currentRow ? currentRow.rowIndex + 1 : -1);
+        const colCount = currentTable.rows[0].cells.length;
+        for (let i = 0; i < colCount; i++) {
+          let cell = newRow.insertCell(i);
+          cell.innerText = "विवरण";
+        }
+      } 
+      else if (action === 'DEL_ROW') {
+        if (currentRow) currentTable.deleteRow(currentRow.rowIndex);
+      } 
+      else if (action === 'ADD_COL') {
+        const rows = currentTable.rows;
+        const cellIndex = currentCell ? currentCell.cellIndex : 0;
+        for (let i = 0; i < rows.length; i++) {
+          if (rows[i].parentNode.tagName === 'THEAD') {
+            let th = document.createElement('th');
+            th.innerText = "नयाँ कोलम";
+            rows[i].insertBefore(th, rows[i].cells[cellIndex + 1]);
+          } else {
+            let td = rows[i].insertCell(cellIndex + 1);
+            td.innerText = "-";
+          }
+        }
+      } 
+      else if (action === 'DEL_COL') {
+        const rows = currentTable.rows;
+        const cellIndex = currentCell ? currentCell.cellIndex : 0;
+        for (let i = 0; i < rows.length; i++) {
+          if (rows[i].cells.length > cellIndex) {
+            rows[i].deleteCell(cellIndex);
+          }
+        }
+      }
+    }
+  </script>
+</body>
+</html>

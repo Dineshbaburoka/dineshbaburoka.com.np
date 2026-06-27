@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>गलकोट नगरपालिका - भूमि व्यवस्थापन तथा पत्र प्रिन्ट प्रणाली</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght=400;600;700&display=swap" rel="stylesheet">
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      --primary-color: #0c2461;
+      --secondary-color: #1e3799;
+      --staff-accent: #2ed573;
+      --bg-slate: #f1f2f6;
+      --panel-bg: #ffffff;
+      --border-color: #dcdde1;
+      --text-dark: #2f3542;
+      --shadow-sm: 0 2px 5px rgba(0,0,0,0.05);
+      --shadow-md: 0 10px 25px rgba(0,0,0,0.1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Noto Sans Devanagari', sans-serif; background: var(--bg-slate); color: var(--text-dark); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+
+    /* १. लगइन स्क्रिन स्टाइलिङ */
+    #loginSection {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex: 1;
+      padding: 20px;
+      background: radial-gradient(circle, #1e3799 0%, #0c2461 100%);
+    }
+    .auth-wrapper { 
+      width: 100%;
+      max-width: 420px; 
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+      padding: 35px;
+      border: 1px solid rgba(255,255,255,0.2);
+      transform: translateY(0);
+      transition: all 0.3s ease;
+    }
+    .auth-header { text-align: center; margin-bottom: 25px; }
+    .emblem { width: 85px; margin-bottom: 12px; filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.1)); }
+    .auth-header h2 { font-size: 24px; color: var(--primary-color); font-weight: 700; margin-bottom: 6px; letter-spacing: 0.5px; }
+    .auth-header p { font-size: 13.5px; color: #57606f; font-weight: 600; }
+    .form-group { margin-bottom: 16px; display: flex; flex-direction: column; gap: 6px; }
+    .form-label { font-size: 14px; font-weight: 700; color: #2f3542; display: flex; align-items: center; gap: 5px; }
+    .form-control { width: 100%; padding: 12px 14px; border: 2px solid var(--border-color); border-radius: 8px; font-size: 14px; font-family: inherit; transition: all 0.3s ease; background: #f8fafc; }
+    .form-control:focus { border-color: var(--secondary-color); box-shadow: 0 0 0 4px rgba(30, 55, 153, 0.2); outline: none; background: #ffffff; }
+    .btn-login { width: 100%; background: linear-gradient(135deg, var(--secondary-color), var(--primary-color)); color: #ffffff; padding: 13px; border: none; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(30, 55, 153, 0.3); margin-top: 10px; }
+    .btn-login:hover { transform: translateY(-1px); box-shadow: 0 6px 15px rgba(30, 55, 153, 0.4); }
+    .btn-login:disabled { background: #ced6e0; cursor: not-allowed; box-shadow: none; transform: none; }
+    .auth-footer { text-align: center; margin-top: 25px; font-size: 12.5px; color: #a4b0be; font-weight: 600; }
+
+    /* २. मुख्य ड्यासबोर्ड र वर्कस्पेस स्टाइलिङ */
+    #dashboardSection {
+      display: none; 
+      flex-direction: column;
+      height: 100vh;
+    }
+    .top-navbar { background: linear-gradient(135deg, var(--primary-color), #0a1b44); color: white; padding: 14px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 3px 10px rgba(0,0,0,0.2); z-index: 10; }
+    .top-navbar h2 { font-size: 19px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .nav-right-box { display: flex; align-items: center; gap: 15px; }
+    .role-badge { background: var(--staff-accent); color: #0c2461; padding: 6px 14px; border-radius: 20px; font-size: 13.5px; font-weight: bold; display: flex; align-items: center; gap: 6px; box-shadow: var(--shadow-sm); }
+    .btn-logout { background: #ff4757; color: white; border: none; padding: 7px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; font-family: inherit; font-size: 13px; transition: background 0.2s; box-shadow: var(--shadow-sm); }
+    .btn-logout:hover { background: #ff2a3a; }
+
+    .workspace { display: flex; flex: 1; overflow: hidden; background: #eef1f6; }
+    
+    /* साइडबार नियन्त्रण कक्ष */
+    .sidebar { width: 410px; background: #ffffff; border-right: 2px solid var(--border-color); padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 18px; box-shadow: 2px 0 10px rgba(0,0,0,0.05); }
+    .section-title { font-size: 14.5px; font-weight: bold; color: var(--secondary-color); border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; margin-top: 5px; display: flex; align-items: center; gap: 6px; text-transform: uppercase; letter-spacing: 0.3px; }
+    
+    /* सम्पादन बक्स (प.स., च.नं., मिति बक्स) */
+    .editable-fields-container { background: #f8fafc; border: 2px solid #cbd5e1; padding: 15px; border-radius: 10px; display: flex; flex-direction: column; gap: 12px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); }
+    .editable-fields-container .form-group { margin-bottom: 0; }
+    .editable-fields-container .form-control { padding: 10px 12px; font-size: 14px; font-weight: 600; border-color: #cbd5e1; background: #ffffff; color: #0c2461; }
+    .editable-fields-container .form-control:focus { border-color: var(--secondary-color); box-shadow: 0 0 0 3px rgba(30,55,153,0.1); }
+
+    /* खोज बक्स संरचना */
+    .search-box-container { background: #fffbeb; border: 2px dashed #eccc68; padding: 16px; border-radius: 12px; display: flex; flex-direction: column; gap: 12px; }
+    .search-btn { background: linear-gradient(135deg, #1e3799, #0c2461); color: white; border: none; padding: 12px; font-weight: bold; border-radius: 8px; cursor: pointer; font-size: 14.5px; text-align: center; transition: all 0.2s; box-shadow: 0 3px 6px rgba(0,0,0,0.1); }
+    .search-btn:hover { transform: translateY(-1px); box-shadow: 0 5px 12px rgba(0,0,0,0.15); }
+    .template-select { background: #f1f5f9; font-weight: 700; color: #0c2461; cursor: pointer; border: 2px solid var(--secondary-color); height: 45px; }
+    
+    /* स्थिति ब्याजहरू */
+    .status-badge { font-size: 13px; font-weight: bold; padding: 10px; border-radius: 8px; text-align: center; background: #f1f2f6; color: #747d8c; border: 1px solid #ced6e0; transition: all 0.3s; }
+    .status-success { background: #dbf9e6; color: #15522f; border: 1px solid #2ed573; box-shadow: 0 2px 6px rgba(46,213,115,0.15); }
+    .status-error { background: #ffe3e3; color: #b71c1c; border: 1px solid #ff4757; box-shadow: 0 2px 6px rgba(255,71,87,0.15); }
+    
+    /* प्रिन्ट बटन */
+    .btn-print { background: linear-gradient(135deg, #2ed573, #26af5f); color: white; padding: 15px; font-size: 16.5px; font-weight: bold; border: none; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: auto; box-shadow: 0 4px 12px rgba(46,213,115,0.3); transition: all 0.2s; }
+    .btn-print:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(46,213,115,0.4); }
+
+    /* क्यानभास र ए४ पानाको स्टाइलिङ */
+    .preview-container { flex: 1; padding: 35px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; background: #57606f; scroll-behavior: smooth; }
+    .a4-sheet { width: 210mm; min-height: 297mm; background: white; padding: 25mm 22mm; box-shadow: 0 15px 35px rgba(0,0,0,0.4); color: #000000; box-sizing: border-box; position: relative; border-radius: 4px; }
+    .document-view-area { width: 100%; height: 100%; font-size: 16px; line-height: 1.8; text-align: justify; color: #000000; word-wrap: break-word; }
+
+    /* तालिका ढाँचाहरू (यदि टेम्पलेटमा भएमा) */
+    .document-view-area table { width: 100%; border-collapse: collapse; margin: 22px 0; }
+    .document-view-area table th, .document-view-area table td { border: 1px solid #000000; padding: 10px; text-align: left; font-size: 15px; }
+    .document-view-area table th { background-color: #f2f2f2; font-weight: bold; }
+
+    /* अटो लगआउट टोस्ट सन्देश */
+    #logoutToast { position: fixed; bottom: 25px; right: 25px; background: #ff4757; color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); font-weight: bold; display: none; z-index: 99999; animation: slideIn 0.3s ease-out; }
+
+    @keyframes slideIn {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* ==========================================================================
+       ३. आधिकारिक प्रिन्ट सिएसएस (A4 Size Accurate Layout - WYSIWYG Matching)
+       ========================================================================== */
+    @media print {
+      html, body { 
+        background: #ffffff !important; 
+        color: #000000 !important; 
+        height: auto !important; 
+        overflow: visible !important; 
+        width: 210mm !important; 
+        font-family: 'Noto Sans Devanagari', sans-serif !important;
+        -webkit-print-color-adjust: exact !important; 
+        print-color-adjust: exact !important;
+      }
+      body * { visibility: hidden; }
+      #dashboardSection, .workspace, .preview-container, .a4-sheet, .document-view-area, .document-view-area * { visibility: visible !important; }
+      #dashboardSection { display: block !important; height: auto !important; position: absolute; left: 0; top: 0; width: 100% !important; }
+      .workspace { display: block !important; background: transparent !important; overflow: visible !important; }
+      .preview-container { padding: 0 !important; margin: 0 !important; background: transparent !important; overflow: visible !important; display: block !important; width: 100% !important; }
+      .sidebar, .top-navbar, #loginSection, #logoutToast { display: none !important; }
+      
+      /* यहाँ मुख्य परिवर्तन गरिएको छ: स्क्रिनको जस्तै हुबहु देखाउन प्याडिङ व्यवस्थापन र मार्जिन मिलान */
+      .a4-sheet { 
+        box-shadow: none !important; 
+        width: 210mm !important; 
+        min-height: 297mm !important; 
+        padding: 0mm !important; /* प्रिन्टको @page मार्जिन प्रयोग हुने हुँदा यसलाई ० राखिएको छ */
+        margin: 0mm !important; 
+        border: none !important; 
+        background: transparent !important; 
+        page-break-inside: avoid !important;
+      }
+      .document-view-area { pointer-events: auto; user-select: auto; font-size: 16px !important; line-height: 1.8 !important; text-align: justify !important; }
+      
+      /* प्रिन्ट पेज सेटिङ: स्क्रिनको प्याडिङ (25mm 22mm) लाई नै यहाँ मार्जिन बनाइएको छ ताकि दुवै दुरुस्तै देखियोस् */
+      @page { 
+        size: A4 portrait; 
+        margin: 25mm 22mm 25mm 22mm; 
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <section id="loginSection">
+    <div class="auth-wrapper">
+      <div class="auth-header">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/2/23/Emblem_of_Nepal.svg" alt="Emblem of Nepal" class="emblem">
+        <h2>गलकोट नगरपालिका</h2>
+        <p>भूमि व्यवस्थापन तथा पत्र प्रिन्ट प्रणाली</p>
+      </div>
+
+      <form id="loginForm">
+        <div class="form-group">
+          <label class="form-label">📧 ईमेल ठेगाना</label>
+          <input type="email" id="loginEmail" class="form-control" placeholder="staff@galkot.gov.np" required autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label class="form-label">🔑 पासवर्ड</label>
+          <input type="password" id="loginPassword" class="form-control" placeholder="******" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn-login"> सुरक्षित लगइन गर्नुहोस्</button>
+      </form>
+      <div class="auth-footer">© २०८३ गलकोट नगरपालिका। सर्वाधिकार सुरक्षित।</div>
+    </div>
+  </section>
+
+  <section id="dashboardSection">
+    <header class="top-navbar">
+      <h2>🏛️ गलकोट नगरपालिका - पत्र प्रिन्ट सर्भर पोर्टल</h2>
+      <div class="nav-right-box">
+        <div class="role-badge" id="userBadge">👤 लोडिङ हुँदैछ...</div>
+        <button class="btn-logout" onclick="logoutSession()">प्रणाली बन्द गर्नुहोस् (Logout)</button>
+      </div>
+    </header>
+
+    <div class="workspace">
+      <aside class="sidebar">
+        <div class="section-title">📂 पत्रको ढाँचा (Template) रोजनुहोस्</div>
+        <div class="form-group">
+          <label class="form-label">स्वीकृत फारम ढाँचाहरू:</label>
+          <select id="templateDropdown" class="form-control template-select" onchange="handleTemplateChange()">
+            <option value="default">लोडिङ हुँदैछ...</option>
+          </select>
+        </div>
+
+        <div class="section-title">✍️ कार्यालयीय विवरण भर्नुहोस् (Live Edit)</div>
+        <div class="editable-fields-container">
+          <div class="form-group">
+            <label class="form-label" style="font-size:12.5px; color:#0c2461;">📝 पत्र संख्या (प.स.):</label>
+            <input type="text" id="inputPasanya" class="form-control" placeholder="उदा: २०८२/०८३" oninput="liveUpdateManualFields()">
+          </div>
+          <div class="form-group">
+            <label class="form-label" style="font-size:12.5px; color:#0c2461;">🔢 चलानी नम्बर (च.नं.):</label>
+            <input type="text" id="inputChalani" class="form-control" placeholder="उदा: ४५६" oninput="liveUpdateManualFields()">
+          </div>
+          <div class="form-group">
+            <label class="form-label" style="font-size:12.5px; color:#0c2461;">📅 मिति (नेपालीमा):</label>
+            <input type="text" id="inputMiti" class="form-control" placeholder="उदा: २०८३/०३/१२" oninput="liveUpdateManualFields()">
+          </div>
+        </div>
+
+        <div class="section-title">🔍 जग्गाधनी विवरण खोज्नुहोस् (`g_map_branch1`)</div>
+        <div class="search-box-container">
+          <div class="form-group">
+            <label class="form-label">दर्ता नम्बर वा जग्गाधनीको पूरा नाम:</label>
+            <input type="text" id="searchQueryInput" class="form-control" placeholder="उदा: 1024 वा राम बहादुर">
+          </div>
+          <button class="search-btn" onclick="searchCloudDatabaseAndInjectData()">🔄 DATA खोज्नुहोस्</button>
+        </div>
+
+        <div id="syncStatusBadge" class="status-badge">कृपया डाटा सर्च गर्नुहोस् वा माथि विवरण भर्नुहोस्।</div>
+
+        <button class="btn-print" onclick="window.print()">🖨️ सिधै A4 साइजमा प्रिन्ट गर्नुहोस्</button>
+      </aside>
+
+      <main class="preview-container">
+        <div class="a4-sheet">
+          <div class="document-view-area" id="letterPrintCanvas">
+            <p style="color: #747d8c; text-align: center; margin-top: 150px; font-weight: 600; font-size:17px;">
+              विवरण सर्च गरेपछि वा माथि कार्यालयीय विवरण भरेपछि आधिकारिक नेपाली सरकारी पत्रको रूप यहाँ स्वतः तयार हुनेछ।
+            </p>
+          </div>
+        </div>
+      </main>
+    </div>
+  </section>
+
+  <div id="logoutToast">⚠️ निष्क्रियताका कारण प्रणाली स्वतः लगआउट हुँदैछ...</div>
+
+  <script>
+    // Supabase Credentials
+    const SUPABASE_URL = "https://lyjokogftwtvnhwszqni.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_gxEL2-GVTVy8E0WxMBZHDQ_b5TzsDI9"; 
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // Global System Memories
+    let fetchedTemplatesCache = [];
+    let activeRawHtmlTemplate = ""; 
+    let activeFetchedCitizenData = null;
+
+    // ५ मिनेट अटो-लगआउट संरचना (Security Watchdog)
+    const INACTIVITY_LIMIT = 5 * 60 * 1000; 
+    let idleTimer;
+
+    function resetIdleTimer() {
+      clearTimeout(idleTimer);
+      if (sessionStorage.getItem("userLoggedIn") === "true") {
+        idleTimer = setTimeout(triggerAutoLogout, INACTIVITY_LIMIT);
+      }
+    }
+
+    function triggerAutoLogout() {
+      if (sessionStorage.getItem("userLoggedIn") === "true") {
+        document.getElementById('logoutToast').style.display = 'block';
+        setTimeout(() => { logoutSession(); }, 2500);
+      }
+    }
+
+    function setupActivityListeners() {
+      window.onmousemove = resetIdleTimer;
+      window.onmousedown = resetIdleTimer;
+      window.ontouchstart = resetIdleTimer;
+      window.onclick = resetIdleTimer;     
+      window.onkeypress = resetIdleTimer;  
+      window.addEventListener('scroll', resetIdleTimer, true);
+    }
+
+    // लगइन प्रमाणीकरण फारम म्यानेजर
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const loginButton = document.querySelector('.btn-login');
+
+      loginButton.innerText = "⏳ प्रमाणीकरण हुँदैछ...";
+      loginButton.disabled = true;
+
+      try {
+        const { data, error } = await _supabase
+          .from('system_users')
+          .select('fullname, email, role')
+          .eq('email', email)
+          .eq('password', password)
+          .maybeSingle();
+
+        if (error) {
+          alert("❌ प्राविधिक त्रुटि: " + error.message);
+          loginButton.innerText = "🔑 सुरक्षित लगइन गर्नुहोस्";
+          loginButton.disabled = false;
+          return;
+        }
+
+        if (data) {
+          if (data.role === 'staff' || data.role === 'admin') {
+            sessionStorage.setItem("userLoggedIn", "true");
+            sessionStorage.setItem("userFullName", data.fullname);
+            sessionStorage.setItem("userRole", data.role);
+            
+            showDashboard(data.fullname, data.role);
+            setupActivityListeners();
+            resetIdleTimer();
+          } else {
+            alert(`⚠️ सुरक्षा रोक: तपाईंको रोल (${data.role}) लाई अनुमति छैन!`);
+            window.location.reload();
+          }
+        } else {
+          alert("❌ गलत ईमेल वा पासवर्ड!");
+          loginButton.innerText = "🔑 सुरक्षित लगइन गर्नुहोस्";
+          loginButton.disabled = false;
+        }
+      } catch (err) {
+        alert("❌ सर्भर जडानमा अवरोध आयो।");
+        loginButton.innerText = "🔑 सुरक्षित लगइन गर्नुहोस्";
+        loginButton.disabled = false;
+      }
+    });
+
+    function showDashboard(name, role) {
+      document.getElementById('loginSection').style.display = 'none';
+      document.getElementById('dashboardSection').style.display = 'flex';
+      const displayRole = role === 'admin' ? 'नक्सा शाखा (Admin)' : 'कर्मचारी (Staff)';
+      document.getElementById('userBadge').innerText = `👤 ${name} [${displayRole}]`;
+      loadTemplatesFromCloud();
+    }
+
+    function logoutSession() {
+      sessionStorage.clear();
+      window.location.reload();
+    }
+
+    // अंग्रेजी अंकलाई नेपाली देवनागरी अंकमा बदल्ने कोर इन्जिन (Dynamic Number Sanitizer)
+    function convertToNepaliNumbers(inputString) {
+      if (inputString === undefined || inputString === null) return "";
+      const engNums = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+      const nepNums = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
+      let output = inputString.toString();
+      for (let i = 0; i < 10; i++) {
+        output = output.replace(new RegExp(engNums[i], 'g'), nepNums[i]);
+      }
+      return output;
+    }
+
+    // क्लाउडबाट स्वीकृत पत्रका ढाँचाहरू तान्ने इन्जिन
+    async function loadTemplatesFromCloud() {
+      try {
+        const { data, error } = await _supabase
+          .from('letter_templates')
+          .select('*')
+          .order('id', { ascending: false });
+
+        if (error) throw error;
+        fetchedTemplatesCache = data || [];
+        const dropdown = document.getElementById('templateDropdown');
+        dropdown.innerHTML = "";
+
+        if(fetchedTemplatesCache.length === 0){
+          dropdown.innerHTML = `<option value="">कुनै ढाँचा भेटिएन</option>`;
+          return;
+        }
+
+        fetchedTemplatesCache.forEach((tmpl, index) => {
+          const option = document.createElement('option');
+          option.value = tmpl.id;
+          option.innerText = tmpl.name;
+          if(index === 0) option.selected = true;
+          dropdown.appendChild(option);
+        });
+
+        handleTemplateChange();
+      } catch (err) {
+        document.getElementById('syncStatusBadge').innerText = "⚠️ टेम्पलेट लोड गर्न सकिएन।";
+        document.getElementById('syncStatusBadge').className = "status-badge status-error";
+      }
+    }
+
+    function handleTemplateChange() {
+      const selectedId = document.getElementById('templateDropdown').value;
+      const targetTemplate = fetchedTemplatesCache.find(t => t.id == selectedId);
+      if (targetTemplate) { 
+        activeRawHtmlTemplate = targetTemplate.html_content; 
+      }
+      compileAndRenderLetter(activeFetchedCitizenData || {});
+    }
+
+    // डेटाबेस खोज र इन्जेक्सन प्रक्रिया
+    async function searchCloudDatabaseAndInjectData() {
+      const searchKey = document.getElementById('searchQueryInput').value.trim();
+      const statusBadge = document.getElementById('syncStatusBadge');
+
+      if (!searchKey) { alert("⚠️ कृपया खोज्नका लागि नाम वा दर्ता नम्बर राख्नुहोस्!"); return; }
+      statusBadge.innerText = "🔍 खोज्दै...";
+      statusBadge.className = "status-badge";
+
+      try {
+        let queryBuilder = _supabase.from('g_map_branch1').select('*');
+        if (!isNaN(searchKey)) { queryBuilder = queryBuilder.eq('registrano', parseInt(searchKey)); } 
+        else { queryBuilder = queryBuilder.ilike('owner', `%${searchKey}%`); }
+
+        const { data, error } = await queryBuilder.limit(1);
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+          statusBadge.innerText = "❌ कुनै विवरण फेला परेन।";
+          statusBadge.className = "status-badge status-error";
+          return;
+        }
+
+        activeFetchedCitizenData = data[0];
+        statusBadge.innerText = `✅ डाटा फेला पर्यो! (${activeFetchedCitizenData.owner})`;
+        statusBadge.className = "status-badge status-success";
+
+        compileAndRenderLetter(activeFetchedCitizenData);
+      } catch (err) {
+        statusBadge.innerText = "❌ डाटा खोज्दा प्राविधिक त्रुटि भयो।";
+        statusBadge.className = "status-badge status-error";
+      }
+    }
+
+    // 🔄 पत्र कम्पाइल गर्ने र लाइभ म्यानुअल इन्पुटहरू म्याप गर्ने महा-इन्जिन
+    function compileAndRenderLetter(dataRow) {
+      if (!activeRawHtmlTemplate) {
+        document.getElementById('letterPrintCanvas').innerHTML = `
+          <p style="color: gray; text-align: center; margin-top: 150px; font-weight:600;">
+            ⚠️ कुनै पत्रको ढाँचा (Template) लोड गरिएको छैन। कृपया पुन: प्रयास गर्नुहोस्।
+          </p>`;
+        return;
+      }
+      
+      let DynamicCompiledHtml = activeRawHtmlTemplate;
+
+      // क) साइडबारका म्यानुअल एडिटेबल इनपुटहरूको मान खिच्ने
+      const pasanyaRaw = document.getElementById('inputPasanya').value;
+      const chalaniRaw = document.getElementById('inputChalani').value;
+      const mitiRaw = document.getElementById('inputMiti').value;
+
+      // ख) नम्बरलाई नेपाली देवनागरीमा बदल्ने
+      const pasanyaValue = convertToNepaliNumbers(pasanyaRaw);
+      const chalaniValue = convertToNepaliNumbers(chalaniRaw);
+      const mitiValue = convertToNepaliNumbers(mitiRaw);
+
+      // ग) मुख्य माग: पत्रमा रहेका म्यानुअल शर्टकोडहरू (`[pas]`, `[chana]`, `[m_date]`) प्रतिस्थापन गर्ने
+      DynamicCompiledHtml = DynamicCompiledHtml.replace(/\[pas\]/gi, pasanyaValue || "................");
+      DynamicCompiledHtml = DynamicCompiledHtml.replace(/\[chana\]/gi, chalaniValue || "................");
+      DynamicCompiledHtml = DynamicCompiledHtml.replace(/\[m_date\]/gi, mitiValue || "................");
+
+      // घ) ४५ वटा भन्दा बढी सम्भावित डाटाबेस कोलमहरूको पूर्ण म्यापिङ शब्दकोश (Mapping Dictionary)
+      const row = dataRow || {};
+      const mappingDict = {
+        'registrano': row.registrano || row.Registrano,
+        'registrano_date': row.registrano_date || row.Registrano_Date,
+        'se': row.se || row.SE,
+        'date_reg': row.date_reg,
+        'remarks': row.remarks,
+        'owner': row.owner || row.Owner,
+        'phone': row.phone,
+        'cit_no': row.cit_no,
+        'cit_date': row.cit_date,
+        'cit_office': row.cit_office,
+        'father': row.father,
+        'grandfather': row.grandfather,
+        'ward': row.ward || row.Ward,
+        'tole': row.tole || row.Tole,
+        'savik_gavis': row.savik_gavis,
+        'savik_ward': row.savik_ward,
+        'kitta': row.kitta || row.Kitta,
+        'area': row.area || row.Area,
+        'tot_length': row.tot_length,
+        'tot_width': row.tot_width,
+        'tot_height': row.tot_height,
+        'total_floors': row.total_floors || row.Total_Floors,
+        'room': row.room,
+        'door': row.door,
+        'window': row.window,
+        'shutter': row.shutter,
+        'cg': row.cg,
+        'cov_area': row.cov_area,
+        'tot_area': row.tot_area || row.Tot_Area,
+        'east': row.east,
+        'west': row.west,
+        'north': row.north,
+        'south': row.south,
+        'road_width': row.road_width || row.Road_Width,
+        'roadce': row.roadce,
+        'roadcex': row.roadcex,
+        'setbac': row.setbac,
+        'setbacx': row.setbacx || row.Setbacx,
+        'river': row.river,
+        'riverx': row.riverx,
+        'land': row.land,
+        'landb': row.landb,
+        'revinuerate': row.revinuerate,
+        'gc': row.gc,
+        'far': row.far
+      };
+
+      // ङ) डाटाहरूलाई सुरक्षित रूपमा नेपालीमा कन्भर्ट गर्दै पत्रमा भर्ने लुप
+      for (let [key, val] of Object.entries(mappingDict)) {
+        const regexPattern = new RegExp(`\\[${key}\\]`, 'gi');
+        let finalValue = (val !== undefined && val !== null && val !== "") ? convertToNepaliNumbers(val) : "................";
+        DynamicCompiledHtml = DynamicCompiledHtml.replace(regexPattern, finalValue);
+      }
+
+      // च) ब्याकअप डाइनामिक म्यापिङ (यदि डेटाबेसमा कुनै नयाँ कोलम थपिएमा पनि काम गर्नेछ)
+      for (let [rawKey, rawVal] of Object.entries(row)) {
+        const regexBackup = new RegExp(`\\[${rawKey}\\]`, 'gi');
+        let finalRawVal = (rawVal !== undefined && rawVal !== null && rawVal !== "") ? convertToNepaliNumbers(rawVal) : "................";
+        DynamicCompiledHtml = DynamicCompiledHtml.replace(regexBackup, finalRawVal);
+      }
+
+      // छ) तयार भएको सफा र पूर्ण पत्रलाई मुख्य क्यानभासमा देखाउने (Render)
+      document.getElementById('letterPrintCanvas').innerHTML = DynamicCompiledHtml;
+    }
+
+    // टाइपिङ गर्दा तुरुन्तै पत्रमा अपडेट गराउने फङ्सन (Live Form Handler)
+    function liveUpdateManualFields() {
+      compileAndRenderLetter(activeFetchedCitizenData || {});
+    }
+
+    // विन्डो लोड हुँदा सेसन सक्रियता र सुरक्षा फिल्टर जाँच गर्ने
+    window.onload = () => {
+      if (sessionStorage.getItem("userLoggedIn") === "true") {
+        const role = sessionStorage.getItem("userRole");
+        if (role === 'staff' || role === 'admin') {
+          showDashboard(sessionStorage.getItem("userFullName"), role);
+          setupActivityListeners();
+          resetIdleTimer();
+        } else {
+          logoutSession();
+        }
+      }
+    };
+  </script>
+</body>
+</html>
