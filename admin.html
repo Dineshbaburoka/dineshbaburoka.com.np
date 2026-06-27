@@ -7,8 +7,10 @@
   
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  
+  <script src="https://cdn.jsdelivr.net/npm/highcharts@11.4.3/highcharts.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/highcharts@11.4.3/highcharts-3d.js"></script>
 
   <style>
     :root { 
@@ -60,7 +62,7 @@
     
     /* Charts Layout */
     .chart-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
-    .chart-box { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); height: 340px; display: flex; justify-content: center; align-items: center; }
+    .chart-box { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); height: 360px; width: 100%; overflow: hidden; }
     
     /* Section Headings */
     .section-title { font-size: 18px; margin: 30px 0 15px 0; color: #2f3542; border-left: 5px solid var(--primary); padding-left: 12px; font-weight: 700; }
@@ -131,7 +133,7 @@
     /* Responsive Design Media Queries */
     @media (max-width: 950px) {
       .chart-container, .main-grid { grid-template-columns: 1fr; }
-      .chart-box { height: 300px; }
+      .chart-box { height: 320px; }
     }
     @media (max-width: 600px) {
       .header-wrapper { flex-direction: column; text-align: center; }
@@ -174,8 +176,8 @@
     </div>
 
     <div class="chart-container">
-      <div class="chart-box"><canvas id="pieChart"></canvas></div>
-      <div class="chart-box"><canvas id="barChart"></canvas></div>
+      <div id="pieChart3D" class="chart-box"></div>
+      <div id="barChart3D" class="chart-box"></div>
     </div>
 
     <hr style="border: 0; height: 1px; background: #ced6e0; margin: 25px 0;">
@@ -233,7 +235,7 @@
               <td colspan="9" style="text-align: center; color: #888; padding: 25px;">डाटा लोड हुँदैछ, कृपया पर्खनुहोस्...</td>
             </tr>
           </tbody>
-        </table>
+          </table>
       </div>
     </div>
 
@@ -300,9 +302,7 @@
 
     let masterBranchData = []; 
     let currentFilterType = 'all';
-    let pieChartInstance = null;
-    let barChartInstance = null;
-    let systemUsersGlobalList = []; // प्रयोगकर्ता सम्पादनका लागि डाटा ब्याकअप
+    let systemUsersGlobalList = [];
 
     // ==================== ⏳ ५ मिनेट AUTO LOGOUT SAFETY SYSTEM ====================
     const INACTIVITY_TIME = 5 * 60 * 1000; 
@@ -325,12 +325,12 @@
 
     function handleAutoLogout() {
       alert("⏱️ तपाईंको सुरक्षाको लागि ५ मिनेट निष्क्रिय रहेकाले प्रणाली स्वतः लगआउट भएको छ।");
-      window.location.href = "mapbranch.html"; // म्याप ब्रान्चमा रिडाइरेक्ट
+      window.location.href = "mapbranch.html";
     }
 
     function handleLogout() {
       if(confirm("के तपाईं पक्का लगआउट गर्न चाहनुहुन्छ?")) {
-        window.location.href = "mapbranch.html"; // म्याप ब्रान्चमा रिडाइरेक्ट
+        window.location.href = "mapbranch.html";
       }
     }
 
@@ -347,84 +347,92 @@
 
     // ==================== 📊 DATA ENGINE & ANALYTICS लोजिक ====================
     async function loadDashboardAndSystem() {
-      const { data, error } = await _supabase
-        .from('g_map_branch1')
-        .select('*')
-        .order('id', { ascending: true });
-      
-      if (error) {
-        document.getElementById('tableBody').innerHTML = `<tr><td colspan="9" style="text-align: center; color: red;">त्रुटि: DATA प्राप्त गर्न सकिएन।</td></tr>`;
-        return;
-      }
-
-      if (data) {
-        masterBranchData = data;
-        const total = data.length;
+      try {
+        const { data, error } = await _supabase
+          .from('g_map_branch1')
+          .select('*')
+          .order('id', { ascending: true });
         
-        const registered = data.filter(r => r.registrano && String(r.registrano).trim() !== "").length;
-        const pending = total - registered;
-        const temp = data.filter(r => r.tem_issued_date && String(r.tem_issued_date).trim() !== "").length;
-        const perm = data.filter(r => r.per_issued_date && String(r.per_issued_date).trim() !== "").length;
-        const done = data.filter(r => r.done_issued_date && String(r.done_issued_date).trim() !== "").length;
+        if (error) throw error;
 
-        document.getElementById('total').innerText = total;
-        document.getElementById('pending').innerText = pending;
-        document.getElementById('registered').innerText = registered;
-        document.getElementById('temp').innerText = temp;
-        document.getElementById('perm').innerText = perm;
-        document.getElementById('done').innerText = done;
+        if (data) {
+          masterBranchData = data;
+          const total = data.length;
+          
+          const registered = data.filter(r => r.registrano && String(r.registrano).trim() !== "").length;
+          const pending = total - registered;
+          const temp = data.filter(r => r.tem_issued_date && String(r.tem_issued_date).trim() !== "").length;
+          const perm = data.filter(r => r.per_issued_date && String(r.per_issued_date).trim() !== "").length;
+          const done = data.filter(r => r.done_issued_date && String(r.done_issued_date).trim() !== "").length;
 
-        const pendingTem = masterBranchData.filter(d => d.tem_certificate !== 'yes').length;
-        const pendingPem = masterBranchData.filter(d => d.per_certificate !== 'yes').length;
-        const pendingFinal = masterBranchData.filter(d => !d.done_certificate).length;
+          document.getElementById('total').innerText = total;
+          document.getElementById('pending').innerText = pending;
+          document.getElementById('registered').innerText = registered;
+          document.getElementById('temp').innerText = temp;
+          document.getElementById('perm').innerText = perm;
+          document.getElementById('done').innerText = done;
 
-        document.getElementById('trackTotalReg').innerText = total;
-        document.getElementById('trackTem').innerText = pendingTem;
-        document.getElementById('trackPem').innerText = pendingPem;
-        document.getElementById('trackFinal').innerText = pendingFinal;
+          const pendingTem = masterBranchData.filter(d => d.tem_certificate !== 'yes').length;
+          const pendingPem = masterBranchData.filter(d => d.per_certificate !== 'yes').length;
+          const pendingFinal = masterBranchData.filter(d => !d.done_certificate).length;
 
-        document.getElementById('reportNoticeCount').innerText = pendingFinal + " बाँकी";
+          document.getElementById('trackTotalReg').innerText = total;
+          document.getElementById('trackTem').innerText = pendingTem;
+          document.getElementById('trackPem').innerText = pendingPem;
+          document.getElementById('trackFinal').innerText = pendingFinal;
 
-        renderCharts(pending, registered, temp, perm, done);
-        renderBranchTable(masterBranchData);
+          document.getElementById('reportNoticeCount').innerText = pendingFinal + " बाँकी";
+
+          // ३डी चार्ट रेन्डर गर्ने
+          renderHighcharts3D(pending, registered, temp, perm, done);
+          renderBranchTable(masterBranchData);
+        }
+      } catch (err) {
+        console.error("डाटा लोड गर्दा त्रुटि:", err);
+        document.getElementById('tableBody').innerHTML = `<tr><td colspan="9" style="text-align: center; color: red;">त्रुटि: डाटा प्राप्त गर्न सकिएन।</td></tr>`;
       }
     }
 
-    function renderCharts(pending, registered, temp, perm, done) {
+    function renderHighcharts3D(pending, registered, temp, perm, done) {
       const chartLabels = ['दर्ता हुन बाँकी', 'दर्ता भएको', 'अस्थायी इजाजत', 'स्थायी इजाजत', 'निर्माण सम्पन्न'];
       const chartData = [pending, registered, temp, perm, done];
       const chartColors = ['#e74c3c', '#8e44ad', '#f1c40f', '#3498db', '#27ae60'];
 
-      const tooltipOptions = {
-        callbacks: { label: function(context) { return ` ${context.label}: ${context.raw} वटा फाइल`; } },
-        titleFont: { size: 13, weight: 'bold' }, bodyFont: { size: 13 }, padding: 10
-      };
+      try {
+        if (typeof Highcharts !== 'undefined') {
+          // १. ३डी डोनट चार्ट
+          Highcharts.chart('pieChart3D', {
+            chart: { type: 'pie', options3d: { enabled: true, alpha: 45, beta: 0 }, backgroundColor: 'transparent' },
+            title: { text: 'फाइलहरूको अवस्था विवरण (3D)', style: { color: '#0c2461', fontSize: '15px', fontWeight: 'bold' } },
+            accessibility: { enabled: false },
+            plotOptions: {
+              pie: { innerSize: '50%', depth: 35, allowPointSelect: true, cursor: 'pointer', dataLabels: { enabled: false }, showInLegend: true }
+            },
+            legend: { itemStyle: { fontSize: '11px' } },
+            credits: { enabled: false },
+            series: [{
+              name: 'फाइल संख्या',
+              data: chartLabels.map((label, index) => ({ name: label, y: chartData[index], color: chartColors[index] }))
+            }]
+          });
 
-      if(pieChartInstance) pieChartInstance.destroy();
-      if(barChartInstance) barChartInstance.destroy();
-
-      pieChartInstance = new Chart(document.getElementById('pieChart'), {
-        type: 'doughnut',
-        data: { labels: chartLabels, datasets: [{ data: chartData, backgroundColor: chartColors, hoverOffset: 8 }] },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11, weight: '600' } } }, tooltip: tooltipOptions },
-          cutout: '62%'
+          // २. ३डी स्तम्भ (Column) चार्ट
+          Highcharts.chart('barChart3D', {
+            chart: { type: 'column', options3d: { enabled: true, alpha: 15, beta: 15, depth: 50, viewDistance: 25 }, backgroundColor: 'transparent' },
+            title: { text: 'प्रगति तथ्याङ्क तुलना (3D)', style: { color: '#0c2461', fontSize: '15px', fontWeight: 'bold' } },
+            accessibility: { enabled: false },
+            xAxis: { categories: chartLabels, labels: { style: { fontSize: '10px' } } },
+            yAxis: { title: { text: 'फाइल संख्या' }, allowDecimals: false, min: 0 },
+            legend: { enabled: false },
+            credits: { enabled: false },
+            plotOptions: { column: { depth: 30, colorByPoint: true, colors: chartColors } },
+            tooltip: { pointFormat: '<b>{point.y}</b> वटा फाइल' },
+            series: [{ data: chartData }]
+          });
         }
-      });
-
-      barChartInstance = new Chart(document.getElementById('barChart'), {
-        type: 'bar',
-        data: { labels: chartLabels, datasets: [{ label: 'फाइल संख्या', data: chartData, backgroundColor: chartColors, borderRadius: 5 }] },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          scales: { 
-            y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 11 } } },
-            x: { ticks: { font: { size: 11, weight: '600' }, maxRotation: 45, minRotation: 45 } }
-          },
-          plugins: { legend: { display: false }, tooltip: tooltipOptions }
-        }
-      });
+      } catch (err) {
+        console.error("चार्ट बनाउन सकिएन:", err);
+      }
     }
 
     function filterBranchList(type) {
@@ -560,7 +568,7 @@
       const { data: users, error } = await _supabase.from('system_users').select('*').order('id', { ascending: true });
       if (error) return;
       
-      systemUsersGlobalList = users; // ब्याकअप राख्ने
+      systemUsersGlobalList = users;
       const tbody = document.getElementById('usersTableBody');
       tbody.innerHTML = ""; 
       
@@ -589,7 +597,6 @@
       });
     }
 
-    // ✏️ सम्पादन प्रक्रिया सुरु गर्ने फंक्शन (Form मा डाटा भर्ने)
     function startEditUser(userId) {
       const user = systemUsersGlobalList.find(u => u.id === userId);
       if(!user) return;
@@ -599,7 +606,6 @@
       document.getElementById('regEmail').value = user.email;
       document.getElementById('regRole').value = user.role || 'staff';
       
-      // सम्पादन गर्दा मुख्य पासवर्ड अनिवार्य नहुने बनाउन placeholder परिवर्तन
       document.getElementById('regPassword').required = false;
       document.getElementById('regPassword').placeholder = "(परिवर्तन नगर्ने भए खाली छोड्नुस्)";
       document.getElementById('passwordLabel').innerText = "नयाँ पासवर्ड (ऐच्छिक)";
@@ -610,7 +616,6 @@
       document.getElementById('cancelEditLink').style.display = "inline-block";
     }
 
-    // 🔄 फारम रिसेट गर्ने फंक्शन
     function resetUserForm() {
       document.getElementById('editingUserId').value = "";
       document.getElementById('createUserForm').reset();
@@ -625,7 +630,6 @@
       document.getElementById('cancelEditLink').style.display = "none";
     }
 
-    // 📩 फारम Submit हुँदा: Insert वा Update गर्ने साझा लोजिक
     document.getElementById('createUserForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const editingId = document.getElementById('editingUserId').value;
@@ -635,7 +639,6 @@
       const role = document.getElementById('regRole').value;
 
       if (editingId) {
-        // 🔄 विवरण अपडेट गर्ने (UPDATE)
         let updateData = { fullname, email, role };
         if(password.trim() !== "") {
           updateData.password = password;
@@ -654,7 +657,6 @@
           fetchUsers(); 
         }
       } else {
-        // ➕ नयाँ अकाउन्ट थप्ने (INSERT)
         const { error } = await _supabase
           .from('system_users')
           .insert([{ fullname, email, password, role, status1: 'active' }]);
