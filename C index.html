@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>गलकोट नगरपालिका - नागरिक बडापत्र</title>
+    <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        :root {
+            --primary-blue: #1e3a8a;
+            --accent-red: #dc2626;
+            --bg-dark: #ffffff; 
+            --text-dark: #000000;
+            --text-muted: #475569;
+            --gold: #f59e0b;
+            --table-header-color: #dc2626; 
+            --border-red: #dc2626;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Mukta', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-dark);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-header {
+            background: #ffffff;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 4px solid var(--accent-red);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            z-index: 10;
+            position: relative; /* सेन्टर हेडलाइन मिलाउनका लागि */
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-logo {
+            height: 70px;
+            width: auto;
+        }
+
+        .header-title h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--accent-red);
+            line-height: 1.2;
+        }
+
+        .header-title p {
+            color: var(--primary-blue);
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        /* नयाँ: बीच भागमा नागरिक बडापत्र लेख्न थपिएको CSS */
+        .header-center {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+        }
+
+        .header-center h2 {
+            font-size: 2.6rem;
+            font-weight: 800;
+            color: var(--primary-blue);
+            letter-spacing: 1px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+            border-bottom: 3px solid var(--gold);
+            padding-bottom: 2px;
+            line-height: 1;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .fullscreen-btn {
+            background-color: var(--primary-blue);
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: opacity 0.3s ease;
+        }
+
+        .live-badge {
+            background-color: #10b981; 
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
+            animation: pulse-glow 1.5s infinite ease-in-out;
+        }
+
+        @keyframes pulse-glow {
+            0% { transform: scale(0.9); opacity: 0.3; box-shadow: 0 0 5px rgba(16, 185, 129, 0.4); }
+            50% { transform: scale(1.1); opacity: 1; box-shadow: 0 0 25px rgba(16, 185, 129, 1), 0 0 10px rgba(16, 185, 129, 0.6); }
+            100% { transform: scale(0.9); opacity: 0.3; box-shadow: 0 0 5px rgba(16, 185, 129, 0.4); }
+        }
+
+        .table-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            width: 100%;
+            padding: 10px;
+        }
+
+        .charter-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        .col-sn { width: 5%; }       
+        .col-service { width: 20%; }  
+        .col-docs { width: 35%; }     
+        .col-dept { width: 15%; }     
+        .col-time { width: 13%; }     
+        .col-cost { width: 12%; }     
+
+        .table-header-fixed {
+            background-color: #ffffff;
+            z-index: 5;
+        }
+
+        .table-header-fixed th {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--table-header-color);
+            text-align: center;
+            padding: 12px 5px;
+            border: 2px solid var(--border-red);
+            line-height: 1.3;
+        }
+
+        .scroll-container {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+            margin-top: -2px;
+        }
+
+        .scroll-content {
+            position: absolute;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            will-change: transform;
+        }
+
+        .charter-table tbody td {
+            font-size: 1.15rem;
+            padding: 12px 10px;
+            vertical-align: top;
+            line-height: 1.4;
+            word-wrap: break-word;
+            border: 2px solid var(--border-red);
+        }
+
+        .td-center { text-align: center; }
+        .td-sn-val { font-weight: 700; color: var(--primary-blue); }
+        .td-service-name { font-weight: 700; color: var(--primary-blue); }
+
+        .doc-list-nepali { list-style: none; padding: 0; margin: 0; }
+        .doc-list-nepali li { margin-bottom: 5px; text-align: left; }
+        .doc-sn { color: var(--accent-red); font-weight: bold; margin-right: 6px; }
+
+        .loading-msg {
+            text-align: center;
+            font-size: 1.8rem;
+            padding: 50px 0;
+            color: var(--text-muted);
+        }
+
+        .footer-ticker {
+            background-color: #ffffff;
+            padding: 12px 20px;
+            border-top: 3px solid var(--accent-red);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .contact-scroll-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary-blue), #1d4ed8);
+            color: #ffffff;
+            border: 2px solid var(--gold);
+            border-radius: 50px;
+            padding: 12px 25px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            overflow: hidden;
+            white-space: nowrap;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            cursor: default;
+        }
+
+        .marquee-wrapper {
+            display: inline-block;
+            padding-left: 100%;
+            animation: textMarquee 25s linear infinite;
+        }
+
+        .marquee-wrapper span { margin-right: 60px; }
+        .marquee-wrapper i { color: var(--gold); margin-right: 8px; }
+
+        @keyframes textMarquee {
+            0% { transform: translate3d(0, 0, 0); }
+            100% { transform: translate3d(-100%, 0, 0); }
+        }
+        
+        .contact-scroll-btn:hover .marquee-wrapper {
+            animation-play-state: paused;
+        }
+
+        /* विशेष समय/खाजा ओभरले पपअप - माफी शैली */
+        .break-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(255, 255, 255, 0.98);
+            z-index: 9999;
+            display: none; 
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .break-box {
+            background: #ffffff;
+            padding: 45px 60px;
+            border-radius: 24px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.12);
+            border-top: 10px solid var(--primary-blue);
+            max-width: 750px;
+            width: 100%;
+        }
+
+        .break-icon {
+            font-size: 6rem;
+            color: var(--gold);
+            margin-bottom: 25px;
+            animation: namaste-pulse 2s infinite ease-in-out;
+        }
+
+        @keyframes namaste-pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+            100% { transform: scale(1); }
+        }
+
+        .break-apology-text {
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: var(--accent-red);
+            margin-bottom: 10px;
+        }
+
+        .break-reason {
+            font-size: 2.6rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-bottom: 25px;
+        }
+
+        .break-timer {
+            font-size: 4.5rem;
+            font-weight: 700;
+            color: var(--accent-red);
+            background: #fef2f2;
+            padding: 15px 35px;
+            border-radius: 16px;
+            display: inline-block;
+            letter-spacing: 2px;
+            border: 2px dashed var(--accent-red);
+        }
+
+        .break-notice {
+            font-size: 1.3rem;
+            color: var(--text-muted);
+            margin-top: 25px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- खाजा समय ओभरले पपअप -->
+    <div class="break-overlay" id="break-overlay">
+        <div class="break-box">
+            <div class="break-icon"><i class="fa-solid fa-hands-praying"></i></div>
+            <div class="break-apology-text"><i class="fa-solid fa-circle-exclamation"></i> असुविधाको लागि क्षमाप्रार्थी छौँ !</div>
+            <div class="break-reason" id="overlay-reason">कार्यालय बन्द</div>
+            <div>
+                <span class="break-timer" id="overlay-countdown">००:००</span>
+            </div>
+            <div class="break-notice">निर्धारित समय समाप्त भएपछि सेवा स्वतः सुचारु हुनेछ।</div>
+        </div>
+    </div>
+
+    <header class="main-header">
+        <div class="header-left">
+            <img class="header-logo" src="https://upload.wikimedia.org/wikipedia/commons/2/23/Emblem_of_Nepal.svg" alt="Emblem of Nepal">
+            <div class="header-title">
+                <h1>गलकोट नगरपालिका</h1>
+                <p>नगर कार्यपालिकाको कार्यालय, गलकोट बागलुङ</p>
+            </div>
+        </div>
+        
+        <!-- थपिएको मुख्य बुँदा: सेन्टरमा नागरिक बडापत्र हेडलाइन -->
+        <div class="header-center">
+            <h2>नागरिक बडापत्र</h2>
+        </div>
+
+        <div class="header-right">
+            <button class="fullscreen-btn" id="fs-button" onclick="toggleFullScreen()">
+                <i class="fa-solid fa-expand"></i> Full Screen
+            </button>
+            <div class="live-badge"></div>
+        </div>
+    </header>
+
+    <main class="table-container">
+        <div class="table-header-fixed">
+            <table class="charter-table">
+                <thead>
+                    <tr>
+                        <th class="col-sn">क्र.स.</th>
+                        <th class="col-service">सेवा/सुविधाको नाम</th>
+                        <th class="col-docs">आवश्यक पर्ने कागजातहरू</th>
+                        <th class="col-dept">जिम्मेवार अधिकारी / शाखा</th>
+                        <th class="col-time">लाग्ने समय</th>
+                        <th class="col-cost">लाग्ने दस्तुर</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+
+        <div class="scroll-container" id="scroll-container">
+            <div class="scroll-content" id="scroll-content">
+                <table class="charter-table">
+                    <tbody id="table-body">
+                        <tr>
+                            <td colspan="6" class="loading-msg">
+                                <i class="fa-solid fa-spinner fa-spin"></i> विवरणहरू लोड हुँदैछन्...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer-ticker">
+        <div class="contact-scroll-btn">
+            <div class="marquee-wrapper">
+                <span><i class="fa-solid fa-phone"></i> <strong>सम्पर्क फोन नं:</strong> ०६८-५४००११, ०६८-५४००२२</span>
+                <span><i class="fa-solid fa-envelope"></i> <strong>इमेल:</strong> info@galkotmun.gov.np, galkotmunicipality@gmail.com</span>
+                <span><i class="fa-solid fa-globe"></i> <strong>वेबसाइट:</strong> www.galkotmun.gov.np</span>
+                <span><i class="fa-solid fa-location-dot"></i> <strong>कार्यालयको नाम र ठेगाना:</strong> गलकोट नगरपालिका, नगर कार्यपालिकाको कार्यलाय, गलकोट, बागलुङ गण्डकी प्रदेश, नेपाल</span>
+                <span><i class="fa-solid fa-handshake"></i> <strong>"सुशासन र पारदर्शी विकास - हाम्रो प्रतिबद्धता"</strong></span>
+            </div>
+        </div>
+    </footer>
+
+<script>
+    const supabaseUrl = 'https://mowcqzipcnwcowghnarh.supabase.co';
+    const supabaseKey = 'sb_publishable_bj8KbSUPJhw9gLi0oR5RCg_6Tbw_Ghr';
+    const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+    const tableBody = document.getElementById('table-body');
+    const scrollContent = document.getElementById('scroll-content');
+    const scrollContainer = document.getElementById('scroll-container');
+    let scrollSpeed = 0.7; 
+    let animationId = null;
+    let countdownInterval = null; 
+
+    function convertToNepaliNumerals(text) {
+        if (!text) return '';
+        const englishDigits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+        const nepaliDigits = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
+        
+        return text.toString().split('').map(char => {
+            const index = englishDigits.indexOf(char);
+            return index > -1 ? nepaliDigits[index] : char;
+        }).join('');
+    }
+
+    async function fetchCharterData() {
+        const { data, error } = await supabaseClient
+            .from('citizen_charter')
+            .select('*');
+
+        if (error) {
+            console.error("त्रुटि:", error);
+            return;
+        }
+        if (!data || data.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="6" class="loading-msg">कुनै विवरण फेला परेन।</td></tr>`;
+            return;
+        }
+        renderTableRows(data);
+    }
+
+    function renderTableRows(items) {
+        tableBody.innerHTML = '';
+        const displayItems = [...items, ...items, ...items]; 
+
+        displayItems.forEach((item, globalIndex) => {
+            const row = document.createElement('tr');
+            const mainSn = convertToNepaliNumerals((globalIndex % items.length) + 1);
+
+            let formattedDocuments = `<span>खुलाइएको छैन</span>`;
+            if (item.documents) {
+                const listItems = item.documents
+                    .split(',')
+                    .map((doc, docIndex) => {
+                        const nepaliDocSn = convertToNepaliNumerals(docIndex + 1);
+                        return `<li><span class="doc-sn">${nepaliDocSn}.</span>${convertToNepaliNumerals(doc.trim())}</li>`;
+                    })
+                    .join('');
+                formattedDocuments = `<ul class="doc-list-nepali">${listItems}</ul>`;
+            }
+
+            row.innerHTML = `
+                <td class="col-sn td-center td-sn-val">${mainSn}</td>
+                <td class="col-service td-service-name">${convertToNepaliNumerals(item.service_name)}</td>
+                <td class="col-docs">${formattedDocuments}</td>
+                <td class="col-dept td-center">${convertToNepaliNumerals(item.department || '-')}</td>
+                <td class="col-time td-center">${convertToNepaliNumerals(item.duration || '-')}</td>
+                <td class="col-cost td-center">${convertToNepaliNumerals(item.cost || 'निःशुल्क')}</td>
+            `;
+            tableBody.appendChild(row);
+        });
+
+        setTimeout(startScrolling, 500);
+    }
+
+    function startScrolling() {
+        if (animationId) cancelAnimationFrame(animationId);
+        
+        let currentY = scrollContainer.offsetHeight;
+        scrollContent.style.transform = `translateY(${currentY}px)`;
+
+        function updateScroll() {
+            currentY -= scrollSpeed;
+            if (Math.abs(currentY) >= (scrollContent.scrollHeight / 1.5)) {
+                currentY = 0; 
+            }
+            scrollContent.style.transform = `translateY(${currentY}px)`;
+            animationId = requestAnimationFrame(updateScroll);
+        }
+        animationId = requestAnimationFrame(updateScroll);
+    }
+
+    async function checkBreakStatus() {
+        const { data, error } = await supabaseClient
+            .from('break_settings')
+            .select('*')
+            .eq('id', 1)
+            .single();
+
+        if (error || !data) return;
+
+        const overlay = document.getElementById('break-overlay');
+        const reasonEl = document.getElementById('overlay-reason');
+        const countdownEl = document.getElementById('overlay-countdown');
+
+        if (data.is_active && new Date(data.end_time) > new Date()) {
+            reasonEl.innerText = data.reason;
+            overlay.style.display = 'flex'; 
+
+            if (countdownInterval) clearInterval(countdownInterval);
+
+            countdownInterval = setInterval(() => {
+                const now = new Date().getTime();
+                const target = new Date(data.end_time).getTime();
+                const diff = target - now;
+
+                if (diff <= 0) {
+                    clearInterval(countdownInterval);
+                    overlay.style.display = 'none'; 
+                    supabaseClient.from('break_settings').update({ is_active: false }).eq('id', 1);
+                } else {
+                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                    
+                    const strMins = minutes < 10 ? '0' + minutes : minutes;
+                    const strSecs = seconds < 10 ? '0' + seconds : seconds;
+
+                    countdownEl.innerText = convertToNepaliNumerals(`${strMins}:${strSecs}`);
+                }
+            }, 1000);
+        } else {
+            if (countdownInterval) clearInterval(countdownInterval);
+            overlay.style.display = 'none';
+        }
+    }
+
+    function toggleFullScreen() {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(err => {
+                alert(`Error: ${err.message}`);
+            });
+        } else {
+            if (document.exitFullscreen) document.exitFullscreen();
+        }
+    }
+
+    document.addEventListener('fullscreenchange', () => {
+        document.getElementById('fs-button').style.display = document.fullscreenElement ? 'none' : 'flex';
+    });
+
+    // ================= REALTIME CHANNELS =================
+    supabaseClient
+        .channel('schema-db-changes-charter')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'citizen_charter' }, () => {
+            fetchCharterData();
+        })
+        .subscribe();
+
+    supabaseClient
+        .channel('schema-db-changes-break')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'break_settings' }, () => {
+            checkBreakStatus();
+        })
+        .subscribe();
+
+    setInterval(checkBreakStatus, 5000);
+
+    fetchCharterData();
+    checkBreakStatus();
+</script>
+</body>
+</html>
