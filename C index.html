@@ -46,7 +46,7 @@
             border-bottom: 4px solid var(--accent-red);
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
             z-index: 10;
-            position: relative; /* सेन्टर हेडलाइन मिलाउनका लागि */
+            position: relative;
         }
 
         .header-left {
@@ -73,7 +73,6 @@
             font-weight: 600;
         }
 
-        /* नयाँ: बीच भागमा नागरिक बडापत्र लेख्न थपिएको CSS */
         .header-center {
             position: absolute;
             left: 50%;
@@ -144,12 +143,14 @@
             table-layout: fixed;
         }
 
+        /* कोलमहरूको चौडाइ मिलाइएको (नयाँ कोलम थप सहित) */
         .col-sn { width: 5%; }       
-        .col-service { width: 20%; }  
-        .col-docs { width: 35%; }     
-        .col-dept { width: 15%; }     
-        .col-time { width: 13%; }     
-        .col-cost { width: 12%; }     
+        .col-service { width: 18%; }  
+        .col-docs { width: 27%; }     
+        .col-dept { width: 14%; }     
+        .col-time { width: 12%; }     
+        .col-cost { width: 11%; }     
+        .col-officer { width: 13%; }     
 
         .table-header-fixed {
             background-color: #ffffff;
@@ -249,7 +250,6 @@
             animation-play-state: paused;
         }
 
-        /* विशेष समय/खाजा ओभरले पपअप - माफी शैली */
         .break-overlay {
             position: fixed;
             top: 0;
@@ -324,7 +324,6 @@
 </head>
 <body>
 
-    <!-- खाजा समय ओभरले पपअप -->
     <div class="break-overlay" id="break-overlay">
         <div class="break-box">
             <div class="break-icon"><i class="fa-solid fa-hands-praying"></i></div>
@@ -346,7 +345,6 @@
             </div>
         </div>
         
-        <!-- थपिएको मुख्य बुँदा: सेन्टरमा नागरिक बडापत्र हेडलाइन -->
         <div class="header-center">
             <h2>नागरिक बडापत्र</h2>
         </div>
@@ -370,6 +368,8 @@
                         <th class="col-dept">जिम्मेवार अधिकारी / शाखा</th>
                         <th class="col-time">लाग्ने समय</th>
                         <th class="col-cost">लाग्ने दस्तुर</th>
+                        <!-- नयाँ थपिएको कोलम हेडर -->
+                        <th class="col-officer">गुनासो सुन्ने अधिकारी</th>
                     </tr>
                 </thead>
             </table>
@@ -380,7 +380,7 @@
                 <table class="charter-table">
                     <tbody id="table-body">
                         <tr>
-                            <td colspan="6" class="loading-msg">
+                            <td colspan="7" class="loading-msg">
                                 <i class="fa-solid fa-spinner fa-spin"></i> विवरणहरू लोड हुँदैछन्...
                             </td>
                         </tr>
@@ -435,7 +435,7 @@
             return;
         }
         if (!data || data.length === 0) {
-            tableBody.innerHTML = `<tr><td colspan="6" class="loading-msg">कुनै विवरण फेला परेन।</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="7" class="loading-msg">कुनै विवरण फेला परेन।</td></tr>`;
             return;
         }
         renderTableRows(data);
@@ -461,6 +461,7 @@
                 formattedDocuments = `<ul class="doc-list-nepali">${listItems}</ul>`;
             }
 
+            // नयाँ थपिएको गुनासो सुन्ने अधिकारी डेटा (item.grievance_officer)
             row.innerHTML = `
                 <td class="col-sn td-center td-sn-val">${mainSn}</td>
                 <td class="col-service td-service-name">${convertToNepaliNumerals(item.service_name)}</td>
@@ -468,6 +469,7 @@
                 <td class="col-dept td-center">${convertToNepaliNumerals(item.department || '-')}</td>
                 <td class="col-time td-center">${convertToNepaliNumerals(item.duration || '-')}</td>
                 <td class="col-cost td-center">${convertToNepaliNumerals(item.cost || 'निःशुल्क')}</td>
+                <td class="col-officer td-center">${convertToNepaliNumerals(item.grievance_officer || '-')}</td>
             `;
             tableBody.appendChild(row);
         });
@@ -550,7 +552,6 @@
         document.getElementById('fs-button').style.display = document.fullscreenElement ? 'none' : 'flex';
     });
 
-    // ================= REALTIME CHANNELS =================
     supabaseClient
         .channel('schema-db-changes-charter')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'citizen_charter' }, () => {

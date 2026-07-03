@@ -55,7 +55,7 @@
             grid-template-columns: 1fr;
             gap: 30px;
             width: 100%;
-            max-width: 1200px;
+            max-width: 1300px; /* कोलम थपिएकाले चौडाई बढाइएको */
         }
 
         @media (min-width: 900px) {
@@ -281,7 +281,7 @@
     <div class="header">
         <i class="fa-solid fa-lock"></i>
         <h2>एडमिन लगइन</h2>
-        <p class="subtitle">प्यानल प्रवेश गर्न आफ्नो विवरण राख्नुहोस्</p>
+        <p class="subtitle">प्यानल प्रवेश गर्न आफ्नो विवरण राच्छुहोस्</p>
     </div>
     <form id="login-form">
         <div class="form-group">
@@ -344,6 +344,15 @@
                     <div class="input-wrapper">
                         <i class="fa-solid fa-clock"></i>
                         <input type="text" id="duration" placeholder="सोही दिन वा १ घण्टाभित्र" required>
+                    </div>
+                </div>
+
+                <!-- नयाँ थपिएको इनपुट फिल्ड: गुनासो सुन्ने अधिकारी -->
+                <div class="form-group">
+                    <label for="grievance_officer">गुनासो सुन्ने अधिकारी</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-user-shield"></i>
+                        <input type="text" id="grievance_officer" placeholder="प्रमुख प्रशासकीय अधिकृत" required>
                     </div>
                 </div>
 
@@ -414,12 +423,14 @@
                         <th>सेवाको नाम</th>
                         <th>दस्तुर</th>
                         <th>समय</th>
+                        <!-- तालिका सूचीमा नयाँ थपिएको स्तम्भ हेडर -->
+                        <th>गुनासो सुन्ने अधिकारी</th>
                         <th>कार्य (Actions)</th>
                     </tr>
                 </thead>
                 <tbody id="data-list">
                     <tr>
-                        <td colspan="5" style="text-align: center; color: #64748b;">डाटा लोड हुँदैछ...</td>
+                        <td colspan="6" style="text-align: center; color: #64748b;">डाटा लोड हुँदैछ...</td>
                     </tr>
                 </tbody>
             </table>
@@ -495,17 +506,19 @@
         tbody.innerHTML = '';
 
         if (!data || data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #64748b;">कुनै डाटा भेटिएन।</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #64748b;">कुनै डाटा भेटिएन।</td></tr>`;
             return;
         }
 
         data.forEach(item => {
             const tr = document.createElement('tr');
+            // तालिकामा नयाँ डेटा प्रदर्शन (item.grievance_officer)
             tr.innerHTML = `
                 <td><strong>${item.department}</strong></td>
                 <td>${item.service_name}</td>
                 <td>${item.cost}</td>
                 <td>${item.duration}</td>
+                <td>${item.grievance_officer || '-'}</td>
                 <td class="actions">
                     <button class="action-btn edit-btn"><i class="fa-solid fa-pen-to-square"></i></button>
                     <button class="action-btn delete-btn" onclick="deleteRow(${item.id})"><i class="fa-solid fa-trash"></i></button>
@@ -522,11 +535,13 @@
         submitBtn.disabled = true;
 
         const rowId = document.getElementById('row-id').value;
+        // नयाँ इनपुट डाटा 'grievance_officer' यहाँ थपिएको छ
         const formData = {
             department: document.getElementById('department').value,
             service_name: document.getElementById('service_name').value,
             cost: document.getElementById('cost').value,
             duration: document.getElementById('duration').value,
+            grievance_officer: document.getElementById('grievance_officer').value,
             documents: document.getElementById('documents').value
         };
 
@@ -609,6 +624,7 @@
         document.getElementById('service_name').value = item.service_name;
         document.getElementById('cost').value = item.cost;
         document.getElementById('duration').value = item.duration;
+        document.getElementById('grievance_officer').value = item.grievance_officer || '';
         document.getElementById('documents').value = item.documents;
 
         document.getElementById('form-title').innerText = "विवरण परिमार्जन गर्नुहोस्";
