@@ -109,7 +109,6 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            transition: opacity 0.3s ease;
         }
 
         .live-badge {
@@ -123,39 +122,38 @@
         }
 
         @keyframes pulse-glow {
-            0% { transform: scale(0.9); opacity: 0.3; box-shadow: 0 0 5px rgba(16, 185, 129, 0.4); }
-            50% { transform: scale(1.1); opacity: 1; box-shadow: 0 0 25px rgba(16, 185, 129, 1), 0 0 10px rgba(16, 185, 129, 0.6); }
-            100% { transform: scale(0.9); opacity: 0.3; box-shadow: 0 0 5px rgba(16, 185, 129, 0.4); }
+            0% { transform: scale(0.9); opacity: 0.3; }
+            50% { transform: scale(1.1); opacity: 1; box-shadow: 0 0 25px rgba(16, 185, 129, 1); }
+            100% { transform: scale(0.9); opacity: 0.3; }
         }
 
-        .table-container {
+        /* --- View Containers --- */
+        .view-section {
+            display: none; 
             flex: 1;
-            display: flex;
             flex-direction: column;
             overflow: hidden;
             width: 100%;
             padding: 10px;
         }
 
+        .view-section.active {
+            display: flex;
+        }
+
+        /* १. बडापत्र संरचना */
         .charter-table {
             width: 100%;
             border-collapse: collapse;
             table-layout: fixed;
         }
 
-        /* कोलमहरूको चौडाइ मिलाइएको (नयाँ कोलम थप सहित) */
         .col-sn { width: 5%; }       
-        .col-service { width: 18%; }  
-        .col-docs { width: 27%; }     
-        .col-dept { width: 14%; }     
-        .col-time { width: 12%; }     
-        .col-cost { width: 11%; }     
-        .col-officer { width: 13%; }     
-
-        .table-header-fixed {
-            background-color: #ffffff;
-            z-index: 5;
-        }
+        .col-service { width: 22%; }  
+        .col-docs { width: 33%; }     
+        .col-dept { width: 15%; }     
+        .col-time { width: 13%; }     
+        .col-cost { width: 12%; }     
 
         .table-header-fixed th {
             font-size: 1.25rem;
@@ -164,7 +162,7 @@
             text-align: center;
             padding: 12px 5px;
             border: 2px solid var(--border-red);
-            line-height: 1.3;
+            background: #ffffff;
         }
 
         .scroll-container {
@@ -177,8 +175,6 @@
         .scroll-content {
             position: absolute;
             width: 100%;
-            display: flex;
-            flex-direction: column;
             will-change: transform;
         }
 
@@ -192,70 +188,126 @@
         }
 
         .td-center { text-align: center; }
-        .td-sn-val { font-weight: 700; color: var(--primary-blue); }
-        .td-service-name { font-weight: 700; color: var(--primary-blue); }
+        .td-sn-val, .td-service-name { font-weight: 700; color: var(--primary-blue); }
 
         .doc-list-nepali { list-style: none; padding: 0; margin: 0; }
         .doc-list-nepali li { margin-bottom: 5px; text-align: left; }
         .doc-sn { color: var(--accent-red); font-weight: bold; margin-right: 6px; }
 
-        .loading-msg {
-            text-align: center;
-            font-size: 1.8rem;
-            padding: 50px 0;
-            color: var(--text-muted);
+        .horizontal-scroll-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+            width: 100%;
+            background: #f8fafc;
         }
 
-        .footer-ticker {
-            background-color: #ffffff;
-            padding: 12px 20px;
-            border-top: 3px solid var(--accent-red);
+        .horizontal-scroll-content {
             display: flex;
-            justify-content: center;
+            gap: 35px;
+            position: absolute;
+            white-space: nowrap;
+            will-change: transform;
+            padding: 0 40px;
+        }
+
+        .info-card {
+            background: #ffffff;
+            border: 2px solid #cbd5e1;
+            border-radius: 16px;
+            padding: 20px 25px;
+            text-align: center;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+            display: inline-flex;
+            flex-direction: column;
             align-items: center;
+            gap: 8px;
+            border-top: 6px solid var(--primary-blue);
+            min-width: 280px;
+        }
+
+        .info-card.rep-card {
+            border-top-color: var(--accent-red);
+        }
+
+        .display-profile-img {
+            width: 180px;
+            height: 180px;
+            border-radius: 12px; 
+            object-fit: cover; 
+            border: 4px solid #f1f5f9;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            background-color: #e2e8f0;
+        }
+
+        .info-card h3 {
+            font-size: 1.5rem;
+            color: var(--primary-blue);
+            font-weight: 700;
+            margin-top: 5px;
+        }
+
+        .info-card .designation {
+            font-size: 1.25rem;
+            color: var(--accent-red);
+            font-weight: 700;
+        }
+
+        .info-card .meta-info {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+
+        .main-footer {
+            background-color: #ffffff;
+            border-top: 3px solid var(--accent-red);
+            padding: 10px 20px;
             z-index: 10;
         }
 
-        .contact-scroll-btn {
-            width: 100%;
+        .contact-ticker-wrapper {
             background: linear-gradient(135deg, var(--primary-blue), #1d4ed8);
-            color: #ffffff;
             border: 2px solid var(--gold);
             border-radius: 50px;
-            padding: 12px 25px;
-            font-size: 1.3rem;
-            font-weight: 600;
+            padding: 10px 20px;
             overflow: hidden;
-            white-space: nowrap;
             position: relative;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-            cursor: default;
+            display: flex;
+            align-items: center;
         }
 
-        .marquee-wrapper {
+        .ticker-scroll-content {
             display: inline-block;
+            white-space: nowrap;
             padding-left: 100%;
-            animation: textMarquee 25s linear infinite;
+            animation: tickerMarquee 25s linear infinite;
+            color: #ffffff;
+            font-size: 1.25rem;
+            font-weight: 600;
         }
 
-        .marquee-wrapper span { margin-right: 60px; }
-        .marquee-wrapper i { color: var(--gold); margin-right: 8px; }
+        .ticker-scroll-content span {
+            margin-right: 50px;
+        }
 
-        @keyframes textMarquee {
+        .ticker-scroll-content i {
+            color: var(--gold);
+            margin-right: 8px;
+        }
+
+        @keyframes tickerMarquee {
             0% { transform: translate3d(0, 0, 0); }
             100% { transform: translate3d(-100%, 0, 0); }
         }
-        
-        .contact-scroll-btn:hover .marquee-wrapper {
-            animation-play-state: paused;
-        }
+
 
         .break-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
+            top: 0; left: 0; width: 100vw; height: 100vh;
             background-color: rgba(255, 255, 255, 0.98);
             z-index: 9999;
             display: none; 
@@ -263,7 +315,6 @@
             justify-content: center;
             align-items: center;
             text-align: center;
-            padding: 20px;
         }
 
         .break-box {
@@ -273,69 +324,27 @@
             box-shadow: 0 25px 60px rgba(0,0,0,0.12);
             border-top: 10px solid var(--primary-blue);
             max-width: 750px;
-            width: 100%;
         }
 
-        .break-icon {
-            font-size: 6rem;
-            color: var(--gold);
-            margin-bottom: 25px;
-            animation: namaste-pulse 2s infinite ease-in-out;
-        }
-
-        @keyframes namaste-pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.08); }
-            100% { transform: scale(1); }
-        }
-
-        .break-apology-text {
-            font-size: 1.6rem;
-            font-weight: 600;
-            color: var(--accent-red);
-            margin-bottom: 10px;
-        }
-
-        .break-reason {
-            font-size: 2.6rem;
-            font-weight: 700;
-            color: var(--primary-blue);
-            margin-bottom: 25px;
-        }
-
-        .break-timer {
-            font-size: 4.5rem;
-            font-weight: 700;
-            color: var(--accent-red);
-            background: #fef2f2;
-            padding: 15px 35px;
-            border-radius: 16px;
-            display: inline-block;
-            letter-spacing: 2px;
-            border: 2px dashed var(--accent-red);
-        }
-
-        .break-notice {
-            font-size: 1.3rem;
-            color: var(--text-muted);
-            margin-top: 25px;
-        }
+        .break-icon { font-size: 6rem; color: var(--gold); margin-bottom: 25px; }
+        .break-apology-text { font-size: 1.6rem; font-weight: 600; color: var(--accent-red); }
+        .break-reason { font-size: 2.6rem; font-weight: 700; color: var(--primary-blue); margin-bottom: 25px; }
+        .break-timer { font-size: 4.5rem; font-weight: 700; color: var(--accent-red); background: #fef2f2; padding: 15px 35px; border-radius: 16px; border: 2px dashed var(--accent-red); }
     </style>
 </head>
 <body>
 
+    <!-- खाजा समय पपअप -->
     <div class="break-overlay" id="break-overlay">
         <div class="break-box">
             <div class="break-icon"><i class="fa-solid fa-hands-praying"></i></div>
             <div class="break-apology-text"><i class="fa-solid fa-circle-exclamation"></i> असुविधाको लागि क्षमाप्रार्थी छौँ !</div>
             <div class="break-reason" id="overlay-reason">कार्यालय बन्द</div>
-            <div>
-                <span class="break-timer" id="overlay-countdown">००:००</span>
-            </div>
-            <div class="break-notice">निर्धारित समय समाप्त भएपछि सेवा स्वतः सुचारु हुनेछ।</div>
+            <div><span class="break-timer" id="overlay-countdown">००:००</span></div>
         </div>
     </div>
 
+    <!-- हेडर -->
     <header class="main-header">
         <div class="header-left">
             <img class="header-logo" src="https://upload.wikimedia.org/wikipedia/commons/2/23/Emblem_of_Nepal.svg" alt="Emblem of Nepal">
@@ -344,20 +353,15 @@
                 <p>नगर कार्यपालिकाको कार्यालय, गलकोट बागलुङ</p>
             </div>
         </div>
-        
-        <div class="header-center">
-            <h2>नागरिक बडापत्र</h2>
-        </div>
-
+        <div class="header-center"><h2 id="dynamic-header-title">नागरिक बडापत्र</h2></div>
         <div class="header-right">
-            <button class="fullscreen-btn" id="fs-button" onclick="toggleFullScreen()">
-                <i class="fa-solid fa-expand"></i> Full Screen
-            </button>
+            <button class="fullscreen-btn" id="fs-button" onclick="toggleFullScreen()"><i class="fa-solid fa-expand"></i> Full Screen</button>
             <div class="live-badge"></div>
         </div>
     </header>
 
-    <main class="table-container">
+    <!-- भ्यु १: नागरिक बडापत्र (Vertical Scroll - ३ पटक) -->
+    <main class="view-section active" id="charter-view">
         <div class="table-header-fixed">
             <table class="charter-table">
                 <thead>
@@ -368,36 +372,36 @@
                         <th class="col-dept">जिम्मेवार अधिकारी / शाखा</th>
                         <th class="col-time">लाग्ने समय</th>
                         <th class="col-cost">लाग्ने दस्तुर</th>
-                        <!-- नयाँ थपिएको कोलम हेडर -->
-                        <th class="col-officer">गुनासो सुन्ने अधिकारी</th>
                     </tr>
                 </thead>
             </table>
         </div>
-
         <div class="scroll-container" id="scroll-container">
             <div class="scroll-content" id="scroll-content">
-                <table class="charter-table">
-                    <tbody id="table-body">
-                        <tr>
-                            <td colspan="7" class="loading-msg">
-                                <i class="fa-solid fa-spinner fa-spin"></i> विवरणहरू लोड हुँदैछन्...
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <table class="charter-table"><tbody id="table-body"></tbody></table>
             </div>
         </div>
     </main>
 
-    <footer class="footer-ticker">
-        <div class="contact-scroll-btn">
-            <div class="marquee-wrapper">
-                <span><i class="fa-solid fa-phone"></i> <strong>सम्पर्क फोन नं:</strong> ०६८-५४००११, ०६८-५४००२२</span>
-                <span><i class="fa-solid fa-envelope"></i> <strong>इमेल:</strong> info@galkotmun.gov.np, galkotmunicipality@gmail.com</span>
-                <span><i class="fa-solid fa-globe"></i> <strong>वेबसाइट:</strong> www.galkotmun.gov.np</span>
-                <span><i class="fa-solid fa-location-dot"></i> <strong>कार्यालयको नाम र ठेगाना:</strong> गलकोट नगरपालिका, नगर कार्यपालिकाको कार्यलाय, गलकोट, बागलुङ गण्डकी प्रदेश, नेपाल</span>
-                <span><i class="fa-solid fa-handshake"></i> <strong>"कृषि‚ पर्यटन‚ जलस्रोत‚ स्थानीय सीप र पूर्वाधार: समृद्ध गलकोट निर्माणको मूल आधार"</strong></span>
+    <!-- भ्यु २: कार्यरत कर्मचारी (Horizontal Scroll - १ पटक) -->
+    <main class="view-section" id="staff-view">
+        <div class="horizontal-scroll-container" id="staff-container">
+            <div class="horizontal-scroll-content" id="staff-grid"></div>
+        </div>
+    </main>
+
+    <!-- भ्यु ३: जनप्रतिनिधि विवरण (Horizontal Scroll - १ पटक) -->
+    <main class="view-section" id="rep-view">
+        <div class="horizontal-scroll-container" id="rep-container">
+            <div class="horizontal-scroll-content" id="rep-grid"></div>
+        </div>
+    </main>
+
+    <!-- डायनामिक फुटर (एडमिनले कन्ट्रोल गर्न मिल्ने) -->
+    <footer class="main-footer">
+        <div class="contact-ticker-wrapper">
+            <div class="ticker-scroll-content" id="dynamic-footer-ticker">
+                <span><i class="fa-solid fa-spinner fa-spin"></i>सन्देश तथा जानकारी लोड हुँदैछ...</span>
             </div>
         </div>
     </footer>
@@ -407,102 +411,198 @@
     const supabaseKey = 'sb_publishable_bj8KbSUPJhw9gLi0oR5RCg_6Tbw_Ghr';
     const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-    const tableBody = document.getElementById('table-body');
-    const scrollContent = document.getElementById('scroll-content');
-    const scrollContainer = document.getElementById('scroll-container');
-    let scrollSpeed = 0.7; 
     let animationId = null;
     let countdownInterval = null; 
+    let loopState = "charter"; 
+    let charterScrollCount = 0;
+
+    // स्क्रोल गति सेटिङ
+    const VERTICAL_SPEED = 0.8;   
+    const HORIZONTAL_SPEED = 1.2; 
 
     function convertToNepaliNumerals(text) {
         if (!text) return '';
         const englishDigits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
         const nepaliDigits = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
-        
         return text.toString().split('').map(char => {
             const index = englishDigits.indexOf(char);
             return index > -1 ? nepaliDigits[index] : char;
         }).join('');
     }
 
-    async function fetchCharterData() {
-        const { data, error } = await supabaseClient
-            .from('citizen_charter')
-            .select('*');
+    // स्वचालित रोटेसन इन्जिन
+    function coreAutomationEngine() {
+        if (animationId) cancelAnimationFrame(animationId);
+        
+        document.getElementById('charter-view').classList.remove('active');
+        document.getElementById('staff-view').classList.remove('active');
+        document.getElementById('rep-view').classList.remove('active');
 
-        if (error) {
-            console.error("त्रुटि:", error);
-            return;
+        if (loopState === "charter") {
+            document.getElementById('charter-view').classList.add('active');
+            document.getElementById('dynamic-header-title').innerText = "नागरिक बडापत्र";
+            executeVerticalCharterScroll();
+        } 
+        else if (loopState === "staff") {
+            document.getElementById('staff-view').classList.add('active');
+            document.getElementById('dynamic-header-title').innerText = "कार्यरत कर्मचारीको विवरण";
+            executeHorizontalScroll('staff-container', 'staff-grid', () => {
+                loopState = "rep";
+                coreAutomationEngine();
+            });
+        } 
+        else if (loopState === "rep") {
+            document.getElementById('rep-view').classList.add('active');
+            document.getElementById('dynamic-header-title').innerText = "जनप्रतिनिधिको विवरण";
+            executeHorizontalScroll('rep-container', 'rep-grid', () => {
+                loopState = "charter";
+                charterScrollCount = 0; 
+                coreAutomationEngine();
+            });
         }
-        if (!data || data.length === 0) {
-            tableBody.innerHTML = `<tr><td colspan="7" class="loading-msg">कुनै विवरण फेला परेन।</td></tr>`;
-            return;
-        }
-        renderTableRows(data);
     }
 
-    function renderTableRows(items) {
-        tableBody.innerHTML = '';
-        const displayItems = [...items, ...items, ...items]; 
+    // १. बडापत्र: ३ पटक तलबाट माथि स्क्रोल गराउने संयन्त्र
+    function executeVerticalCharterScroll() {
+        const container = document.getElementById('scroll-container');
+        const content = document.getElementById('scroll-content');
+        
+        let currentY = container.offsetHeight;
+        content.style.transform = `translateY(${currentY}px)`;
 
-        displayItems.forEach((item, globalIndex) => {
-            const row = document.createElement('tr');
-            const mainSn = convertToNepaliNumerals((globalIndex % items.length) + 1);
+        function scrollUp() {
+            currentY -= VERTICAL_SPEED;
+            if (currentY <= -content.scrollHeight) {
+                charterScrollCount++;
+                if (charterScrollCount >= 3) {
+                    loopState = "staff"; 
+                    coreAutomationEngine();
+                    return;
+                } else {
+                    currentY = container.offsetHeight; 
+                }
+            }
+            content.style.transform = `translateY(${currentY}px)`;
+            animationId = requestAnimationFrame(scrollUp);
+        }
+        animationId = requestAnimationFrame(scrollUp);
+    }
 
-            let formattedDocuments = `<span>खुलाइएको छैन</span>`;
+    // २ र ३. कर्मचारी र जनप्रतिनिधि: १ पटक दायाँबाट बायाँ स्क्रोल गर्ने प्रणाली
+    function executeHorizontalScroll(containerId, gridId, onComplete) {
+        const container = document.getElementById(containerId);
+        const grid = document.getElementById(gridId);
+        
+        let currentX = container.offsetWidth;
+        grid.style.transform = `translateX(${currentX}px)`;
+
+        function scrollLeft() {
+            currentX -= HORIZONTAL_SPEED;
+            if (currentX <= -grid.scrollWidth) {
+                onComplete(); 
+                return;
+            }
+            grid.style.transform = `translateX(${currentX}px)`;
+            animationId = requestAnimationFrame(scrollLeft);
+        }
+        animationId = requestAnimationFrame(scrollLeft);
+    }
+
+    // बडापत्र डेटा लोड
+    async function loadCharterData() {
+        const { data, error } = await supabaseClient.from('citizen_charter').select('*');
+        if (error || !data) return;
+        
+        const tbody = document.getElementById('table-body');
+        tbody.innerHTML = '';
+
+        data.forEach((item, index) => {
+            const tr = document.createElement('tr');
+            let docsList = '<span>खुलाइएको छैन</span>';
             if (item.documents) {
-                const listItems = item.documents
-                    .split(',')
-                    .map((doc, docIndex) => {
-                        const nepaliDocSn = convertToNepaliNumerals(docIndex + 1);
-                        return `<li><span class="doc-sn">${nepaliDocSn}.</span>${convertToNepaliNumerals(doc.trim())}</li>`;
-                    })
-                    .join('');
-                formattedDocuments = `<ul class="doc-list-nepali">${listItems}</ul>`;
+                docsList = `<ul class="doc-list-nepali">` + 
+                    item.documents.split(',').map((d, i) => `<li><span class="doc-sn">${convertToNepaliNumerals(i+1)}.</span>${convertToNepaliNumerals(d.trim())}</li>`).join('') + 
+                    `</ul>`;
             }
 
-            // नयाँ थपिएको गुनासो सुन्ने अधिकारी डेटा (item.grievance_officer)
-            row.innerHTML = `
-                <td class="col-sn td-center td-sn-val">${mainSn}</td>
+            tr.innerHTML = `
+                <td class="col-sn td-center td-sn-val">${convertToNepaliNumerals(index + 1)}</td>
                 <td class="col-service td-service-name">${convertToNepaliNumerals(item.service_name)}</td>
-                <td class="col-docs">${formattedDocuments}</td>
+                <td class="col-docs">${docsList}</td>
                 <td class="col-dept td-center">${convertToNepaliNumerals(item.department || '-')}</td>
                 <td class="col-time td-center">${convertToNepaliNumerals(item.duration || '-')}</td>
                 <td class="col-cost td-center">${convertToNepaliNumerals(item.cost || 'निःशुल्क')}</td>
-                <td class="col-officer td-center">${convertToNepaliNumerals(item.grievance_officer || '-')}</td>
             `;
-            tableBody.appendChild(row);
+            tbody.appendChild(tr);
         });
-
-        setTimeout(startScrolling, 500);
     }
 
-    function startScrolling() {
-        if (animationId) cancelAnimationFrame(animationId);
-        
-        let currentY = scrollContainer.offsetHeight;
-        scrollContent.style.transform = `translateY(${currentY}px)`;
-
-        function updateScroll() {
-            currentY -= scrollSpeed;
-            if (Math.abs(currentY) >= (scrollContent.scrollHeight / 1.5)) {
-                currentY = 0; 
-            }
-            scrollContent.style.transform = `translateY(${currentY}px)`;
-            animationId = requestAnimationFrame(updateScroll);
-        }
-        animationId = requestAnimationFrame(updateScroll);
-    }
-
-    async function checkBreakStatus() {
-        const { data, error } = await supabaseClient
-            .from('break_settings')
-            .select('*')
-            .eq('id', 1)
-            .single();
-
+    // कर्मचारी विवरण डेटा लोड
+    async function loadStaffData() {
+        const { data, error } = await supabaseClient.from('employees').select('*').order('id', { ascending: true });
         if (error || !data) return;
 
+        const grid = document.getElementById('staff-grid');
+        grid.innerHTML = '';
+
+        data.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'info-card';
+            const img = item.photo_url ? item.photo_url : 'https://via.placeholder.com/180';
+            card.innerHTML = `
+                <img src="${img}" class="display-profile-img">
+                <h3>${item.name}</h3>
+                <p class="designation">${item.designation}</p>
+                <p class="meta-info"><i class="fa-solid fa-door-open"></i> शाखा/कोठा नं: ${convertToNepaliNumerals(item.room_no)}</p>
+                ${item.phone ? `<p class="meta-info"><i class="fa-solid fa-phone"></i> ${convertToNepaliNumerals(item.phone)}</p>` : ''}
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    // जनप्रतिनिधि डेटा लोड
+    async function loadRepData() {
+        const { data, error } = await supabaseClient.from('representatives').select('*').order('id', { ascending: true });
+        if (error || !data) return;
+
+        const grid = document.getElementById('rep-grid');
+        grid.innerHTML = '';
+
+        data.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'info-card rep-card';
+            const img = item.photo_url ? item.photo_url : 'https://via.placeholder.com/180';
+            card.innerHTML = `
+                <img src="${img}" class="display-profile-img">
+                <h3>${item.name}</h3>
+                <p class="designation">${item.designation}</p>
+                ${item.contact ? `<p class="meta-info"><i class="fa-solid fa-phone"></i> ${convertToNepaliNumerals(item.contact)}</p>` : ''}
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    // खाजा समय पपअप स्थिति र फुटर टिकर टेक्स्ट दुवै जाँच (id: 1 बाट)
+    async function checkBreakAndConfigStatus() {
+        const { data, error } = await supabaseClient.from('break_settings').select('*').eq('id', 1).single();
+        if (error || !data) return;
+
+        // १. फुटर टिकर व्यवस्थापन (Admin Setup)
+        const tickerContainer = document.getElementById('dynamic-footer-ticker');
+        if (data.footer_text) {
+            // यदि एडमिनले डेटाबेसमा धेरै सन्देशहरूलाई कमा (,) दिएर छुट्टाएका छन् भने
+            const segments = data.footer_text.split(',');
+            tickerContainer.innerHTML = segments.map(text => {
+                let icon = 'fa-bell'; // default icon
+                if (text.includes('फोन') || text.includes('सम्पर्क')) icon = 'fa-phone';
+                else if (text.includes('इमेल')) icon = 'fa-envelope';
+                else if (text.includes('वेबसाइट')) icon = 'fa-globe';
+                
+                return `<span><i class="fa-solid ${icon}"></i> ${convertToNepaliNumerals(text.trim())}</span>`;
+            }).join('');
+        }
+
+        // २. खाजा ब्रेक पपअप व्यवस्थापन
         const overlay = document.getElementById('break-overlay');
         const reasonEl = document.getElementById('overlay-reason');
         const countdownEl = document.getElementById('overlay-countdown');
@@ -510,66 +610,51 @@
         if (data.is_active && new Date(data.end_time) > new Date()) {
             reasonEl.innerText = data.reason;
             overlay.style.display = 'flex'; 
+            if (animationId) cancelAnimationFrame(animationId); 
 
             if (countdownInterval) clearInterval(countdownInterval);
-
             countdownInterval = setInterval(() => {
-                const now = new Date().getTime();
-                const target = new Date(data.end_time).getTime();
-                const diff = target - now;
-
+                const diff = new Date(data.end_time).getTime() - new Date().getTime();
                 if (diff <= 0) {
                     clearInterval(countdownInterval);
                     overlay.style.display = 'none'; 
-                    supabaseClient.from('break_settings').update({ is_active: false }).eq('id', 1);
+                    coreAutomationEngine(); 
                 } else {
-                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-                    
-                    const strMins = minutes < 10 ? '0' + minutes : minutes;
-                    const strSecs = seconds < 10 ? '0' + seconds : seconds;
-
-                    countdownEl.innerText = convertToNepaliNumerals(`${strMins}:${strSecs}`);
+                    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const secs = Math.floor((diff % (1000 * 60)) / 1000);
+                    countdownEl.innerText = convertToNepaliNumerals(`${mins < 10 ? '0'+mins : mins}:${secs < 10 ? '0'+secs : secs}`);
                 }
             }, 1000);
         } else {
             if (countdownInterval) clearInterval(countdownInterval);
-            overlay.style.display = 'none';
+            if (overlay.style.display === 'flex') {
+                overlay.style.display = 'none';
+                coreAutomationEngine();
+            }
         }
     }
 
     function toggleFullScreen() {
         if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen().catch(err => {
-                alert(`Error: ${err.message}`);
-            });
+            document.documentElement.requestFullscreen().catch(err => alert(err.message));
         } else {
-            if (document.exitFullscreen) document.exitFullscreen();
+            document.exitFullscreen();
         }
     }
 
-    document.addEventListener('fullscreenchange', () => {
-        document.getElementById('fs-button').style.display = document.fullscreenElement ? 'none' : 'flex';
+    // रियलटाइम डेटा च्यानल (एडमिनले परिवर्तन गर्ने बित्तिकै आफैं अपडेट हुने)
+    supabaseClient.channel('realtime-charter').on('postgres_changes', { event: '*', schema: 'public', table: 'citizen_charter' }, () => loadCharterData()).subscribe();
+    supabaseClient.channel('realtime-employees').on('postgres_changes', { event: '*', schema: 'public', table: 'employees' }, () => loadStaffData()).subscribe();
+    supabaseClient.channel('realtime-reps').on('postgres_changes', { event: '*', schema: 'public', table: 'representatives' }, () => loadRepData()).subscribe();
+    supabaseClient.channel('realtime-break').on('postgres_changes', { event: '*', schema: 'public', table: 'break_settings' }, () => checkBreakAndConfigStatus()).subscribe();
+
+    // सुरुवाती लोड
+    Promise.all([loadCharterData(), loadStaffData(), loadRepData()]).then(() => {
+        checkBreakAndConfigStatus();
+        coreAutomationEngine();
     });
-
-    supabaseClient
-        .channel('schema-db-changes-charter')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'citizen_charter' }, () => {
-            fetchCharterData();
-        })
-        .subscribe();
-
-    supabaseClient
-        .channel('schema-db-changes-break')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'break_settings' }, () => {
-            checkBreakStatus();
-        })
-        .subscribe();
-
-    setInterval(checkBreakStatus, 5000);
-
-    fetchCharterData();
-    checkBreakStatus();
+    
+    setInterval(checkBreakAndConfigStatus, 10000);
 </script>
 </body>
 </html>
