@@ -261,7 +261,6 @@
             font-weight: 600;
         }
 
-
         .main-footer {
             background-color: #ffffff;
             border-top: 3px solid var(--accent-red);
@@ -304,7 +303,6 @@
             100% { transform: translate3d(-100%, 0, 0); }
         }
 
-
         .break-overlay {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
@@ -330,11 +328,109 @@
         .break-apology-text { font-size: 1.6rem; font-weight: 600; color: var(--accent-red); }
         .break-reason { font-size: 2.6rem; font-weight: 700; color: var(--primary-blue); margin-bottom: 25px; }
         .break-timer { font-size: 4.5rem; font-weight: 700; color: var(--accent-red); background: #fef2f2; padding: 15px 35px; border-radius: 16px; border: 2px dashed var(--accent-red); }
+
+        /* === मोबाइल रेस्पोन्सिभ मिडिया क्वेरी === */
+        @media screen and (max-width: 768px) {
+            body {
+                overflow: auto;
+                height: auto;
+            }
+
+            .main-header {
+                flex-direction: column;
+                gap: 10px;
+                padding: 10px;
+                text-align: center;
+            }
+
+            .header-left {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .header-center {
+                position: static;
+                transform: none;
+                margin: 10px 0;
+            }
+
+            .header-center h2 {
+                font-size: 1.8rem;
+            }
+
+            .header-right {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .view-section {
+                height: auto;
+                overflow: visible;
+            }
+
+            #charter-view {
+                overflow-x: auto;
+            }
+
+            .charter-table {
+                width: 750px; 
+            }
+
+            .scroll-container {
+                overflow-x: auto;
+                overflow-y: visible;
+                height: auto;
+            }
+
+            .scroll-content {
+                position: static;
+                transform: none !important;
+            }
+
+            .horizontal-scroll-container {
+                overflow-x: auto;
+                white-space: normal;
+                padding: 15px 5px;
+            }
+
+            .horizontal-scroll-content {
+                position: static;
+                transform: none !important;
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+                gap: 15px;
+                width: 100%;
+                padding: 0;
+                white-space: normal;
+            }
+
+            .info-card {
+                min-width: 0;
+                width: 100%;
+            }
+
+            .display-profile-img {
+                width: 140px;
+                height: 140px;
+            }
+
+            .break-box {
+                padding: 20px;
+                margin: 15px;
+            }
+
+            .break-reason {
+                font-size: 1.8rem;
+            }
+
+            .break-timer {
+                font-size: 2.5rem;
+            }
+        }
     </style>
 </head>
 <body>
 
-    <!-- खाजा समय पपअप -->
     <div class="break-overlay" id="break-overlay">
         <div class="break-box">
             <div class="break-icon"><i class="fa-solid fa-hands-praying"></i></div>
@@ -344,7 +440,6 @@
         </div>
     </div>
 
-    <!-- हेडर -->
     <header class="main-header">
         <div class="header-left">
             <img class="header-logo" src="https://upload.wikimedia.org/wikipedia/commons/2/23/Emblem_of_Nepal.svg" alt="Emblem of Nepal">
@@ -360,7 +455,6 @@
         </div>
     </header>
 
-    <!-- भ्यु १: नागरिक बडापत्र (Vertical Scroll - ३ पटक) -->
     <main class="view-section active" id="charter-view">
         <div class="table-header-fixed">
             <table class="charter-table">
@@ -383,21 +477,18 @@
         </div>
     </main>
 
-    <!-- भ्यु २: कार्यरत कर्मचारी (Horizontal Scroll - १ पटक) -->
     <main class="view-section" id="staff-view">
         <div class="horizontal-scroll-container" id="staff-container">
             <div class="horizontal-scroll-content" id="staff-grid"></div>
         </div>
     </main>
 
-    <!-- भ्यु ३: जनप्रतिनिधि विवरण (Horizontal Scroll - १ पटक) -->
     <main class="view-section" id="rep-view">
         <div class="horizontal-scroll-container" id="rep-container">
             <div class="horizontal-scroll-content" id="rep-grid"></div>
         </div>
     </main>
 
-    <!-- डायनामिक फुटर (एडमिनले कन्ट्रोल गर्न मिल्ने) -->
     <footer class="main-footer">
         <div class="contact-ticker-wrapper">
             <div class="ticker-scroll-content" id="dynamic-footer-ticker">
@@ -416,9 +507,9 @@
     let loopState = "charter"; 
     let charterScrollCount = 0;
 
-    // स्क्रोल गति सेटिङ
-    const VERTICAL_SPEED = 2;   
-    const HORIZONTAL_SPEED = 5.1; 
+    // स्क्रोल गति सेटिङ (मोबाइल बाहेक ठूलो स्क्रिनको लागि)
+    const VERTICAL_SPEED = 1.2;   
+    const HORIZONTAL_SPEED = 5.1; // २.५ बनाएर गति थप तीव्र पारिएको छ
 
     function convertToNepaliNumerals(text) {
         if (!text) return '';
@@ -438,27 +529,34 @@
         document.getElementById('staff-view').classList.remove('active');
         document.getElementById('rep-view').classList.remove('active');
 
+        // मोबाइल डिभाइस हो कि होइन जाँच गर्ने (७६८ पिक्सेल भन्दा सानो स्क्रिनमा एनिमेसन रोक्ने)
+        const isMobile = window.innerWidth <= 768;
+
         if (loopState === "charter") {
             document.getElementById('charter-view').classList.add('active');
             document.getElementById('dynamic-header-title').innerText = "नागरिक बडापत्र";
-            executeVerticalCharterScroll();
+            if (!isMobile) executeVerticalCharterScroll();
         } 
         else if (loopState === "staff") {
             document.getElementById('staff-view').classList.add('active');
             document.getElementById('dynamic-header-title').innerText = "कार्यरत कर्मचारीको विवरण";
-            executeHorizontalScroll('staff-container', 'staff-grid', () => {
-                loopState = "rep";
-                coreAutomationEngine();
-            });
+            if (!isMobile) {
+                executeHorizontalScroll('staff-container', 'staff-grid', () => {
+                    loopState = "rep";
+                    coreAutomationEngine();
+                });
+            }
         } 
         else if (loopState === "rep") {
             document.getElementById('rep-view').classList.add('active');
             document.getElementById('dynamic-header-title').innerText = "जनप्रतिनिधिको विवरण";
-            executeHorizontalScroll('rep-container', 'rep-grid', () => {
-                loopState = "charter";
-                charterScrollCount = 0; 
-                coreAutomationEngine();
-            });
+            if (!isMobile) {
+                executeHorizontalScroll('rep-container', 'rep-grid', () => {
+                    loopState = "charter";
+                    charterScrollCount = 0; 
+                    coreAutomationEngine();
+                });
+            }
         }
     }
 
@@ -590,10 +688,9 @@
         // १. फुटर टिकर व्यवस्थापन (Admin Setup)
         const tickerContainer = document.getElementById('dynamic-footer-ticker');
         if (data.footer_text) {
-            // यदि एडमिनले डेटाबेसमा धेरै सन्देशहरूलाई कमा (,) दिएर छुट्टाएका छन् भने
             const segments = data.footer_text.split(',');
             tickerContainer.innerHTML = segments.map(text => {
-                let icon = 'fa-bell'; // default icon
+                let icon = 'fa-bell'; 
                 if (text.includes('फोन') || text.includes('सम्पर्क')) icon = 'fa-phone';
                 else if (text.includes('इमेल')) icon = 'fa-envelope';
                 else if (text.includes('वेबसाइट')) icon = 'fa-globe';
@@ -642,7 +739,12 @@
         }
     }
 
-    // रियलटाइम डेटा च्यानल (एडमिनले परिवर्तन गर्ने बित्तिकै आफैं अपडेट हुने)
+    // स्क्रिन साइज परिवर्तन हुँदा स्वतः लोड व्यवस्थापन मिलाउने
+    window.addEventListener('resize', () => {
+        coreAutomationEngine();
+    });
+
+    // रियलटाइम डेटा च्यानल
     supabaseClient.channel('realtime-charter').on('postgres_changes', { event: '*', schema: 'public', table: 'citizen_charter' }, () => loadCharterData()).subscribe();
     supabaseClient.channel('realtime-employees').on('postgres_changes', { event: '*', schema: 'public', table: 'employees' }, () => loadStaffData()).subscribe();
     supabaseClient.channel('realtime-reps').on('postgres_changes', { event: '*', schema: 'public', table: 'representatives' }, () => loadRepData()).subscribe();
