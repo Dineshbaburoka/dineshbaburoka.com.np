@@ -417,8 +417,8 @@
     let charterScrollCount = 0;
 
     // स्क्रोल गति सेटिङ
-    const VERTICAL_SPEED = 0.8;   
-    const HORIZONTAL_SPEED = 1.2; 
+    const VERTICAL_SPEED = 1;   
+    const HORIZONTAL_SPEED = 3; 
 
     function convertToNepaliNumerals(text) {
         if (!text) return '';
@@ -474,7 +474,7 @@
             currentY -= VERTICAL_SPEED;
             if (currentY <= -content.scrollHeight) {
                 charterScrollCount++;
-                if (charterScrollCount >= 3) {
+                if (charterScrollCount >= 1) {
                     loopState = "staff"; 
                     coreAutomationEngine();
                     return;
