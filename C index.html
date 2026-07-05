@@ -508,8 +508,8 @@
     let charterScrollCount = 0;
 
     // स्क्रोल गति सेटिङ (मोबाइल बाहेक ठूलो स्क्रिनको लागि)
-    const VERTICAL_SPEED = 0.8;   
-    const HORIZONTAL_SPEED = 2.5; // २.५ बनाएर गति थप तीव्र पारिएको छ
+    const VERTICAL_SPEED = 1.2;   
+    const HORIZONTAL_SPEED = 5.1; // २.५ बनाएर गति थप तीव्र पारिएको छ
 
     function convertToNepaliNumerals(text) {
         if (!text) return '';
@@ -572,7 +572,7 @@
             currentY -= VERTICAL_SPEED;
             if (currentY <= -content.scrollHeight) {
                 charterScrollCount++;
-                if (charterScrollCount >= 3) {
+                if (charterScrollCount >= 1) {
                     loopState = "staff"; 
                     coreAutomationEngine();
                     return;
