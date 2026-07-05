@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>गलकोट नगरपालिका - नागरिक बडापत्र</title>
-    <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Mukta:wght=400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
@@ -32,704 +32,412 @@
             color: var(--text-dark);
             overflow: hidden;
             height: 100vh;
-            width: 100vw;
             display: flex;
             flex-direction: column;
         }
 
+        /* माथिल्लो हेडर */
         .main-header {
-            background: #ffffff;
-            padding: 10px 20px;
+            background: linear-gradient(135deg, var(--primary-blue), #1e40af);
+            color: white;
+            padding: 12px 24px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            border-bottom: 4px solid var(--accent-red);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
             z-index: 10;
-            position: relative;
+            border-bottom: 4px solid var(--gold);
         }
 
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
+        .header-left { display: flex; align-items: center; gap: 20px; }
+        .gov-logo { width: 85px; height: 85px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); }
+        .header-title h1 { font-size: 1.9rem; font-weight: 800; letter-spacing: 0.5px; line-height: 1.2; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); }
+        .header-title p { font-size: 1.1rem; color: #93c5fd; font-weight: 600; }
 
-        .header-logo {
-            height: 70px;
-            width: auto;
+        .header-right { 
+            text-align: center; 
+            background: rgba(255,255,255,0.1); 
+            padding: 12px 20px; 
+            border-radius: 12px; 
+            border: 1px solid rgba(255,255,255,0.2); 
+            width: 310px; 
         }
+        .time-box { font-size: 1.75rem; font-weight: 800; color: #ffffff; font-variant-numeric: tabular-nums; letter-spacing: 0.5px; }
 
-        .header-title h1 {
-            font-size: 1.6rem;
-            font-weight: 700;
-            color: var(--accent-red);
-            line-height: 1.2;
-        }
-
-        .header-title p {
-            color: var(--primary-blue);
-            font-size: 1.1rem;
-            font-weight: 600;
-        }
-
-        .header-center {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            text-align: center;
-        }
-
-        .header-center h2 {
-            font-size: 2.6rem;
-            font-weight: 800;
-            color: var(--primary-blue);
-            letter-spacing: 1px;
-            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
-            border-bottom: 3px solid var(--gold);
-            padding-bottom: 2px;
-            line-height: 1;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .fullscreen-btn {
-            background-color: var(--primary-blue);
-            color: #fff;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .live-badge {
-            background-color: #10b981; 
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: inline-block;
-            box-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
-            animation: pulse-glow 1.5s infinite ease-in-out;
-        }
-
-        @keyframes pulse-glow {
-            0% { transform: scale(0.9); opacity: 0.3; }
-            50% { transform: scale(1.1); opacity: 1; box-shadow: 0 0 25px rgba(16, 185, 129, 1); }
-            100% { transform: scale(0.9); opacity: 0.3; }
-        }
-
-        /* --- View Containers --- */
-        .view-section {
-            display: none; 
+        /* मुख्य लेआउट संरचना */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 420px; 
             flex: 1;
-            flex-direction: column;
-            overflow: hidden;
-            width: 100%;
-            padding: 10px;
-        }
-
-        .view-section.active {
-            display: flex;
-        }
-
-        /* १. बडापत्र संरचना */
-        .charter-table {
-            width: 100%;
-            border-collapse: collapse;
-            table-layout: fixed;
-        }
-
-        .col-sn { width: 5%; }       
-        .col-service { width: 22%; }  
-        .col-docs { width: 33%; }     
-        .col-dept { width: 15%; }     
-        .col-time { width: 13%; }     
-        .col-cost { width: 12%; }     
-
-        .table-header-fixed th {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: var(--table-header-color);
-            text-align: center;
-            padding: 12px 5px;
-            border: 2px solid var(--border-red);
-            background: #ffffff;
-        }
-
-        .scroll-container {
-            flex: 1;
-            overflow: hidden;
-            position: relative;
-            margin-top: -2px;
-        }
-
-        .scroll-content {
-            position: absolute;
-            width: 100%;
-            will-change: transform;
-        }
-
-        .charter-table tbody td {
-            font-size: 1.15rem;
-            padding: 12px 10px;
-            vertical-align: top;
-            line-height: 1.4;
-            word-wrap: break-word;
-            border: 2px solid var(--border-red);
-        }
-
-        .td-center { text-align: center; }
-        .td-sn-val, .td-service-name { font-weight: 700; color: var(--primary-blue); }
-
-        .doc-list-nepali { list-style: none; padding: 0; margin: 0; }
-        .doc-list-nepali li { margin-bottom: 5px; text-align: left; }
-        .doc-sn { color: var(--accent-red); font-weight: bold; margin-right: 6px; }
-
-        .horizontal-scroll-container {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            overflow: hidden;
-            position: relative;
-            width: 100%;
+            height: calc(100vh - 150px); 
             background: #f8fafc;
         }
 
-        .horizontal-scroll-content {
-            display: flex;
-            gap: 35px;
-            position: absolute;
-            white-space: nowrap;
-            will-change: transform;
-            padding: 0 40px;
-        }
-
-        .info-card {
-            background: #ffffff;
-            border: 2px solid #cbd5e1;
-            border-radius: 16px;
-            padding: 20px 25px;
-            text-align: center;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
-            display: inline-flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            border-top: 6px solid var(--primary-blue);
-            min-width: 280px;
-        }
-
-        .info-card.rep-card {
-            border-top-color: var(--accent-red);
-        }
-
-        .display-profile-img {
-            width: 180px;
-            height: 180px;
-            border-radius: 12px; 
-            object-fit: cover; 
-            border: 4px solid #f1f5f9;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-            background-color: #e2e8f0;
-        }
-
-        .info-card h3 {
-            font-size: 1.5rem;
-            color: var(--primary-blue);
-            font-weight: 700;
-            margin-top: 5px;
-        }
-
-        .info-card .designation {
-            font-size: 1.25rem;
-            color: var(--accent-red);
-            font-weight: 700;
-        }
-
-        .info-card .meta-info {
-            font-size: 1.1rem;
-            color: var(--text-muted);
-            font-weight: 600;
-        }
-
-        .main-footer {
-            background-color: #ffffff;
-            border-top: 3px solid var(--accent-red);
-            padding: 10px 20px;
-            z-index: 10;
-        }
-
-        .contact-ticker-wrapper {
-            background: linear-gradient(135deg, var(--primary-blue), #1d4ed8);
-            border: 2px solid var(--gold);
-            border-radius: 50px;
-            padding: 10px 20px;
+        /* बायाँ भाग: बडापत्र तालिका स्क्रोलर */
+        .charter-section {
+            padding: 15px;
             overflow: hidden;
             position: relative;
             display: flex;
-            align-items: center;
+            flex-direction: column;
+            border-right: 2px solid #e2e8f0;
         }
 
-        .ticker-scroll-content {
+        .section-header {
+            background: var(--primary-blue);
+            color: white;
+            padding: 10px 20px;
+            font-size: 1.35rem;
+            font-weight: 700;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .table-header-row {
+            display: grid;
+            grid-template-columns: 70px 1.5fr 2fr 1.2fr 110px 110px;
+            background: var(--table-header-color);
+            color: white;
+            font-weight: 700;
+            font-size: 1.15rem;
+            padding: 12px 10px;
+            border-bottom: 2px solid var(--border-red);
+        }
+
+        .table-header-row > div { padding: 0 8px; display: flex; align-items: center; justify-content: flex-start; }
+        .table-header-row > .center-ch, .charter-row > .center-ch { justify-content: center; text-align: center; }
+
+        .scroller-viewport {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+            background: white;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+            border-top: none;
+        }
+
+        .scroller-content {
+            position: absolute;
+            width: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        .charter-row {
+            display: grid;
+            grid-template-columns: 70px 1.5fr 2fr 1.2fr 110px 110px;
+            border-bottom: 1px solid #e2e8f0;
+            background: white;
+            font-size: 1.1rem;
+            min-height: 80px; 
+            transition: background 0.2s;
+        }
+        .charter-row:nth-child(even) { background: #fff8f8; }
+
+        .charter-row > div {
+            padding: 12px 10px;
+            display: flex;
+            align-items: center;
+            color: var(--text-dark);
+            line-height: 1.4;
+        }
+
+        .sn-cell { font-weight: 700; color: #64748b; font-size: 1.1rem; }
+        .service-cell { font-weight: 700; font-size: 1.15rem; color: #0f172a; }
+        .doc-cell { font-size: 1.05rem; color: #334155; white-space: pre-line; text-align: left; align-items: flex-start !important; padding-top: 12px; }
+        .dept-cell { font-weight: 700; color: var(--primary-blue) !important; font-size: 1.1rem; }
+        .time-cell { font-weight: 700; color: #b45309; font-size: 1.05rem; }
+        .cost-cell { font-weight: 700; color: #047857; font-size: 1.05rem; }
+
+        /* दायाँ भाग: साइडबार */
+        .sidebar-section {
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border-left: 1px solid #e2e8f0;
+            box-shadow: -4px 0 15px rgba(0,0,0,0.02);
+        }
+
+        .sidebar-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .panel-title {
+            background: var(--primary-blue);
+            color: white;
+            padding: 10px 15px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border-bottom: 3px solid var(--gold);
+        }
+
+        .panel-title.rep-title { background: #dc2626; }
+
+        .sidebar-viewport {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+            padding: 10px;
+            background: #fafafa;
+        }
+
+        .sidebar-content {
+            position: absolute;
+            width: calc(100% - 20px);
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* इन्फो कार्ड स्टाइलिङ */
+        .info-card {
+            background: white;
+            border-radius: 12px;
+            padding: 10px 15px;
+            display: grid;
+            grid-template-columns: 85px 1fr;
+            gap: 12px;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.04);
+            border: 1px solid #e2e8f0;
+            border-left: 5px solid var(--primary-blue);
+        }
+
+        .info-card.rep-card { border-left-color: var(--accent-red); }
+
+        .display-profile-img {
+            width: 85px;
+            height: 85px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #f1f5f9;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            background-color: #e2e8f0;
+        }
+
+        .card-details h3 { font-size: 1.15rem; color: #0f172a; font-weight: 700; margin-bottom: 2px; }
+        .card-details .designation { font-size: 0.95rem; color: var(--accent-red); font-weight: 700; margin-bottom: 3px; }
+        .info-card.rep-card .card-details .designation { color: var(--primary-blue); }
+        .card-details .meta-info { font-size: 0.9rem; color: var(--text-muted); font-weight: 600; display: flex; align-items: center; gap: 5px; }
+        .card-details .meta-info i { color: #94a3b8; width: 14px; }
+
+        /* तलको स्क्रोलिङ टिकर सूचना पट्टी */
+        .ticker-section {
+            background: #0f172a;
+            color: #ffffff;
+            height: 55px;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            border-top: 4px solid var(--gold);
+            z-index: 10;
+        }
+
+        .ticker-label {
+            background: var(--accent-red);
+            padding: 0 24px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            font-weight: 800;
+            font-size: 1.2rem;
+            white-space: nowrap;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.3);
+            z-index: 2;
+            position: relative;
+        }
+
+        .ticker-viewport { flex: 1; overflow: hidden; position: relative; height: 100%; display: flex; align-items: center; }
+        
+        .ticker-wrap {
             display: inline-block;
             white-space: nowrap;
-            padding-left: 100%;
-            animation: tickerMarquee 25s linear infinite;
-            color: #ffffff;
+            position: absolute;
+            will-change: transform;
             font-size: 1.25rem;
             font-weight: 600;
+            color: #f8fafc;
         }
+        
+        .ticker-item { display: inline-block; padding: 0 40px; }
+        .ticker-item::after { content: "•"; color: var(--gold); margin-left: 40px; font-size: 1.6rem; vertical-align: middle; }
 
-        .ticker-scroll-content span {
-            margin-right: 50px;
-        }
-
-        .ticker-scroll-content i {
-            color: var(--gold);
-            margin-right: 8px;
-        }
-
-        @keyframes tickerMarquee {
-            0% { transform: translate3d(0, 0, 0); }
-            100% { transform: translate3d(-100%, 0, 0); }
-        }
-
+        /* ओभरले विन्डो (सेवा स्थगन) */
         .break-overlay {
+            display: none;
             position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background-color: rgba(255, 255, 255, 0.98);
-            z-index: 9999;
-            display: none; 
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.98);
+            z-index: 1000;
+            color: white;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
             text-align: center;
         }
 
-        .break-box {
-            background: #ffffff;
-            padding: 45px 60px;
-            border-radius: 24px;
-            box-shadow: 0 25px 60px rgba(0,0,0,0.12);
-            border-top: 10px solid var(--primary-blue);
-            max-width: 750px;
+        .break-box { background: rgba(255, 255, 255, 0.05); padding: 40px 60px; border-radius: 24px; border: 2px solid rgba(255,255,255,0.1); box-shadow: 0 20px 50px rgba(0,0,0,0.5); max-width: 800px; width: 90%; }
+        .break-box i { font-size: 5rem; color: var(--gold); margin-bottom: 20px; animation: pulse 2s infinite; }
+        .break-box h2 { font-size: 2.8rem; font-weight: 800; color: #ffffff; margin-bottom: 15px; }
+        .break-box p.reason { font-size: 1.6rem; color: #cbd5e1; margin-bottom: 20px; font-weight: 600; line-height: 1.5; }
+        .break-box p.apology { font-size: 1.4rem; color: #f87171; margin-bottom: 30px; font-weight: 600; }
+        .countdown-timer { font-size: 4rem; font-weight: 800; color: var(--accent-red); background: #ffffff; padding: 10px 40px; border-radius: 16px; display: inline-block; font-variant-numeric: tabular-nums; box-shadow: inset 0 2px 10px rgba(0,0,0,0.2); }
+        .break-footer { margin-top: 40px; font-size: 1.2rem; color: #94a3b8; font-weight: 600; }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
         }
 
-        .break-icon { font-size: 6rem; color: var(--gold); margin-bottom: 25px; }
-        .break-apology-text { font-size: 1.6rem; font-weight: 600; color: var(--accent-red); }
-        .break-reason { font-size: 2.6rem; font-weight: 700; color: var(--primary-blue); margin-bottom: 25px; }
-        .break-timer { font-size: 4.5rem; font-weight: 700; color: var(--accent-red); background: #fef2f2; padding: 15px 35px; border-radius: 16px; border: 2px dashed var(--accent-red); }
-
-        /* === मोबाइल रेस्पोन्सिभ मिडिया क्वेरी === */
-        @media screen and (max-width: 768px) {
-            body {
-                overflow: auto;
-                height: auto;
-            }
-
-            .main-header {
-                flex-direction: column;
-                gap: 10px;
-                padding: 10px;
-                text-align: center;
-            }
-
-            .header-left {
-                flex-direction: column;
-                gap: 5px;
-            }
-
-            .header-center {
-                position: static;
-                transform: none;
-                margin: 10px 0;
-            }
-
-            .header-center h2 {
-                font-size: 1.8rem;
-            }
-
-            .header-right {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .view-section {
-                height: auto;
-                overflow: visible;
-            }
-
-            #charter-view {
-                overflow-x: auto;
-            }
-
-            .charter-table {
-                width: 750px; 
-            }
-
-            .scroll-container {
-                overflow-x: auto;
-                overflow-y: visible;
-                height: auto;
-            }
-
-            .scroll-content {
-                position: static;
-                transform: none !important;
-            }
-
-            .horizontal-scroll-container {
-                overflow-x: auto;
-                white-space: normal;
-                padding: 15px 5px;
-            }
-
-            .horizontal-scroll-content {
-                position: static;
-                transform: none !important;
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-                gap: 15px;
-                width: 100%;
-                padding: 0;
-                white-space: normal;
-            }
-
-            .info-card {
-                min-width: 0;
-                width: 100%;
-            }
-
-            .display-profile-img {
-                width: 140px;
-                height: 140px;
-            }
-
-            .break-box {
-                padding: 20px;
-                margin: 15px;
-            }
-
-            .break-reason {
-                font-size: 1.8rem;
-            }
-
-            .break-timer {
-                font-size: 2.5rem;
-            }
+        /* फुलस्क्रिन बटन */
+        .fs-toggle-btn {
+            position: fixed; top: 12px; right: 325px; z-index: 100;
+            background: rgba(255,255,255,0.2); color: white; border: none;
+            padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 0.85rem;
+            transition: opacity 0.3s ease;
         }
+        .fs-toggle-btn:hover { background: rgba(255,255,255,0.3); }
     </style>
 </head>
 <body>
 
-    <div class="break-overlay" id="break-overlay">
-        <div class="break-box">
-            <div class="break-icon"><i class="fa-solid fa-hands-praying"></i></div>
-            <div class="break-apology-text"><i class="fa-solid fa-circle-exclamation"></i> असुविधाको लागि क्षमाप्रार्थी छौँ !</div>
-            <div class="break-reason" id="overlay-reason">कार्यालय बन्द</div>
-            <div><span class="break-timer" id="overlay-countdown">००:००</span></div>
+<button id="fullscreen-btn" class="fs-toggle-btn" onclick="toggleFullScreen()"><i class="fa-solid fa-expand"></i> Fullscreen</button>
+
+<div id="break-overlay" class="break-overlay">
+    <div class="break-box">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <h2 id="overlay-title">सेवा स्थगनको सूचना</h2>
+        <p class="reason" id="overlay-reason">विशेष कारणवश सेवा केही समयको लागि स्थगित गरिएको छ।</p>
+        <p class="apology"><i class="fa-solid fa-hand-holding-heart"></i> सेवाग्राहीमा पर्न गएको असुविधाप्रति हामी क्षमाप्रार्थी छौँ।</p>
+        <div>
+            <div class="countdown-timer" id="countdown-display">००:००</div>
+        </div>
+        <div class="break-footer">गलकोट नगरपालिका, नगर कार्यपालिकाको कार्यालय</div>
+    </div>
+</div>
+
+<header class="main-header">
+    <div class="header-left">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/2/23/Emblem_of_Nepal.svg" alt="Nepal Gov Logo" class="gov-logo">
+        <div class="header-title">
+            <h1>गलकोट नगरपालिका</h1>
+            <p>नगर कार्यपालिकाको कार्यालय, गण्डकी प्रदेश, नेपाल</p>
         </div>
     </div>
+    <div class="header-right">
+        <div class="time-box" id="live-time">००:००:०० लोड हुँदै...</div>
+    </div>
+</header>
 
-    <header class="main-header">
-        <div class="header-left">
-            <img class="header-logo" src="https://upload.wikimedia.org/wikipedia/commons/2/23/Emblem_of_Nepal.svg" alt="Emblem of Nepal">
-            <div class="header-title">
-                <h1>गलकोट नगरपालिका</h1>
-                <p>नगर कार्यपालिकाको कार्यालय, गलकोट बागलुङ</p>
+<main class="main-layout">
+    
+    <section class="charter-section">
+        <div class="section-header">
+            <i class="fa-solid fa-file-invoice"></i> डिजिटल नागरिक बडापत्र (Citizen Charter)
+        </div>
+        
+        <div class="table-header-row">
+            <div class="center-ch">क्र.स.</div>
+            <div>सेवा/सुविधाको नाम</div>
+            <div>आवश्यक पर्ने कागजातहरू</div>
+            <div>जिम्मेवार अधिकारी / शाखा</div>
+            <div class="center-ch">लाग्ने समय</div>
+            <div class="center-ch">लाग्ने दस्तुर</div>
+        </div>
+
+        <div class="scroller-viewport" id="charter-viewport">
+            <div class="scroller-content" id="charter-table-body"></div>
+        </div>
+    </section>
+
+    <section class="sidebar-section">
+        
+        <div class="sidebar-panel" style="border-bottom: 2px solid #e2e8f0;">
+            <div class="panel-title rep-title"><i class="fa-solid fa-user-shield"></i> जनप्रतिनिधि विवरण</div>
+            <div class="sidebar-viewport" id="rep-viewport">
+                <div class="sidebar-content" id="rep-grid"></div>
             </div>
         </div>
-        <div class="header-center"><h2 id="dynamic-header-title">नागरिक बडापत्र</h2></div>
-        <div class="header-right">
-            <button class="fullscreen-btn" id="fs-button" onclick="toggleFullScreen()"><i class="fa-solid fa-expand"></i> Full Screen</button>
-            <div class="live-badge"></div>
-        </div>
-    </header>
 
-    <main class="view-section active" id="charter-view">
-        <div class="table-header-fixed">
-            <table class="charter-table">
-                <thead>
-                    <tr>
-                        <th class="col-sn">क्र.स.</th>
-                        <th class="col-service">सेवा/सुविधाको नाम</th>
-                        <th class="col-docs">आवश्यक पर्ने कागजातहरू</th>
-                        <th class="col-dept">जिम्मेवार अधिकारी / शाखा</th>
-                        <th class="col-time">लाग्ने समय</th>
-                        <th class="col-cost">लाग्ने दस्तुर</th>
-                    </tr>
-                </thead>
-            </table>
-        </div>
-        <div class="scroll-container" id="scroll-container">
-            <div class="scroll-content" id="scroll-content">
-                <table class="charter-table"><tbody id="table-body"></tbody></table>
+        <div class="sidebar-panel">
+            <div class="panel-title"><i class="fa-solid fa-user-tie"></i> कार्यरत कर्मचारीहरू</div>
+            <div class="sidebar-viewport" id="staff-viewport">
+                <div class="sidebar-content" id="staff-grid"></div>
             </div>
         </div>
-    </main>
 
-    <main class="view-section" id="staff-view">
-        <div class="horizontal-scroll-container" id="staff-container">
-            <div class="horizontal-scroll-content" id="staff-grid"></div>
-        </div>
-    </main>
+    </section>
+</main>
 
-    <main class="view-section" id="rep-view">
-        <div class="horizontal-scroll-container" id="rep-container">
-            <div class="horizontal-scroll-content" id="rep-grid"></div>
-        </div>
-    </main>
-
-    <footer class="main-footer">
-        <div class="contact-ticker-wrapper">
-            <div class="ticker-scroll-content" id="dynamic-footer-ticker">
-                <span><i class="fa-solid fa-spinner fa-spin"></i>सन्देश तथा जानकारी लोड हुँदैछ...</span>
-            </div>
-        </div>
-    </footer>
+<footer class="ticker-section">
+    <div class="ticker-label"><i class="fa-solid fa-bullhorn"></i> &nbsp;सूचना सन्देश :</div>
+    <div class="ticker-viewport" id="ticker-viewport">
+        <div class="ticker-wrap" id="ticker-container"></div>
+    </div>
+</footer>
 
 <script>
     const supabaseUrl = 'https://mowcqzipcnwcowghnarh.supabase.co';
     const supabaseKey = 'sb_publishable_bj8KbSUPJhw9gLi0oR5RCg_6Tbw_Ghr';
     const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-    let animationId = null;
-    let countdownInterval = null; 
-    let loopState = "charter"; 
-    let charterScrollCount = 0;
-
-    // स्क्रोल गति सेटिङ (मोबाइल बाहेक ठूलो स्क्रिनको लागि)
-    const VERTICAL_SPEED = 1.2;   
-    const HORIZONTAL_SPEED = 5.1; // २.५ बनाएर गति थप तीव्र पारिएको छ
-
-    function convertToNepaliNumerals(text) {
-        if (!text) return '';
-        const englishDigits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+    function convertToNepaliNumerals(numStr) {
+        if (numStr === null || numStr === undefined) return '';
         const nepaliDigits = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
-        return text.toString().split('').map(char => {
-            const index = englishDigits.indexOf(char);
-            return index > -1 ? nepaliDigits[index] : char;
-        }).join('');
+        return numStr.toString().replace(/[0-9]/g, match => nepaliDigits[parseInt(match)]);
     }
 
-    // स्वचालित रोटेसन इन्जिन
-    function coreAutomationEngine() {
-        if (animationId) cancelAnimationFrame(animationId);
+    function updateLiveClock() {
+        const now = new Date();
+        let hours = now.getHours();
+        let minutes = now.getMinutes();
+        let seconds = now.getSeconds();
         
-        document.getElementById('charter-view').classList.remove('active');
-        document.getElementById('staff-view').classList.remove('active');
-        document.getElementById('rep-view').classList.remove('active');
-
-        // मोबाइल डिभाइस हो कि होइन जाँच गर्ने (७६८ पिक्सेल भन्दा सानो स्क्रिनमा एनिमेसन रोक्ने)
-        const isMobile = window.innerWidth <= 768;
-
-        if (loopState === "charter") {
-            document.getElementById('charter-view').classList.add('active');
-            document.getElementById('dynamic-header-title').innerText = "नागरिक बडापत्र";
-            if (!isMobile) executeVerticalCharterScroll();
-        } 
-        else if (loopState === "staff") {
-            document.getElementById('staff-view').classList.add('active');
-            document.getElementById('dynamic-header-title').innerText = "कार्यरत कर्मचारीको विवरण";
-            if (!isMobile) {
-                executeHorizontalScroll('staff-container', 'staff-grid', () => {
-                    loopState = "rep";
-                    coreAutomationEngine();
-                });
-            }
-        } 
-        else if (loopState === "rep") {
-            document.getElementById('rep-view').classList.add('active');
-            document.getElementById('dynamic-header-title').innerText = "जनप्रतिनिधिको विवरण";
-            if (!isMobile) {
-                executeHorizontalScroll('rep-container', 'rep-grid', () => {
-                    loopState = "charter";
-                    charterScrollCount = 0; 
-                    coreAutomationEngine();
-                });
-            }
-        }
-    }
-
-    // १. बडापत्र: ३ पटक तलबाट माथि स्क्रोल गराउने संयन्त्र
-    function executeVerticalCharterScroll() {
-        const container = document.getElementById('scroll-container');
-        const content = document.getElementById('scroll-content');
+        let timePeriodLabel = "";
+        if (hours >= 0 && hours < 4) timePeriodLabel = "राति";
+        else if (hours >= 4 && hours < 12) timePeriodLabel = "बिहान";
+        else if (hours >= 12 && hours < 16) timePeriodLabel = "दिउँसो";
+        else if (hours >= 16 && hours < 20) timePeriodLabel = "अपराह्न";
+        else timePeriodLabel = "बेलुका";
         
-        let currentY = container.offsetHeight;
-        content.style.transform = `translateY(${currentY}px)`;
-
-        function scrollUp() {
-            currentY -= VERTICAL_SPEED;
-            if (currentY <= -content.scrollHeight) {
-                charterScrollCount++;
-                if (charterScrollCount >= 1) {
-                    loopState = "staff"; 
-                    coreAutomationEngine();
-                    return;
-                } else {
-                    currentY = container.offsetHeight; 
-                }
-            }
-            content.style.transform = `translateY(${currentY}px)`;
-            animationId = requestAnimationFrame(scrollUp);
-        }
-        animationId = requestAnimationFrame(scrollUp);
-    }
-
-    // २ र ३. कर्मचारी र जनप्रतिनिधि: १ पटक दायाँबाट बायाँ स्क्रोल गर्ने प्रणाली
-    function executeHorizontalScroll(containerId, gridId, onComplete) {
-        const container = document.getElementById(containerId);
-        const grid = document.getElementById(gridId);
+        let displayHours = hours % 12;
+        displayHours = displayHours ? displayHours : 12;
         
-        let currentX = container.offsetWidth;
-        grid.style.transform = `translateX(${currentX}px)`;
-
-        function scrollLeft() {
-            currentX -= HORIZONTAL_SPEED;
-            if (currentX <= -grid.scrollWidth) {
-                onComplete(); 
-                return;
-            }
-            grid.style.transform = `translateX(${currentX}px)`;
-            animationId = requestAnimationFrame(scrollLeft);
-        }
-        animationId = requestAnimationFrame(scrollLeft);
-    }
-
-    // बडापत्र डेटा लोड
-    async function loadCharterData() {
-        const { data, error } = await supabaseClient.from('citizen_charter').select('*');
-        if (error || !data) return;
+        let formattedHours = displayHours < 10 ? '0' + displayHours : displayHours;
+        let formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
+        let formattedSeconds = seconds < 10 ? '0' + seconds : seconds;
         
-        const tbody = document.getElementById('table-body');
-        tbody.innerHTML = '';
-
-        data.forEach((item, index) => {
-            const tr = document.createElement('tr');
-            let docsList = '<span>खुलाइएको छैन</span>';
-            if (item.documents) {
-                docsList = `<ul class="doc-list-nepali">` + 
-                    item.documents.split(',').map((d, i) => `<li><span class="doc-sn">${convertToNepaliNumerals(i+1)}.</span>${convertToNepaliNumerals(d.trim())}</li>`).join('') + 
-                    `</ul>`;
-            }
-
-            tr.innerHTML = `
-                <td class="col-sn td-center td-sn-val">${convertToNepaliNumerals(index + 1)}</td>
-                <td class="col-service td-service-name">${convertToNepaliNumerals(item.service_name)}</td>
-                <td class="col-docs">${docsList}</td>
-                <td class="col-dept td-center">${convertToNepaliNumerals(item.department || '-')}</td>
-                <td class="col-time td-center">${convertToNepaliNumerals(item.duration || '-')}</td>
-                <td class="col-cost td-center">${convertToNepaliNumerals(item.cost || 'निःशुल्क')}</td>
-            `;
-            tbody.appendChild(tr);
-        });
+        document.getElementById('live-time').innerText = convertToNepaliNumerals(`${timePeriodLabel} ${formattedHours}:${formattedMinutes}:${formattedSeconds} बजे`);
     }
+    
+    setInterval(updateLiveClock, 1000);
+    updateLiveClock();
 
-    // कर्मचारी विवरण डेटा लोड
-    async function loadStaffData() {
-        const { data, error } = await supabaseClient.from('employees').select('*').order('id', { ascending: true });
-        if (error || !data) return;
-
-        const grid = document.getElementById('staff-grid');
-        grid.innerHTML = '';
-
-        data.forEach(item => {
-            const card = document.createElement('div');
-            card.className = 'info-card';
-            const img = item.photo_url ? item.photo_url : 'https://via.placeholder.com/180';
-            card.innerHTML = `
-                <img src="${img}" class="display-profile-img">
-                <h3>${item.name}</h3>
-                <p class="designation">${item.designation}</p>
-                <p class="meta-info"><i class="fa-solid fa-door-open"></i> शाखा/कोठा नं: ${convertToNepaliNumerals(item.room_no)}</p>
-                ${item.phone ? `<p class="meta-info"><i class="fa-solid fa-phone"></i> ${convertToNepaliNumerals(item.phone)}</p>` : ''}
-            `;
-            grid.appendChild(card);
-        });
-    }
-
-    // जनप्रतिनिधि डेटा लोड
-    async function loadRepData() {
-        const { data, error } = await supabaseClient.from('representatives').select('*').order('id', { ascending: true });
-        if (error || !data) return;
-
-        const grid = document.getElementById('rep-grid');
-        grid.innerHTML = '';
-
-        data.forEach(item => {
-            const card = document.createElement('div');
-            card.className = 'info-card rep-card';
-            const img = item.photo_url ? item.photo_url : 'https://via.placeholder.com/180';
-            card.innerHTML = `
-                <img src="${img}" class="display-profile-img">
-                <h3>${item.name}</h3>
-                <p class="designation">${item.designation}</p>
-                ${item.contact ? `<p class="meta-info"><i class="fa-solid fa-phone"></i> ${convertToNepaliNumerals(item.contact)}</p>` : ''}
-            `;
-            grid.appendChild(card);
-        });
-    }
-
-    // खाजा समय पपअप स्थिति र फुटर टिकर टेक्स्ट दुवै जाँच (id: 1 बाट)
-    async function checkBreakAndConfigStatus() {
-        const { data, error } = await supabaseClient.from('break_settings').select('*').eq('id', 1).single();
-        if (error || !data) return;
-
-        // १. फुटर टिकर व्यवस्थापन (Admin Setup)
-        const tickerContainer = document.getElementById('dynamic-footer-ticker');
-        if (data.footer_text) {
-            const segments = data.footer_text.split(',');
-            tickerContainer.innerHTML = segments.map(text => {
-                let icon = 'fa-bell'; 
-                if (text.includes('फोन') || text.includes('सम्पर्क')) icon = 'fa-phone';
-                else if (text.includes('इमेल')) icon = 'fa-envelope';
-                else if (text.includes('वेबसाइट')) icon = 'fa-globe';
-                
-                return `<span><i class="fa-solid ${icon}"></i> ${convertToNepaliNumerals(text.trim())}</span>`;
-            }).join('');
-        }
-
-        // २. खाजा ब्रेक पपअप व्यवस्थापन
-        const overlay = document.getElementById('break-overlay');
-        const reasonEl = document.getElementById('overlay-reason');
-        const countdownEl = document.getElementById('overlay-countdown');
-
-        if (data.is_active && new Date(data.end_time) > new Date()) {
-            reasonEl.innerText = data.reason;
-            overlay.style.display = 'flex'; 
-            if (animationId) cancelAnimationFrame(animationId); 
-
-            if (countdownInterval) clearInterval(countdownInterval);
-            countdownInterval = setInterval(() => {
-                const diff = new Date(data.end_time).getTime() - new Date().getTime();
-                if (diff <= 0) {
-                    clearInterval(countdownInterval);
-                    overlay.style.display = 'none'; 
-                    coreAutomationEngine(); 
-                } else {
-                    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                    const secs = Math.floor((diff % (1000 * 60)) / 1000);
-                    countdownEl.innerText = convertToNepaliNumerals(`${mins < 10 ? '0'+mins : mins}:${secs < 10 ? '0'+secs : secs}`);
-                }
-            }, 1000);
+    document.addEventListener('fullscreenchange', () => {
+        const fsBtn = document.getElementById('fullscreen-btn');
+        if (document.fullscreenElement) {
+            fsBtn.style.display = 'none'; 
         } else {
-            if (countdownInterval) clearInterval(countdownInterval);
-            if (overlay.style.display === 'flex') {
-                overlay.style.display = 'none';
-                coreAutomationEngine();
-            }
+            fsBtn.style.display = 'block'; 
         }
-    }
+    });
 
     function toggleFullScreen() {
         if (!document.fullscreenElement) {
@@ -739,24 +447,245 @@
         }
     }
 
-    // स्क्रिन साइज परिवर्तन हुँदा स्वतः लोड व्यवस्थापन मिलाउने
-    window.addEventListener('resize', () => {
-        coreAutomationEngine();
-    });
+    async function loadCharterData() {
+        const { data, error } = await supabaseClient.from('citizen_charter').select('*').order('id', { ascending: true });
+        if (error || !data) return;
 
-    // रियलटाइम डेटा च्यानल
-    supabaseClient.channel('realtime-charter').on('postgres_changes', { event: '*', schema: 'public', table: 'citizen_charter' }, () => loadCharterData()).subscribe();
-    supabaseClient.channel('realtime-employees').on('postgres_changes', { event: '*', schema: 'public', table: 'employees' }, () => loadStaffData()).subscribe();
-    supabaseClient.channel('realtime-reps').on('postgres_changes', { event: '*', schema: 'public', table: 'representatives' }, () => loadRepData()).subscribe();
+        const container = document.getElementById('charter-table-body');
+        container.innerHTML = '';
+
+        data.forEach((item, index) => {
+            const row = document.createElement('div');
+            row.className = 'charter-row';
+            row.innerHTML = `
+                <div class="sn-cell center-ch">${convertToNepaliNumerals(index + 1)}</div>
+                <div class="service-cell">${item.service_name}</div>
+                <div class="doc-cell">${item.documents ? convertToNepaliNumerals(item.documents) : '-'}</div>
+                <div class="dept-cell">${item.department}</div>
+                <div class="time-cell center-ch">${convertToNepaliNumerals(item.duration)}</div>
+                <div class="cost-cell center-ch">${convertToNepaliNumerals(item.cost)}</div>
+            `;
+            container.appendChild(row);
+        });
+    }
+
+    async function loadStaffData() {
+        const { data, error } = await supabaseClient.from('employees').select('*').order('rank', { ascending: true });
+        if (error || !data) return;
+
+        const grid = document.getElementById('staff-grid');
+        grid.innerHTML = '';
+        data.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'info-card';
+            const img = item.photo_url ? item.photo_url : 'https://via.placeholder.com/180';
+            card.innerHTML = `
+                <img src="${img}" class="display-profile-img">
+                <div class="card-details">
+                    <h3>${item.name}</h3>
+                    <p class="designation">${item.designation}</p>
+                    <p class="meta-info"><i class="fa-solid fa-door-open"></i> शाखा/कोठा नं: ${convertToNepaliNumerals(item.room_no)}</p>
+                    ${item.phone ? `<p class="meta-info"><i class="fa-solid fa-phone"></i> ${convertToNepaliNumerals(item.phone)}</p>` : ''}
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    async function loadRepData() {
+        const { data, error } = await supabaseClient.from('representatives').select('*').order('rank', { ascending: true });
+        if (error || !data) return;
+
+        const grid = document.getElementById('rep-grid');
+        grid.innerHTML = '';
+        data.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'info-card rep-card';
+            const img = item.photo_url ? item.photo_url : 'https://via.placeholder.com/180';
+            card.innerHTML = `
+                <img src="${img}" class="display-profile-img">
+                <div class="card-details">
+                    <h3>${item.name}</h3>
+                    <p class="designation">${item.designation}</p>
+                    ${item.contact ? `<p class="meta-info"><i class="fa-solid fa-phone"></i> ${convertToNepaliNumerals(item.contact)}</p>` : ''}
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    let animationTimers = [];
+    function clearAllTimers() {
+        animationTimers.forEach(t => {
+            if (t.type === 'interval') clearInterval(t.id);
+            if (t.type === 'timeout') clearTimeout(t.id);
+            if (t.type === 'raf') cancelAnimationFrame(t.id);
+        });
+        animationTimers = [];
+    }
+
+    function coreAutomationEngine() {
+        clearAllTimers();
+
+        const vViewport = document.getElementById('charter-viewport');
+        const vContent = document.getElementById('charter-table-body');
+        
+        if (vContent.offsetHeight > vViewport.offsetHeight) {
+            let currentY = 0;
+            const scrollSpeed = 0.6;
+
+            function stepVerticalScroll() {
+                currentY -= scrollSpeed;
+                if (Math.abs(currentY) >= (vContent.offsetHeight - vViewport.offsetHeight + 40)) {
+                    currentY = 0;
+                    vContent.style.transform = `translateY(${currentY}px)`;
+                    let tId = setTimeout(() => {
+                        let rId = requestAnimationFrame(stepVerticalScroll);
+                        animationTimers.push({ id: rId, type: 'raf' });
+                    }, 3000);
+                    animationTimers.push({ id: tId, type: 'timeout' });
+                    return;
+                }
+                vContent.style.transform = `translateY(${currentY}px)`;
+                let rId = requestAnimationFrame(stepVerticalScroll);
+                animationTimers.push({ id: rId, type: 'raf' });
+            }
+            
+            let initialT = setTimeout(() => {
+                let rId = requestAnimationFrame(stepVerticalScroll);
+                animationTimers.push({ id: rId, type: 'raf' });
+            }, 2000);
+            animationTimers.push({ id: initialT, type: 'timeout' });
+        }
+
+        setupSidebarAutoScroll('rep-viewport', 'rep-grid');
+        setupSidebarAutoScroll('staff-viewport', 'staff-grid');
+
+        // ================= फिक्स गरिएको फुटर टिकर स्क्रोलिङ इन्जिन (Right to Left) =================
+        const tViewport = document.getElementById('ticker-viewport');
+        const tContainer = document.getElementById('ticker-container');
+        
+        if (tContainer && tViewport) {
+            let currentX = tViewport.offsetWidth; // दायाँ कुनाबाट सुरु हुने
+            const tickerSpeed = 1.3; // गति
+
+            function stepHorizontalTicker() {
+                currentX -= tickerSpeed;
+                // जब सम्पूर्ण अक्षर बायाँ पट्टी पुरै स्क्रिन बाहिर जान्छ तब पुनः दायाँबाट सुरु हुन्छ
+                if (currentX <= -tContainer.offsetWidth) {
+                    currentX = tViewport.offsetWidth;
+                }
+                tContainer.style.transform = `translateX(${currentX}px)`;
+                let rId = requestAnimationFrame(stepHorizontalTicker);
+                animationTimers.push({ id: rId, type: 'raf' });
+            }
+            let rId = requestAnimationFrame(stepHorizontalTicker);
+            animationTimers.push({ id: rId, type: 'raf' });
+        }
+    }
+
+    function setupSidebarAutoScroll(viewportId, contentId) {
+        const vp = document.getElementById(viewportId);
+        const cnt = document.getElementById(contentId);
+        if (!vp || !cnt) return;
+
+        if (cnt.offsetHeight > vp.offsetHeight) {
+            let currentY = 0;
+            const speed = 0.4;
+
+            function scrollSide() {
+                currentY -= speed;
+                if (Math.abs(currentY) >= (cnt.offsetHeight - vp.offsetHeight + 20)) {
+                    currentY = 0;
+                    cnt.style.transform = `translateY(${currentY}px)`;
+                    let tId = setTimeout(() => {
+                        let rId = requestAnimationFrame(scrollSide);
+                        animationTimers.push({ id: rId, type: 'raf' });
+                    }, 4000);
+                    animationTimers.push({ id: tId, type: 'timeout' });
+                    return;
+                }
+                cnt.style.transform = `translateY(${currentY}px)`;
+                let rId = requestAnimationFrame(scrollSide);
+                animationTimers.push({ id: rId, type: 'raf' });
+            }
+            let tId = setTimeout(() => {
+                let rId = requestAnimationFrame(scrollSide);
+                animationTimers.push({ id: rId, type: 'raf' });
+            }, 2500);
+            animationTimers.push({ id: tId, type: 'timeout' });
+        }
+    }
+
+    let countdownInterval = null;
+
+    async function checkBreakAndConfigStatus() {
+        const { data, error } = await supabaseClient.from('break_settings').select('*');
+        if (error || !data) return;
+
+        const footerData = data.find(x => x.id === 2);
+        if (footerData && footerData.reason) {
+            const tickerContainer = document.getElementById('ticker-container');
+            tickerContainer.innerHTML = '';
+            const items = footerData.reason.split(',');
+            items.forEach(txt => {
+                if (txt.trim()) {
+                    const span = document.createElement('span');
+                    span.className = 'ticker-item';
+                    span.innerText = txt.trim();
+                    tickerContainer.appendChild(span);
+                }
+            });
+        }
+
+        const breakConfig = data.find(x => x.id === 1);
+        const overlay = document.getElementById('break-overlay');
+
+        if (countdownInterval) clearInterval(countdownInterval);
+
+        if (breakConfig && breakConfig.is_active && breakConfig.end_time) {
+            const endTime = new Date(breakConfig.end_time).getTime();
+            
+            document.getElementById('overlay-title').innerText = "कार्यालयको विशेष सूचना";
+            document.getElementById('overlay-reason').innerText = breakConfig.reason || "विशेष कारणवश सेवा केही समयको लागि स्थगित गरिएको छ।";
+            overlay.style.display = 'flex';
+
+            function updateCountdown() {
+                const remainder = endTime - Date.now();
+                if (remainder <= 0) {
+                    clearInterval(countdownInterval);
+                    overlay.style.display = 'none';
+                    coreAutomationEngine();
+                } else {
+                    const totalSecs = Math.floor(remainder / 1000);
+                    const mins = Math.floor(totalSecs / 60);
+                    const secs = totalSecs % 60;
+                    const mStr = mins < 10 ? '0' + mins : mins;
+                    const sStr = secs < 10 ? '0' + secs : secs;
+                    document.getElementById('countdown-display').innerText = convertToNepaliNumerals(`${mStr}:${sStr}`);
+                }
+            }
+            updateCountdown();
+            countdownInterval = setInterval(updateCountdown, 1000);
+        } else {
+            overlay.style.display = 'none';
+        }
+        
+        // डाटाहरू रेन्डर भइसकेपछि एनिमेसन र विड्थ नाप्न सधै इन्जिन ट्रिगर गर्ने फिक्स
+        coreAutomationEngine(); 
+    }
+
+    window.addEventListener('resize', () => { coreAutomationEngine(); });
+
+    supabaseClient.channel('realtime-charter').on('postgres_changes', { event: '*', schema: 'public', table: 'citizen_charter' }, () => loadCharterData().then(() => coreAutomationEngine())).subscribe();
+    supabaseClient.channel('realtime-employees').on('postgres_changes', { event: '*', schema: 'public', table: 'employees' }, () => loadStaffData().then(() => coreAutomationEngine())).subscribe();
+    supabaseClient.channel('realtime-reps').on('postgres_changes', { event: '*', schema: 'public', table: 'representatives' }, () => loadRepData().then(() => coreAutomationEngine())).subscribe();
     supabaseClient.channel('realtime-break').on('postgres_changes', { event: '*', schema: 'public', table: 'break_settings' }, () => checkBreakAndConfigStatus()).subscribe();
 
-    // सुरुवाती लोड
-    Promise.all([loadCharterData(), loadStaffData(), loadRepData()]).then(() => {
-        checkBreakAndConfigStatus();
-        coreAutomationEngine();
+    // रेस कन्डिसन हुन नदिन async/await ढाँचामा लोड गराउने व्यवस्था
+    Promise.all([loadCharterData(), loadStaffData(), loadRepData()]).then(async () => {
+        await checkBreakAndConfigStatus();
     });
-    
-    setInterval(checkBreakAndConfigStatus, 10000);
 </script>
 </body>
 </html>

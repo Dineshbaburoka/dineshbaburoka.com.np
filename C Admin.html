@@ -300,7 +300,6 @@
     <i class="fa-solid fa-circle-check"></i> विवरण सुरक्षित भयो!
 </div>
 
-<!-- लगइन सेक्सन -->
 <div class="login-container" id="login-section">
     <div class="header">
         <i class="fa-solid fa-lock"></i>
@@ -328,7 +327,6 @@
     </form>
 </div>
 
-<!-- ट्याब बटनहरू -->
 <div class="tab-navigation" id="tab-nav-bar">
     <button class="nav-btn active" onclick="switchTab('charter')"><i class="fa-solid fa-file-invoice"></i> नागरिक बडापत्र</button>
     <button class="nav-btn" onclick="switchTab('employee')"><i class="fa-solid fa-user-tie"></i> कर्मचारी विवरण</button>
@@ -336,13 +334,10 @@
     <button class="nav-btn" onclick="switchTab('break')"><i class="fa-solid fa-mug-hot"></i> खाजा / विशेष समय</button>
 </div>
 
-<!-- मुख्य एडमिन ड्यासबोर्ड ल्याआउट -->
 <div class="admin-layout" id="admin-dashboard">
     
-    <!-- बायाँ कोलम: फारमहरू (Forms) -->
     <div class="left-column">
         
-        <!-- १. नागरिक बडापत्र फारम -->
         <div id="charter-form-panel" class="tab-content active">
             <div class="container">
                 <div class="header">
@@ -378,7 +373,6 @@
             </div>
         </div>
 
-        <!-- २. कर्मचारी विवरण फारम -->
         <div id="employee-form-panel" class="tab-content">
             <div class="container" style="border-top-color: var(--accent-blue);">
                 <div class="header">
@@ -406,6 +400,10 @@
                         <div class="input-wrapper"><i class="fa-solid fa-phone"></i><input type="text" id="emp_phone" placeholder="९८XXXXXXXX" required></div>
                     </div>
                     <div class="form-group">
+                        <label for="emp_rank">र्याङ्किङ अनुक्रम (Rank - सानो नम्बर पहिले देखिनेछ)</label>
+                        <div class="input-wrapper"><i class="fa-solid fa-sort-numeric-down"></i><input type="number" id="emp_rank" placeholder="जस्तै: १, २, ३..." min="1"></div>
+                    </div>
+                    <div class="form-group">
                         <label for="emp_photo_file">कर्मचारीको फोटो (JPG/PNG)</label>
                         <div class="input-wrapper"><i class="fa-solid fa-upload"></i><input type="file" id="emp_photo_file" accept="image/jpeg, image/png"></div>
                     </div>
@@ -415,7 +413,6 @@
             </div>
         </div>
 
-        <!-- ३. जनप्रतिनिधि विवरण फारम -->
         <div id="representative-form-panel" class="tab-content">
             <div class="container" style="border-top-color: var(--danger-color);">
                 <div class="header">
@@ -439,6 +436,10 @@
                         <div class="input-wrapper"><i class="fa-solid fa-phone"></i><input type="text" id="rep_contact" placeholder="९८XXXXXXXX" required></div>
                     </div>
                     <div class="form-group">
+                        <label for="rep_rank">र्याङ्किङ अनुक्रम (Rank - सानो नम्बर पहिले देखिनेछ)</label>
+                        <div class="input-wrapper"><i class="fa-solid fa-sort-numeric-down"></i><input type="number" id="rep_rank" placeholder="जस्तै: १, २, ३..." min="1"></div>
+                    </div>
+                    <div class="form-group">
                         <label for="rep_photo_file">जनप्रतिनिधिको फोटो (JPG/PNG)</label>
                         <div class="input-wrapper"><i class="fa-solid fa-upload"></i><input type="file" id="rep_photo_file" accept="image/jpeg, image/png"></div>
                     </div>
@@ -448,9 +449,7 @@
             </div>
         </div>
 
-        <!-- ४. खाजा समय र फुटर सन्देश फारम -->
         <div id="break-form-panel" class="tab-content">
-            <!-- खाजा समय सेटिङ फारम -->
             <div class="container" style="border-top-color: var(--secondary-color);">
                 <div class="header">
                     <i class="fa-solid fa-mug-hot" style="color: var(--secondary-color);"></i>
@@ -471,12 +470,11 @@
                 </form>
             </div>
 
-            <!-- थपिएको नयाँ फारम: फुटर टिकर म्यासेज कन्ट्रोल -->
             <div class="container" style="border-top-color: var(--primary-color); margin-top: 20px;">
                 <div class="header">
                     <i class="fa-solid fa-scroll" style="color: var(--primary-color);"></i>
                     <h2> Scrolling सन्देश (Ticker)</h2>
-                    <p class="subtitle">डिस्प्लेको तल scrolling सूचनाहरू सेट गर्नुहोस् (धेरै सूचना भएमा कमा दिएर छुट्टाउनुहोस्) साथै मोबाइल न. सेट गर्नु परेमा फोन वा सम्पर्क/ इमेल भए इमेल/ वेबसाइट भए वेबसाइट लेख्नुहोस icon को लागि//</p>
+                    <p class="subtitle">डिस्प्लेको तल scrolling सूचनाहरू सेट गर्नुहोस् (धेरै सूचना भएमा कमा दिएर छुट्टाउनुहोस्)</p>
                 </div>
                 <form id="footer-ticker-form">
                     <div class="form-group">
@@ -487,15 +485,13 @@
                         </div>
                     </div>
                     <button type="submit" style="background: var(--primary-color); color: white;">
-                        <i class="fa-solid fa-paper-plane"></i> फुटर अपडेट गर्नुहोस्
+                        <i class="fa-solid fa-paper-plane"></i> फुटर अपडेट गर्नुहोस् 
                     </button>
                 </form>
             </div>
         </div>
-
     </div>
 
-    <!-- दायाँ कोलम: डाटा तालिकाहरू (Preview Lists) -->
     <div class="preview-container">
         <div class="header" style="text-align: left; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
             <div>
@@ -504,9 +500,8 @@
             </div>
             <button class="logout-btn" onclick="handleLogout()"><i class="fa-solid fa-right-from-bracket"></i> लगआउट</button>
         </div>
-
+        
         <div class="table-responsive">
-            <!-- बडापत्र टेबल सूची -->
             <table id="charter-table-view" class="tab-content active">
                 <thead>
                     <tr>
@@ -522,11 +517,11 @@
                 </tbody>
             </table>
 
-            <!-- कर्मचारी टेबल सूची -->
             <table id="employee-table-view" class="tab-content">
                 <thead>
                     <tr>
                         <th>फोटो</th>
+                        <th>अनुक्रम (Rank)</th>
                         <th>कर्मचारीको नाम</th>
                         <th>पद</th>
                         <th>कोठा नं./शाखा</th>
@@ -535,15 +530,15 @@
                     </tr>
                 </thead>
                 <tbody id="employee-data-list">
-                    <tr><td colspan="6" style="text-align: center; color: #64748b;">डाटा लोड हुँदैछ...</td></tr>
+                    <tr><td colspan="7" style="text-align: center; color: #64748b;">डाटा लोड हुँदैछ...</td></tr>
                 </tbody>
             </table>
 
-            <!-- जनप्रतिनिधि टेबल सूची -->
             <table id="representative-table-view" class="tab-content">
                 <thead>
                     <tr>
                         <th>फोटो</th>
+                        <th>अनुक्रम (Rank)</th>
                         <th>जनप्रतिनिधिको नाम</th>
                         <th>पद</th>
                         <th>सम्पर्क विवरण</th>
@@ -551,18 +546,16 @@
                     </tr>
                 </thead>
                 <tbody id="representative-data-list">
-                    <tr><td colspan="5" style="text-align: center; color: #64748b;">डाटा लोड हुँदैछ...</td></tr>
+                    <tr><td colspan="6" style="text-align: center; color: #64748b;">डाटा लोड हुँदैछ...</td></tr>
                 </tbody>
             </table>
 
-            <!-- खाजा समयको सूचना -->
             <div id="break-table-view" class="tab-content" style="text-align: center; padding: 30px; color: #64748b;">
                 <i class="fa-solid fa-circle-info" style="font-size: 2.5rem; color: var(--secondary-color); margin-bottom: 10px;"></i>
                 <p style="font-size: 1.1rem; font-weight: 600;">खाजा समय र फुटर सन्देश व्यवस्थापन बायाँ फारमहरूबाट सिधै कन्ट्रोल हुन्छ।</p>
             </div>
         </div>
     </div>
-
 </div>
 
 <script>
@@ -577,7 +570,7 @@
         const loginSection = document.getElementById('login-section');
         const adminDashboard = document.getElementById('admin-dashboard');
         const tabNavBar = document.getElementById('tab-nav-bar');
-        
+
         if (session) {
             loginSection.style.display = 'none';
             adminDashboard.style.display = 'grid';
@@ -598,75 +591,43 @@
     function switchTab(moduleName) {
         activeModule = moduleName;
         document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-        event.currentTarget.classList.add('active');
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        if (event && event.currentTarget) {
+            event.currentTarget.classList.add('active');
+        }
 
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
         document.getElementById(`${moduleName}-form-panel`).classList.add('active');
         document.getElementById(`${moduleName}-table-view`).classList.add('active');
 
-        const listTitle = document.getElementById('list-container-title');
-        const listSubtitle = document.getElementById('list-container-subtitle');
-        
-        if(moduleName === 'charter') {
-            listTitle.innerHTML = `<i class="fa-solid fa-list-check" style="color: var(--primary-color);"></i> बडापत्र DATA सूची`;
-            listSubtitle.innerText = 'सुरक्षित गरिएका बडापत्र सूची व्यवस्थापन गर्नुहोस्';
-        } else if(moduleName === 'employee') {
-            listTitle.innerHTML = `<i class="fa-solid fa-users" style="color: var(--accent-blue);"></i> कार्यरत कर्मचारीहरूको सूची`;
-            listSubtitle.innerText = 'कर्मचारीहरूको प्रोफाइल थपघट वा परिमार्जन गर्नुहोस्';
-        } else if(moduleName === 'representative') {
-            listTitle.innerHTML = `<i class="fa-solid fa-user-shield" style="color: var(--danger-color);"></i> जनप्रतिनिधिहरूको सूची`;
-            listSubtitle.innerText = 'नगरका जनप्रतिनिधिहरूको प्रोफाइल व्यवस्थापन गर्नुहोस्';
-        } else {
-            listTitle.innerHTML = `<i class="fa-solid fa-clock" style="color: var(--secondary-color);"></i> टाइमर र फुटर सेटिङ`;
-            listSubtitle.innerText = 'डिजिटल डिस्प्लेको आकस्मिक बन्द/खाजा समय र फुटर स्क्रोल कन्ट्रोल';
-        }
+        const titleMap = {
+            'charter': { t: 'बडापत्र डाटा सूची', s: 'सुरक्षित गरिएका बडापत्र सूची व्यवस्थापन गर्नुहोस्' },
+            'employee': { t: 'कर्मचारी डाटा सूची', s: 'कर्मचारीहरूको अनुक्रम (Rank) र विवरण व्यवस्थापन गर्नुहोस्' },
+            'representative': { t: 'जनप्रतिनिधि डाटा सूची', s: 'जनप्रतिनिधिहरूको अनुक्रम (Rank) र विवरण व्यवस्थापन गर्नुहोस्' },
+            'break': { t: 'विशेष मोड व्यवस्थापन', s: 'खाजा समय र फुटर सूचना कन्ट्रोल' }
+        };
+
+        document.getElementById('list-container-title').innerHTML = `<i class="fa-solid fa-list-check" style="color: var(--secondary-color);"></i> ` + titleMap[moduleName].t;
+        document.getElementById('list-container-subtitle').innerText = titleMap[moduleName].s;
 
         loadActiveModuleData();
     }
 
     function loadActiveModuleData() {
-        if(activeModule === 'charter') fetchCharterData();
-        if(activeModule === 'employee') fetchEmployeeData();
-        if(activeModule === 'representative') fetchRepresentativeData();
-        if(activeModule === 'break') fetchCurrentBreak();
+        if (activeModule === 'charter') fetchCharterData();
+        else if (activeModule === 'employee') fetchEmployeeData();
+        else if (activeModule === 'representative') fetchRepresentativeData();
     }
 
-    // ================= साझा फोटो अपलोड प्रणाली =================
-    async function uploadImageFile(fileInputId, folderName) {
-        const fileInput = document.getElementById(fileInputId);
-        if (!fileInput.files || fileInput.files.length === 0) return null;
-
-        const file = fileInput.files[0];
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Date.now()}_${Math.floor(Math.random() * 1000)}.${fileExt}`;
-        const filePath = `${folderName}/${fileName}`;
-
-        const { data, error } = await supabaseClient.storage
-            .from('profiles')
-            .upload(filePath, file);
-
-        if (error) {
-            alert("फोटो सर्भरमा अपलोड हुन सकेन: " + error.message);
-            return null;
-        }
-
-        const { data: urlData } = supabaseClient.storage
-            .from('profiles')
-            .getPublicUrl(filePath);
-
-        return urlData.publicUrl;
-    }
-
-    // ================= १. नागरिक बडापत्र CRUD =================
+    // ================= नागरिक बडापत्र CRUD =================
     async function fetchCharterData() {
+        const listContainer = document.getElementById('charter-data-list');
+        listContainer.innerHTML = `<tr><td colspan="5" style="text-align: center;">लोड हुँदैछ...</td></tr>`;
+        
         const { data, error } = await supabaseClient.from('citizen_charter').select('*').order('id', { ascending: false });
-        if (error) return;
-        const tbody = document.getElementById('charter-data-list');
-        tbody.innerHTML = '';
-        if (!data || data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #64748b;">कुनै डाटा भेटिएन।</td></tr>`;
-            return;
-        }
+        if (error) { listContainer.innerHTML = `<tr><td colspan="5" style="color:red;">त्रुटि: ${error.message}</td></tr>`; return; }
+        if (data.length === 0) { listContainer.innerHTML = `<tr><td colspan="5" style="text-align:center;">कुनै डाटा भेटिएन।</td></tr>`; return; }
+
+        listContainer.innerHTML = '';
         data.forEach(item => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
@@ -675,17 +636,20 @@
                 <td>${item.cost}</td>
                 <td>${item.duration}</td>
                 <td class="actions">
-                    <button class="action-btn edit-btn" onclick='populateCharterForm(${JSON.stringify(item)})'><i class="fa-solid fa-pen-to-square"></i></button>
-                    <button class="action-btn delete-btn" onclick="deleteModuleRow('citizen_charter', ${item.id}, fetchCharterData)"><i class="fa-solid fa-trash"></i></button>
+                    <button class="action-btn edit-btn" onclick="populateCharterForm(${JSON.stringify(item).replace(/"/g, '&quot;')})"><i class="fa-solid fa-pen-to-square"></i></button>
+                    <button class="action-btn delete-btn" onclick="deleteItem('citizen_charter', ${item.id})"><i class="fa-solid fa-trash"></i></button>
                 </td>
             `;
-            tbody.appendChild(tr);
+            listContainer.appendChild(tr);
         });
     }
 
     document.getElementById('charter-form').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const rowId = document.getElementById('charter-id').value;
+        const id = document.getElementById('charter-id').value;
+        const submitBtn = document.getElementById('charter-submit-btn');
+        submitBtn.disabled = true;
+
         const formData = {
             department: document.getElementById('department').value,
             service_name: document.getElementById('service_name').value,
@@ -693,15 +657,16 @@
             duration: document.getElementById('duration').value,
             documents: document.getElementById('documents').value
         };
-        let error = null;
-        if (isEditMode.charter && rowId) {
-            const { error: err } = await supabaseClient.from('citizen_charter').update([formData]).eq('id', rowId);
-            error = err;
+
+        let result;
+        if (isEditMode.charter) {
+            result = await supabaseClient.from('citizen_charter').update(formData).eq('id', id);
         } else {
-            const { error: err } = await supabaseClient.from('citizen_charter').insert([formData]);
-            error = err;
+            result = await supabaseClient.from('citizen_charter').insert([formData]);
         }
-        if (error) alert("त्रुटि: " + error.message);
+
+        submitBtn.disabled = false;
+        if (result.error) alert("बडापत्र सेभ गर्दा त्रुटि भयो: " + result.error.message);
         else { showSuccessAlert(); resetModuleForm('charter'); fetchCharterData(); }
     });
 
@@ -713,73 +678,101 @@
         document.getElementById('cost').value = item.cost;
         document.getElementById('duration').value = item.duration;
         document.getElementById('documents').value = item.documents;
+
         document.getElementById('charter-title').innerText = "विवरण परिमार्जन गर्नुहोस्";
-        document.getElementById('charter-submit-btn').innerHTML = `<i class="fa-solid fa-square-check"></i> डेटा अपडेट गर्नुहोस्`;
+        document.getElementById('charter-submit-btn').innerHTML = `<i class="fa-solid fa-square-check"></i> अपडेट गर्नुहोस्`;
         document.getElementById('charter-cancel-btn').style.display = 'block';
     }
 
-    // ================= २. कर्मचारी विवरण CRUD =================
+    // ================= साझा फोटो अपलोड प्रणाली (profiles Bucket र Folder Paths) =================
+    async function uploadImageToStorage(fileInputId, folderName) {
+        const fileInput = document.getElementById(fileInputId);
+        if (!fileInput || fileInput.files.length === 0) return null;
+        
+        const file = fileInput.files[0];
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}_${Math.floor(Math.random() * 1000)}.${fileExt}`;
+        const filePath = `${folderName}/${fileName}`;
+
+        // 'profiles' बकेटमा फोल्डर पाथ सहित अपलोड
+        const { data, error } = await supabaseClient.storage.from('profiles').upload(filePath, file);
+        if (error) throw error;
+
+        const { data: publicUrlData } = supabaseClient.storage.from('profiles').getPublicUrl(filePath);
+        return publicUrlData.publicUrl;
+    }
+
+    // ================= कर्मचारी विवरण CRUD =================
     async function fetchEmployeeData() {
-        const { data, error } = await supabaseClient.from('employees').select('*').order('id', { ascending: false });
-        if (error) return;
-        const tbody = document.getElementById('employee-data-list');
-        tbody.innerHTML = '';
-        if (!data || data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #64748b;">कुनै कर्मचारी भेटिएन।</td></tr>`;
-            return;
-        }
+        const listContainer = document.getElementById('employee-data-list');
+        listContainer.innerHTML = `<tr><td colspan="7" style="text-align: center;">लोड हुँदैछ...</td></tr>`;
+        
+        const { data, error } = await supabaseClient.from('employees').select('*').order('rank', { ascending: true });
+        if (error) { listContainer.innerHTML = `<tr><td colspan="7" style="color:red;">त्रुटि: ${error.message}</td></tr>`; return; }
+        if (data.length === 0) { listContainer.innerHTML = `<tr><td colspan="7" style="text-align:center;">कुनै डाटा भेटिएन।</td></tr>`; return; }
+
+        listContainer.innerHTML = '';
         data.forEach(item => {
-            const imgUrl = item.photo_url ? item.photo_url : 'https://via.placeholder.com/150';
             const tr = document.createElement('tr');
+            const imgUrl = item.photo_url ? item.photo_url : 'https://via.placeholder.com/50';
+            const rankDisplay = item.rank && item.rank !== 999 ? item.rank : '<span style="color:#94a3b8;">सेट नगरिएको</span>';
             tr.innerHTML = `
-                <td><img src="${imgUrl}" class="thumb-img" alt="Photo"></td>
+                <td><img src="${imgUrl}" class="thumb-img"></td>
+                <td><span class="badge" style="font-weight:bold; color:var(--accent-blue);">${rankDisplay}</span></td>
                 <td><strong>${item.name}</strong></td>
                 <td>${item.designation}</td>
                 <td>${item.room_no}</td>
                 <td>${item.phone || '-'}</td>
                 <td class="actions">
-                    <button class="action-btn edit-btn" onclick='populateEmployeeForm(${JSON.stringify(item)})'><i class="fa-solid fa-pen-to-square"></i></button>
-                    <button class="action-btn delete-btn" onclick="deleteModuleRow('employees', ${item.id}, fetchEmployeeData)"><i class="fa-solid fa-trash"></i></button>
+                    <button class="action-btn edit-btn" onclick="populateEmployeeForm(${JSON.stringify(item).replace(/"/g, '&quot;')})"><i class="fa-solid fa-pen-to-square"></i></button>
+                    <button class="action-btn delete-btn" onclick="deleteItem('employees', ${item.id})"><i class="fa-solid fa-trash"></i></button>
                 </td>
             `;
-            tbody.appendChild(tr);
+            listContainer.appendChild(tr);
         });
     }
 
     document.getElementById('employee-form').addEventListener('submit', async (e) => {
         e.preventDefault();
+        const id = document.getElementById('employee-id').value;
         const submitBtn = document.getElementById('employee-submit-btn');
         submitBtn.disabled = true;
         submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> फोटो अपलोड र सुरक्षित हुँदैछ...`;
 
-        const rowId = document.getElementById('employee-id').value;
-        let finalPhotoUrl = document.getElementById('emp_existing_photo_url').value;
+        try {
+            let finalPhotoUrl = document.getElementById('emp_existing_photo_url').value || null;
+            
+            // 'profiles' बकेटको 'employees' फोल्डरमा अपलोड हुनेछ
+            const uploadedUrl = await uploadImageToStorage('emp_photo_file', 'employees');
+            if (uploadedUrl) finalPhotoUrl = uploadedUrl;
 
-        const newUploadedUrl = await uploadImageFile('emp_photo_file', 'employees');
-        if (newUploadedUrl) finalPhotoUrl = newUploadedUrl;
+            const formData = {
+                name: document.getElementById('emp_name').value,
+                designation: document.getElementById('emp_designation').value,
+                room_no: document.getElementById('emp_room').value,
+                phone: document.getElementById('emp_phone').value,
+                photo_url: finalPhotoUrl,
+                rank: parseInt(document.getElementById('emp_rank').value) || 999
+            };
 
-        const formData = {
-            name: document.getElementById('emp_name').value,
-            designation: document.getElementById('emp_designation').value,
-            room_no: document.getElementById('emp_room').value,
-            phone: document.getElementById('emp_phone').value,
-            photo_url: finalPhotoUrl
-        };
+            let result;
+            if (isEditMode.employee) {
+                result = await supabaseClient.from('employees').update(formData).eq('id', id);
+            } else {
+                result = await supabaseClient.from('employees').insert([formData]);
+            }
 
-        let error = null;
-        if (isEditMode.employee && rowId) {
-            const { error: err } = await supabaseClient.from('employees').update([formData]).eq('id', rowId);
-            error = err;
-        } else {
-            const { error: err } = await supabaseClient.from('employees').insert([formData]);
-            error = err;
+            if (result.error) throw result.error;
+            showSuccessAlert();
+            resetModuleForm('employee');
+            fetchEmployeeData();
+        } catch (err) {
+            alert("कर्मचारी विवरण सेभ गर्दा समस्या: " + err.message);
+        } finally {
+            submitBtn.disabled = false;
+            document.getElementById('employee-title').innerText = "नयाँ कर्मचारी थप्नुहोस्";
+            submitBtn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> कर्मचारी थप्नुहोस्`;
         }
-
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> कर्मचारी थप्नुहोस्`;
-
-        if (error) alert("त्रुटि: " + error.message);
-        else { showSuccessAlert(); resetModuleForm('employee'); fetchEmployeeData(); }
     });
 
     function populateEmployeeForm(item) {
@@ -789,74 +782,83 @@
         document.getElementById('emp_designation').value = item.designation;
         document.getElementById('emp_room').value = item.room_no;
         document.getElementById('emp_phone').value = item.phone || '';
+        document.getElementById('emp_rank').value = item.rank && item.rank !== 999 ? item.rank : '';
         document.getElementById('emp_existing_photo_url').value = item.photo_url || '';
-        document.getElementById('emp_photo_file').value = ''; 
-        
-        document.getElementById('employee-title').innerText = "कर्मचारी विवरण अपडेट गर्नुहोस्";
+
+        document.getElementById('employee-title').innerText = "कर्मचारी विवरण परिमार्जन गर्नुहोस्";
         document.getElementById('employee-submit-btn').innerHTML = `<i class="fa-solid fa-square-check"></i> अपडेट गर्नुहोस्`;
         document.getElementById('employee-cancel-btn').style.display = 'block';
     }
 
-    // ================= ३. जनप्रतिनिधि विवरण CRUD =================
+    // ================= जनप्रतिनिधि विवरण CRUD =================
     async function fetchRepresentativeData() {
-        const { data, error } = await supabaseClient.from('representatives').select('*').order('id', { ascending: false });
-        if (error) return;
-        const tbody = document.getElementById('representative-data-list');
-        tbody.innerHTML = '';
-        if (!data || data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #64748b;">कुनै प्रतिनिधि भेटिएन।</td></tr>`;
-            return;
-        }
+        const listContainer = document.getElementById('representative-data-list');
+        listContainer.innerHTML = `<tr><td colspan="6" style="text-align: center;">लोड हुँदैछ...</td></tr>`;
+        
+        const { data, error } = await supabaseClient.from('representatives').select('*').order('rank', { ascending: true });
+        if (error) { listContainer.innerHTML = `<tr><td colspan="6" style="color:red;">त्रुटि: ${error.message}</td></tr>`; return; }
+        if (data.length === 0) { listContainer.innerHTML = `<tr><td colspan="6" style="text-align:center;">कुनै डाटा भेटिएन।</td></tr>`; return; }
+
+        listContainer.innerHTML = '';
         data.forEach(item => {
-            const imgUrl = item.photo_url ? item.photo_url : 'https://via.placeholder.com/150';
             const tr = document.createElement('tr');
+            const imgUrl = item.photo_url ? item.photo_url : 'https://via.placeholder.com/50';
+            const rankDisplay = item.rank && item.rank !== 999 ? item.rank : '<span style="color:#94a3b8;">सेट नगरिएको</span>';
             tr.innerHTML = `
-                <td><img src="${imgUrl}" class="thumb-img" alt="Photo"></td>
+                <td><img src="${imgUrl}" class="thumb-img"></td>
+                <td><span class="badge" style="font-weight:bold; color:var(--danger-color);">${rankDisplay}</span></td>
                 <td><strong>${item.name}</strong></td>
                 <td>${item.designation}</td>
-                <td>${item.contact}</td>
+                <td>${item.contact || '-'}</td>
                 <td class="actions">
-                    <button class="action-btn edit-btn" onclick='populateRepForm(${JSON.stringify(item)})'><i class="fa-solid fa-pen-to-square"></i></button>
-                    <button class="action-btn delete-btn" onclick="deleteModuleRow('representatives', ${item.id}, fetchRepresentativeData)"><i class="fa-solid fa-trash"></i></button>
+                    <button class="action-btn edit-btn" onclick="populateRepForm(${JSON.stringify(item).replace(/"/g, '&quot;')})"><i class="fa-solid fa-pen-to-square"></i></button>
+                    <button class="action-btn delete-btn" onclick="deleteItem('representatives', ${item.id})"><i class="fa-solid fa-trash"></i></button>
                 </td>
             `;
-            tbody.appendChild(tr);
+            listContainer.appendChild(tr);
         });
     }
 
     document.getElementById('representative-form').addEventListener('submit', async (e) => {
         e.preventDefault();
+        const id = document.getElementById('representative-id').value;
         const submitBtn = document.getElementById('representative-submit-btn');
         submitBtn.disabled = true;
         submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> फोटो अपलोड र सुरक्षित हुँदैछ...`;
 
-        const rowId = document.getElementById('representative-id').value;
-        let finalPhotoUrl = document.getElementById('rep_existing_photo_url').value;
+        try {
+            let finalPhotoUrl = document.getElementById('rep_existing_photo_url').value || null;
+            
+            // 'profiles' बकेटको 'representatives' फोल्डरमा अपलोड हुनेछ
+            const uploadedUrl = await uploadImageToStorage('rep_photo_file', 'representatives');
+            if (uploadedUrl) finalPhotoUrl = uploadedUrl;
 
-        const newUploadedUrl = await uploadImageFile('rep_photo_file', 'representatives');
-        if (newUploadedUrl) finalPhotoUrl = newUploadedUrl;
+            const formData = {
+                name: document.getElementById('rep_name').value,
+                designation: document.getElementById('rep_designation').value,
+                contact: document.getElementById('rep_contact').value,
+                photo_url: finalPhotoUrl,
+                rank: parseInt(document.getElementById('rep_rank').value) || 999
+            };
 
-        const formData = {
-            name: document.getElementById('rep_name').value,
-            designation: document.getElementById('rep_designation').value,
-            contact: document.getElementById('rep_contact').value,
-            photo_url: finalPhotoUrl
-        };
+            let result;
+            if (isEditMode.representative) {
+                result = await supabaseClient.from('representatives').update(formData).eq('id', id);
+            } else {
+                result = await supabaseClient.from('representatives').insert([formData]);
+            }
 
-        let error = null;
-        if (isEditMode.representative && rowId) {
-            const { error: err } = await supabaseClient.from('representatives').update([formData]).eq('id', rowId);
-            error = err;
-        } else {
-            const { error: err } = await supabaseClient.from('representatives').insert([formData]);
-            error = err;
+            if (result.error) throw result.error;
+            showSuccessAlert();
+            resetModuleForm('representative');
+            fetchRepresentativeData();
+        } catch (err) {
+            alert("जनप्रतिनिधि विवरण सेभ गर्दा समस्या: " + err.message);
+        } finally {
+            submitBtn.disabled = false;
+            document.getElementById('representative-title').innerText = "नयाँ जनप्रतिनिधि थप्नुहोस्";
+            submitBtn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> प्रतिनिधि थप्नुहोस्`;
         }
-
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> प्रतिनिधि थप्नुहोस्`;
-
-        if (error) alert("त्रुटि: " + error.message);
-        else { showSuccessAlert(); resetModuleForm('representative'); fetchRepresentativeData(); }
     });
 
     function populateRepForm(item) {
@@ -864,82 +866,67 @@
         document.getElementById('representative-id').value = item.id;
         document.getElementById('rep_name').value = item.name;
         document.getElementById('rep_designation').value = item.designation;
-        document.getElementById('rep_contact').value = item.contact;
+        document.getElementById('rep_contact').value = item.contact || '';
+        document.getElementById('rep_rank').value = item.rank && item.rank !== 999 ? item.rank : '';
         document.getElementById('rep_existing_photo_url').value = item.photo_url || '';
-        document.getElementById('rep_photo_file').value = '';
-        
-        document.getElementById('representative-title').innerText = "प्रतिनिधि विवरण अपडेट गर्नुहोस्";
+
+        document.getElementById('representative-title').innerText = "जनप्रतिनिधि विवरण परिमार्जन गर्नुहोस्";
         document.getElementById('representative-submit-btn').innerHTML = `<i class="fa-solid fa-square-check"></i> अपडेट गर्नुहोस्`;
         document.getElementById('representative-cancel-btn').style.display = 'block';
     }
 
-    // ================= ४. खाजा समय र फुटर टिकर संयन्त्र =================
-    async function fetchCurrentBreak() {
-        const { data } = await supabaseClient.from('break_settings').select('*').eq('id', 1).single();
-        if (data) {
-            // खाजा समय डाटा फारममा भर्ने
-            if (data.is_active) {
-                document.getElementById('break_reason').value = data.reason;
-                const diffMs = new Date(data.end_time) - new Date();
-                document.getElementById('break_minutes').value = Math.max(0, Math.ceil(diffMs / 60000));
-            }
-            // फुटर म्यासेज डाटा फारममा भर्ने
-            if (data.footer_text) {
-                document.getElementById('footer_text').value = data.footer_text;
-            }
-        }
-    }
-
-    // खाजा ब्रेक सबमिट
+    // ================= खाजा समय र फुटर म्यासेज =================
     document.getElementById('break-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const reason = document.getElementById('break_reason').value;
         const minutes = parseInt(document.getElementById('break_minutes').value);
-        const endTime = new Date(Date.now() + minutes * 60 * 1000).toISOString();
-        const { error } = await supabaseClient.from('break_settings').update({ reason: reason, end_time: endTime, is_active: true }).eq('id', 1);
-        if (error) alert("समय सेट गर्दा त्रुटि भयो: " + error.message);
-        else showSuccessAlert();
-    });
+        const targetTime = new Date(Date.now() + minutes * 60000).toISOString();
 
-    // फुटर टिकर सबमिट प्रणाली (नयाँ थपिएको)
-    document.getElementById('footer-ticker-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const footerText = document.getElementById('footer_text').value;
-        const { error } = await supabaseClient.from('break_settings').update({ footer_text: footerText }).eq('id', 1);
-        if (error) alert("फुटर सन्देश अपडेट गर्दा त्रुटि भयो: " + error.message);
-        else showSuccessAlert();
+        const { error } = await supabaseClient.from('break_settings').upsert([{ id: 1, is_active: true, reason: reason, end_time: targetTime }]);
+        if (error) alert("विशेष मोड सेट गर्दा त्रुटि: " + error.message);
+        else { alert("काउन्टडाउन स्क्रिनमा लागू भयो !"); document.getElementById('break-form').reset(); }
     });
 
     async function clearBreakTime() {
-        const { error } = await supabaseClient.from('break_settings').update({ reason: '', is_active: false }).eq('id', 1);
-        if (error) alert("समय हटाउन सकिएन: " + error.message);
-        else { document.getElementById('break-form').reset(); showSuccessAlert(); }
+        const { error } = await supabaseClient.from('break_settings').upsert([{ id: 1, is_active: false, reason: '', end_time: null }]);
+        if (error) alert("हटाउन त्रुटि: " + error.message);
+        else alert("विशेष मोड हटाइयो (सामान्य अवस्था)।");
     }
 
-    async function deleteModuleRow(tableName, id, successCallback) {
-        if (confirm("के तपाईं निश्चित रूपमा यो विवरण हटाउन चाहनुहुन्छ?")) {
+    document.getElementById('footer-ticker-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const txt = document.getElementById('footer_text').value;
+        const { error } = await supabaseClient.from('break_settings').upsert([{ id: 2, reason: txt, is_active: false }]);
+        if (error) alert("फुटर सन्देश सेट गर्दा त्रुटि: " + error.message);
+        else alert("सन्देश स्क्रिनको फुटरमा म्याप भयो !");
+    });
+
+    // ================= साझा कार्यहरू (Delete, Reset) =================
+    async function deleteItem(tableName, id) {
+        if (confirm("के तपाईं यो विवरण स्थायी रूपमा हटाउन चाहनुहुन्छ?")) {
             const { error } = await supabaseClient.from(tableName).delete().eq('id', id);
-            if (!error) successCallback();
-            else alert("डिलिट गर्दा समस्या आयो: " + error.message);
+            if (error) alert("विवरण हटाउन सकिएन: " + error.message);
+            else { showSuccessAlert(); loadActiveModuleData(); }
         }
     }
 
     function resetModuleForm(moduleName) {
         isEditMode[moduleName] = false;
-        document.getElementById(`${moduleName}-form`).reset();
-        document.getElementById(`${moduleName}-id`).value = '';
-        
-        if (document.getElementById(`${moduleName}_existing_photo_url`)) {
-            document.getElementById(`${moduleName}_existing_photo_url`).value = '';
-        }
-        
-        if(moduleName === 'charter') {
+        const form = document.getElementById(`${moduleName}-form`);
+        if (form) form.reset();
+
+        if (moduleName === 'charter') {
+            document.getElementById('charter-id').value = '';
             document.getElementById('charter-title').innerText = "नयाँ सेवा थप्नुहोस्";
             document.getElementById('charter-submit-btn').innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> डाटा सुरक्षित गर्नुहोस्`;
-        } else if(moduleName === 'employee') {
+        } else if (moduleName === 'employee') {
+            document.getElementById('employee-id').value = '';
+            document.getElementById('emp_existing_photo_url').value = '';
             document.getElementById('employee-title').innerText = "नयाँ कर्मचारी थप्नुहोस्";
             document.getElementById('employee-submit-btn').innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> कर्मचारी थप्नुहोस्`;
-        } else if(moduleName === 'representative') {
+        } else if (moduleName === 'representative') {
+            document.getElementById('representative-id').value = '';
+            document.getElementById('rep_existing_photo_url').value = '';
             document.getElementById('representative-title').innerText = "नयाँ जनप्रतिनिधि थप्नुहोस्";
             document.getElementById('representative-submit-btn').innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> प्रतिनिधि थप्नुहोस्`;
         }
@@ -964,7 +951,7 @@
     });
 
     async function handleLogout() {
-        if(confirm("के तपाईं पक्का लगआउट गर्न चाहनुहुन्छ?")) {
+        if (confirm("के तपाईं पक्का लगआउट गर्न चाहनुहुन्छ?")) {
             await supabaseClient.auth.signOut();
             toggleScreens(null);
             document.getElementById('login-form').reset();
