@@ -415,7 +415,7 @@
         else if (hours >= 4 && hours < 12) timePeriodLabel = "बिहान";
         else if (hours >= 12 && hours < 16) timePeriodLabel = "दिउँसो";
         else if (hours >= 16 && hours < 20) timePeriodLabel = "अपराह्न";
-        else timePeriodLabel = "बेलुका";
+        else timePeriodLabel = "राति";
         
         let displayHours = hours % 12;
         displayHours = displayHours ? displayHours : 12;
@@ -447,6 +447,7 @@
         }
     }
 
+    // परिमार्जन गरिएको loadCharterData फङ्सन
     async function loadCharterData() {
         const { data, error } = await supabaseClient.from('citizen_charter').select('*').order('id', { ascending: true });
         if (error || !data) return;
@@ -455,12 +456,19 @@
         container.innerHTML = '';
 
         data.forEach((item, index) => {
+            let formattedDocs = '-';
+            if (item.documents) {
+                let docArray = item.documents.split(',');
+                let numberedDocs = docArray.map((doc, i) => `${i + 1}. ${doc.trim()}`).join('<br>');
+                formattedDocs = convertToNepaliNumerals(numberedDocs);
+            }
+
             const row = document.createElement('div');
             row.className = 'charter-row';
             row.innerHTML = `
                 <div class="sn-cell center-ch">${convertToNepaliNumerals(index + 1)}</div>
                 <div class="service-cell">${item.service_name}</div>
-                <div class="doc-cell">${item.documents ? convertToNepaliNumerals(item.documents) : '-'}</div>
+                <div class="doc-cell">${formattedDocs}</div>
                 <div class="dept-cell">${item.department}</div>
                 <div class="time-cell center-ch">${convertToNepaliNumerals(item.duration)}</div>
                 <div class="cost-cell center-ch">${convertToNepaliNumerals(item.cost)}</div>
