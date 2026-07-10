@@ -364,6 +364,10 @@
                         <div class="input-wrapper"><i class="fa-solid fa-clock"></i><input type="text" id="duration" placeholder="सोही दिन वा १ घण्टाभित्र" required></div>
                     </div>
                     <div class="form-group">
+                        <label for="charter_rank">र्याङ्किङ अनुक्रम (Rank - सानो नम्बर पहिले देखिनेछ)</label>
+                        <div class="input-wrapper"><i class="fa-solid fa-sort-numeric-down"></i><input type="number" id="charter_rank" placeholder="जस्तै: १, २, ३..." min="1"></div>
+                    </div>
+                    <div class="form-group">
                         <label for="documents">आवश्यक कागजातहरू</label>
                         <div class="input-wrapper"><i class="fa-solid fa-file-lines" style="top:15px;"></i><textarea id="documents" placeholder="निवेदन, लालपुर्जाको प्रतिलिपि..." required></textarea></div>
                     </div>
@@ -505,6 +509,7 @@
             <table id="charter-table-view" class="tab-content active">
                 <thead>
                     <tr>
+                        <th>अनुक्रम (Rank)</th>
                         <th>शाखा/अधिकारी</th>
                         <th>सेवाको नाम</th>
                         <th>दस्तुर</th>
@@ -513,7 +518,7 @@
                     </tr>
                 </thead>
                 <tbody id="charter-data-list">
-                    <tr><td colspan="5" style="text-align: center; color: #64748b;">डाटा लोड हुँदैछ...</td></tr>
+                    <tr><td colspan="6" style="text-align: center; color: #64748b;">डाटा लोड हुँदैछ...</td></tr>
                 </tbody>
             </table>
 
@@ -621,16 +626,18 @@
     // ================= नागरिक बडापत्र CRUD =================
     async function fetchCharterData() {
         const listContainer = document.getElementById('charter-data-list');
-        listContainer.innerHTML = `<tr><td colspan="5" style="text-align: center;">लोड हुँदैछ...</td></tr>`;
+        listContainer.innerHTML = `<tr><td colspan="6" style="text-align: center;">लोड हुँदैछ...</td></tr>`;
         
-        const { data, error } = await supabaseClient.from('citizen_charter').select('*').order('id', { ascending: false });
-        if (error) { listContainer.innerHTML = `<tr><td colspan="5" style="color:red;">त्रुटि: ${error.message}</td></tr>`; return; }
-        if (data.length === 0) { listContainer.innerHTML = `<tr><td colspan="5" style="text-align:center;">कुनै डाटा भेटिएन।</td></tr>`; return; }
+        const { data, error } = await supabaseClient.from('citizen_charter').select('*').order('rank', { ascending: true });
+        if (error) { listContainer.innerHTML = `<tr><td colspan="6" style="color:red;">त्रुटि: ${error.message}</td></tr>`; return; }
+        if (data.length === 0) { listContainer.innerHTML = `<tr><td colspan="6" style="text-align:center;">कुनै डाटा भेटिएन।</td></tr>`; return; }
 
         listContainer.innerHTML = '';
         data.forEach(item => {
             const tr = document.createElement('tr');
+            const rankDisplay = item.rank && item.rank !== 999 ? item.rank : '<span style="color:#94a3b8;">सेट नगरिएको</span>';
             tr.innerHTML = `
+                <td><span class="badge" style="font-weight:bold; color:var(--primary-color);">${rankDisplay}</span></td>
                 <td><strong>${item.department}</strong></td>
                 <td>${item.service_name}</td>
                 <td>${item.cost}</td>
@@ -655,7 +662,8 @@
             service_name: document.getElementById('service_name').value,
             cost: document.getElementById('cost').value,
             duration: document.getElementById('duration').value,
-            documents: document.getElementById('documents').value
+            documents: document.getElementById('documents').value,
+            rank: parseInt(document.getElementById('charter_rank').value) || 999
         };
 
         let result;
@@ -678,6 +686,7 @@
         document.getElementById('cost').value = item.cost;
         document.getElementById('duration').value = item.duration;
         document.getElementById('documents').value = item.documents;
+        document.getElementById('charter_rank').value = item.rank && item.rank !== 999 ? item.rank : '';
 
         document.getElementById('charter-title').innerText = "विवरण परिमार्जन गर्नुहोस्";
         document.getElementById('charter-submit-btn').innerHTML = `<i class="fa-solid fa-square-check"></i> अपडेट गर्नुहोस्`;
@@ -917,6 +926,7 @@
 
         if (moduleName === 'charter') {
             document.getElementById('charter-id').value = '';
+            document.getElementById('charter_rank').value = '';
             document.getElementById('charter-title').innerText = "नयाँ सेवा थप्नुहोस्";
             document.getElementById('charter-submit-btn').innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> डाटा सुरक्षित गर्नुहोस्`;
         } else if (moduleName === 'employee') {

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>गलकोट नगरपालिका - नागरिक बडापत्र</title>
-    <link href="https://fonts.googleapis.com/css2?family=Mukta:wght=400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
@@ -447,9 +447,9 @@
         }
     }
 
-    // परिमार्जन गरिएको loadCharterData फङ्सन
+    // परिमार्जन गरिएको loadCharterData फङ्सन (Rank को आधारमा Sort हुने गरि)
     async function loadCharterData() {
-        const { data, error } = await supabaseClient.from('citizen_charter').select('*').order('id', { ascending: true });
+        const { data, error } = await supabaseClient.from('citizen_charter').select('*').order('rank', { ascending: true });
         if (error || !data) return;
 
         const container = document.getElementById('charter-table-body');
@@ -679,7 +679,6 @@
             overlay.style.display = 'none';
         }
         
-        // डाटाहरू रेन्डर भइसकेपछि एनिमेसन र विड्थ नाप्न सधै इन्जिन ट्रिगर गर्ने फिक्स
         coreAutomationEngine(); 
     }
 
@@ -690,7 +689,6 @@
     supabaseClient.channel('realtime-reps').on('postgres_changes', { event: '*', schema: 'public', table: 'representatives' }, () => loadRepData().then(() => coreAutomationEngine())).subscribe();
     supabaseClient.channel('realtime-break').on('postgres_changes', { event: '*', schema: 'public', table: 'break_settings' }, () => checkBreakAndConfigStatus()).subscribe();
 
-    // रेस कन्डिसन हुन नदिन async/await ढाँचामा लोड गराउने व्यवस्था
     Promise.all([loadCharterData(), loadStaffData(), loadRepData()]).then(async () => {
         await checkBreakAndConfigStatus();
     });
