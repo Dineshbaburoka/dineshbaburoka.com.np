@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loksewa Hub Studio Pro v4.0 - Ultra Premium Enterprise Edition</title>
+    
+    <!-- 1. TAILWIND CSS FOR NEON SYSTEM STYLING -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#04060f',
+                            panel: '#0a0f24',
+                            input: '#02040a',
+                            neonCyan: '#06b6d4',
+                            neonPurple: '#a855f7',
+                            neonGreen: '#10b981',
+                            gold: '#ffbc00'
+                        }
+                    },
+                    letterSpacing: {
+                        superwide: '0.25em',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- 2. ROBUST LIBRARIES FOR DATA AND MEDIA ARCHITECTURE -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2.39.8/dist/umd/supabase.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/recordrtc@5.6.2/RecordRTC.js"></script>
+
+    <!-- 3. ADVANCED GLASSMORPHISM & CSS LAYOUT SYSTEM -->
+    <style>
+        .scrollbar-premium::-webkit-scrollbar { width: 6px; height: 6px; }
+        .scrollbar-premium::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.5); border-radius: 10px; }
+        .scrollbar-premium::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; border: 1px solid rgba(6, 182, 212, 0.1); }
+        .scrollbar-premium::-webkit-scrollbar-thumb:hover { background: #334155; }
+        
+        /* Premium Canvas and UI Background Elements */
+        .bg-studio-overlay {
+            background-image: linear-gradient(to bottom, rgba(4, 6, 15, 0.88), rgba(10, 15, 36, 0.96)), url('https://images.unsplash.com/photo-1506880018603-83d5b814b5a6?q=80&w=1920');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        
+        .preview-bg-image {
+            background-image: linear-gradient(to bottom, rgba(10, 15, 36, 0.92), rgba(4, 6, 15, 0.97)), url('https://images.unsplash.com/photo-1506880018603-83d5b814b5a6?q=80&w=1080');
+            background-size: cover;
+            background-position: center;
+            transition: all 0.5s ease-in-out;
+        }
+
+        /* SVG Circular Timer Styling */
+        svg.timer-svg {
+            transform: rotate(-90deg);
+        }
+        circle.track {
+            fill: transparent;
+            stroke: rgba(255, 255, 255, 0.08);
+            stroke-width: 12;
+        }
+        circle.progress {
+            fill: transparent;
+            stroke: #ffbc00;
+            stroke-width: 12;
+            stroke-linecap: round;
+            stroke-dasharray: 565.48; /* 2 * Math.PI * 90 */
+            stroke-dashoffset: 0;
+            transition: stroke-dashoffset 1s linear;
+        }
+    </style>
+</head>
+<body class="bg-brand-dark bg-studio-overlay min-h-screen text-slate-200 font-sans antialiased selection:bg-cyan-500 selection:text-black">
+
+<!-- GLOBAL NEON GRAPHICS BACKGROUND DECORATIONS -->
+<div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -left-40 w-96 h-96 bg-cyan-500/10 rounded-full blur-[120px]"></div>
+    <div class="absolute top-1/2 left-1/3 w-80 h-80 bg-purple-500/5 rounded-full blur-[100px]"></div>
+    <div class="absolute -bottom-40 -right-40 w-96 h-96 bg-emerald-500/10 rounded-full blur-[120px]"></div>
+</div>
+
+<!-- ENTERPRISE CORE SYSTEM GRID CONTAINER -->
+<div class="relative z-10 max-w-7xl mx-auto p-3 sm:p-6 lg:p-8 flex flex-col min-h-screen justify-between">
+    
+    <!-- SYSTEM CONTAINER HEADER NAVBAR -->
+    <header class="border-b border-slate-800/80 pb-5 mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="text-center sm:text-left">
+            <div class="flex items-center justify-center sm:justify-start gap-3">
+                <span class="h-3 w-3 rounded-full bg-cyan-500 shadow-[0_0_15px_rgba(6,182,212,1)] animate-pulse"></span>
+                <h1 class="text-2xl sm:text-3xl font-black tracking-tight bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent">
+                    LOKSEWA HUB STUDIO PRO
+                </h1>
+                <span class="text-[10px] bg-slate-800 text-cyan-400 border border-slate-700 font-mono px-2 py-0.5 rounded-md">v4.0 Final</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">Unified Cloud Database Ecosystem & Canvas Render Array Module</p>
+        </div>
+        
+        <!-- RUNTIME LIVE STATISTICAL COUNTERS -->
+        <div class="flex items-center gap-3 text-xs font-mono bg-brand-panel/60 border border-slate-800 px-4 py-2 rounded-xl backdrop-blur-md">
+            <div class="flex items-center gap-2 border-r border-slate-800 pr-3">
+                <span class="text-slate-500">Total Rows:</span>
+                <span id="stat-total" class="text-cyan-400 font-bold">0</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-slate-500">Active Node:</span>
+                <span id="stat-active-cat" class="text-purple-400 font-bold">सबै विषय</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- MOBILE VIEW RESPONSE TAB NAVIGATION TRIGGERS -->
+    <div class="flex bg-slate-950 p-1.5 rounded-2xl border border-slate-800 mb-5 md:hidden shadow-inner">
+        <button onclick="toggleMobileInterfaceLayout('tab-management-panel')" id="btn-tab-manage" class="flex-1 py-3 rounded-xl text-xs font-black tracking-wider uppercase transition-all bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-lg">
+            📝 Data Node Admin
+        </button>
+        <button onclick="toggleMobileInterfaceLayout('tab-studio-panel')" id="btn-tab-studio" class="flex-1 py-3 rounded-xl text-xs font-black tracking-wider uppercase transition-all text-slate-400">
+            🎥 Live 9:16 Core
+        </button>
+    </div>
+
+    <!-- MAIN TWO-COLUMN APPLICATION LOGIC ARCHITECTURE WORKSPACE -->
+    <main class="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 items-start flex-grow">
+        
+        <!-- ==================================================================== -->
+        <!-- SYSTEM COLUMN LEFT: SUPABASE TRANSACTION DATA CONTROLLER PANEL      -->
+        <!-- ==================================================================== -->
+        <div id="view-management-panel" class="md:col-span-5 lg:col-span-5 bg-brand-panel/60 border border-slate-800/80 p-5 rounded-3xl shadow-2xl space-y-6 backdrop-blur-2xl md:block">
+            
+            <div class="space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <h2 id="setup-title" class="text-base font-black text-cyan-400 uppercase tracking-wider flex items-center gap-2">
+                        📥 डेटा प्रविष्टि नियन्त्रण फारम
+                    </h2>
+                    <span id="operation-badge" class="text-[9px] font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 px-2 py-0.5 rounded uppercase">Create Mode</span>
+                </div>
+
+                <div class="space-y-3 text-sm">
+                    <!-- DATA IDENTIFIER STATE POINTER KEY -->
+                    <input type="hidden" id="form-field-id">
+
+                    <!-- CATEGORY CONTEXT OPTION SPECIFICATION BLOCK -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 mb-1.5 pl-1 uppercase tracking-wider">१. विषय / कोटि विन्यास (Category)</label>
+                        <div class="grid grid-cols-12 gap-2">
+                            <select id="form-field-category" class="col-span-8 p-3 bg-brand-input border border-slate-800 rounded-xl text-slate-200 outline-none focus:border-cyan-500 transition-all text-xs font-bold">
+                                <option value="सामान्य ज्ञान">🌐 सामान्य ज्ञान (General GK)</option>
+                                <option value="इतिहास">📜 इतिहास (History)</option>
+                                <option value="भूगोल">🌍 भूगोल (Geography)</option>
+                                <option value="संविधान र राजनीति">⚖️ संविधान र राजनीति</option>
+                                <option value="विज्ञान र प्रविधि">🚀 विज्ञान र प्रविधि</option>
+                                <option value="दिगो विकास">🌱 दिगो विकास र वातावरण</option>
+                                <option value="अंतर्राष्ट्रिय सम्बन्ध">🤝 अंतर्राष्ट्रिय सम्बन्ध</option>
+                                <option value="समसामयिक घटना">📰 समसामयिक घटनाहरू</option>
+                            </select>
+                            <button onclick="injectAdHocCategoryTokenString()" type="button" class="col-span-4 bg-slate-800/80 hover:bg-slate-700 border border-slate-700/60 text-xs font-bold rounded-xl text-slate-300 transition-all flex items-center justify-center gap-1">
+                                ➕ नयाँ थप्नुहोस्
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- REEL DYNAMIC BACKGROUND IMAGE URL DATA POINTER -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 mb-1.5 pl-1 uppercase tracking-wider">१.५ भिडियो ब्याकग्राउन्ड इमेज लिङ्क (Background URL)</label>
+                        <input type="text" id="form-field-bg-url" value="https://images.unsplash.com/photo-1506880018603-83d5b814b5a6?q=80&w=1000" placeholder="https://example.com/background.jpg" class="w-full p-3 bg-brand-input border border-slate-800 rounded-xl outline-none focus:border-cyan-500 text-white transition-all text-xs font-mono">
+                    </div>
+
+                    <!-- DATA STREAM QUESTION MAIN DESCRIPTION HEADER TEXTAREA -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 mb-1.5 pl-1 uppercase tracking-wider">२. मुख्य प्रश्नको विवरण (Question Description)</label>
+                        <textarea id="form-field-question" class="w-full p-3 bg-brand-input border border-slate-800 rounded-xl outline-none focus:border-cyan-500 text-white transition-all resize-none font-semibold text-xs leading-relaxed" rows="2" placeholder="लोकसेवा आयोग परीक्षा उपयोगी प्रश्न यहाँ लेख्नुहोस्..."></textarea>
+                    </div>
+                    
+                    <!-- DATA SPECIFICATION BLOCK MULTIPLE CHOICES DATA ROW ITEMS -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 mb-1.5 pl-1 uppercase tracking-wider">३. बहुवैकल्पिक उत्तर व्यवस्थापन (MCQ Option Stacks)</label>
+                        <div class="space-y-2">
+                            <div class="flex items-center bg-brand-input border border-slate-800 rounded-xl px-3 focus-within:border-cyan-500 transition-all group">
+                                <span class="text-xs font-black text-slate-500 mr-2 group-focus-within:text-cyan-400 transition-all">क)</span>
+                                <input type="text" id="form-field-opt-a" placeholder="पहिलो विकल्प उत्तर (Option A)" class="w-full py-2.5 bg-transparent outline-none text-white font-medium text-xs">
+                            </div>
+                            <div class="flex items-center bg-brand-input border border-slate-800 rounded-xl px-3 focus-within:border-cyan-500 transition-all group">
+                                <span class="text-xs font-black text-slate-500 mr-2 group-focus-within:text-cyan-400 transition-all">ख)</span>
+                                <input type="text" id="form-field-opt-b" placeholder="दोस्रो विकल्प उत्तर (Option B)" class="w-full py-2.5 bg-transparent outline-none text-white font-medium text-xs">
+                            </div>
+                            <div class="flex items-center bg-brand-input border border-slate-800 rounded-xl px-3 focus-within:border-cyan-500 transition-all group">
+                                <span class="text-xs font-black text-slate-500 mr-2 group-focus-within:text-cyan-400 transition-all">ग)</span>
+                                <input type="text" id="form-field-opt-c" placeholder="तेस्रो विकल्प उत्तर (Option C)" class="w-full py-2.5 bg-transparent outline-none text-white font-medium text-xs">
+                            </div>
+                            <div class="flex items-center bg-brand-input border border-slate-800 rounded-xl px-3 focus-within:border-cyan-500 transition-all group">
+                                <span class="text-xs font-black text-slate-500 mr-2 group-focus-within:text-cyan-400 transition-all">घ)</span>
+                                <input type="text" id="form-field-opt-d" placeholder="चौथो विकल्प उत्तर (Option D)" class="w-full py-2.5 bg-transparent outline-none text-white font-medium text-xs">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CORRECT DATA ENGINE KEY MAPPING CONTROL POINTER -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 mb-1.5 pl-1 uppercase tracking-wider">४. सही उत्तर म्यापिङ कुञ्जी (Correct Execution Key)</label>
+                        <select id="form-field-correct-answer" class="w-full p-3 bg-brand-input border border-slate-800 rounded-xl text-slate-200 outline-none focus:border-cyan-500 transition-all text-xs font-bold">
+                            <option value="a">विकल्प क (Option A Mapping)</option>
+                            <option value="b">विकल्प ख (Option B Mapping)</option>
+                            <option value="c">विकल्प ग (Option C Mapping)</option>
+                            <option value="d">विकल्प घ (Option D Mapping)</option>
+                        </select>
+                    </div>
+
+                    <!-- TRANSACTION COMMIT OR ROLLBACK DISPATCHERS -->
+                    <div class="flex gap-2 pt-3">
+                        <button onclick="dispatchDatabaseWriteTransaction()" id="btn-action-submit" type="button" class="flex-1 bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white py-3.5 rounded-xl font-black transition-all shadow-lg text-xs uppercase tracking-wider">
+                            डाटाबेस सिङ्क सुरक्षित गर्नुहोस्
+                        </button>
+                        <button onclick="resetDataEntryFormToFactoryState()" id="btn-action-cancel" type="button" class="bg-slate-800 hover:bg-slate-700 border border-slate-700/50 text-white px-4 py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all hidden">
+                            रद्द
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RE-FILTER REGISTRATION AND COLLECTION AGGREGATOR DISPLAY -->
+            <div class="border-t border-slate-800/80 pt-5 space-y-3">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xs font-black text-purple-400 uppercase tracking-wider flex items-center gap-2">
+                        🎯 विधा वर्गीकरण फिल्टर प्रणाली (Data Filter)
+                    </h2>
+                </div>
+                
+                <select id="filter-category-selector" onchange="applyLiveCategoryFilterLayer(this.value)" class="w-full p-2.5 bg-slate-950 border border-purple-900/30 rounded-xl text-xs font-bold text-purple-300 outline-none focus:border-purple-500 transition-all shadow-inner">
+                    <option value="ALL">📂 सबै विधाका प्रश्नहरू हेर्नुहोस् (Show All Records)</option>
+                    <option value="सामान्य ज्ञान">🌐 सामान्य ज्ञान (General GK)</option>
+                    <option value="इतिहास">📜 इतिहास (History)</option>
+                    <option value="भूगोल">🌍 भूगोल (Geography)</option>
+                    <option value="संविधान र राजनीति">⚖️ संविधान र राजनीति</option>
+                    <option value="विज्ञान र प्रविधि">🚀 विज्ञान र प्रविधि</option>
+                    <option value="दिगो विकास">🌱 दिगो विकास र वातावरण</option>
+                    <option value="अंतर्राष्ट्रिय सम्बन्ध">🤝 अंतर्राष्ट्रिय सम्बन्ध</option>
+                    <option value="समसामयिक घटना">📰 समसामयिक घटनाहरू</option>
+                </select>
+
+                <!-- DYNAMIC RECONCILED ARCHIVE ENTRY ITEMS STREAM LIST -->
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between text-[11px] text-slate-400 px-1 font-medium">
+                        <span>उपलब्ध रेकर्डहरू:</span>
+                        <span id="filtered-count-display" class="text-slate-500 font-mono">Loading Core Rows...</span>
+                    </div>
+                    <div id="dynamic-question-bank-container" class="space-y-2 max-h-[220px] overflow-y-auto pr-1 scrollbar-premium">
+                        <div class="p-4 bg-slate-950/40 border border-slate-900 rounded-xl text-center">
+                            <p class="text-xs text-slate-500 animate-pulse">क्लाउड सर्भर डेटाबेस हुक गरिँदैछ...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================================================================== -->
+        <!-- SYSTEM COLUMN RIGHT: 9:16 HIGH-FIDELITY LIVE PREVIEW STUDIO PANEL    -->
+        <!-- ==================================================================== -->
+        <div id="view-studio-panel" class="md:col-span-7 lg:col-span-7 flex flex-col items-center justify-center hidden md:flex">
+            
+            <!-- BROADCAST HARDWARE SIMULATOR FRAME DISPLAY (9:16 ASPECT) -->
+            <div id="studio-916-viewport-box" class="preview-bg-image w-[320px] h-[568px] sm:w-[350px] sm:h-[622px] rounded-[2.5rem] border-[6px] border-slate-800 shadow-[0_0_60px_rgba(0,0,0,0.85)] flex flex-col justify-between p-6 relative overflow-hidden">
+                
+                <!-- BACKGROUND LAYER MESH PROTECTION FOR HIGHER TEXT READABILITY -->
+                <div class="absolute inset-0 bg-gradient-to-b from-slate-950/40 via-slate-950/85 to-slate-950/60 z-0"></div>
+                
+                <!-- TOP META BRAND BADGING ARRAY -->
+                <div class="relative z-10 text-center mt-1">
+                    <div class="inline-flex flex-col items-center gap-1 bg-slate-950/90 border border-cyan-500/20 px-5 py-2 rounded-2xl shadow-2xl backdrop-blur-xl">
+                        <span id="preview-tag-category" class="text-[8px] font-black tracking-widest text-purple-400 uppercase">विधा चयन गर्नुहोस्</span>
+                        <div class="h-[1px] w-8 bg-slate-800"></div>
+                        <span class="text-[10px] font-black tracking-superwide text-cyan-400 uppercase">LOKSEWA HUB QUIZ</span>
+                    </div>
+                </div>
+
+                <!-- MIDDLE VIEWPORT WORKSPACE HARDWARE SIMULATOR CONTENT DISPLAY -->
+                <div class="relative z-10 my-auto space-y-6">
+                    <!-- MAIN RENDER COMPONENT QUESTION STRING -->
+                    <h1 id="preview-text-question" class="text-lg sm:text-xl font-black text-white text-center leading-relaxed px-1 drop-shadow-2xl">
+                        बाँया प्यानल वा संकलित सूचीबाट एउटा प्रश्न चयन गरेर रेन्डर सुरु गर्नुहोस्।
+                    </h1>
+
+                    <!-- ACTIVE SYSTEM GRAPHIC PREVIEW SLOTS OPTIONS CONTAINER -->
+                    <div id="preview-options-container-stack" class="space-y-2.5">
+                        <div class="p-3 bg-slate-900/60 border border-slate-800/80 rounded-2xl font-bold text-slate-400 text-xs text-left backdrop-blur-md flex items-center gap-2">
+                            <span class="text-cyan-500 font-black text-xs">क)</span> <span class="truncate">---</span>
+                        </div>
+                        <div class="p-3 bg-slate-900/60 border border-slate-800/80 rounded-2xl font-bold text-slate-400 text-xs text-left backdrop-blur-md flex items-center gap-2">
+                            <span class="text-cyan-500 font-black text-xs">ख)</span> <span class="truncate">---</span>
+                        </div>
+                        <div class="p-3 bg-slate-900/60 border border-slate-800/80 rounded-2xl font-bold text-slate-400 text-xs text-left backdrop-blur-md flex items-center gap-2">
+                            <span class="text-cyan-500 font-black text-xs">ग)</span> <span class="truncate">---</span>
+                        </div>
+                        <div class="p-3 bg-slate-900/60 border border-slate-800/80 rounded-2xl font-bold text-slate-400 text-xs text-left backdrop-blur-md flex items-center gap-2">
+                            <span class="text-cyan-500 font-black text-xs">घ)</span> <span class="truncate">---</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BOTTOM MODULE: DYNAMIC INTEGRATED CIRCULAR LOGO TIMER WITH TIME COUNT -->
+                <div class="relative z-10 mt-auto flex flex-col items-center space-y-4 pb-2">
+                    
+                    <!-- SVG HIGH-FIDELITY TRACKING EMBEDDED CIRCULAR TIMER -->
+                    <div class="relative w-[130px] h-[130px] flex items-center justify-center bg-slate-950/90 rounded-full border border-slate-800/60 shadow-2xl">
+                        <svg class="timer-svg absolute inset-0" width="130" height="130">
+                            <circle class="track" cx="65" cy="65" r="50"></circle>
+                            <circle class="progress" id="ui-vector-progress-node" cx="65" cy="65" r="50"></circle>
+                        </svg>
+                        
+                        <!-- LOKSEWA HUB INTERACTIVE INTEGRATED LOGO CONTAINER IN THE CENTER -->
+                        <img id="ui-timer-integrated-logo" src="logo_hub_2.jpg" alt="Logo" class="absolute w-[80px] h-[80px] rounded-full object-cover opacity-20 z-10 transition-opacity duration-300">
+                        
+                        <!-- REMAINING NUMERIC TIMER STRING DISPLAY IN CENTER OVER LOGO LAYER -->
+                        <div id="preview-timer-numeric-string" class="absolute font-mono text-3xl font-black text-brand-gold z-20 text-shadow-md">5</div>
+                    </div>
+                    
+                    <!-- RESULTS HIGHLIGHT BANNER NODE LAYER -->
+                    <div id="preview-answer-alert-node" class="w-full text-xs font-black text-emerald-400 bg-emerald-950/90 py-3 px-4 rounded-xl text-center shadow-2xl border border-emerald-500/20 hidden backdrop-blur-2xl animate-bounce">
+                        ✅ सही उत्तर संरेखण लोड हुँदैछ...
+                    </div>
+                </div>
+            </div>
+
+            <!-- EXPORT ENGINE TRIGGER CONSOLE MANAGER -->
+            <div class="w-[320px] sm:w-[350px] mt-4">
+                <button id="btn-engine-trigger" onclick="orchestratePremiumCanvasReelPipeline()" type="button" class="w-full bg-gradient-to-r from-red-600 via-pink-600 to-purple-600 hover:from-red-500 hover:to-purple-500 text-white py-4 rounded-2xl font-black shadow-xl shadow-pink-900/20 transition-all transform active:scale-95 text-center text-xs tracking-wider uppercase flex items-center justify-center gap-2">
+                    ⚡ GENERATE FULL HD SHORT / REEL (WITH TIMER LOGO)
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FOOTER LICENSE COMPONENT PLATFORM META -->
+    <footer class="border-t border-slate-900 mt-8 pt-4 text-center text-[10px] font-mono text-slate-600">
+        Loksewa Hub NextGen Studio Engine Core v4.0.0 Pro • Verified 100% Client-Side Vectors Asset Layer.
+    </footer>
+</div>
+
+<!-- ==================================================================== -->
+<!-- SYSTEM SCRIPT: DISPATCH CONSOLE LOGIC & MATRIX CONTROLLER FUNCTIONS  -->
+<!-- ==================================================================== -->
+<script>
+    // GLOBAL DATABASE GATEWAY SPECIFICATIONS CONFIGS
+    const DATABASE_ENDPOINT_URL = 'https://mqnbkhhigbjonjoomtue.supabase.co'; 
+    const DATABASE_ANON_PUBLIC_KEY = 'sb_publishable_RkL4SAfe63UYXvtYNLjSXw_QAXwk-lc';
+    
+    // RUNTIME CONTAINER APPLICATIONS REGISTRATION VARIABLE ENVIRONMENT
+    let supabaseClusterInstance = null;
+    let localMemoryQuestionCollection = [];
+    let runtimeSelectedQuestionObject = null;
+    let activeFilteringCategoryToken = "ALL";
+
+    // CORE NODE TREE CACHE POINTER REGISTER REFERENCES
+    const DOM = {
+        id: () => document.getElementById('form-field-id'),
+        category: () => document.getElementById('form-field-category'),
+        bgUrl: () => document.getElementById('form-field-bg-url'),
+        question: () => document.getElementById('form-field-question'),
+        optA: () => document.getElementById('form-field-opt-a'),
+        optB: () => document.getElementById('form-field-opt-b'),
+        optC: () => document.getElementById('form-field-opt-c'),
+        optD: () => document.getElementById('form-field-opt-d'),
+        correct: () => document.getElementById('form-field-correct-answer'),
+        submitBtn: () => document.getElementById('btn-action-submit'),
+        cancelBtn: () => document.getElementById('btn-action-cancel'),
+        formTitle: () => document.getElementById('setup-title'),
+        badge: () => document.getElementById('operation-badge'),
+        filterSelect: () => document.getElementById('filter-category-selector'),
+        bankContainer: () => document.getElementById('dynamic-question-bank-container'),
+        filteredCount: () => document.getElementById('filtered-count-display'),
+        statTotal: () => document.getElementById('stat-total'),
+        statActiveCat: () => document.getElementById('stat-active-cat'),
+        viewPreviewCategory: () => document.getElementById('preview-tag-category'),
+        viewPreviewQuestion: () => document.getElementById('preview-text-question'),
+        viewPreviewOptionsWrapper: () => document.getElementById('preview-options-container-stack'),
+        viewPreviewTimerText: () => document.getElementById('preview-timer-numeric-string'),
+        viewPreviewAnswerAlert: () => document.getElementById('preview-answer-alert-node'),
+        engineTriggerBtn: () => document.getElementById('btn-engine-trigger'),
+        panelManage: () => document.getElementById('view-management-panel'),
+        panelStudio: () => document.getElementById('view-studio-panel'),
+        tabBtnManage: () => document.getElementById('btn-tab-manage'),
+        tabBtnStudio: () => document.getElementById('btn-tab-studio'),
+        viewportBox: () => document.getElementById('studio-916-viewport-box'),
+        vectorProgressNode: () => document.getElementById('ui-vector-progress-node'),
+        integratedLogo: () => document.getElementById('ui-timer-integrated-logo')
+    };
+
+    // SYSTEM ENGINE ENTRY INITIALIZATION BOOTSTRAP PIPELINE
+    (function initSystemBootstrapGatewayEngine() {
+        try {
+            if (window.supabase) {
+                supabaseClusterInstance = window.supabase.createClient(DATABASE_ENDPOINT_URL, DATABASE_ANON_PUBLIC_KEY);
+                console.log("Remote Supabase Data Network Layer connected securely.");
+                pullQuestionCollectionRecordsFromCloud();
+            } else {
+                throw new Error("Critical Dependency Exception: Supabase Core SDK verified missing.");
+            }
+        } catch (bootstrapInitializationError) {
+            console.error("System Boot Core Failure Stack Trace Logged:", bootstrapInitializationError);
+            DOM.bankContainer().innerHTML = `
+                <div class="p-4 bg-red-950/20 border border-red-900/40 rounded-xl text-center text-xs text-red-400">
+                    ⚠️ System Dependency Exception: SDK Engine Validation Failed.
+                </div>`;
+        }
+
+        // Live Realtime UI Image Pipeline Controller Syncer
+        DOM.bgUrl().addEventListener('input', (eventHook) => {
+            const sanitizedUrlInputString = eventHook.target.value.trim() || 'https://images.unsplash.com/photo-1506880018603-83d5b814b5a6?q=80&w=1000';
+            DOM.viewportBox().style.backgroundImage = `linear-gradient(to bottom, rgba(10, 15, 36, 0.92), rgba(4, 6, 15, 0.97)), url('${sanitizedUrlInputString}')`;
+        });
+    })();
+
+    // AD-HOC ON-DEMAND RUNTIME INTERFACE DEVICE RESPONSIVE TAB DISPATCHER
+    function toggleMobileInterfaceLayout(targetViewPanelSelectorTokenString) {
+        if (targetViewPanelSelectorTokenString === 'tab-management-panel') {
+            DOM.panelManage().classList.remove('hidden');
+            DOM.panelStudio().classList.add('hidden');
+            DOM.tabBtnManage().className = "flex-1 py-3 rounded-xl text-xs font-black tracking-wider uppercase transition-all bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-lg";
+            DOM.tabBtnStudio().className = "flex-1 py-3 rounded-xl text-xs font-black tracking-wider uppercase transition-all text-slate-400";
+        } else {
+            DOM.panelManage().classList.add('hidden');
+            DOM.panelStudio().classList.remove('hidden');
+            DOM.panelStudio().classList.add('flex');
+            DOM.tabBtnStudio().className = "flex-1 py-3 rounded-xl text-xs font-black tracking-wider uppercase transition-all bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-lg";
+            DOM.tabBtnManage().className = "flex-1 py-3 rounded-xl text-xs font-black tracking-wider uppercase transition-all text-slate-400";
+        }
+    }
+
+    // RUNTIME STRUCT: CREATE AD-HOC CATEGORY DIALOG INJECTION FACTORY
+    function injectAdHocCategoryTokenString() {
+        const structuralUserPromptResponse = prompt("नयाँ विशिष्ट विधा वा कोटिको नाम प्रविष्ट गर्नुहोस् (उदा: इतिहास, भूगोल, अर्थतन्त्र):");
+        if (structuralUserPromptResponse && structuralUserPromptResponse.trim() !== "") {
+            const structuralCleanToken = structuralUserPromptResponse.trim();
+            
+            const selectFormNode = DOM.category();
+            let matchedOptionFlag = false;
+            for (let i = 0; i < selectFormNode.options.length; i++) {
+                if (selectFormNode.options[i].value === structuralCleanToken) {
+                    matchedOptionFlag = true; break;
+                }
+            }
+
+            if (!matchedOptionFlag) {
+                const generatedOptionNodeItem = document.createElement('option');
+                generatedOptionNodeItem.value = structuralCleanToken;
+                generatedOptionNodeItem.innerText = `📂 ${structuralCleanToken}`;
+                selectFormNode.appendChild(generatedOptionNodeItem);
+                selectFormNode.value = structuralCleanToken;
+
+                const filterSelectNodeItem = DOM.filterSelect();
+                const generatedFilterOptionNodeItem = document.createElement('option');
+                generatedFilterOptionNodeItem.value = structuralCleanToken;
+                generatedFilterOptionNodeItem.innerText = `📂 ${structuralCleanToken}`;
+                filterSelectNodeItem.appendChild(generatedFilterOptionNodeItem);
+                
+                console.log(`Custom category structural token dynamically registered: ${structuralCleanToken}`);
+            } else {
+                selectFormNode.value = structuralCleanToken;
+            }
+        }
+    }
+
+    // REMOTE ASYNCHRONOUS TRANSACTION ROUTINE WRITE: DEPLOYS DATA TO CLOUD SUPABASE TABLES
+    async function dispatchDatabaseWriteTransaction() {
+        const routingPrimaryKeyKeyId = DOM.id().value;
+        const inputQuestionValueString = DOM.question().value.trim();
+        const valueOptionA = DOM.optA().value.trim();
+        const valueOptionB = DOM.optB().value.trim();
+        const valueOptionC = DOM.optC().value.trim();
+        const valueOptionD = DOM.optD().value.trim();
+        const valueSelectedCorrectKey = DOM.correct().value;
+        const currentCategorySelectedToken = DOM.category().value;
+        const valueBackgroundImageUrl = DOM.bgUrl().value.trim();
+
+        if (!inputQuestionValueString) return alert("सिस्टम त्रुटि: प्रश्नको मुख्य विवरण खाली हुन सक्दैन।");
+        if (!valueOptionA || !valueOptionB || !valueOptionC || !valueOptionD) return alert("सिस्टम त्रुटि: चारवटै वैकल्पिक उत्तर विन्यासहरू भर्नु अनिवार्य छ।");
+
+        DOM.submitBtn().disabled = true;
+        DOM.submitBtn().innerText = "क्लाउड डेटाबेस सिङ्क गरिँदैछ...";
+
+        const outboundNetworkPayloadDataModel = {
+            question: inputQuestionValueString,
+            a: valueOptionA,
+            b: valueOptionB,
+            c: valueOptionC,
+            d: valueOptionD,
+            answer: valueSelectedCorrectKey,
+            category: currentCategorySelectedToken,
+            note: valueBackgroundImageUrl // Injected Image URL mappings cleanly preserved inside Supabase DB rows
+        };
+
+        let remoteDatabaseTransactionServerResponse;
+        
+        if (routingPrimaryKeyKeyId) {
+            remoteDatabaseTransactionServerResponse = await supabaseClusterInstance
+                .from('gk_quiz')
+                .update(outboundNetworkPayloadDataModel)
+                .eq('id', routingPrimaryKeyKeyId);
+        } else {
+            remoteDatabaseTransactionServerResponse = await supabaseClusterInstance
+                .from('gk_quiz')
+                .insert([outboundNetworkPayloadDataModel]);
+        }
+
+        if (remoteDatabaseTransactionServerResponse.error) {
+            alert("क्लाउड डेटाबेस विन्यास विफलता: " + remoteDatabaseTransactionServerResponse.error.message);
+            DOM.submitBtn().disabled = false;
+            DOM.submitBtn().innerText = "डाटाबेस सिङ्क सुरक्षित गर्नुहोस्";
+        } else {
+            resetDataEntryFormToFactoryState();
+            await pullQuestionCollectionRecordsFromCloud();
+        }
+    }
+
+    // RETRIEVAL PIPELINE MODULE: READS DATA ROWS ASYNC FROM ENTERPRISE SCHEMAS
+    async function pullQuestionCollectionRecordsFromCloud() {
+        if (!supabaseClusterInstance) return;
+
+        const { data, error } = await supabaseClusterInstance
+            .from('gk_quiz')
+            .select('*')
+            .order('id', { ascending: false });
+
+        if (error) {
+            console.error("Supabase Database Extraction Error Intercepted:", error);
+            DOM.bankContainer().innerHTML = `
+                <div class="p-3 bg-red-950/20 border border-red-900/40 rounded-xl text-center text-xs text-red-400">
+                    क्लाउड डेटाबेस आर्काइभ तान्न असफल भयो। नेटवर्क कनेक्सन जाँच गर्नुहोस्।
+                </div>`;
+            return;
+        }
+
+        localMemoryQuestionCollection = data || [];
+        synchronizeFilterConfigurationSelectors(localMemoryQuestionCollection);
+        dispatchUIRowRenderPipelineLoop();
+    }
+
+    // RUNTIME DATA SYNC RECONCILER FOR EXTRACTING NEW UNIQUE ENUM CAT TOKENS
+    function synchronizeFilterConfigurationSelectors(incomingDataCollectionCollection) {
+        const uniqueCategoryAggregateSetCollector = new Set();
+        incomingDataCollectionCollection.forEach(rowItem => {
+            if (rowItem.category && rowItem.category.trim() !== "") {
+                uniqueCategoryAggregateSetCollector.add(rowItem.category.trim());
+            }
+        });
+
+        const filterSelectorDOMNodeElement = DOM.filterSelect();
+        const formSelectorDOMNodeElement = DOM.category();
+
+        uniqueCategoryAggregateSetCollector.forEach(uniqueTokenString => {
+            let formNodeHasToken = false;
+            for (let i = 0; i < formSelectorDOMNodeElement.options.length; i++) {
+                if (formSelectorDOMNodeElement.options[i].value === uniqueTokenString) { formNodeHasToken = true; break; }
+            }
+            if (!formNodeHasToken) {
+                const optElement = document.createElement('option'); optElement.value = uniqueTokenString; optElement.innerText = `📂 ${uniqueTokenString}`;
+                formSelectorDOMNodeElement.appendChild(optElement);
+            }
+
+            let filterNodeHasToken = false;
+            for (let k = 0; k < filterSelectorDOMNodeElement.options.length; k++) {
+                if (filterSelectorDOMNodeElement.options[k].value === uniqueTokenString) { filterNodeHasToken = true; break; }
+            }
+            if (!filterNodeHasToken) {
+                const optElement = document.createElement('option'); optElement.value = uniqueTokenString; optElement.innerText = `📂 ${uniqueTokenString}`;
+                filterSelectorDOMNodeElement.appendChild(optElement);
+            }
+        });
+
+        DOM.statTotal().innerText = incomingDataCollectionCollection.length;
+    }
+
+    // SYSTEM FILTER MANAGER INTERCEPT TRIGGER ROUTINE
+    function applyLiveCategoryFilterLayer(selectedCategoryValueStringToken) {
+        activeFilteringCategoryToken = selectedCategoryValueStringToken;
+        DOM.statActiveCat().innerText = selectedCategoryValueStringToken === "ALL" ? "सबै विषय" : selectedCategoryValueStringToken;
+        dispatchUIRowRenderPipelineLoop();
+    }
+
+    // INTERFACE BUILDER ARCHITECT: EMITS STYLISH INTERACTIVE ENTRY GRID LIST
+    function dispatchUIRowRenderPipelineLoop() {
+        const activeContainerNodeViewportElement = DOM.bankContainer();
+        activeContainerNodeViewportElement.innerHTML = "";
+
+        const computationalFilteredRecordDatasetArray = localMemoryQuestionCollection.filter(recordDataRow => {
+            if (activeFilteringCategoryToken === "ALL") return true;
+            return recordDataRow.category === activeFilteringCategoryToken;
+        });
+
+        DOM.filteredCount().innerText = `${computationalFilteredRecordDatasetArray.length} items aggregated`;
+
+        if (computationalFilteredRecordDatasetArray.length === 0) {
+            activeContainerNodeViewportElement.innerHTML = `
+                <div class="p-5 bg-slate-950/60 border border-slate-900 rounded-2xl text-center text-xs text-slate-500">
+                    यस विधा वर्गीकरणमा कुनै पनि रेकर्ड डेटा उपलब्ध छैन।
+                </div>`;
+            return;
+        }
+
+        computationalFilteredRecordDatasetArray.forEach((dataRowRecord, iterationVirtualIndex) => {
+            const componentRowWrapperNodeFrame = document.createElement('div');
+            componentRowWrapperNodeFrame.className = "p-3 bg-slate-950/60 border border-slate-800/60 rounded-xl flex items-center justify-between gap-3 hover:border-slate-700/80 hover:bg-slate-900/40 transition-all cursor-pointer group";
+            
+            componentRowWrapperNodeFrame.onclick = () => {
+                hydrateStudioSimulationWorkspaceView(dataRowRecord);
+                if (window.innerWidth < 768) {
+                    toggleMobileInterfaceLayout('tab-studio-panel');
+                }
+            };
+
+            const informationBlockPartition = document.createElement('div');
+            informationBlockPartition.className = "flex-1 min-w-0";
+            
+            const badgeMetaElementNode = document.createElement('span');
+            badgeMetaElementNode.className = "inline-block text-[8px] font-black tracking-wider text-cyan-400 bg-cyan-950/40 border border-cyan-800/30 px-1.5 py-0.5 rounded uppercase mb-1";
+            badgeMetaElementNode.innerText = dataRowRecord.category || "सामान्य ज्ञान";
+            
+            const questionLabelHeaderValueNode = document.createElement('h3');
+            questionLabelHeaderValueNode.className = "text-xs font-semibold text-slate-300 group-hover:text-white transition-all truncate";
+            questionLabelHeaderValueNode.innerText = `${computationalFilteredRecordDatasetArray.length - iterationVirtualIndex}. ${dataRowRecord.question}`;
+
+            informationBlockPartition.appendChild(badgeMetaElementNode);
+            informationBlockPartition.appendChild(questionLabelHeaderValueNode);
+
+            const utilityButtonsWrapperLayoutContainer = document.createElement('div');
+            utilityButtonsWrapperLayoutContainer.className = "flex items-center gap-1.5 opacity-60 group-hover:opacity-100 transition-all";
+
+            const actionButtonNodeEditElement = document.createElement('button');
+            actionButtonNodeEditElement.className = "p-1.5 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-lg hover:bg-cyan-500 hover:text-black transition-all text-xs";
+            actionButtonNodeEditElement.innerHTML = "✏️";
+            actionButtonNodeEditElement.onclick = (eventBubblingEnderHook) => {
+                eventBubblingEnderHook.stopPropagation();
+                injectRowRecordBackIntoFormInputs(dataRowRecord);
+            };
+
+            const actionButtonNodeDeleteElement = document.createElement('button');
+            actionButtonNodeDeleteElement.className = "p-1.5 bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg hover:bg-red-500 hover:text-white transition-all text-xs";
+            actionButtonNodeDeleteElement.innerHTML = "🗑️";
+            actionButtonNodeDeleteElement.onclick = (eventBubblingEnderHook) => {
+                eventBubblingEnderHook.stopPropagation();
+                executeDestructiveRowDeletionQuery(dataRowRecord.id);
+            };
+
+            utilityButtonsWrapperLayoutContainer.appendChild(actionButtonNodeEditElement);
+            utilityButtonsWrapperLayoutContainer.appendChild(actionButtonNodeDeleteElement);
+
+            componentRowWrapperNodeFrame.appendChild(informationBlockPartition);
+            componentRowWrapperNodeFrame.appendChild(utilityButtonsWrapperLayoutContainer);
+            activeContainerNodeViewportElement.appendChild(componentRowWrapperNodeFrame);
+        });
+
+        if (computationalFilteredRecordDatasetArray.length > 0 && !runtimeSelectedQuestionObject) {
+            hydrateStudioSimulationWorkspaceView(computationalFilteredRecordDatasetArray[0]);
+        }
+    }
+
+    // FORM BUFFER TRANSLATION BRIDGE INTERFACE DISPATCHER
+    function injectRowRecordBackIntoFormInputs(targetRecordDataRowStruct) {
+        DOM.id().value = targetRecordDataRowStruct.id;
+        DOM.question().value = targetRecordDataRowStruct.question;
+        DOM.optA().value = targetRecordDataRowStruct.a;
+        DOM.optB().value = targetRecordDataRowStruct.b;
+        DOM.optC().value = targetRecordDataRowStruct.c;
+        DOM.optD().value = targetRecordDataRowStruct.d;
+        DOM.correct().value = targetRecordDataRowStruct.answer;
+        DOM.category().value = targetRecordDataRowStruct.category || "सामान्य ज्ञान";
+        
+        if (targetRecordDataRowStruct.note && targetRecordDataRowStruct.note.startsWith('http')) {
+            DOM.bgUrl().value = targetRecordDataRowStruct.note;
+            DOM.viewportBox().style.backgroundImage = `linear-gradient(to bottom, rgba(10, 15, 36, 0.92), rgba(4, 6, 15, 0.97)), url('${targetRecordDataRowStruct.note}')`;
+        }
+
+        DOM.formTitle().innerText = "✏️ डेटाबेस रेकर्ड परिमार्जन प्रणाली";
+        DOM.badge().innerText = "Edit Mode";
+        DOM.badge().className = "text-[9px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded uppercase";
+        DOM.submitBtn().innerText = "परिमार्जन सुरक्षित गर्नुहोस्";
+        DOM.submitBtn().className = "flex-1 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white py-3.5 rounded-xl font-black transition-all shadow-lg text-xs uppercase tracking-wider";
+        DOM.cancelBtn().classList.remove('hidden');
+
+        if (window.innerWidth < 768) {
+            toggleMobileInterfaceLayout('tab-management-panel');
+        }
+    }
+
+    // FACTORY DISMANTLE SYSTEM ROUTINE RESET
+    function resetDataEntryFormToFactoryState() {
+        DOM.id().value = '';
+        DOM.question().value = '';
+        DOM.optA().value = '';
+        DOM.optB().value = '';
+        DOM.optC().value = '';
+        DOM.optD().value = '';
+        DOM.correct().value = 'a';
+        DOM.bgUrl().value = "https://images.unsplash.com/photo-1506880018603-83d5b814b5a6?q=80&w=1000";
+        
+        DOM.formTitle().innerText = "📥 डेटा प्रविष्टि नियन्त्रण फारम";
+        DOM.badge().innerText = "Create Mode";
+        DOM.badge().className = "text-[9px] font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 px-2 py-0.5 rounded uppercase";
+        DOM.submitBtn().className = "flex-1 bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white py-3.5 rounded-xl font-black transition-all shadow-lg text-xs uppercase tracking-wider";
+        DOM.submitBtn().innerText = "डाटाबेस सिङ्क सुरक्षित गर्नुहोस्";
+        DOM.submitBtn().disabled = false;
+        DOM.cancelBtn().classList.add('hidden');
+    }
+
+    // SQL ENGINE CORE TRANSACTION: DELETES A ROW TARGETING UNIQUE PRIMARY INTERFACE KEY
+    async function executeDestructiveRowDeletionQuery(targetDeletionRowPrimaryKeyId) {
+        if (confirm("🚨 के तपाईं निश्चित रूपमा यो प्रश्न क्लाउड डेटाबेसबाट सधैँका लागि हटाउन चाहनुहुन्छ?")) {
+            const { error } = await supabaseClusterInstance
+                .from('gk_quiz')
+                .delete()
+                .eq('id', targetDeletionRowPrimaryKeyId);
+
+            if (!error) {
+                if (runtimeSelectedQuestionObject && runtimeSelectedQuestionObject.id === targetDeletionRowPrimaryKeyId) {
+                    runtimeSelectedQuestionObject = null;
+                }
+                await pullQuestionCollectionRecordsFromCloud();
+            } else {
+                alert("रेकर्ड मेट्न असफल भयो: " + error.message);
+            }
+        }
+    }
+
+    // UI RE-BIND ENGINE WORKSPACE HYDRATION CONSOLE: UPDATES 9:16 INTERACTIVE HARDWARE VIEW
+    function hydrateStudioSimulationWorkspaceView(incomingRowRecordObject) {
+        runtimeSelectedQuestionObject = incomingRowRecordObject;
+        
+        DOM.viewPreviewAnswerAlert().classList.add('hidden');
+        DOM.viewPreviewTimerText().innerText = "5";
+        
+        // Reset SVG vector stroke circle radius back to max
+        DOM.vectorProgressNode().style.strokeDashoffset = "0";
+        DOM.integratedLogo().style.opacity = "0.4"; // Bring opacity back to readable background layout
+
+        DOM.viewPreviewCategory().innerText = incomingRowRecordObject.category || "सामान्य ज्ञान";
+        DOM.viewPreviewQuestion().innerText = incomingRowRecordObject.question;
+        
+        if (incomingRowRecordObject.note && incomingRowRecordObject.note.startsWith('http')) {
+            DOM.bgUrl().value = incomingRowRecordObject.note;
+            DOM.viewportBox().style.backgroundImage = `linear-gradient(to bottom, rgba(10, 15, 36, 0.92), rgba(4, 6, 15, 0.97)), url('${incomingRowRecordObject.note}')`;
+        } else {
+            DOM.bgUrl().value = "https://images.unsplash.com/photo-1506880018603-83d5b814b5a6?q=80&w=1000";
+            DOM.viewportBox().style.backgroundImage = `linear-gradient(to bottom, rgba(10, 15, 36, 0.92), rgba(4, 6, 15, 0.97)), url('https://images.unsplash.com/photo-1506880018603-83d5b814b5a6?q=80&w=1000')`;
+        }
+        
+        DOM.viewPreviewOptionsWrapper().innerHTML = `
+            <div class="p-3 bg-slate-900/70 border border-slate-800/80 rounded-2xl font-bold text-slate-200 text-xs text-left backdrop-blur-md flex items-center gap-2">
+                <span class="text-cyan-400 font-black text-xs">क)</span> <span>${incomingRowRecordObject.a}</span>
+            </div>
+            <div class="p-3 bg-slate-900/70 border border-slate-800/80 rounded-2xl font-bold text-slate-200 text-xs text-left backdrop-blur-md flex items-center gap-2">
+                <span class="text-cyan-400 font-black text-xs">ख)</span> <span>${incomingRowRecordObject.b}</span>
+            </div>
+            <div class="p-3 bg-slate-900/70 border border-slate-800/80 rounded-2xl font-bold text-slate-200 text-xs text-left backdrop-blur-md flex items-center gap-2">
+                <span class="text-cyan-400 font-black text-xs">ग)</span> <span>${incomingRowRecordObject.c}</span>
+            </div>
+            <div class="p-3 bg-slate-900/70 border border-slate-800/80 rounded-2xl font-bold text-slate-200 text-xs text-left backdrop-blur-md flex items-center gap-2">
+                <span class="text-cyan-400 font-black text-xs">घ)</span> <span>${incomingRowRecordObject.d}</span>
+            </div>
+        `;
+    }
+
+    // ====================================================================
+    // 🚀 FULL HD VERTICAL REEL/SHORT CANVAS VIDEO GENERATOR ARCHITECTURE
+    // ====================================================================
+    function orchestratePremiumCanvasReelPipeline() {
+        if (!runtimeSelectedQuestionObject) return alert("सिस्टम त्रुटि: कुनै प्रश्न डेटा रेकर्ड चयन गरिएको छैन।");
+
+        const UI_TriggerButtonSelectorElement = DOM.engineTriggerBtn();
+        const UI_NumericTimerTextSelectorElement = DOM.viewPreviewTimerText();
+        const UI_VectorCircleProgressElement = DOM.vectorProgressNode();
+        const UI_BannerAlertNotificationNode = DOM.viewPreviewAnswerAlert();
+        
+        UI_BannerAlertNotificationNode.classList.add('hidden');
+        UI_TriggerButtonSelectorElement.disabled = true;
+        UI_TriggerButtonSelectorElement.innerText = "⚡ INITIALIZING BROADCAST VECTOR LAYER STREAM...";
+        UI_TriggerButtonSelectorElement.className = "w-full bg-slate-950 border border-red-500/30 text-red-500 py-4 rounded-2xl font-black text-center text-xs animate-pulse tracking-widest";
+
+        // Build Master High Definition Virtual Canvas Array Module
+        const masterGraphicRenderingCanvas = document.createElement('canvas');
+        masterGraphicRenderingCanvas.width = 1080;
+        masterGraphicRenderingCanvas.height = 1920;
+        const renderMatrixContext2D = masterGraphicRenderingCanvas.getContext('2d');
+
+        // Asynchronously Pre-load Studio Background Image File Struct
+        const imageCanvasBackgroundLayer = new Image();
+        imageCanvasBackgroundLayer.crossOrigin = "anonymous";
+        imageCanvasBackgroundLayer.src = DOM.bgUrl().value.trim() || 'https://images.unsplash.com/photo-1506880018603-83d5b814b5a6?q=80&w=1000';
+
+        let backgroundAssetLoadStatusFlag = false;
+        imageCanvasBackgroundLayer.onload = () => { backgroundAssetLoadStatusFlag = true; };
+        imageCanvasBackgroundLayer.onerror = () => { backgroundAssetLoadStatusFlag = false; console.warn("Canvas Engine: Image loading error. Solid state fallback deployed."); };
+
+        // Asynchronously Pre-load Central Inside-Timer Circular Logo Image Asset
+        const imageTimerEmbeddedLogoLayer = new Image();
+        imageTimerEmbeddedLogoLayer.crossOrigin = "anonymous";
+        imageTimerEmbeddedLogoLayer.src = "logo_hub_2.jpg"; // Maps default or local root workspace file
+
+        let logoAssetLoadStatusFlag = false;
+        imageTimerEmbeddedLogoLayer.onload = () => { logoAssetLoadStatusFlag = true; };
+        imageTimerEmbeddedLogoLayer.onerror = () => { logoAssetLoadStatusFlag = false; console.warn("Canvas Engine: Logo loading error. Vector overlay skipped."); };
+
+        // Set up High Bitrate Capture Device Stream Core Hook Interface
+        const hardwareCanvasFrameStreamOutput = masterGraphicRenderingCanvas.captureStream(30); 
+        const transactionalRecordRTCEngine = new RecordRTC(hardwareCanvasFrameStreamOutput, {
+            type: 'video',
+            mimeType: 'video/webm;codecs=vp9',
+            bitsPerSecond: 9500000 
+        });
+
+        transactionalRecordRTCEngine.startRecording();
+
+        let computationalLoopTickIncrement = 0;
+        let interactiveCountdownIntegerTimerClock = 5;
+        let finalAnswerVisibilityTriggerStatusFlag = false;
+        const targetMaxSVGCircumference = 2 * Math.PI * 140; // Math Radius allocation size inside Canvas vector matrix loop
+
+        function renderingExecutionLoopCoreCycle() {
+            computationalLoopTickIncrement++;
+            
+            // FRAME GRAPHIC MATRIX 1: MOUNT DEPLOYED IMAGE ASSET BACKGROUND LAYER
+            if (backgroundAssetLoadStatusFlag) {
+                let initialImageWidth = imageCanvasBackgroundLayer.width;
+                let initialImageHeight = imageCanvasBackgroundLayer.height;
+                let spatialScaleRatio = Math.max(1080 / initialImageWidth, 1920 / initialImageHeight);
+                let centeringOffsetAxisX = (1080 - initialImageWidth * spatialScaleRatio) / 2;
+                let centeringOffsetAxisY = (1920 - initialImageHeight * spatialScaleRatio) / 2;
+                renderMatrixContext2D.drawImage(imageCanvasBackgroundLayer, centeringOffsetAxisX, centeringOffsetAxisY, initialImageWidth * spatialScaleRatio, initialImageHeight * spatialScaleRatio);
+            } else {
+                let fallbackSolidBackgroundGradient = renderMatrixContext2D.createLinearGradient(0, 0, 0, 1920);
+                fallbackSolidBackgroundGradient.addColorStop(0, '#04060f');
+                fallbackSolidBackgroundGradient.addColorStop(1, '#0a0f24');
+                renderMatrixContext2D.fillStyle = fallbackSolidBackgroundGradient;
+                renderMatrixContext2D.fillRect(0, 0, 1080, 1920);
+            }
+
+            // FRAME GRAPHIC MATRIX 2: BLENDED SCRIM TREATMENT LAYER FOR TEXT OPTIMIZATION
+            let darkScrimLinearTreatmentGradient = renderMatrixContext2D.createLinearGradient(0, 0, 0, 1920);
+            darkScrimLinearTreatmentGradient.addColorStop(0, 'rgba(4, 6, 15, 0.90)');
+            darkScrimLinearTreatmentGradient.addColorStop(0.5, 'rgba(6, 9, 20, 0.95)');
+            darkScrimLinearTreatmentGradient.addColorStop(1, 'rgba(10, 15, 36, 0.93)');
+            renderMatrixContext2D.fillStyle = darkScrimLinearTreatmentGradient;
+            renderMatrixContext2D.fillRect(0, 0, 1080, 1920);
+
+            // FRAME GRAPHIC MATRIX 3: TOP CORE METADATA BRAND BADGES
+            renderMatrixContext2D.fillStyle = 'rgba(2, 4, 10, 0.92)';
+            renderMatrixContext2D.strokeStyle = 'rgba(6, 182, 212, 0.35)';
+            renderMatrixContext2D.lineWidth = 4;
+            executeSmoothRoundedRectangleVectorDraw(renderMatrixContext2D, 290, 100, 500, 110, 30, true, true);
+
+            renderMatrixContext2D.fillStyle = '#a855f7';
+            renderMatrixContext2D.font = '900 24px sans-serif';
+            renderMatrixContext2D.textAlign = 'center';
+            renderMatrixContext2D.fillText((runtimeSelectedQuestionObject.category || "सामान्य ज्ञान").toUpperCase(), 540, 142);
+
+            renderMatrixContext2D.fillStyle = 'rgba(255, 255, 255, 0.1)';
+            renderMatrixContext2D.fillRect(440, 155, 200, 2);
+
+            renderMatrixContext2D.fillStyle = '#22d3ee';
+            renderMatrixContext2D.font = '900 28px sans-serif';
+            renderMatrixContext2D.textAlign = 'center';
+            renderMatrixContext2D.letterSpacing = "8px";
+            renderMatrixContext2D.fillText("LOKSEWA HUB QUIZ", 540, 192);
+            renderMatrixContext2D.letterSpacing = "0px"; 
+
+            // FRAME GRAPHIC MATRIX 4: MULTI-LINE TEXT DISPATCH FOR QUESTIONS
+            renderMatrixContext2D.fillStyle = '#ffffff';
+            renderMatrixContext2D.font = '900 52px sans-serif';
+            renderMatrixContext2D.shadowColor = 'rgba(0, 0, 0, 0.85)';
+            renderMatrixContext2D.shadowBlur = 25;
+            renderMatrixContext2D.textAlign = 'center';
+            executeDynamicMultilineTextProcessor(renderMatrixContext2D, runtimeSelectedQuestionObject.question, 540, 440, 920, 80);
+            renderMatrixContext2D.shadowBlur = 0; 
+
+            // FRAME GRAPHIC MATRIX 5: STATIC/DYNAMIC MCQ CHOICE INTERFACE ARRAY EMITTER
+            const renderingOptionsStructureCollectionArray = [
+                { marker: "a", prefix: "क)", data: runtimeSelectedQuestionObject.a },
+                { marker: "b", prefix: "ख)", data: runtimeSelectedQuestionObject.b },
+                { marker: "c", prefix: "ग)", data: runtimeSelectedQuestionObject.c },
+                { marker: "d", prefix: "घ)", data: runtimeSelectedQuestionObject.d }
+            ];
+
+            renderingOptionsStructureCollectionArray.forEach((optionRowStruct, verticalIndexLoop) => {
+                let computationalAxisPositionY = 860 + (verticalIndexLoop * 165);
+                
+                // If countdown finishes, match correct option block and highlight green
+                if (finalAnswerVisibilityTriggerStatusFlag && runtimeSelectedQuestionObject.answer === optionRowStruct.marker) {
+                    renderMatrixContext2D.fillStyle = 'rgba(2, 44, 34, 0.96)';
+                    renderMatrixContext2D.strokeStyle = '#10b981';
+                    renderMatrixContext2D.lineWidth = 6;
+                } else {
+                    renderMatrixContext2D.fillStyle = 'rgba(8, 12, 28, 0.88)';
+                    renderMatrixContext2D.strokeStyle = 'rgba(30, 41, 59, 0.85)';
+                    renderMatrixContext2D.lineWidth = 3;
+                }
+                
+                executeSmoothRoundedRectangleVectorDraw(renderMatrixContext2D, 90, computationalAxisPositionY, 900, 125, 24, true, true);
+
+                if (finalAnswerVisibilityTriggerStatusFlag && runtimeSelectedQuestionObject.answer === optionRowStruct.marker) {
+                    renderMatrixContext2D.fillStyle = '#34d399';
+                    renderMatrixContext2D.font = '900 42px sans-serif';
+                } else {
+                    renderMatrixContext2D.fillStyle = '#e2e8f0';
+                    renderMatrixContext2D.font = 'bold 42px sans-serif';
+                }
+                renderMatrixContext2D.textAlign = 'left';
+                renderMatrixContext2D.fillText(`${optionRowStruct.prefix}  ${optionRowStruct.data}`, 140, computationalAxisPositionY + 76);
+            });
+
+            // FRAME GRAPHIC MATRIX 6: RE-ENGINEERED DYNAMIC CLOCK AND EMBEDDED CENTRAL LOGO
+            if (!finalAnswerVisibilityTriggerStatusFlag) {
+                
+                // BACK-LAYER FIXED BASE TRACE TIMING GAUGE
+                renderMatrixContext2D.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+                renderMatrixContext2D.lineWidth = 14;
+                renderMatrixContext2D.beginPath();
+                renderMatrixContext2D.arc(540, 1630, 140, 0, 2 * Math.PI);
+                renderMatrixContext2D.stroke();
+
+                // DYNAMIC DECREASING CLOCK ARCS OVERLAY
+                renderMatrixContext2D.strokeStyle = '#ffbc00';
+                renderMatrixContext2D.lineWidth = 14;
+                renderMatrixContext2D.lineCap = 'round';
+                renderMatrixContext2D.beginPath();
+                let mathematicalSweepRatioAngle = (interactiveCountdownIntegerTimerClock / 5) * 2;
+                renderMatrixContext2D.arc(540, 1630, 140, -0.5 * Math.PI, (mathematicalSweepRatioAngle - 0.5) * Math.PI);
+                renderMatrixContext2D.stroke();
+                renderMatrixContext2D.lineCap = 'butt'; // reset to default
+
+                // EMBED WATERMARKED LOGO TO THE DEAD CENTER INSIDE CIRCULAR CLOCK MESH
+                if (logoAssetLoadStatusFlag) {
+                    renderMatrixContext2D.save();
+                    renderMatrixContext2D.beginPath();
+                    renderMatrixContext2D.arc(540, 1630, 110, 0, 2 * Math.PI);
+                    renderMatrixContext2D.clip();
+                    renderMatrixContext2D.globalAlpha = 0.22; // subtle translucent background integration watermark
+                    renderMatrixContext2D.drawImage(imageTimerEmbeddedLogoLayer, 430, 1520, 220, 220);
+                    renderMatrixContext2D.restore();
+                }
+
+                // MOUNT NUMERIC REMAINING TIME CHARACTER TOP STRINGS OVER LOGO LAYER
+                renderMatrixContext2D.fillStyle = '#ffbc00';
+                renderMatrixContext2D.font = '900 100px monospace';
+                renderMatrixContext2D.textAlign = 'center';
+                renderMatrixContext2D.fillText(interactiveCountdownIntegerTimerClock, 540, 1665);
+                
+                // Execute Time Reduction Logic over 30 FPS Interpolation Cycle
+                if (computationalLoopTickIncrement % 30 === 0 && interactiveCountdownIntegerTimerClock > 0) {
+                    interactiveCountdownIntegerTimerClock--;
+                    UI_NumericTimerTextSelectorElement.innerText = interactiveCountdownIntegerTimerClock;
+                    
+                    // Update Simulator Live SVG element bar dynamically in real time
+                    let liveCircumferenceDashOffsetValue = targetMaxSVGCircumference - ((interactiveCountdownIntegerTimerClock / 5) * targetMaxSVGCircumference);
+                    UI_VectorCircleProgressElement.style.strokeDashoffset = liveCircumferenceDashOffsetValue;
+                }
+                
+                if (interactiveCountdownIntegerTimerClock <= 0) {
+                    finalAnswerVisibilityTriggerStatusFlag = true;
+                    DOM.integratedLogo().style.opacity = "0.9"; // Enhance visual clarity of simulator logo when complete
+                }
+            } else {
+                // TIMER EXPIRATION SCREEN BLOCK DISPLAY
+                renderMatrixContext2D.fillStyle = 'rgba(2, 44, 34, 0.96)';
+                renderMatrixContext2D.strokeStyle = 'rgba(16, 185, 129, 0.75)';
+                renderMatrixContext2D.lineWidth = 5;
+                executeSmoothRoundedRectangleVectorDraw(renderMatrixContext2D, 140, 1565, 800, 130, 30, true, true);
+
+                let normalizedKeyTargetString = runtimeSelectedQuestionObject.answer.toUpperCase();
+                let normalizedCorrectValueString = runtimeSelectedQuestionObject[runtimeSelectedQuestionObject.answer];
+
+                renderMatrixContext2D.fillStyle = '#10b981';
+                renderMatrixContext2D.font = '900 46px sans-serif';
+                renderMatrixContext2D.textAlign = 'center';
+                renderMatrixContext2D.fillText(`✅ सही उत्तर: (${normalizedKeyTargetString}) ${normalizedCorrectValueString}`, 540, 1644);
+
+                UI_BannerAlertNotificationNode.innerText = `✅ सही उत्तर: (${normalizedKeyTargetString}) ${normalizedCorrectValueString}`;
+                UI_BannerAlertNotificationNode.classList.remove('hidden');
+                UI_VectorCircleProgressElement.style.strokeDashoffset = targetMaxSVGCircumference; // empty SVG countdown visualization tracking node
+            }
+
+            // EVALUATE TICK RUNTIME RANGE TO STOP RECORDING FRAME AND DISPATCH WEB WORKER FILE COMPILE
+            if (computationalLoopTickIncrement < 235) {
+                requestAnimationFrame(renderingExecutionLoopCoreCycle);
+            } else {
+                cancelAnimationFrame(renderingExecutionLoopCoreCycle);
+                
+                transactionalRecordRTCEngine.stopRecording(() => {
+                    let compiledBinaryBlobVideoOutputData = transactionalRecordRTCEngine.getBlob();
+                    
+                    if (!compiledBinaryBlobVideoOutputData || compiledBinaryBlobVideoOutputData.size === 0) {
+                        alert("क्रिटICAL रेन्डर विफलता: भिडियो स्ट्रीम बाइनरी कम्पाइल हुन सकेन।");
+                    } else {
+                        let activeVirtualBlobUrlPointer = URL.createObjectURL(compiledBinaryBlobVideoOutputData);
+                        let fileDownloadTriggerAnchorLinkNode = document.createElement('a');
+                        fileDownloadTriggerAnchorLinkNode.href = activeVirtualBlobUrlPointer;
+                        fileDownloadTriggerAnchorLinkNode.download = `LoksewaHub_Studio_Reel_v4_${Date.now()}.webm`;
+                        fileDownloadTriggerAnchorLinkNode.click();
+                    }
+
+                    // RESTORE ENGINE ACTION OPERATIONS BUTTON BACK TO DEFAULT STATES
+                    UI_TriggerButtonSelectorElement.disabled = false;
+                    UI_TriggerButtonSelectorElement.innerText = "⚡ GENERATE FULL HD SHORT / REEL (WITH TIMER LOGO)";
+                    UI_TriggerButtonSelectorElement.className = "w-full bg-gradient-to-r from-red-600 via-pink-600 to-purple-600 hover:from-red-500 hover:to-purple-500 text-white py-4 rounded-2xl font-black shadow-xl shadow-pink-900/20 transition-all transform active:scale-95 text-center text-xs tracking-wider uppercase flex items-center justify-center gap-2";
+                });
+            }
+        }
+
+        // Delay loop slightly for hardware buffer clearing and canvas normalization execution
+        setTimeout(() => {
+            requestAnimationFrame(renderingExecutionLoopCoreCycle);
+        }, 400);
+    }
+
+    // VECTOR ENGINE MATHEMATICS DRAW UTILITY: EMITS EXACTLY RENDERED ROUNDED RECTANGLE PATHS
+    function executeSmoothRoundedRectangleVectorDraw(canvasContext2DTargetPointer, axisX, axisY, boundWidth, boundHeight, borderCornerRadius, processFillBoolean, processStrokeBoolean) {
+        canvasContext2DTargetPointer.beginPath();
+        canvasContext2DTargetPointer.moveTo(axisX + borderCornerRadius, axisY);
+        canvasContext2DTargetPointer.lineTo(axisX + boundWidth - borderCornerRadius, axisY);
+        canvasContext2DTargetPointer.quadraticCurveTo(axisX + boundWidth, axisY, axisX + boundWidth, axisY + borderCornerRadius);
+        canvasContext2DTargetPointer.lineTo(axisX + boundWidth, axisY + boundHeight - borderCornerRadius);
+        canvasContext2DTargetPointer.quadraticCurveTo(axisX + boundWidth, axisY + boundHeight, axisX + boundWidth - borderCornerRadius, axisY + boundHeight);
+        canvasContext2DTargetPointer.lineTo(axisX + borderCornerRadius, axisY + boundHeight);
+        canvasContext2DTargetPointer.quadraticCurveTo(axisX, axisY + boundHeight, axisX, axisY + boundHeight - borderCornerRadius);
+        canvasContext2DTargetPointer.lineTo(axisX, axisY + borderCornerRadius);
+        canvasContext2DTargetPointer.quadraticCurveTo(axisX, axisY, axisX + borderCornerRadius, axisY);
+        canvasContext2DTargetPointer.closePath();
+        
+        if (processFillBoolean) canvasContext2DTargetPointer.fill();
+        if (processStrokeBoolean) canvasContext2DTargetPointer.stroke();
+    }
+
+    // TYPOGRAPHY CONSOLE TEXT CORE SPLITTER WRAP MODULE
+    function executeDynamicMultilineTextProcessor(canvasContext2DTargetPointer, coreRawTextStringValue, axisX, axisY, boundingMaximumWidth, computationLineHeightStepInterval) {
+        let textArrayWordsTokenSet = coreRawTextStringValue.split(' ');
+        let liveTrackingLineStringAccumulator = '';
+        
+        for (let wordIterator = 0; wordIterator < textArrayWordsTokenSet.length; wordIterator++) {
+            let evaluationLineTestString = liveTrackingLineStringAccumulator + textArrayWordsTokenSet[wordIterator] + ' ';
+            let computationalLineMetricsObject = canvasContext2DTargetPointer.measureText(evaluationLineTestString);
+            
+            if (computationalLineMetricsObject.width > boundingMaximumWidth && wordIterator > 0) {
+                canvasContext2DTargetPointer.fillText(liveTrackingLineStringAccumulator, axisX, axisY);
+                liveTrackingLineStringAccumulator = textArrayWordsTokenSet[wordIterator] + ' ';
+                axisY += computationLineHeightStepInterval;
+            } else {
+                liveTrackingLineStringAccumulator = evaluationLineTestString;
+            }
+        }
+        canvasContext2DTargetPointer.fillText(liveTrackingLineStringAccumulator, axisX, axisY);
+    }
+</script>
+</body>
+</html>
