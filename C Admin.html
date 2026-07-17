@@ -371,6 +371,10 @@
                         <label for="documents">आवश्यक कागजातहरू</label>
                         <div class="input-wrapper"><i class="fa-solid fa-file-lines" style="top:15px;"></i><textarea id="documents" placeholder="निवेदन, लालपुर्जाको प्रतिलिपि..." required></textarea></div>
                     </div>
+                    <div class="form-group">
+                        <label for="grievance_officer">गुनासो सुनुवाई अधिकारी</label>
+                        <div class="input-wrapper"><i class="fa-solid fa-user-shield"></i><input type="text" id="grievance_officer" placeholder="प्रमुख प्रशासकीय अधिकृत"></div>
+                    </div>
                     <button type="submit" id="charter-submit-btn"><i class="fa-solid fa-cloud-arrow-up"></i> डाटा सुरक्षित गर्नुहोस्</button>
                     <button type="button" class="cancel-btn" id="charter-cancel-btn" onclick="resetModuleForm('charter')">रद्द गर्नुहोस्</button>
                 </form>
@@ -484,8 +488,8 @@
                     <div class="form-group">
                         <label for="footer_text">फुटर सन्देश</label>
                         <div class="input-wrapper">
-                            <i class="fa-solid fa-comment-dots"></i>
-                            <input type="text" id="footer_text" placeholder="गलकोट नगरपालिकामा स्वागत छ, फोन: ९८XXXXXXXX, इमेल: info@galkotmun.gov.np" required>
+                            <i class="fa-solid fa-comment-dots" style="top:15px;"></i>
+                            <textarea id="footer_text" placeholder="गलकोट नगरपालिकामा स्वागत छ, फोन: ९८XXXXXXXX, इमेल: info@galkotmun.gov.np" style="min-height:150px;" required></textarea>
                         </div>
                     </div>
                     <button type="submit" style="background: var(--primary-color); color: white;">
@@ -514,11 +518,12 @@
                         <th>सेवाको नाम</th>
                         <th>दस्तुर</th>
                         <th>समय</th>
+                        <th>गुनासो सुनुवाई अधिकारी</th>
                         <th>कार्य (Actions)</th>
                     </tr>
                 </thead>
                 <tbody id="charter-data-list">
-                    <tr><td colspan="6" style="text-align: center; color: #64748b;">डाटा लोड हुँदैछ...</td></tr>
+                    <tr><td colspan="7" style="text-align: center; color: #64748b;">डाटा लोड हुँदैछ...</td></tr>
                 </tbody>
             </table>
 
@@ -621,16 +626,24 @@
         if (activeModule === 'charter') fetchCharterData();
         else if (activeModule === 'employee') fetchEmployeeData();
         else if (activeModule === 'representative') fetchRepresentativeData();
+        else if (activeModule === 'break') fetchFooterText();
+    }
+
+    async function fetchFooterText() {
+        const { data, error } = await supabaseClient.from('break_settings').select('*').eq('id', 2).maybeSingle();
+        if (!error && data) {
+            document.getElementById('footer_text').value = data.reason || '';
+        }
     }
 
     // ================= नागरिक बडापत्र CRUD =================
     async function fetchCharterData() {
         const listContainer = document.getElementById('charter-data-list');
-        listContainer.innerHTML = `<tr><td colspan="6" style="text-align: center;">लोड हुँदैछ...</td></tr>`;
+        listContainer.innerHTML = `<tr><td colspan="7" style="text-align: center;">लोड हुँदैछ...</td></tr>`;
         
         const { data, error } = await supabaseClient.from('citizen_charter').select('*').order('rank', { ascending: true });
-        if (error) { listContainer.innerHTML = `<tr><td colspan="6" style="color:red;">त्रुटि: ${error.message}</td></tr>`; return; }
-        if (data.length === 0) { listContainer.innerHTML = `<tr><td colspan="6" style="text-align:center;">कुनै डाटा भेटिएन।</td></tr>`; return; }
+        if (error) { listContainer.innerHTML = `<tr><td colspan="7" style="color:red;">त्रुटि: ${error.message}</td></tr>`; return; }
+        if (data.length === 0) { listContainer.innerHTML = `<tr><td colspan="7" style="text-align:center;">कुनै डाटा भेटिएन।</td></tr>`; return; }
 
         listContainer.innerHTML = '';
         data.forEach(item => {
@@ -642,6 +655,7 @@
                 <td>${item.service_name}</td>
                 <td>${item.cost}</td>
                 <td>${item.duration}</td>
+                <td>${item.grievance_redressal_officer || '-'}</td>
                 <td class="actions">
                     <button class="action-btn edit-btn" onclick="populateCharterForm(${JSON.stringify(item).replace(/"/g, '&quot;')})"><i class="fa-solid fa-pen-to-square"></i></button>
                     <button class="action-btn delete-btn" onclick="deleteItem('citizen_charter', ${item.id})"><i class="fa-solid fa-trash"></i></button>
@@ -663,6 +677,7 @@
             cost: document.getElementById('cost').value,
             duration: document.getElementById('duration').value,
             documents: document.getElementById('documents').value,
+            grievance_redressal_officer: document.getElementById('grievance_officer').value || null,
             rank: parseInt(document.getElementById('charter_rank').value) || 999
         };
 
@@ -686,6 +701,7 @@
         document.getElementById('cost').value = item.cost;
         document.getElementById('duration').value = item.duration;
         document.getElementById('documents').value = item.documents;
+        document.getElementById('grievance_officer').value = item.grievance_redressal_officer || '';
         document.getElementById('charter_rank').value = item.rank && item.rank !== 999 ? item.rank : '';
 
         document.getElementById('charter-title').innerText = "विवरण परिमार्जन गर्नुहोस्";
