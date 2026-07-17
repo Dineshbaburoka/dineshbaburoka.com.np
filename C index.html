@@ -98,26 +98,34 @@
 
         .table-header-row {
             display: grid;
-            grid-template-columns: 70px 1.5fr 2fr 1.2fr 110px 110px;
+            grid-template-columns: 50px 1fr 2.4fr 0.85fr 80px 80px 1fr;
             background: var(--table-header-color);
             color: white;
             font-weight: 700;
-            font-size: 1.15rem;
-            padding: 12px 10px;
-            border-bottom: 2px solid var(--border-red);
+            font-size: 1.05rem;
+            padding: 12px 0;
+            border: 2px solid var(--border-red);
+            border-bottom: none;
         }
 
-        .table-header-row > div { padding: 0 8px; display: flex; align-items: center; justify-content: flex-start; }
+        .table-header-row > div {
+            padding: 0 10px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            border-right: 1px solid rgba(255,255,255,0.35);
+        }
+        .table-header-row > div:last-child { border-right: none; }
         .table-header-row > .center-ch, .charter-row > .center-ch { justify-content: center; text-align: center; }
 
         .scroller-viewport {
             flex: 1;
             overflow: hidden;
             position: relative;
-            background: white;
+            background: #ffffff;
             border-radius: 0 0 8px 8px;
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-            border: 1px solid #e2e8f0;
+            border: 2px solid var(--border-red);
             border-top: none;
         }
 
@@ -126,18 +134,19 @@
             width: 100%;
             top: 0;
             left: 0;
+            will-change: transform;
+            backface-visibility: hidden;
         }
 
         .charter-row {
             display: grid;
-            grid-template-columns: 70px 1.5fr 2fr 1.2fr 110px 110px;
-            border-bottom: 1px solid #e2e8f0;
-            background: white;
-            font-size: 1.1rem;
+            grid-template-columns: 50px 1fr 2.4fr 0.85fr 80px 80px 1fr;
+            border-bottom: 1px solid var(--border-red);
+            background: #ffffff;
+            font-size: 1.05rem;
             min-height: 80px; 
-            transition: background 0.2s;
         }
-        .charter-row:nth-child(even) { background: #fff8f8; }
+        .charter-row:last-child { border-bottom: none; }
 
         .charter-row > div {
             padding: 12px 10px;
@@ -145,14 +154,17 @@
             align-items: center;
             color: var(--text-dark);
             line-height: 1.4;
+            border-right: 1px solid #f3c9c9;
         }
+        .charter-row > div:last-child { border-right: none; }
 
-        .sn-cell { font-weight: 700; color: #64748b; font-size: 1.1rem; }
-        .service-cell { font-weight: 700; font-size: 1.15rem; color: #0f172a; }
-        .doc-cell { font-size: 1.05rem; color: #334155; white-space: pre-line; text-align: left; align-items: flex-start !important; padding-top: 12px; }
-        .dept-cell { font-weight: 700; color: var(--primary-blue) !important; font-size: 1.1rem; }
-        .time-cell { font-weight: 700; color: #b45309; font-size: 1.05rem; }
-        .cost-cell { font-weight: 700; color: #047857; font-size: 1.05rem; }
+        .sn-cell { font-weight: 700; color: var(--accent-red); font-size: 1.1rem; }
+        .service-cell { font-weight: 700; font-size: 1.1rem; color: #0f172a; }
+        .doc-cell { font-size: 1rem; color: #334155; white-space: pre-line; text-align: left; align-items: flex-start !important; padding-top: 12px; }
+        .dept-cell { font-weight: 700; color: var(--primary-blue) !important; font-size: 1.05rem; }
+        .time-cell { font-weight: 700; color: #b45309; font-size: 1rem; }
+        .cost-cell { font-weight: 700; color: #047857; font-size: 1rem; }
+        .grievance-cell { font-weight: 600; color: #7c2d12; font-size: 0.98rem; text-align: left; align-items: flex-start !important; padding-top: 12px; }
 
         /* दायाँ भाग: साइडबार */
         .sidebar-section {
@@ -203,6 +215,8 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
+            will-change: transform;
+            backface-visibility: hidden;
         }
 
         /* इन्फो कार्ड स्टाइलिङ */
@@ -270,6 +284,7 @@
             white-space: nowrap;
             position: absolute;
             will-change: transform;
+            backface-visibility: hidden;
             font-size: 1.25rem;
             font-weight: 600;
             color: #f8fafc;
@@ -360,6 +375,7 @@
             <div>जिम्मेवार अधिकारी / शाखा</div>
             <div class="center-ch">लाग्ने समय</div>
             <div class="center-ch">लाग्ने दस्तुर</div>
+            <div>गुनासो सुनुवाई अधिकारी</div>
         </div>
 
         <div class="scroller-viewport" id="charter-viewport">
@@ -472,6 +488,7 @@
                 <div class="dept-cell">${item.department}</div>
                 <div class="time-cell center-ch">${convertToNepaliNumerals(item.duration)}</div>
                 <div class="cost-cell center-ch">${convertToNepaliNumerals(item.cost)}</div>
+                <div class="grievance-cell">${item.grievance_redressal_officer ? item.grievance_redressal_officer : '-'}</div>
             `;
             container.appendChild(row);
         });
