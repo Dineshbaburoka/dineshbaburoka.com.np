@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>योजना व्यवस्थापन प्रणाली - Advanced ERP Layout</title>
+    <title>भवन निर्माण व्यवस्थापन प्रणाली - Advanced ERP Layout</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Supabase JS CDN -->
@@ -60,7 +60,7 @@
             </div>
             
             <div class="p-3 bg-[#1a252f] text-center text-[10px] text-gray-500 border-t border-gray-700 sidebar-text whitespace-nowrap overflow-hidden">
-                डाइनामिक प्रणाली v8.0 Enterprise
+                <!-- Footer space -->
             </div>
         </div>
 
@@ -80,14 +80,20 @@
                 </div>
 
                 <div class="flex items-center gap-3 md:gap-4">
-                    <!-- Dynamic User Widget -->
-                    <div class="flex items-center gap-2 pr-3 md:pr-4">
-                        <div class="w-8 h-8 rounded-full bg-blue-900/80 text-white flex items-center justify-center font-bold text-xs border border-white/40 shadow-sm" id="user-avatar">A</div>
+                    <!-- Dynamic User Widget (Role र Email मात्र देखाउने) -->
+                    <div class="flex items-center gap-2 pr-1 md:pr-2">
+                        <div class="w-8 h-8 rounded-full bg-blue-900/80 text-white flex items-center justify-center font-bold text-xs border border-white/40 shadow-sm" id="user-avatar">U</div>
                         <div class="hidden sm:flex flex-col text-left">
-                            <span class="font-bold text-xs" id="topbar-user-display">admin@galkotmun.gov.np</span>
-                            <span class="text-[10px] text-blue-100" id="topbar-role-display">प्रशासक (Admin)</span>
+                            <span class="font-bold text-xs" id="topbar-user-display">Loading...</span>
+                            <span class="text-[10px] text-blue-100" id="topbar-role-display">Loading...</span>
                         </div>
                     </div>
+
+                    <!-- LOGOUT BUTTON -->
+                    <button onclick="handleLogout()" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-sm focus:outline-none">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span class="hidden sm:inline">लगआउट</span>
+                    </button>
                 </div>
             </header>
 
@@ -110,56 +116,68 @@
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let isSidebarCollapsed = false;
+        let idleTimeout;
+        const IDLE_TIME_LIMIT = 5 * 60 * 1000; // ५ मिनेट मिलिसेकेन्डमा
 
-        // MENU_CONFIG मा मेनु व्यवस्थापन
+        // MENU_CONFIG मा प्रमाणिक र चल्ने FontAwesome आइकनहरू व्यवस्थापन गरिएको छ
         const MENU_CONFIG = [
-            { type: 'single', title: 'ड्यासबोर्ड', url: 'dashboard.html', icon: 'fa-solid fa-table-columns text-amber-400', isDefault: true },
-            { type: 'single', title: 'दर्ता गर्ने (Map Form)', url: 'mapform.html', icon: 'fa-solid fa-map text-blue-400' },
+            { type: 'single', title: 'ड्यासबोर्ड', url: 'dashboard.html', icon: 'fa-solid fa-chart-pie text-amber-400', isDefault: true },
+            { type: 'single', title: 'दर्ता गर्ने (Map Form)', url: 'mapform.html', icon: 'fa-solid fa-map-location-dot text-blue-400' },
             {
                 type: 'dropdown',
                 title: 'कागजात जाँचबुझ (Documents checking)',
-                icon: 'fa-solid fa-hand-holding-dollar text-yellow-400',
+                icon: 'fa-solid fa-folder-open text-yellow-400',
                 dropdownId: 'budget-dropdown',
                 items: [
-                    { title: 'कर्मचारीलाई आदेश', url: 'order.html', icon: 'fa-solid fa-building-columns text-yellow-500' },
-                    { title: 'कागजात जाँच प्रतिवेदेन', url: 'docoffice.html', icon: 'fa-solid fa-arrow-down-short-wide text-orange-400' }
+                    { title: 'कर्मचारीलाई आदेश', url: 'order.html', icon: 'fa-solid fa-file-signature text-yellow-500' },
+                    { title: 'कागजात जाँच प्रतिवेदेन', url: 'docoffice.html', icon: 'fa-solid fa-file-shield text-orange-400' }
                 ]
             },
             {
                 type: 'dropdown',
                 title: 'सूचना तथा मुचुल्का',
-                icon: 'fa-solid fa-map-marked-alt text-emerald-400',
+                icon: 'fa-solid fa-bullhorn text-emerald-400',
                 dropdownId: 'planning-dropdown',
                 items: [
-                    { title: 'सूचना प्रकाशन', url: 'notice.html', icon: 'fa-solid fa-pen-to-square text-emerald-500' },
-                    { title: 'सूचना मुचुल्का', url: 'noticemuchulka.html', icon: 'fa-solid fa-file-contract text-indigo-400' },
-                    { title: 'सर्जमिन मुचुल्का', url: 'sarjaminmuchulka.html', icon: 'fa-solid fa-file-invoice text-indigo-400' },
+                    { title: 'सूचना प्रकाशन', url: 'notice.html', icon: 'fa-solid fa-bullhorn text-emerald-500' },
+                    { title: 'सूचना मुचुल्का', url: 'noticemuchulka.html', icon: 'fa-solid fa-file-lines text-indigo-400' },
+                    { title: 'सर्जमिन मुचुल्का', url: 'sarjaminmuchulka.html', icon: 'fa-solid fa-file-contract text-indigo-400' },
                 ]
             },
             {
                 type: 'dropdown',
-                title: 'अनुगमन तथा मूल्याङ्कन',
-                icon: 'fa-solid fa-magnifying-glass-chart text-sky-400',
+                title: 'अस्थायी इजाजत',
+                icon: 'fa-solid fa-business-time text-sky-400',
                 dropdownId: 'monitoring-dropdown',
                 items: [
-                    { title: 'अनुगमन समिति गठन', url: 'monitoring-committee.html', icon: 'fa-solid fa-users-gear text-sky-500' },
-                    { title: 'अनुगमन प्रतिवेदन प्रविष्टि', url: 'monitoring-report.html', icon: 'fa-solid fa-square-poll-horizontal text-teal-400' }
+                    { title: 'अस्थायी इजाजतका लागि टिप्पणी आदेश', url: 'temorder.html', icon: 'fa-solid fa-file-pen text-sky-500' },
+                    { title: 'अस्थायी इजाजत पत्र', url: 'tem_certi.html', icon: 'fa-solid fa-certificate text-teal-400' }
                 ]
             },
             {
                 type: 'dropdown',
-                title: 'भुक्तानी व्यवस्थापन',
-                icon: 'fa-solid fa-money-check-dollar text-rose-400',
+                title: 'स्थायी इजाजत',
+                icon: 'fa-solid fa-passport text-rose-400',
                 dropdownId: 'payment-dropdown',
                 items: [
-                    { title: 'पेश्की भुक्तानी', url: 'advance-payment.html', icon: 'fa-solid fa-money-bill-transfer text-rose-500' },
-                    { title: 'रकम भुक्तानी (किस्ता/अन्तिम)', url: 'final-payment.html', icon: 'fa-solid fa-receipt text-red-400' }
+                    { title: 'स्थायी इजाजतका लागि टिप्पणी आदेश', url: 'perorder.html', icon: 'fa-solid fa-file-import text-rose-500' },
+                    { title: 'स्थायी इजाजत पत्र', url: 'per_certi.html', icon: 'fa-solid fa-award text-red-400' }
+                ]
+            },
+            {
+                type: 'dropdown',
+                title: 'निर्माण सम्पन्न',
+                icon: 'fa-solid fa-building-circle-check text-rose-400',
+                dropdownId: 'final-payment-dropdown',
+                items: [
+                    { title: 'निर्माण सम्पन्नका लागि टिप्पणी आदेश', url: 'final_order.html', icon: 'fa-solid fa-clipboard-check text-rose-500' },
+                    { title: 'भवन निर्माण सम्पन्न प्रमाण-पत्र', url: 'final_cert.html', icon: 'fa-solid fa-stamp text-red-400' }
                 ]
             },
             {
                 type: 'dropdown',
                 title: 'सिस्टम प्रयोगकर्ता सेटअप',
-                icon: 'fa-solid fa-user-lock text-purple-400',
+                icon: 'fa-solid fa-users-gear text-purple-400',
                 dropdownId: 'user-setup-dropdown',
                 items: [
                     { title: 'नयाँ प्रयोगकर्ता (User Create)', url: 'admin.html', icon: 'fa-solid fa-user-plus text-purple-500' },
@@ -244,7 +262,7 @@
             }
         }
 
-        // ५. भूमिका (Role) अनुसार मेनु रेन्डर गर्ने (Default: admin)
+        // ५. भूमिका (Role) अनुसार मेनु रेन्डर गर्ने
         function renderSidebarMenu(userRole) {
             const sidebarContainer = document.getElementById('dynamic-sidebar');
             sidebarContainer.innerHTML = ''; 
@@ -295,7 +313,7 @@
             document.getElementById('current-view-title').innerText = title;
 
             const iframe = document.getElementById('content-frame');
-            const userRole = localStorage.getItem("userRole") || "admin";
+            const userRole = localStorage.getItem("userRole") || "staff";
             let finalUrl = pageUrl;
             
             if (userRole) {
@@ -333,16 +351,81 @@
             }
         }
 
-        // ७. प्रारम्भिक बुटलोडर (Initialize application directly without login check)
-        function initializeSystem() {
-            // अटो-सेटअप सेसन सुरक्षा र रन्टाइम मेनुका लागि
-            localStorage.setItem("userLoggedIn", "true");
-            localStorage.setItem("loggedInUserEmail", "admin@galkotmun.gov.np");
-            localStorage.setItem("userRole", "admin");
-
-            renderSidebarMenu("admin");
+        // ७. लगआउट फङ्सन
+        function handleLogout() {
+            localStorage.removeItem("userLoggedIn");
+            localStorage.removeItem("loggedInUserEmail");
+            localStorage.removeItem("userRole");
             
-            // डिफल्ट रूपमा ड्यासबोर्ड लोड गर्ने मेकानिजम
+            showToast("प्रणालीबाट सफलतापूर्वक लगआउट गरियो।", "success");
+            
+            setTimeout(() => {
+                window.location.href = "mapbranch.html"; 
+            }, 800);
+        }
+
+        // ८. ५ मिनेट निष्क्रिय (Idle) अटो-लगआउट व्यवस्थापन
+        function resetIdleTimer() {
+            clearTimeout(idleTimeout);
+            idleTimeout = setTimeout(() => {
+                alert("🔒 सुरक्षाको कारणले ५ मिनेटसम्म कुनै गतिविधि नभएको हुँदा प्रणाली स्वतः लगआउट गरिएको छ।");
+                handleLogout();
+            }, IDLE_TIME_LIMIT);
+        }
+
+        function setupIdleTracker() {
+            if (localStorage.getItem("userLoggedIn") !== "true") return;
+
+            window.onload = resetIdleTimer;
+            window.onmousemove = resetIdleTimer;
+            window.onmousedown = resetIdleTimer; 
+            window.ontouchstart = resetIdleTimer; 
+            window.onclick = resetIdleTimer;     
+            window.onkeypress = resetIdleTimer;  
+            window.addEventListener('scroll', resetIdleTimer, true);
+
+            const iframe = document.getElementById('content-frame');
+            if (iframe) {
+                iframe.addEventListener('load', () => {
+                    try {
+                        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                        ['mousemove', 'mousedown', 'keypress', 'scroll', 'touchstart'].forEach(evt => {
+                            iframeDoc.addEventListener(evt, resetIdleTimer, true);
+                        });
+                    } catch (e) {
+                        // cross-origin protection block
+                    }
+                });
+            }
+        }
+
+        // ९. प्रारम्भिक बुटलोडर (केवल लगइन भएको role र email देखाउने व्यवस्था)
+        function initializeSystem() {
+            if (localStorage.getItem("userLoggedIn") !== "true") {
+                window.location.href = "mapbranch.html";
+                return;
+            }
+
+            // लोकल स्टोरेजबाट सेसन डेटा तान्ने[cite: 3]
+            const userEmail = localStorage.getItem("loggedInUserEmail") || "user@galkotmun.gov.np";
+            const userRole = localStorage.getItem("userRole") || "staff";
+            
+            // टपबारमा युजरको वास्तविक इमेल (Email) राख्ने[cite: 3]
+            document.getElementById('topbar-user-display').innerText = userEmail;
+            
+            // रोल व्यवस्थापन प्रदर्शन[cite: 3]
+            let displayRole = userRole.toUpperCase();
+            if (userRole === "admin") displayRole = "Admin";
+            if (userRole === "staff") displayRole = "Staff";
+            if (userRole === "consultancy") displayRole = "Consultancy";
+            
+            document.getElementById('topbar-role-display').innerText = displayRole;
+            document.getElementById('user-avatar').innerText = userEmail.charAt(0).toUpperCase();
+
+            renderSidebarMenu(userRole);
+            setupIdleTracker(); 
+            
+            // डिफल्ट रूपमा ड्यासबोर्ड लोड गर्ने[cite: 3]
             const allNavLinks = document.querySelectorAll('#dynamic-sidebar a');
             let defaultTab = null;
             allNavLinks.forEach(link => {
