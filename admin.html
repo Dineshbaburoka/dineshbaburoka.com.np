@@ -3,24 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>गलकोट नगरपालिका - एकीकृत व्यवस्थापन तथा रिपोर्टिङ ड्यासबोर्ड</title>
+  <title>गलकोट नगरपालिका - प्रणाली प्रयोगकर्ता तथा अनुमति व्यवस्थापन प्यानल</title>
   
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght=400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   
-  <script src="https://cdn.jsdelivr.net/npm/highcharts@11.4.3/highcharts.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/highcharts@11.4.3/highcharts-3d.js"></script>
-
   <style>
     :root { 
       --primary: #0c2461; 
       --secondary-color: #1e3799;
-      --pending: #e74c3c;    
-      --registered: #8e44ad; 
-      --temp: #f1c40f;       
-      --perm: #3498db;       
-      --done: #27ae60;       
       --bg-color: #f1f2f6;
       --card-bg: #ffffff;
       --border-color: #ced6e0;
@@ -33,79 +24,13 @@
     
     .container { max-width: 1440px; margin: 0 auto; }
     
-    /* Premium Header */
     .header-wrapper { display: flex; justify-content: space-between; align-items: center; background: white; padding: 20px 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 25px; border-bottom: 4px solid var(--primary); flex-wrap: wrap; gap: 15px; }
     .header-info h2 { color: var(--primary); font-size: 24px; font-weight: 700; margin-bottom: 5px; display: flex; align-items: center; gap: 10px; }
     .header-info p.subtitle { color: #57606f; font-size: 14px; font-weight: 600; }
     
-    /* Header Actions */
     .header-actions { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
-    .btn-report { background: var(--danger-color); color: white; padding: 11px 22px; font-size: 14px; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 12px rgba(255, 71, 87, 0.3); transition: 0.2s; text-decoration: none; }
-    .btn-report:hover { background: #ff2a3a; transform: translateY(-2px); }
-    .notice-badge { background: white; color: var(--danger-color); font-size: 12px; font-weight: 800; padding: 2px 8px; border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.15); animation: pulse 1.5s infinite; }
-    
-    .btn-logout { background: #2f3542; color: white; padding: 11px 20px; font-size: 14px; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
-    .btn-logout:hover { background: var(--danger-color); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(255, 71, 87, 0.2); }
+    .btn-lock-status { background: #34495e; color: white; padding: 11px 20px; font-size: 14px; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
 
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.08); }
-      100% { transform: scale(1); }
-    }
-    
-    /* Stats Cards Grid */
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; margin-bottom: 25px; }
-    .card { background: white; padding: 18px 15px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); text-align: center; border-bottom: 5px solid var(--primary); transition: 0.2s; }
-    .card:hover { transform: translateY(-3px); box-shadow: 0 6px 18px rgba(0,0,0,0.08); }
-    .card h3 { font-size: 13px; color: #57606f; margin-bottom: 8px; font-weight: 600; }
-    .card p { font-size: 28px; font-weight: 700; color: var(--primary); }
-    
-    /* Charts Layout */
-    .chart-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
-    .chart-box { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); height: 360px; width: 100%; overflow: hidden; }
-    
-    /* Section Headings */
-    .section-title { font-size: 18px; margin: 30px 0 15px 0; color: #2f3542; border-left: 5px solid var(--primary); padding-left: 12px; font-weight: 700; }
-
-    /* Interactive Tracking Board */
-    .tracking-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 20px; margin-bottom: 25px; }
-    .track-card { background: white; padding: 22px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); border-top: 5px solid var(--primary); cursor: pointer; transition: 0.2s; position: relative; }
-    .track-card:hover { transform: translateY(-3px); box-shadow: 0 6px 18px rgba(0,0,0,0.08); }
-    .track-card.active-filter { border: 2px solid #2f3542; background: #f8f9fa; transform: scale(1.01); }
-    .track-card.reg-card { border-top-color: #747d8c; }
-    .track-card.tem-card { border-top-color: var(--warning-color); }
-    .track-card.pem-card { border-top-color: var(--secondary-color); }
-    .track-card.final-card { border-top-color: var(--success-color); }
-    .track-card h3 { font-size: 14px; color: #57606f; margin-bottom: 8px; font-weight: 700; }
-    .track-card .count { font-size: 32px; font-weight: 700; color: #2f3542; }
-    .track-card .instruction { font-size: 11px; color: #a4b0be; margin-top: 6px; display: block; font-weight: 500; }
-
-    /* Table Header Utilities */
-    .table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 15px; background: white; padding: 15px 20px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
-    .table-header h3 { margin: 0; color: var(--primary); font-size: 16px; font-weight: 700; }
-    .btn-group { display: flex; gap: 10px; flex-wrap: wrap; }
-    
-    .btn-excel { background-color: #1e7e34; color: white; border: none; padding: 10px 18px; font-size: 13px; font-weight: bold; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
-    .btn-excel:hover { background-color: #155d27; }
-    .btn-csv { background-color: #10ac84; color: white; border: none; padding: 10px 18px; font-size: 13px; font-weight: bold; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
-    .btn-csv:hover { background-color: #0ed291; }
-
-    /* Premium Data Tables */
-    .table-section { background: white; padding: 22px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); margin-bottom: 30px; }
-    .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 8px; border: 1px solid #e1e8ed; max-height: 480px; overflow-y: auto; }
-    table { width: 100%; border-collapse: collapse; text-align: left; min-width: 900px; font-size: 13px; }
-    th { background-color: var(--primary); color: white; padding: 14px 12px; font-weight: 600; white-space: nowrap; position: sticky; top: 0; z-index: 5; border-bottom: 2px solid rgba(0,0,0,0.1); }
-    td { padding: 13px 12px; border-bottom: 1px solid #e1e8ed; color: #2f3542; }
-    tr:nth-child(even) { background-color: #f9fbfc; }
-    tr:hover { background-color: #f1f4f6; }
-    
-    /* Design Status Badges */
-    .badge { padding: 5px 12px; border-radius: 50px; font-size: 11px; font-weight: bold; color: white; display: inline-block; text-align: center; min-width: 90px; }
-    .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; display: inline-block; }
-    .status-done { background: #dff9fb; color: #130cb7; }
-    .status-pending { background: #ffeaa7; color: #d35400; }
-
-    /* Admin Management Section Grid */
     .main-grid { display: grid; grid-template-columns: 1fr 1.6fr; gap: 30px; margin-top: 20px; }
     .admin-card { background: var(--card-bg); padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); border-top: 4px solid var(--secondary-color); }
     .card-title { color: var(--secondary-color); font-size: 16px; font-weight: 700; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; }
@@ -126,25 +51,15 @@
     .btn-delete:hover { background: #ff2a3a; }
     .cancel-link { font-size: 12px; color: #747d8c; cursor: pointer; text-decoration: underline; margin-top: 10px; display: inline-block; text-align: center; width: 100%; }
 
-    /* Session Timeout Alert Banner */
-    #timeoutAlert { display: none; position: fixed; bottom: 20px; right: 20px; background: #ff4757; color: white; padding: 15px 25px; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 9999; font-weight: bold; animation: slideIn 0.5s ease-out; }
-    @keyframes slideIn { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 8px; border: 1px solid #e1e8ed; max-height: 500px; overflow-y: auto; }
+    table { width: 100%; border-collapse: collapse; text-align: left; min-width: 650px; font-size: 13px; }
+    th { background-color: var(--primary); color: white; padding: 14px 12px; font-weight: 600; white-space: nowrap; position: sticky; top: 0; z-index: 5; border-bottom: 2px solid rgba(0,0,0,0.1); }
+    td { padding: 13px 12px; border-bottom: 1px solid #e1e8ed; color: #2f3542; }
+    tr:nth-child(even) { background-color: #f9fbfc; }
+    tr:hover { background-color: #f1f4f6; }
 
-    /* Responsive Design Media Queries */
     @media (max-width: 950px) {
-      .chart-container, .main-grid { grid-template-columns: 1fr; }
-      .chart-box { height: 320px; }
-    }
-    @media (max-width: 600px) {
-      .header-wrapper { flex-direction: column; text-align: center; }
-      .header-actions { width: 100%; justify-content: center; }
-      .btn-report, .btn-logout { flex-grow: 1; justify-content: center; }
-    }
-    @media (max-width: 480px) {
-      .grid { grid-template-columns: repeat(2, 1fr); }
-      .table-header { flex-direction: column; align-items: flex-start; }
-      .btn-group { width: 100%; }
-      .btn-excel, .btn-csv { width: 100%; justify-content: center; }
+      .main-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -155,92 +70,15 @@
     <div class="header-wrapper">
       <div class="header-info">
         <h2>🏛️ गलकोट नगरपालिका - भूमि व्यवस्थापन शाखा</h2>
-        <p class="subtitle">एकीकृत प्रगति प्रतिवेदन, ट्र्याकिङ तथा प्रणाली व्यवस्थापन प्यानल</p>
+        <p class="subtitle">प्रणाली प्रयोगकर्ता तथा अनुमति व्यवस्थापन प्यानल (Admin Settings)</p>
       </div>
       <div class="header-actions">
-        <a href="report.html" target="_blank" class="btn-report" id="btnReportLink">
-          📊 Reports बनाउनुहोस् 
-          <span class="notice-badge" id="reportNoticeCount">0 बाँकी</span>
-        </a>
-        <button class="btn-logout" onclick="handleLogout()">🚪 लगआउट</button>
+        <button class="btn-lock-status" id="lockStatusBtn" onclick="toggleSystemLock()">🔒 प्रणाली सुरक्षित छ</button>
       </div>
     </div>
 
-    <div class="grid">
-      <div class="card"><h3>कुल फाइल (Total)</h3><p id="total">0</p></div>
-      <div class="card" style="border-bottom-color: var(--pending);"><h3 style="color: var(--pending);">दर्ता हुन बाँकी</h3><p id="pending" style="color: var(--pending);">0</p></div>
-      <div class="card" style="border-bottom-color: var(--registered);"><h3 style="color: var(--registered);">दर्ता भएको</h3><p id="registered" style="color: var(--registered);">0</p></div>
-      <div class="card" style="border-bottom-color: var(--temp);"><h3 style="color: var(--temp);">अस्थायी इजाजत</h3><p id="temp" style="color: var(--temp);">0</p></div>
-      <div class="card" style="border-bottom-color: var(--perm);"><h3 style="color: var(--perm);">स्थायी इजाजत</h3><p id="perm" style="color: var(--perm);">0</p></div>
-      <div class="card" style="border-bottom-color: var(--done);"><h3 style="color: var(--done);">निर्माण सम्पन्न</h3><p id="done" style="color: var(--done);">0</p></div>
-    </div>
-
-    <div class="chart-container">
-      <div id="pieChart3D" class="chart-box"></div>
-      <div id="barChart3D" class="chart-box"></div>
-    </div>
-
-    <hr style="border: 0; height: 1px; background: #ced6e0; margin: 25px 0;">
-
-    <h2 class="section-title">📊 प्रणाली लाइभ ट्र्याकिङ (डाटा फिल्टर गर्न तलका कार्डमा क्लिक गर्नुस्)</h2>
-    <div class="tracking-grid">
-      <div class="track-card reg-card active-filter" id="card-all" onclick="filterBranchList('all')">
-        <h3>📝 जम्मा दर्ता सूची</h3>
-        <div class="count" id="trackTotalReg">०</div>
-        <span class="instruction">👇 सबै सूची हेर्नुस्</span>
-      </div>
-      <div class="track-card tem-card" id="card-tem" onclick="filterBranchList('tem')">
-        <h3>⏳ अस्थायी जारी गर्न बाँकी</h3>
-        <div class="count" id="trackTem">०</div>
-        <span class="instruction">👇 बाँकी सूची हेर्नुस्</span>
-      </div>
-      <div class="track-card pem-card" id="card-pem" onclick="filterBranchList('pem')">
-        <h3>📜 स्थायी जारी गर्न बाँकी</h3>
-        <div class="count" id="trackPem">०</div>
-        <span class="instruction">👇 बाँकी सूची हेर्नुस्</span>
-      </div>
-      <div class="track-card final-card" id="card-final" onclick="filterBranchList('final')">
-        <h3>🎓 सम्पन्न प्रमाणपत्र दिन बाँकी</h3>
-        <div class="count" id="trackFinal">०</div>
-        <span class="instruction">👇 बाँकी सूची हेर्नुस्</span>
-      </div>
-    </div>
-
-    <div class="table-section">
-      <div class="table-header">
-        <h3 id="listTableTitle">📋 नक्सा पासको Track विवरण तालिका (जम्मा दर्ता सूची)</h3>
-        <div class="btn-group">
-          <button class="btn-excel" onclick="exportToExcel()">🟢 पूर्ण रिपोर्ट Excel मा</button>
-          <button class="btn-csv" onclick="exportCurrentFilteredExcel()">📥 यो लिस्ट CSV मा</button>
-        </div>
-      </div>
-      
-      <div class="table-responsive">
-        <table id="reportTable">
-          <thead>
-            <tr>
-              <th>क्र.सं. (ID)</th>
-              <th>जग्गाधनीको नाम</th>
-              <th>दर्ता नं.</th>
-              <th>टोल / ठेगाना</th>
-              <th>सम्पर्क नम्बर</th>
-              <th>अस्थायी इजाजत (मिति/स्थिति)</th>
-              <th>स्थायी इजाजत (मिति/स्थिति)</th>
-              <th>निर्माण सम्पन्न (मिति/स्थिति)</th>
-              <th>हालको अवस्था (Status)</th>
-            </tr>
-          </thead>
-          <tbody id="tableBody">
-            <tr>
-              <td colspan="9" style="text-align: center; color: #888; padding: 25px;">डाटा लोड हुँदैछ, कृपया पर्खनुहोस्...</td>
-            </tr>
-          </tbody>
-          </table>
-      </div>
-    </div>
-
-    <h2 class="section-title">👤 प्रणाली प्रयोगकर्ता तथा अनुमति व्यवस्थापन प्यानल (Admin Settings)</h2>
     <div class="main-grid">
+      <!-- User Creation / Editing Form -->
       <div class="admin-card">
         <div class="card-title" id="formPanelTitle">➕ नयाँ आईडी सिर्जना</div>
         <form id="createUserForm">
@@ -260,8 +98,8 @@
           <div class="field">
             <label>भूमिका (System Role)</label>
             <select id="regRole" required>
-              <option value="staff">Staff (कर्मचारी)</option>
               <option value="admin">Admin (प्रशासक)</option>
+              <option value="staff">Staff (कर्मचारी)</option>
               <option value="consultancy">Consultancy (कन्सल्टेन्सी)</option>
             </select>
           </div>
@@ -270,9 +108,10 @@
         </form>
       </div>
 
+      <!-- Registered Users List -->
       <div class="admin-card">
         <div class="card-title">👥 दर्ता भएका प्रयोगकर्ताहरूको सूची र व्यवस्थापन</div>
-        <div class="table-responsive" style="max-height: 400px;">
+        <div class="table-responsive">
           <table>
             <thead>
               <tr>
@@ -293,318 +132,145 @@
 
   </div>
 
-  <div id="timeoutAlert">⚠️ निष्क्रियता! तपाइँ स्वतः ६० सेकेन्डमा लगआउट हुँदै हुनुहुन्छ।</div>
-
   <script>
     const SUPABASE_URL = 'https://lyjokogftwtvnhwszqni.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_gxEL2-GVTVy8E0WxMBZHDQ_b5TzsDI9';
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    let masterBranchData = []; 
-    let currentFilterType = 'all';
     let systemUsersGlobalList = [];
+    let isSystemUnlocked = false;
 
-    // ==================== ⏳ ५ मिनेट AUTO LOGOUT SAFETY SYSTEM ====================
-    const INACTIVITY_TIME = 5 * 60 * 1000; 
-    const WARNING_TIME = 60 * 1000;        
-    let idleTimer = null;
-    let warningTimer = null;
+    // ==================== 🔒 SECURITY LOCK ENGINE ====================
+    async function checkAndUnlockSystem() {
+      if (isSystemUnlocked) return true;
+      
+      const currentAdminEmail = localStorage.getItem("loggedInUserEmail");
+      const userInput = prompt("⚠️ सुरक्षा सतर्कता! परिमार्जन गर्न आफ्नो लगइन 'प्रशासक पासवर्ड' (Admin Password) प्रविष्ट गर्नुहोस्:");
+      
+      if (userInput === null) return false;
 
-    function resetIdleTimer() {
-      document.getElementById('timeoutAlert').style.display = 'none';
-      clearTimeout(idleTimer);
-      clearTimeout(warningTimer);
+      const cleanInput = userInput.trim();
 
-      warningTimer = setTimeout(showLogoutWarning, INACTIVITY_TIME - WARNING_TIME);
-      idleTimer = setTimeout(handleAutoLogout, INACTIVITY_TIME);
+      // ब्याकअप मास्टर कुञ्जी (यदि लोकल सेसनमा इमेल नभेटिएमा वा आकस्मिक अवस्थामा खोल्न)
+      if (cleanInput === "Galkot@2083") {
+        isSystemUnlocked = true;
+        updateLockBtnUI();
+        alert("🔓 मास्टर पासवर्डद्वारा प्रणाली अनलक गरियो।");
+        return true;
+      }
+
+      if (!currentAdminEmail) {
+        alert("❌ सेसन खाली छ! कृपया मास्टर पिन 'Galkot@2083' प्रयोग गर्नुहोस्।");
+        return false;
+      }
+
+      try {
+        // डेटाबेसमा हाल लगइन भएको इमेल र पासवर्ड रुजु गर्ने
+        const { data, error } = await _supabase
+          .from('system_users')
+          .select('id')
+          .eq('email', currentAdminEmail.trim())
+          .eq('password', cleanInput)
+          .maybeSingle();
+
+        if (error) throw error;
+
+        if (data) {
+          isSystemUnlocked = true;
+          updateLockBtnUI();
+          alert("🔓 प्रमाणीकरण सफल भयो!");
+          return true;
+        } else {
+          alert("❌ गलत पासवर्ड! प्रणालीमा पहुँच अस्वीकृत भयो।");
+          return false;
+        }
+      } catch (err) {
+        console.error("Error verifying password:", err);
+        alert("❌ नेटवर्क वा डेटाबेस त्रुटि! पासवर्ड रुजु गर्न सकिएन।");
+        return false;
+      }
     }
 
-    function showLogoutWarning() {
-      document.getElementById('timeoutAlert').style.display = 'block';
+    function updateLockBtnUI() {
+      const btn = document.getElementById('lockStatusBtn');
+      if (isSystemUnlocked) {
+        btn.innerText = "🔓 प्रणाली खुल्ला छ";
+        btn.style.backgroundColor = "var(--success-color)";
+      } else {
+        btn.innerText = "🔒 प्रणाली सुरक्षित छ";
+        btn.style.backgroundColor = "#34495e";
+      }
     }
 
-    function handleAutoLogout() {
-      alert("⏱️ तपाईंको सुरक्षाको लागि ५ मिनेट निष्क्रिय रहेकाले प्रणाली स्वतः लगआउट भएको छ।");
-      window.location.href = "mapbranch.html";
-    }
-
-    function handleLogout() {
-      if(confirm("के तपाईं पक्का लगआउट गर्न चाहनुहुन्छ?")) {
-        window.location.href = "mapbranch.html";
+    function toggleSystemLock() {
+      if (isSystemUnlocked) {
+        isSystemUnlocked = false;
+        updateLockBtnUI();
+        alert("🔒 प्रणाली पुन: सुरक्षित मोडमा लक गरिएको छ।");
+      } else {
+        checkAndUnlockSystem();
       }
     }
 
     window.onload = function() {
-      loadDashboardAndSystem();
       fetchUsers();
-      
-      resetIdleTimer();
-      document.onmousemove = resetIdleTimer;
-      document.onkeydown = resetIdleTimer;
-      document.onmousedown = resetIdleTimer;
-      document.ontouchstart = resetIdleTimer;
+      updateLockBtnUI();
     };
 
-    // ==================== 📊 DATA ENGINE & ANALYTICS लोजिक ====================
-    async function loadDashboardAndSystem() {
-      try {
-        const { data, error } = await _supabase
-          .from('g_map_branch1')
-          .select('*')
-          .order('id', { ascending: true });
-        
-        if (error) throw error;
-
-        if (data) {
-          masterBranchData = data;
-          const total = data.length;
-          
-          const registered = data.filter(r => r.registrano && String(r.registrano).trim() !== "").length;
-          const pending = total - registered;
-          const temp = data.filter(r => r.tem_issued_date && String(r.tem_issued_date).trim() !== "").length;
-          const perm = data.filter(r => r.per_issued_date && String(r.per_issued_date).trim() !== "").length;
-          const done = data.filter(r => r.done_issued_date && String(r.done_issued_date).trim() !== "").length;
-
-          document.getElementById('total').innerText = total;
-          document.getElementById('pending').innerText = pending;
-          document.getElementById('registered').innerText = registered;
-          document.getElementById('temp').innerText = temp;
-          document.getElementById('perm').innerText = perm;
-          document.getElementById('done').innerText = done;
-
-          const pendingTem = masterBranchData.filter(d => d.tem_certificate !== 'yes').length;
-          const pendingPem = masterBranchData.filter(d => d.per_certificate !== 'yes').length;
-          const pendingFinal = masterBranchData.filter(d => !d.done_certificate).length;
-
-          document.getElementById('trackTotalReg').innerText = total;
-          document.getElementById('trackTem').innerText = pendingTem;
-          document.getElementById('trackPem').innerText = pendingPem;
-          document.getElementById('trackFinal').innerText = pendingFinal;
-
-          document.getElementById('reportNoticeCount').innerText = pendingFinal + " बाँकी";
-
-          // ३डी चार्ट रेन्डर गर्ने
-          renderHighcharts3D(pending, registered, temp, perm, done);
-          renderBranchTable(masterBranchData);
-        }
-      } catch (err) {
-        console.error("डाटा लोड गर्दा त्रुटि:", err);
-        document.getElementById('tableBody').innerHTML = `<tr><td colspan="9" style="text-align: center; color: red;">त्रुटि: डाटा प्राप्त गर्न सकिएन।</td></tr>`;
-      }
-    }
-
-    function renderHighcharts3D(pending, registered, temp, perm, done) {
-      const chartLabels = ['दर्ता हुन बाँकी', 'दर्ता भएको', 'अस्थायी इजाजत', 'स्थायी इजाजत', 'निर्माण सम्पन्न'];
-      const chartData = [pending, registered, temp, perm, done];
-      const chartColors = ['#e74c3c', '#8e44ad', '#f1c40f', '#3498db', '#27ae60'];
-
-      try {
-        if (typeof Highcharts !== 'undefined') {
-          // १. ३डी डोनट चार्ट
-          Highcharts.chart('pieChart3D', {
-            chart: { type: 'pie', options3d: { enabled: true, alpha: 45, beta: 0 }, backgroundColor: 'transparent' },
-            title: { text: 'फाइलहरूको अवस्था विवरण (3D)', style: { color: '#0c2461', fontSize: '15px', fontWeight: 'bold' } },
-            accessibility: { enabled: false },
-            plotOptions: {
-              pie: { innerSize: '50%', depth: 35, allowPointSelect: true, cursor: 'pointer', dataLabels: { enabled: false }, showInLegend: true }
-            },
-            legend: { itemStyle: { fontSize: '11px' } },
-            credits: { enabled: false },
-            series: [{
-              name: 'फाइल संख्या',
-              data: chartLabels.map((label, index) => ({ name: label, y: chartData[index], color: chartColors[index] }))
-            }]
-          });
-
-          // २. ३डी स्तम्भ (Column) चार्ट
-          Highcharts.chart('barChart3D', {
-            chart: { type: 'column', options3d: { enabled: true, alpha: 15, beta: 15, depth: 50, viewDistance: 25 }, backgroundColor: 'transparent' },
-            title: { text: 'प्रगति तथ्याङ्क तुलना (3D)', style: { color: '#0c2461', fontSize: '15px', fontWeight: 'bold' } },
-            accessibility: { enabled: false },
-            xAxis: { categories: chartLabels, labels: { style: { fontSize: '10px' } } },
-            yAxis: { title: { text: 'फाइल संख्या' }, allowDecimals: false, min: 0 },
-            legend: { enabled: false },
-            credits: { enabled: false },
-            plotOptions: { column: { depth: 30, colorByPoint: true, colors: chartColors } },
-            tooltip: { pointFormat: '<b>{point.y}</b> वटा फाइल' },
-            series: [{ data: chartData }]
-          });
-        }
-      } catch (err) {
-        console.error("चार्ट बनाउन सकिएन:", err);
-      }
-    }
-
-    function filterBranchList(type) {
-      currentFilterType = type;
-      
-      document.querySelectorAll('.track-card').forEach(c => c.classList.remove('active-filter'));
-      if(type === 'all') document.getElementById('card-all').classList.add('active-filter');
-      if(type === 'tem') document.getElementById('card-tem').classList.add('active-filter');
-      if(type === 'pem') document.getElementById('card-pem').classList.add('active-filter');
-      if(type === 'final') document.getElementById('card-final').classList.add('active-filter');
-
-      let filteredData = [];
-      let titleText = "";
-
-      if (type === 'all') {
-        filteredData = masterBranchData;
-        titleText = "📋 नक्सा पासको Track विवरण तालिका (जम्मा दर्ता सूची)";
-      } else if (type === 'tem') {
-        filteredData = masterBranchData.filter(d => d.tem_certificate !== 'yes');
-        titleText = "⏳ अस्थायी प्रमाणपत्र जारी गर्न बाँकी भएका सेवाग्राहीहरूको सूची";
-      } else if (type === 'pem') {
-        filteredData = masterBranchData.filter(d => d.per_certificate !== 'yes');
-        titleText = "📜 स्थायी प्रमाणपत्र जारी गर्न बाँकी भएका सेवाग्राहीहरूको सूची";
-      } else if (type === 'final') {
-        filteredData = masterBranchData.filter(d => !d.done_certificate);
-        titleText = "🎓 निर्माण सम्पन्न प्रमाणपत्र दिन बाँकी भएका सेवाग्राहीहरूको सूची";
-      }
-
-      document.getElementById('listTableTitle').innerText = titleText;
-      renderBranchTable(filteredData);
-    }
-
-    function renderBranchTable(dataList) {
-      const tbody = document.getElementById('tableBody');
-      tbody.innerHTML = "";
-
-      if(dataList.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:#ff4757; font-weight:bold; padding:25px;">यो वर्गमा कुनै पनि रेकर्ड फेला परेन।</td></tr>`;
-        return;
-      }
-
-      dataList.forEach((row, index) => {
-        let statusBadge = '';
-        if (row.done_issued_date && String(row.done_issued_date).trim() !== "") {
-          statusBadge = `<span class="badge" style="background-color: var(--done);">सम्पन्न</span>`;
-        } else if (row.per_issued_date && String(row.per_issued_date).trim() !== "") {
-          statusBadge = `<span class="badge" style="background-color: var(--perm);">स्थायी</span>`;
-        } else if (row.tem_issued_date && String(row.tem_issued_date).trim() !== "") {
-          statusBadge = `<span class="badge" style="background-color: var(--temp); color: #333;">अस्थायी</span>`;
-        } else if (row.registrano && String(row.registrano).trim() !== "") {
-          statusBadge = `<span class="badge" style="background-color: var(--registered);">दर्ता भएको</span>`;
-        } else {
-          statusBadge = `<span class="badge" style="background-color: var(--pending);">दर्ता हुन बाँकी</span>`;
-        }
-
-        const temCert = row.tem_certificate === 'yes' ? '<span class="status-badge status-done">जारी</span>' : '<span class="status-badge status-pending">बाँकी ⏳</span>';
-        const pemCert = row.per_certificate === 'yes' ? '<span class="status-badge status-done">जारी</span>' : '<span class="status-badge status-pending">बाँकी ⏳</span>';
-        const finalCert = row.done_certificate ? '<span class="status-badge status-done">सम्पन्न</span>' : '<span class="status-badge status-pending">बाँकी ⏳</span>';
-
-        tbody.innerHTML += `
-          <tr>
-            <td><strong>${row.id || (index + 1)}</strong></td>
-            <td><strong>${row.owner || 'नाम नखुलेको'}</strong></td>
-            <td>${row.registrano || '<span style="color:red; font-size:11px;">(दर्ता छैन)</span>'}</td>
-            <td>${row.tole || '-'}</td>
-            <td>${row.phone || '-'}</td>
-            <td>${row.tem_issued_date || '-'} ${temCert}</td>
-            <td>${row.per_issued_date || '-'} ${pemCert}</td>
-            <td>${row.done_issued_date || '-'} ${finalCert}</td>
-            <td>${statusBadge}</td>
-          </tr>
-        `;
-      });
-    }
-
-    function exportToExcel() {
-      const table = document.getElementById("reportTable");
-      const wb = XLSX.utils.table_to_book(table, { sheet: "प्रगति विवरण" });
-      const today = new Date().toISOString().slice(0, 10);
-      XLSX.writeFile(wb, `Galkot_Master_Dashboard_${today}.xlsx`);
-    }
-
-    function exportCurrentFilteredExcel() {
-      let filteredData = [];
-      let filename = "Report";
-
-      if (currentFilterType === 'all') { filteredData = masterBranchData; filename = "All_Registrations"; }
-      else if (currentFilterType === 'tem') { filteredData = masterBranchData.filter(d => d.tem_certificate !== 'yes'); filename = "Pending_Temporary_Certificates"; }
-      else if (currentFilterType === 'pem') { filteredData = masterBranchData.filter(d => d.per_certificate !== 'yes'); filename = "Pending_Permanent_Certificates"; }
-      else if (currentFilterType === 'final') { filteredData = masterBranchData.filter(d => !d.done_certificate); filename = "Pending_Final_Certificates"; }
-
-      if(filteredData.length === 0) return alert("डाउनलोड गर्नको लागि डाटा खाली छ!");
-
-      const excelHeaders = ["ID", "घरधनीको नाम", "दर्ता नं", "टोल/ठेगाना", "सम्पर्क नम्बर", "अस्थायी प्रमाणपत्र स्थिति", "स्थायी प्रमाणपत्र स्थिति", "निर्माण सम्पन्न स्थिति"];
-      const rows = [excelHeaders.join(',')];
-
-      filteredData.forEach(item => {
-        const rowData = [
-          item.id || "-",
-          cleanField(item.owner),
-          item.registrano || "-",
-          cleanField(item.tole),
-          cleanField(item.phone),
-          item.tem_certificate === 'yes' ? "जारी भएको" : "बाँकी",
-          item.per_certificate === 'yes' ? "जारी भएको" : "बाँकी",
-          item.done_certificate ? "सम्पन्न" : "बाँकी"
-        ];
-        rows.push(rowData.join(','));
-      });
-
-      const csvContent = rows.join('\n');
-      const BOM = "\uFEFF"; 
-      const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
-      
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = `${filename}_List_${new Date().toISOString().slice(0,10)}.csv`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-
-    function cleanField(val) {
-      if (val === null || val === undefined) return "-";
-      let str = String(val).trim();
-      str = str.replace(/"/g, '""');
-      if (str.includes(',') || str.includes('\n') || str.includes('\r')) { str = `"${str}"`; }
-      return str ? str : "-";
-    }
-
-    // ==================== 👥 SYSTEM USERS ADMINISTRATION, EDIT & DELETE ====================
+    // ==================== 👥 SYSTEM USERS ADMINISTRATION ====================
     async function fetchUsers() {
-      const { data: users, error } = await _supabase.from('system_users').select('*').order('id', { ascending: true });
-      if (error) return;
-      
-      systemUsersGlobalList = users;
-      const tbody = document.getElementById('usersTableBody');
-      tbody.innerHTML = ""; 
-      
-      users.forEach(user => {
-        const tr = document.createElement('tr');
-        const userRole = user.role || 'staff';
+      try {
+        const { data: users, error } = await _supabase.from('system_users').select('*').order('id', { ascending: true });
+        if (error) throw error;
         
-        tr.innerHTML = `
-          <td>${user.id}</td>
-          <td><strong>${user.fullname}</strong></td>
-          <td>${user.email}</td>
-          <td>
-            <select class="table-select" onchange="updateUserRole(${user.id}, this.value)">
-              <option value="staff" ${userRole === 'staff' ? 'selected' : ''}>Staff (कर्मचारी)</option>
-              <option value="admin" ${userRole === 'admin' ? 'selected' : ''}>Admin (प्रशासक)</option>
-              <option value="consultancy" ${userRole === 'consultancy' ? 'selected' : ''}>Consultancy</option>
-            </select>
-          </td>
-          <td>
-            <button class="btn-edit" onclick="startEditUser(${user.id})">✏️ सम्पादन</button>
-            <button class="btn-action" onclick="changeUserPassword(${user.id})">🔑 पासवर्ड</button>
-            <button class="btn-delete" onclick="deleteUser(${user.id}, '${user.fullname}')">❌ हटाउनुस्</button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
+        systemUsersGlobalList = users;
+        const tbody = document.getElementById('usersTableBody');
+        tbody.innerHTML = ""; 
+        
+        if(!users || users.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#999; padding: 15px;">कुनै पनि प्रयोगकर्ता फेला परेन।</td></tr>`;
+          return;
+        }
+
+        users.forEach(user => {
+          const tr = document.createElement('tr');
+          const userRole = user.role || 'staff';
+          
+          tr.innerHTML = `
+            <td>${user.id}</td>
+            <td><strong>${user.fullname}</strong></td>
+            <td>${user.email}</td>
+            <td>
+              <select class="table-select" onchange="updateUserRole(${user.id}, this.value, '${user.fullname}')">
+                <option value="admin" ${userRole === 'admin' ? 'selected' : ''}>Admin (प्रशासक)</option>
+                <option value="staff" ${userRole === 'staff' ? 'selected' : ''}>Staff (कर्मचारी)</option>
+                <option value="consultancy" ${userRole === 'consultancy' ? 'selected' : ''}>Consultancy</option>
+              </select>
+            </td>
+            <td>
+              <button class="btn-edit" onclick="startEditUser(${user.id})">✏️ सम्पादन</button>
+              <button class="btn-action" onclick="changeUserPassword(${user.id})">🔑 पासवर्ड</button>
+              <button class="btn-delete" onclick="deleteUser(${user.id}, '${user.fullname}')">❌ हटाउनुस्</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch(err) {
+        console.error("Error loading users:", err);
+        document.getElementById('usersTableBody').innerHTML = `<tr><td colspan="5" style="text-align:center; color:red; padding: 15px;">त्रुटि: डाटा लोड हुन सकेन।</td></tr>`;
+      }
     }
 
-    function startEditUser(userId) {
+    async function startEditUser(userId) {
+      if (!(await checkAndUnlockSystem())) return;
+
       const user = systemUsersGlobalList.find(u => u.id === userId);
       if(!user) return;
 
       document.getElementById('editingUserId').value = user.id;
       document.getElementById('regName').value = user.fullname;
       document.getElementById('regEmail').value = user.email;
-      document.getElementById('regRole').value = user.role || 'staff';
+      document.getElementById('regRole').value = user.role || 'admin';
       
       document.getElementById('regPassword').required = false;
       document.getElementById('regPassword').placeholder = "(परिवर्तन नगर्ने भए खाली छोड्नुस्)";
@@ -632,6 +298,9 @@
 
     document.getElementById('createUserForm').addEventListener('submit', async (e) => {
       e.preventDefault();
+      
+      if (!(await checkAndUnlockSystem())) return;
+
       const editingId = document.getElementById('editingUserId').value;
       const fullname = document.getElementById('regName').value.trim();
       const email = document.getElementById('regEmail').value.trim();
@@ -672,6 +341,8 @@
     });
 
     async function deleteUser(userId, userName) {
+      if (!(await checkAndUnlockSystem())) return;
+
       if (confirm(`⚠️ के तपाईं पक्का प्रयोगकर्ता "${userName}" को अकाउन्ट प्रणालीबाट पूर्ण रूपमा हटाउन चाहनुहुन्छ?`)) {
         const { error } = await _supabase.from('system_users').delete().eq('id', userId);
         if (error) {
@@ -684,22 +355,34 @@
       }
     }
 
-    async function updateUserRole(userId, newRole) {
+    async function updateUserRole(userId, newRole, userName) {
+      if (!(await checkAndUnlockSystem())) {
+        fetchUsers(); 
+        return;
+      }
+
       const { error } = await _supabase.from('system_users').update({ role: newRole }).eq('id', userId);
       if (error) {
         alert("❌ भूमिका परिवर्तन गर्न सकिएन: " + error.message);
+        fetchUsers();
       } else {
-        alert("🔄 प्रयोगकर्ताको भूमिका (Role) सफलतापूर्वक परिवर्तन भयो!");
+        alert(`🔄 प्रयोगकर्ता "${userName}" को भूमिका (Role) सफलतापूर्वक परिवर्तन भयो!`);
         fetchUsers();
       }
     }
 
     async function changeUserPassword(userId) {
+      if (!(await checkAndUnlockSystem())) return;
+
       const newPass = prompt("नयाँ पासवर्ड राख्नुहोस्:");
       if(newPass) {
-        await _supabase.from('system_users').update({ password: newPass }).eq('id', userId);
-        alert("🔐 पासवर्ड परिवर्तन भयो!");
-        fetchUsers();
+        const { error } = await _supabase.from('system_users').update({ password: newPass.trim() }).eq('id', userId);
+        if (error) {
+          alert("❌ पासवर्ड परिवर्तन गर्न सकिएन: " + error.message);
+        } else {
+          alert("🔐 पासवर्ड परिवर्तन भयो!");
+          fetchUsers();
+        }
       }
     }
   </script>
