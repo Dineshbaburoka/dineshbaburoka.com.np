@@ -40,14 +40,23 @@
     .field input, .field select, .table-select { padding: 9px 12px; border: 2px solid var(--border-color); border-radius: 6px; font-size: 13px; outline: none; background: white; transition: 0.2s; }
     .field input:focus, .field select:focus { border-color: var(--secondary-color); }
     .table-select { cursor: pointer; font-weight: 600; color: var(--primary-color); }
+    .role-admin { background: #eaf0ff; color: #0c2461; border-color: #b7c6f2; }
+    .role-staff { background: #eafaf1; color: #1e824c; border-color: #a8e6c3; }
+    .role-consultancy { background: #fff6e5; color: #b8790a; border-color: #ffdb99; }
+    .role-sub_engineer { background: #fdeaf6; color: #a0177a; border-color: #f6bce3; }
+    .role-engineer { background: #eaf7ff; color: #0a6ea8; border-color: #a8dcf6; }
+    .role-ward_secretary { background: #f0eefc; color: #5b21b6; border-color: #d4c8f7; }
+
+    .actions-cell { display: flex; gap: 4px; flex-wrap: nowrap; white-space: nowrap; }
+    .actions-cell button { width: 32px; height: 30px; padding: 0; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; }
     
     .btn { color: white; border: none; padding: 12px; font-size: 14px; font-weight: bold; border-radius: 6px; cursor: pointer; width: 100%; transition: 0.2s; background: var(--success-color); box-shadow: 0 4px 10px rgba(46, 213, 115, 0.2); }
     .btn:hover { background: #26af5f; transform: translateY(-1px); }
-    .btn-action { padding: 5px 10px; font-size: 12px; border-radius: 4px; background: var(--secondary-color); color: white; border: none; cursor: pointer; transition: 0.2s; }
+    .btn-action { padding: 5px 8px; font-size: 11px; border-radius: 4px; background: var(--secondary-color); color: white; border: none; cursor: pointer; transition: 0.2s; white-space: nowrap; }
     .btn-action:hover { background: var(--primary); }
-    .btn-edit { padding: 5px 10px; font-size: 12px; border-radius: 4px; background: #ffa502; color: white; border: none; cursor: pointer; transition: 0.2s; margin-left: 4px; font-weight: bold; }
+    .btn-edit { padding: 5px 8px; font-size: 11px; border-radius: 4px; background: #ffa502; color: white; border: none; cursor: pointer; transition: 0.2s; font-weight: bold; white-space: nowrap; }
     .btn-edit:hover { background: #e09000; }
-    .btn-delete { padding: 5px 10px; font-size: 12px; border-radius: 4px; background: var(--danger-color); color: white; border: none; cursor: pointer; transition: 0.2s; margin-left: 4px; }
+    .btn-delete { padding: 5px 8px; font-size: 11px; border-radius: 4px; background: var(--danger-color); color: white; border: none; cursor: pointer; transition: 0.2s; white-space: nowrap; }
     .btn-delete:hover { background: #ff2a3a; }
     .cancel-link { font-size: 12px; color: #747d8c; cursor: pointer; text-decoration: underline; margin-top: 10px; display: inline-block; text-align: center; width: 100%; }
 
@@ -101,6 +110,9 @@
               <option value="admin">Admin (प्रशासक)</option>
               <option value="staff">Staff (कर्मचारी)</option>
               <option value="consultancy">Consultancy (कन्सल्टेन्सी)</option>
+              <option value="sub_engineer">Sub-Engineer (सब-इन्जिनियर)</option>
+              <option value="engineer">Engineer (इन्जिनियर)</option>
+              <option value="ward_secretary">Ward Secretary (वडा सचिव)</option>
             </select>
           </div>
           <button type="submit" class="btn" id="btnSubmitForm">👤 अकाउन्ट तयार गर्नुस्</button>
@@ -235,22 +247,28 @@
         users.forEach(user => {
           const tr = document.createElement('tr');
           const userRole = user.role || 'staff';
+          const roleClass = ['admin','staff','consultancy','sub_engineer','engineer','ward_secretary'].includes(userRole) ? `role-${userRole}` : '';
           
           tr.innerHTML = `
             <td>${user.id}</td>
             <td><strong>${user.fullname}</strong></td>
             <td>${user.email}</td>
             <td>
-              <select class="table-select" onchange="updateUserRole(${user.id}, this.value, '${user.fullname}')">
+              <select class="table-select ${roleClass}" onchange="this.className='table-select role-'+this.value; updateUserRole(${user.id}, this.value, '${user.fullname}')">
                 <option value="admin" ${userRole === 'admin' ? 'selected' : ''}>Admin (प्रशासक)</option>
                 <option value="staff" ${userRole === 'staff' ? 'selected' : ''}>Staff (कर्मचारी)</option>
                 <option value="consultancy" ${userRole === 'consultancy' ? 'selected' : ''}>Consultancy</option>
+                <option value="sub_engineer" ${userRole === 'sub_engineer' ? 'selected' : ''}>Sub-Engineer</option>
+                <option value="engineer" ${userRole === 'engineer' ? 'selected' : ''}>Engineer</option>
+                <option value="ward_secretary" ${userRole === 'ward_secretary' ? 'selected' : ''}>Ward Secretary (वडा सचिव)</option>
               </select>
             </td>
             <td>
-              <button class="btn-edit" onclick="startEditUser(${user.id})">✏️ सम्पादन</button>
-              <button class="btn-action" onclick="changeUserPassword(${user.id})">🔑 पासवर्ड</button>
-              <button class="btn-delete" onclick="deleteUser(${user.id}, '${user.fullname}')">❌ हटाउनुस्</button>
+              <div class="actions-cell">
+                <button class="btn-edit" onclick="startEditUser(${user.id})" title="सम्पादन">✏️</button>
+                <button class="btn-action" onclick="changeUserPassword(${user.id})" title="पासवर्ड">🔑</button>
+                <button class="btn-delete" onclick="deleteUser(${user.id}, '${user.fullname}')" title="हटाउनुस्">❌</button>
+              </div>
             </td>
           `;
           tbody.appendChild(tr);

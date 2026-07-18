@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>गलकोट नगरपालिका - इन्जिनियर राय प्रणाली (टिप्पणी आदेश)</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      --primary-color: #0c2461;
+      --secondary-color: #1e3799;
+      --bg-color: #f1f2f6;
+      --card-bg: #ffffff;
+      --border-color: #ced6e0;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Noto Sans Devanagari', sans-serif;
+      background: var(--bg-color);
+      padding: 30px;
+      color: #000000;
+      line-height: 1.9;
+    }
+
+    .report-search-wrapper {
+      max-width: 900px;
+      margin: 20px auto 30px auto;
+      background: var(--card-bg);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      border: 2px solid var(--primary-color);
+    }
+    .system-title {
+      text-align: center;
+      color: var(--primary-color);
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+    .report-search-box {
+      width: 100%;
+      padding: 16px;
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 15px;
+      outline: none;
+      font-weight: bold;
+      text-align: center;
+      color: var(--primary-color);
+    }
+    .search-hint {
+      font-size: 14px;
+      color: #57606f;
+      text-align: center;
+      margin-top: 12px;
+      font-weight: 600;
+    }
+
+    .print-letter-container {
+      max-width: 1000px;
+      margin: 0 auto 40px auto;
+      background: var(--card-bg);
+      padding: 50px 60px;
+      border-radius: 8px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+      border: 1px solid #ccc;
+      position: relative;
+      font-size: 17px;
+      display: none;
+    }
+
+    .header-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+    }
+    .gov-logo {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 120px;
+      height: auto;
+    }
+    .letter-header {
+      text-align: center;
+      line-height: 1.4;
+      width: 100%;
+      padding-left: 130px;
+      padding-right: 130px;
+    }
+    .letter-header .municipality-name { font-size: 36px; font-weight: 700; color: #000000; letter-spacing: 0.5px; }
+    .letter-header .executive-title { font-size: 24px; font-weight: 700; color: #000000; margin-top: 2px; }
+    .letter-header .location-name { font-size: 19px; font-weight: 700; color: #000000; margin-top: 2px; }
+
+    .official-meta-top-row {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 19px; font-weight: 700; padding-top: 10px; padding-bottom: 8px;
+      border-bottom: 2px solid #000000; margin-bottom: 15px;
+    }
+    .official-meta-bottom-row {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 19px; font-weight: 700; margin-bottom: 25px;
+    }
+
+    .tippani-title-wrapper { text-align: center; margin-bottom: 20px; }
+    .tippani-title {
+      font-size: 24px; font-weight: bold; text-decoration: underline; color: #d32f2f; display: inline-block;
+    }
+    .tippani-subject {
+      text-align: center; font-size: 18px; font-weight: 700; margin-bottom: 25px;
+    }
+
+    .letter-body {
+      text-align: justify; text-justify: inter-word; word-break: keep-all;
+      margin-bottom: 25px; text-indent: 50px; line-height: 1.9;
+    }
+
+    .dynamic-value {
+      font-weight: bold; border-bottom: 1px dashed #222; padding: 0 2px; display: inline;
+      min-width: auto; outline: none; background-color: #fffde7; text-indent: 0px !important;
+    }
+    .dynamic-value:focus { background-color: #fff9c4; border-bottom: 1px solid #000; }
+    .dynamic-value.locked { background-color: #f1f2f6 !important; border-bottom: none !important; color: #2f3542 !important; cursor: not-allowed; }
+
+    .section-head { font-weight: 700; font-size: 17px; margin: 20px 0 10px 0; }
+    .opinion-block { margin-bottom: 16px; font-size: 16px; }
+    .opinion-line { font-weight: 700; margin-bottom: 4px; }
+    .dotted-fill {
+      display: inline-block; width: 100%; border-bottom: 1px dashed #444; min-height: 26px;
+      outline: none; background-color: #fffde7; margin-bottom: 4px; padding: 2px 4px;
+    }
+    .dotted-fill:focus { background-color: #fff9c4; }
+
+    .cao-signoff { text-align: right; font-weight: 700; font-size: 17px; margin: 25px 0 30px 0; }
+
+    .opinion-unit { margin-bottom: 18px; }
+    .opinion-input-row { display: flex; gap: 10px; align-items: flex-start; }
+    .opinion-textarea {
+      flex: 1; min-height: 60px; border: 1px dashed #444; background-color: #fffde7;
+      padding: 6px 8px; font-family: inherit; font-size: 16px; outline: none; resize: vertical;
+    }
+    .opinion-textarea:focus { background-color: #fff9c4; }
+    .opinion-textarea[disabled] { background-color: #f1f2f6; border: none; color: #2f3542; resize: none; }
+    .btn-send-opinion {
+      background-color: var(--secondary-color); color: white; border: none; padding: 10px 16px;
+      font-size: 13px; font-weight: 700; border-radius: 6px; cursor: pointer; white-space: nowrap;
+      display: flex; align-items: center; gap: 6px; height: fit-content;
+    }
+    .btn-send-opinion:hover { background-color: var(--primary-color); }
+    .btn-send-opinion:disabled { background-color: #a4b0be; cursor: not-allowed; }
+    .opinion-status { font-size: 12px; font-weight: 700; margin-top: 5px; }
+    .opinion-status.pending { color: #d35400; }
+    .opinion-status.sent { color: #27ae60; }
+
+    .print-gate-note {
+      text-align: center; font-size: 13px; font-weight: 700; color: #d35400;
+      background: #fff3e0; border: 1px dashed #d35400; border-radius: 8px; padding: 10px; margin-top: 20px;
+    }
+    .btn-print:disabled { background-color: #a4b0be !important; cursor: not-allowed; box-shadow: none; }
+
+    .decision-block { font-size: 16px; text-align: justify; line-height: 2; margin-top: 10px; }
+    .decision-block .dotted-fill { min-height: 22px; }
+
+    .print-btn-wrapper { text-align: center; margin-top: 40px; }
+    .btn-print {
+      background-color: #1e3799; color: white; border: none; padding: 14px 35px;
+      font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 6px; transition: 0.3s;
+    }
+    .btn-print:hover { background-color: #0c2461; }
+
+    .no-report-alert {
+      text-align: center; padding: 60px 40px; color: #7f8c8d; font-size: 16px;
+      background: white; max-width: 900px; margin: 0 auto; border-radius: 12px; border: 2px dashed #cbd5e1;
+    }
+
+    .pending-requests-panel {
+      max-width: 900px; margin: 0 auto 20px auto; background: #f0eefc; padding: 20px;
+      border-radius: 12px; border: 2px dashed #8e44ad; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+    .pending-requests-title { color: #5b21b6; font-weight: 700; font-size: 16px; margin-bottom: 12px; text-align: center; }
+    .pending-item {
+      padding: 10px 14px; margin-bottom: 8px; background: #ffffff; border: 1px solid #d4c8f7;
+      border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; color: #5b21b6; transition: 0.2s;
+    }
+    .pending-item:hover { background: #ede7fb; transform: translateX(3px); }
+    .pending-item .req-date { font-weight: 500; color: #8e44ad; font-size: 12px; }
+
+    .toast-notification {
+      position: fixed; top: 20px; right: 20px; background: var(--primary-color); color: white;
+      padding: 16px 22px; border-radius: 8px; font-size: 14px; font-weight: 700;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.25); z-index: 9999; max-width: 340px;
+      opacity: 0; transform: translateX(30px); transition: 0.35s; pointer-events: none;
+    }
+    .toast-notification.show { opacity: 1; transform: translateX(0); }
+
+    .notice-bell {
+      position: fixed; top: 20px; left: 20px; background: #d32f2f; color: white;
+      width: 62px; height: 62px; border-radius: 50%; display: none; align-items: center; justify-content: center;
+      flex-direction: column; font-size: 22px; font-weight: 800; cursor: pointer;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.3); z-index: 9998; animation: pulse-bell 1.6s infinite; line-height: 1;
+    }
+    .notice-bell span { font-size: 13px; margin-top: 2px; }
+    @keyframes pulse-bell {
+      0%, 100% { transform: scale(1); box-shadow: 0 6px 18px rgba(0,0,0,0.3); }
+      50% { transform: scale(1.1); box-shadow: 0 8px 24px rgba(211,47,47,0.5); }
+    }
+    @media print { .notice-bell { display: none !important; } }
+
+    @media print {
+      body { background: #fff; padding: 0; color: #000; }
+      .report-search-wrapper, .print-btn-wrapper, .search-hint, .no-report-alert, .pending-requests-panel, .toast-notification { display: none !important; }
+      .print-letter-container {
+        display: block !important; box-shadow: none !important; border: none !important;
+        padding: 0 !important; margin: 0 !important; width: 100% !important;
+      }
+      .dynamic-value, .dotted-fill {
+        border-bottom: 1px dashed #999 !important; background-color: transparent !important; padding: 0 2px !important;
+      }
+      .opinion-status { display: none !important; }
+      .gov-logo { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="noticeBell" class="notice-bell" onclick="scrollToPending()">
+    🔔<span id="noticeBellCount">0</span>
+  </div>
+
+  <div class="report-search-wrapper">
+    <div class="system-title">🏛️ गलकोट नगरपालिका - इन्जिनियर राय प्रणाली</div>
+    <div id="searchInputArea">
+      <input type="text" id="reportSearchBox" class="report-search-box" placeholder="🔍 दर्ता न. / जग्गाधनीको नाम / नागरिकता नं. टाइप गर्नुहोस्..." oninput="searchReportDatabase()">
+      <div class="search-hint">मास्टर DATA परिमार्जन (Edit/Update) भएपछि स्वतः यो सुबिधा पुनः खुला (Unlock) हुनेछ।</div>
+    </div>
+    <div id="searchRestrictedNote" style="display:none; text-align:center; color:#57606f; font-size:14px; font-weight:600; padding:10px;">
+      🔒 यहाँ स्वतन्त्र खोज (search) सुविधा उपलब्ध छैन। तलको "पेन्डिङ राय माग" सूचीबाट मात्र फाइल खोल्न सकिन्छ।
+    </div>
+  </div>
+
+  <div id="pendingRequestsPanel" class="pending-requests-panel" style="display:none;">
+    <div class="pending-requests-title">🔔 तपाईंलाई आएका पेन्डिङ राय माग</div>
+    <div id="pendingRequestsList"></div>
+  </div>
+
+  <div id="reportNotFoundAlert" class="no-report-alert">
+    🔍 विवरण खोज्नका लागि दर्ता नं, नाम वा नागरिकता नम्बर टाइप गर्नुहोस्।
+  </div>
+
+  <div class="print-letter-container" id="officeOrderPrintArea">
+
+    <div class="header-container">
+      <img src="Emblem_of_Nepal.svg.png" alt="Emblem of Nepal" class="gov-logo">
+      <div class="letter-header">
+        <div class="municipality-name">गलकोट नगरपालिका</div>
+        <div class="executive-title">नगर कार्यपालिकाको कार्यालय</div>
+        <div class="location-name">गलकोट, बागलुङ</div>
+      </div>
+    </div>
+
+    <div class="official-meta-top-row">
+      <div>पत्र संख्या :- <span id="lbl_patra_sankhya" class="dynamic-value" contenteditable="true">०८२/०८३</span></div>
+      <div>गण्डकी प्रदेश, नेपाल</div>
+    </div>
+    <div class="official-meta-bottom-row">
+      <div>चलानी नं: <span id="lbl_chalani" class="dynamic-value" contenteditable="true">.......</span></div>
+      <div>मिति (जारी भएको): <span id="lbl_date_top" class="dynamic-value" contenteditable="true">२०८३/......../........</span></div>
+    </div>
+
+    <div class="tippani-title-wrapper">
+      <div class="tippani-title">टिप्पणी र आदेश</div>
+    </div>
+    <div class="tippani-subject">निर्माण सम्पन्न स्वीकृत प्रमाण पत्र सम्बन्धमा</div>
+
+    <div style="font-weight:700; font-size:16px; margin-bottom:6px;">
+      प्राप्त पत्र संख्या र मिति:- <span id="lbl_recv_ref" class="dynamic-value" contenteditable="true">......................</span>
+      &nbsp; मिति :- <span id="lbl_recv_date" class="dynamic-value" contenteditable="true">........../......./......</span>
+    </div>
+
+    <div class="letter-body">
+      बागलुङ जिल्ला गलकोट नगरपालिका वडा नं. <span id="lbl_ward" class="dynamic-value">...</span> टोल <span id="lbl_tole" class="dynamic-value">......................</span> बस्ने बर्ष <span id="lbl_age" class="dynamic-value" contenteditable="true">..</span> को श्री <span id="lbl_owner" class="dynamic-value">..........................................</span> को वारेस श्री <span id="lbl_rep_name" class="dynamic-value" contenteditable="true">......................................</span> ले गलकोट नगरपालिका वडा नं. <span id="lbl_ward_two" class="dynamic-value">...</span> टोल <span id="lbl_tole_two" class="dynamic-value">......................</span> मा भएको कित्ता नं. <span id="lbl_kitta" class="dynamic-value">........</span> क्षेत्रफल <span id="lbl_area" class="dynamic-value">............</span> जग्गामा पिल्लरवाला भवन निर्माण गर्न पाउँ भनी नक्सा समेतको दरखास्त पेस गर्नु भई यस सम्बन्धमा "स्थानीय सरकार सञ्चालन ऐन, २०७४" अनुसार नक्सा पास सम्बन्धी आवश्यक कारबाही पूरा भई यस कार्यालयको पत्र संख्या <span id="lbl_per_patra" class="dynamic-value" contenteditable="true">०८१/०८२</span> मिति <span id="lbl_per_issued_date" class="dynamic-value">२०८१/१०/२९</span> मा यस कार्यालयबाट नक्सा अनुसारको निर्माण कार्य गर्न स्वीकृती प्रदान भएको सम्बन्धमा निजले स्वीकृत नक्सा अनुसारको निर्माण कार्य सम्पन्न गरेको हुँदा निर्माण कार्यको सम्पन्न प्रमाण पत्र पाउँ भनी मिति <span id="lbl_app_date" class="dynamic-value" contenteditable="true">२०८२/१०/१०</span> मा दिनुभएको निवेदन अनुसार आवश्यक कागजात संलग्न राखी अन्तिम चरणको सम्पन्न प्रमाण पत्र प्रदान गर्न निर्णयार्थ यो टिप्पणी पेस गर्दछु ।
+    </div>
+
+    <div class="opinion-block">
+      <div class="section-head">प्राविधिकको राय:-</div>
+
+      <div class="opinion-unit">
+        <div class="opinion-line">प्राविधिक (जु.ई.) को राय :</div>
+        <div class="opinion-input-row">
+          <textarea id="opinion_je_input" class="opinion-textarea" placeholder="यहाँ जु.ई.को राय लेख्नुहोस्..."></textarea>
+          <button type="button" class="btn-send-opinion" id="btn_send_je" onclick="sendOpinion('je')">📤 राय पठाउनुहोस्</button>
+          <button type="button" class="btn-send-opinion" id="btn_request_je" style="background-color:#8e44ad; display:none;" onclick="sendOpinionRequest('je')">📨 जु.ई. लाई राय माग पठाउनुहोस्</button>
+        </div>
+        <div class="opinion-status pending" id="status_je">⏳ राय अझै प्राप्त भएको छैन</div>
+      </div>
+
+      <div class="opinion-unit">
+        <div class="opinion-line">प्राविधिक (ई.) को राय :</div>
+        <div class="opinion-input-row">
+          <textarea id="opinion_e_input" class="opinion-textarea" placeholder="यहाँ ई.को राय लेख्नुहोस्..."></textarea>
+          <button type="button" class="btn-send-opinion" id="btn_send_e" onclick="sendOpinion('e')">📤 राय पठाउनुहोस्</button>
+          <button type="button" class="btn-send-opinion" id="btn_request_e" style="background-color:#8e44ad; display:none;" onclick="sendOpinionRequest('e')">📨 ई. लाई राय माग पठाउनुहोस्</button>
+        </div>
+        <div class="opinion-status pending" id="status_e">⏳ राय अझै प्राप्त भएको छैन</div>
+      </div>
+    </div>
+
+    <div class="cao-signoff">प्रमुख प्रशासकीय अधिकृत</div>
+
+    <div class="decision-block">
+      <div style="font-weight:700; margin-bottom:8px;">श्रीमान् प्रमुख ज्यू तथा उप-प्रमुखज्यूबाट नक्सा पास निर्माण कार्यको सम्पन्नता को लागी भएको निर्णय :-</div>
+      माथि उल्लिखित विवरण अनुसारको निर्माण कार्य स्वीकृत नक्सा भन्दा बढी मापदण्ड विपरीत अन्य
+      <div class="dotted-fill" contenteditable="true">&nbsp;</div>
+      कार्य भए गरेको देखिएकोले सो सम्बन्धमा
+      <div class="dotted-fill" contenteditable="true">&nbsp;</div>
+      गरी सम्पन्न प्रमाण पत्र दिने/ नदिने र रोक्का राख्ने
+      <div class="dotted-fill" contenteditable="true">&nbsp;</div>
+      गर्ने गरी सदर ।
+    </div>
+
+    <div id="printGateNote" class="print-gate-note">⚠️ दुवै प्राविधिकको राय प्राप्त नभएसम्म प्रिन्ट बटन सक्रिय हुँदैन।</div>
+    <div class="print-btn-wrapper" id="printBtnWrapper">
+      <button id="btnPrintAction" class="btn-print" onclick="handlePrintAndSave()" disabled>🖨️ टिप्पणी आदेश जारी गरी प्रिन्ट गर्नुस्</button>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = "https://lyjokogftwtvnhwszqni.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_gxEL2-GVTVy8E0WxMBZHDQ_b5TzsDI9";
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let mapDatabase = [];
+    let currentActiveRecord = null;
+    const currentUserRole = localStorage.getItem('userRole') || '';
+
+    document.addEventListener("DOMContentLoaded", () => {
+      fetchFromSupabase();
+      applyPrintRoleUI();
+    });
+
+    function applyPrintRoleUI() {
+      if (currentUserRole === 'sub_engineer' || currentUserRole === 'engineer') {
+        const wrapper = document.getElementById('printBtnWrapper');
+        const gateNote = document.getElementById('printGateNote');
+        if (wrapper) wrapper.style.display = 'none';
+        if (gateNote) gateNote.style.display = 'none';
+
+        const searchArea = document.getElementById('searchInputArea');
+        const restrictedNote = document.getElementById('searchRestrictedNote');
+        if (searchArea) searchArea.style.display = 'none';
+        if (restrictedNote) restrictedNote.style.display = 'block';
+      }
+    }
+
+    async function fetchFromSupabase() {
+      try {
+        const { data, error } = await _supabase.from('g_map_branch1').select('*');
+        if (error) throw error;
+        mapDatabase = data || [];
+        renderPendingRequests();
+        setupRealtimeNotifications();
+      } catch (err) { console.error("Error fetching data:", err.message); }
+    }
+
+    function toNepaliNumber(num) {
+      if (num === undefined || num === null || num === '') return '...';
+      const englishDigits = ['0','1','2','3','4','5','6','7','8','9'];
+      const nepaliDigits = ['०','१','२','३','४','५','६','७','८','९'];
+      let str = num.toString();
+      for (let i = 0; i < 10; i++) {
+        str = str.replace(new RegExp(englishDigits[i], 'g'), nepaliDigits[i]);
+      }
+      return str;
+    }
+
+    function getTodayNepaliDate() {
+      return "२०८३/०२/१९";
+    }
+
+    function searchReportDatabase() {
+      const query = document.getElementById('reportSearchBox').value.toLowerCase().trim();
+      const letterContainer = document.getElementById('officeOrderPrintArea');
+      const alertBox = document.getElementById('reportNotFoundAlert');
+
+      if (query === "") {
+        letterContainer.style.display = "none";
+        alertBox.style.display = "block";
+        currentActiveRecord = null;
+        document.getElementById('btnPrintAction').disabled = true;
+        return;
+      }
+
+      const match = mapDatabase.find(item =>
+        (item.registrano && item.registrano.toString().toLowerCase().includes(query)) ||
+        (item.owner && item.owner.toLowerCase().includes(query)) ||
+        (item.cit_no && item.cit_no.toString().toLowerCase().includes(query))
+      );
+
+      if (match) {
+        currentActiveRecord = match;
+
+        document.getElementById('lbl_ward').innerText = match.ward ? toNepaliNumber(match.ward).trim() : '...';
+        document.getElementById('lbl_ward_two').innerText = match.ward ? toNepaliNumber(match.ward).trim() : '...';
+        document.getElementById('lbl_tole').innerText = match.tole ? match.tole.trim() : '......................';
+        document.getElementById('lbl_tole_two').innerText = match.tole ? match.tole.trim() : '......................';
+        document.getElementById('lbl_kitta').innerText = match.kitta ? toNepaliNumber(match.kitta).trim() : '...';
+        document.getElementById('lbl_area').innerText = match.area ? toNepaliNumber(match.area).trim() : '...';
+        document.getElementById('lbl_owner').innerText = match.owner ? match.owner.trim() : '...';
+        document.getElementById('lbl_per_issued_date').innerText = match.per_issued_date ? toNepaliNumber(match.per_issued_date).trim() : '...';
+
+        const patraSankhyaElement = document.getElementById('lbl_patra_sankhya');
+        patraSankhyaElement.innerText = match.fiscal_year ? toNepaliNumber(match.fiscal_year).trim() : "०८२/०८३";
+
+        const perPatraElement = document.getElementById('lbl_per_patra');
+        if (match.per_chalani_no) perPatraElement.innerText = toNepaliNumber(match.per_chalani_no).trim();
+
+        loadOpinionState('je', match.opinion_je);
+        loadOpinionState('e', match.opinion_e);
+        updatePrintGate();
+
+        const dateElement = document.getElementById('lbl_date_top');
+        const chalaniElement = document.getElementById('lbl_chalani');
+
+        const hasValidDate = match.done_order_date &&
+                             match.done_order_date.trim() !== "" &&
+                             !match.done_order_date.includes("...");
+
+        if (hasValidDate) {
+          dateElement.textContent = toNepaliNumber(match.done_order_date).trim();
+          dateElement.setAttribute("contenteditable", "false");
+          dateElement.classList.add("locked");
+
+          chalaniElement.textContent = match.done_order_chalani_no ? toNepaliNumber(match.done_order_chalani_no).trim() : '.......';
+          chalaniElement.setAttribute("contenteditable", "false");
+          chalaniElement.classList.add("locked");
+
+          document.getElementById('btnPrintAction').innerText = "🖨️ यो टिप्पणी आदेश प्रिन्ट गर्नुस् (जारी भइसकेको)";
+        } else {
+          dateElement.textContent = getTodayNepaliDate();
+          dateElement.setAttribute("contenteditable", "true");
+          dateElement.classList.remove("locked");
+
+          chalaniElement.textContent = ".......";
+          chalaniElement.setAttribute("contenteditable", "true");
+          chalaniElement.classList.remove("locked");
+
+          document.getElementById('btnPrintAction').innerText = "🖨️ टिप्पणी आदेश जारी गरी प्रिन्ट गर्नुस्";
+        }
+
+        alertBox.style.display = "none";
+        letterContainer.style.display = "block";
+      } else {
+        letterContainer.style.display = "none";
+        alertBox.style.display = "block";
+        alertBox.innerText = "❌ विवरण फेला परेन।";
+        currentActiveRecord = null;
+        document.getElementById('btnPrintAction').disabled = true;
+      }
+    }
+
+    function loadOpinionState(role, savedText) {
+      const input = document.getElementById('opinion_' + role + '_input');
+      const btn = document.getElementById('btn_send_' + role);
+      const status = document.getElementById('status_' + role);
+      const requestBtn = document.getElementById('btn_request_' + role);
+
+      const hasOpinion = savedText && savedText.trim() !== "";
+      const myRole = (role === 'je') ? 'sub_engineer' : 'engineer';
+      const isMine = currentUserRole === myRole;
+      const isRequesterRole = !['sub_engineer', 'engineer'].includes(currentUserRole);
+
+      const requestedAtCol = 'opinion_' + role + '_requested_at';
+      const hasRequest = !!(currentActiveRecord && currentActiveRecord[requestedAtCol] && String(currentActiveRecord[requestedAtCol]).trim() !== '');
+
+      if (hasOpinion) {
+        // राय पहिले नै प्राप्त भइसकेको
+        input.value = savedText.trim();
+        input.disabled = true;
+        btn.disabled = true;
+        btn.style.display = isMine ? 'flex' : 'none';
+        btn.innerText = "✅ पठाइसकियो";
+        status.textContent = "✅ राय प्राप्त भयो";
+        status.classList.remove('pending');
+        status.classList.add('sent');
+        if (requestBtn) requestBtn.style.display = 'none';
+        return;
+      }
+
+      // राय अझै आएको छैन
+      input.value = "";
+      status.classList.remove('sent');
+      status.classList.add('pending');
+
+      if (isMine) {
+        // यो प्राविधिक आफैं हेर्दैछ
+        btn.style.display = 'flex';
+        btn.innerText = "📤 राय पठाउनुहोस्";
+        if (requestBtn) requestBtn.style.display = 'none';
+
+        if (hasRequest) {
+          input.disabled = false;
+          btn.disabled = false;
+          status.textContent = "⏳ राय अझै प्राप्त भएको छैन";
+        } else {
+          input.disabled = true;
+          btn.disabled = true;
+          status.textContent = "🔒 यो फाइलको लागि अझै राय माग प्राप्त भएको छैन";
+        }
+      } else {
+        // अर्को प्राविधिक वा माग पठाउने कर्मचारी हेर्दैछ - राय लेख्न मिल्दैन
+        input.disabled = true;
+        btn.style.display = 'none';
+
+        if (requestBtn) {
+          if (isRequesterRole) {
+            requestBtn.style.display = 'flex';
+            requestBtn.disabled = hasRequest;
+            requestBtn.innerText = hasRequest
+              ? '📨 राय माग पठाइसकियो'
+              : (role === 'je' ? '📨 जु.ई. लाई राय माग पठाउनुहोस्' : '📨 ई. लाई राय माग पठाउनुहोस्');
+          } else {
+            requestBtn.style.display = 'none';
+          }
+        }
+
+        status.textContent = hasRequest ? "⏳ राय माग पठाइएको, प्रतीक्षामा..." : "➖ अझै राय माग पठाइएको छैन";
+      }
+    }
+
+    async function sendOpinion(role) {
+      if (!currentActiveRecord) {
+        alert("पहिले माथिको खोज बक्समा दर्ता नं./नाम टाइप गरी रेकर्ड छान्नुहोस्।");
+        return;
+      }
+      const input = document.getElementById('opinion_' + role + '_input');
+      const text = input.value.trim();
+      if (text === "") {
+        alert("कृपया राय लेखेर मात्र पठाउनुहोस्।");
+        input.focus();
+        return;
+      }
+
+      const columnName = role === 'je' ? 'opinion_je' : 'opinion_e';
+      const btn = document.getElementById('btn_send_' + role);
+      btn.disabled = true;
+      btn.innerText = "⏳ पठाइँदैछ...";
+
+      try {
+        const targetId = isNaN(currentActiveRecord.id) ? currentActiveRecord.id : Number(currentActiveRecord.id);
+        const { error } = await _supabase
+          .from('g_map_branch1')
+          .update({ [columnName]: text })
+          .eq('id', targetId);
+
+        if (error) throw error;
+
+        currentActiveRecord[columnName] = text;
+        loadOpinionState(role, text);
+        updatePrintGate();
+        alert("✅ राय सफलतापूर्वक पठाइयो र सुरक्षित गरियो।");
+      } catch (err) {
+        btn.disabled = false;
+        btn.innerText = "📤 राय पठाउनुहोस्";
+        alert("❌ राय पठाउन सकिएन: " + err.message + "\n\n(हुनसक्छ 'g_map_branch1' तालिकामा '" + columnName + "' नामको column अझै थपिएको छैन।)");
+      }
+    }
+
+    async function sendOpinionRequest(role) {
+      if (!currentActiveRecord) {
+        alert("पहिले माथिको खोज बक्समा दर्ता नं./नाम टाइप गरी रेकर्ड छान्नुहोस्।");
+        return;
+      }
+
+      const reqCol = 'opinion_' + role + '_requested_at';
+      const btn = document.getElementById('btn_request_' + role);
+      const originalText = btn.innerText;
+      btn.disabled = true;
+      btn.innerText = "⏳ पठाइँदैछ...";
+
+      const nowStr = new Date().toLocaleString('ne-NP', { hour12: true }) || new Date().toISOString();
+
+      try {
+        const targetId = isNaN(currentActiveRecord.id) ? currentActiveRecord.id : Number(currentActiveRecord.id);
+        const { error } = await _supabase
+          .from('g_map_branch1')
+          .update({ [reqCol]: nowStr })
+          .eq('id', targetId);
+
+        if (error) throw error;
+
+        currentActiveRecord[reqCol] = nowStr;
+        const idx = mapDatabase.findIndex(r => r.id === currentActiveRecord.id);
+        if (idx !== -1) mapDatabase[idx][reqCol] = nowStr;
+
+        loadOpinionState(role, currentActiveRecord['opinion_' + role]);
+        renderPendingRequests();
+        alert("📨 " + (role === 'je' ? 'जु.ई.' : 'ई.') + " लाई राय माग सफलतापूर्वक पठाइयो।");
+      } catch (err) {
+        btn.disabled = false;
+        btn.innerText = originalText;
+        alert("❌ राय माग पठाउन सकिएन: " + err.message + "\n\n(हुनसक्छ 'g_map_branch1' तालिकामा '" + reqCol + "' नामको column अझै थपिएको छैन। कृपया Supabase मा '" + reqCol + "' नामको नयाँ column (text) थप्नुहोस्।)");
+      }
+    }
+
+    let hasShownPendingToast = false;
+
+    function renderPendingRequests() {
+      const panel = document.getElementById('pendingRequestsPanel');
+      const list = document.getElementById('pendingRequestsList');
+      const bell = document.getElementById('noticeBell');
+      const bellCount = document.getElementById('noticeBellCount');
+      if (!panel || !list) return;
+
+      if (currentUserRole !== 'sub_engineer' && currentUserRole !== 'engineer') {
+        panel.style.display = 'none';
+        if (bell) bell.style.display = 'none';
+        return;
+      }
+
+      const role = currentUserRole === 'sub_engineer' ? 'je' : 'e';
+      const reqCol = 'opinion_' + role + '_requested_at';
+      const opCol = 'opinion_' + role;
+
+      const pending = mapDatabase.filter(r =>
+        r[reqCol] && String(r[reqCol]).trim() !== '' &&
+        (!r[opCol] || String(r[opCol]).trim() === '')
+      );
+
+      if (pending.length === 0) {
+        panel.style.display = 'none';
+        if (bell) bell.style.display = 'none';
+        return;
+      }
+
+      panel.style.display = 'block';
+      list.innerHTML = pending.map(r => `
+        <div class="pending-item" onclick="loadRecordDirect('${String(r.registrano || r.owner || r.id).replace(/'/g, "\\'")}')">
+          📄 <strong>${r.owner || 'नाम नखुलेको'}</strong> (दर्ता नं: ${r.registrano || '-'})
+          <div class="req-date">राय माग मिति: ${r[reqCol]}</div>
+        </div>
+      `).join('');
+
+      if (bell && bellCount) {
+        bell.style.display = 'flex';
+        bellCount.textContent = pending.length;
+      }
+
+      if (!hasShownPendingToast) {
+        hasShownPendingToast = true;
+        showToast(`🔔 तपाईंलाई ${pending.length} वटा पेन्डिङ राय माग छन्।`);
+      }
+    }
+
+    function scrollToPending() {
+      const panel = document.getElementById('pendingRequestsPanel');
+      if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function loadRecordDirect(query) {
+      document.getElementById('reportSearchBox').value = query;
+      searchReportDatabase();
+      const target = document.getElementById('officeOrderPrintArea');
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function showToast(message) {
+      let toast = document.getElementById('liveToast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'liveToast';
+        toast.className = 'toast-notification';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(toast._hideTimer);
+      toast._hideTimer = setTimeout(() => toast.classList.remove('show'), 6000);
+    }
+
+    function setupRealtimeNotifications() {
+      try {
+        _supabase
+          .channel('doneorder-opinion-changes')
+          .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'g_map_branch1' }, (payload) => {
+            const newRow = payload.new;
+            const oldRow = payload.old || {};
+            if (!newRow) return;
+
+            const idx = mapDatabase.findIndex(r => r.id === newRow.id);
+            if (idx !== -1) mapDatabase[idx] = { ...mapDatabase[idx], ...newRow };
+
+            // कसैको राय भर्खरै आयो भने सूचना
+            const jeJustGiven = (!oldRow.opinion_je || String(oldRow.opinion_je).trim() === "") && newRow.opinion_je && String(newRow.opinion_je).trim() !== "";
+            const eJustGiven = (!oldRow.opinion_e || String(oldRow.opinion_e).trim() === "") && newRow.opinion_e && String(newRow.opinion_e).trim() !== "";
+
+            if (jeJustGiven) showToast(`✅ ${newRow.owner || 'सम्बन्धित फाइल'} को जु.ई. राय प्राप्त भयो!`);
+            if (eJustGiven) showToast(`✅ ${newRow.owner || 'सम्बन्धित फाइल'} को ई. राय प्राप्त भयो!`);
+
+            // हाल लगइन भएको प्राविधिकलाई नयाँ राय माग आयो भने सूचना
+            const myField = currentUserRole === 'sub_engineer' ? 'je' : (currentUserRole === 'engineer' ? 'e' : null);
+            if (myField) {
+              const reqCol = 'opinion_' + myField + '_requested_at';
+              const wasEmpty = !oldRow[reqCol] || String(oldRow[reqCol]).trim() === '';
+              const nowSet = newRow[reqCol] && String(newRow[reqCol]).trim() !== '';
+              if (wasEmpty && nowSet) {
+                showToast(`📨 तपाईंलाई नयाँ राय माग आयो: ${newRow.owner || ''}`);
+              }
+            }
+
+            // अहिले खुलेको रेकर्ड नै हो भने पेज ताजा गर्ने
+            if (currentActiveRecord && currentActiveRecord.id === newRow.id) {
+              currentActiveRecord = { ...currentActiveRecord, ...newRow };
+              loadOpinionState('je', currentActiveRecord.opinion_je);
+              loadOpinionState('e', currentActiveRecord.opinion_e);
+              updatePrintGate();
+            }
+
+            renderPendingRequests();
+          })
+          .subscribe();
+      } catch (err) {
+        console.warn("Realtime सूचना प्रणाली सक्रिय हुन सकेन:", err);
+      }
+    }
+
+    function updatePrintGate() {
+      const btn = document.getElementById('btnPrintAction');
+      const note = document.getElementById('printGateNote');
+      if (!currentActiveRecord) { btn.disabled = true; return; }
+
+      const jeDone = currentActiveRecord.opinion_je && currentActiveRecord.opinion_je.trim() !== "";
+      const eDone = currentActiveRecord.opinion_e && currentActiveRecord.opinion_e.trim() !== "";
+
+      if (jeDone && eDone) {
+        btn.disabled = false;
+        note.style.display = "none";
+      } else {
+        btn.disabled = true;
+        note.style.display = "block";
+      }
+    }
+
+    async function handlePrintAndSave() {
+      if (!currentActiveRecord) return;
+
+      if (currentUserRole === 'sub_engineer' || currentUserRole === 'engineer') {
+        alert("⚠️ यो कार्यालयको अन्तिम टिप्पणी आदेश हो, जुन प्राविधिक (जु.ई./ई.) बाट प्रिन्ट गर्न मिल्दैन। कृपया सम्बन्धित कर्मचारी/प्रशासकलाई सम्पर्क गर्नुहोस्।");
+        return;
+      }
+
+      const jeDone = currentActiveRecord.opinion_je && currentActiveRecord.opinion_je.trim() !== "";
+      const eDone = currentActiveRecord.opinion_e && currentActiveRecord.opinion_e.trim() !== "";
+      if (!jeDone || !eDone) {
+        alert("⚠️ दुवै प्राविधिकको राय (जु.ई. र ई.) प्राप्त नभएसम्म प्रिन्ट गर्न मिल्दैन।");
+        return;
+      }
+
+      const dateElement = document.getElementById('lbl_date_top');
+      const chalaniElement = document.getElementById('lbl_chalani');
+
+      const finalIssuedDate = dateElement.textContent.trim();
+      const finalChalaniNo = chalaniElement.textContent.trim();
+
+      const isAlreadySaved = currentActiveRecord.done_order_date &&
+                             currentActiveRecord.done_order_date.trim() !== "" &&
+                             !currentActiveRecord.done_order_date.includes("...");
+
+      if (!isAlreadySaved) {
+        try {
+          const targetId = isNaN(currentActiveRecord.id) ? currentActiveRecord.id : Number(currentActiveRecord.id);
+
+          const { error } = await _supabase
+            .from('g_map_branch1')
+            .update({
+              done_order_date: finalIssuedDate,
+              done_order_chalani_no: finalChalaniNo
+            })
+            .eq('id', targetId);
+
+          if (error) throw error;
+
+          currentActiveRecord.done_order_date = finalIssuedDate;
+          currentActiveRecord.done_order_chalani_no = finalChalaniNo;
+
+          dateElement.setAttribute("contenteditable", "false");
+          dateElement.classList.add("locked");
+          chalaniElement.setAttribute("contenteditable", "false");
+          chalaniElement.classList.add("locked");
+
+          document.getElementById('btnPrintAction').innerText = "🖨️ यो टिप्पणी आदेश प्रिन्ट गर्नुस् (जारी भइसकेको)";
+          alert("निर्माण सम्पन्न टिप्पणी आदेश सफलतापूर्वक डेटाबेसमा सुरक्षित र लक गरियो।");
+        } catch (err) {
+          alert("❌ डेटाबेस अपडेट हुन सकेन: " + err.message + "\n\n(हुनसक्छ 'g_map_branch1' तालिकामा 'done_order_date' र 'done_order_chalani_no' नामका column अझै थपिएका छैनन्।)");
+          return;
+        }
+      }
+      window.print();
+    }
+  </script>
+</body>
+</html>

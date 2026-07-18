@@ -144,6 +144,7 @@
                     { title: 'सर्जमिन मुचुल्का', url: 'sarjaminmuchulka.html', icon: 'fa-solid fa-file-contract text-indigo-400' },
                 ]
             },
+            { type: 'single', title: 'नक्सा पास दस्तुर', url: 'revenue.html', icon: 'fa-solid fa-magnifying-glass-chart text-cyan-400' },
             {
                 type: 'dropdown',
                 title: 'अस्थायी इजाजत',
@@ -170,7 +171,7 @@
                 icon: 'fa-solid fa-building-circle-check text-rose-400',
                 dropdownId: 'final-payment-dropdown',
                 items: [
-                    { title: 'निर्माण सम्पन्नका लागि टिप्पणी आदेश', url: 'final_order.html', icon: 'fa-solid fa-clipboard-check text-rose-500' },
+                    { title: 'निर्माण सम्पन्नका लागि टिप्पणी आदेश', url: 'doneorder.html', icon: 'fa-solid fa-clipboard-check text-rose-500' },
                     { title: 'भवन निर्माण सम्पन्न प्रमाण-पत्र', url: 'final_cert.html', icon: 'fa-solid fa-stamp text-red-400' }
                 ]
             },
@@ -425,8 +426,23 @@
             renderSidebarMenu(userRole);
             setupIdleTracker(); 
             
-            // डिफल्ट रूपमा ड्यासबोर्ड लोड गर्ने[cite: 3]
+            // यदि URL मा ?track=ID दिइएको छ भने सिधै Track विवरण देखाउने (कुनै खोजी नगरी)
+            const trackId = new URLSearchParams(window.location.search).get('track');
+            const trackOwner = new URLSearchParams(window.location.search).get('owner');
             const allNavLinks = document.querySelectorAll('#dynamic-sidebar a');
+
+            if (trackId) {
+                let trackTab = null;
+                allNavLinks.forEach(link => {
+                    if (link.getAttribute('onclick') && link.getAttribute('onclick').includes('trackview.html')) {
+                        trackTab = link;
+                    }
+                });
+                loadPage(`trackview.html?id=${encodeURIComponent(trackId)}&owner=${encodeURIComponent(trackOwner || '')}`, 'Track विवरण', trackTab, false);
+                return;
+            }
+
+            // डिफल्ट रूपमा ड्यासबोर्ड लोड गर्ने[cite: 3]
             let defaultTab = null;
             allNavLinks.forEach(link => {
                 if (link.getAttribute('onclick') && link.getAttribute('onclick').includes('dashboard.html')) {
