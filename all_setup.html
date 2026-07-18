@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>योजना व्यवस्थापन प्रणाली - Advanced ERP Layout</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase JS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .nav-active { background-color: #1a252f !important; color: #ffffff !important; border-left: 4px solid #3182ce; }
+        .submenu-active { color: #3182ce !important; font-weight: 600; }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #1a252f; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #4a5568; border-radius: 4px; }
+        /* Smooth Sidebar Transition */
+        .sidebar-transition { transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    </style>
+</head>
+<body class="bg-gray-100 h-screen text-sm font-sans overflow-hidden antialiased">
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- मुख्य प्रणाली लेआउट (Main Application Layout - Open by Default) -->
+    <div id="main-app-layout" class="flex h-screen w-full relative">
+        
+        <!-- SIDEBAR BACKDROP FOR MOBILE -->
+        <div id="sidebar-backdrop" onclick="toggleMobileSidebar()" class="fixed inset-0 bg-black/50 z-30 hidden md:hidden"></div>
+
+        <!-- SIDEBAR (नेभिगेसन मेनु) -->
+        <div id="sidebar-panel" class="sidebar-transition w-64 bg-[#2c3e50] text-gray-300 flex flex-col justify-between h-screen border-r border-gray-700 select-none shrink-0 fixed md:relative z-40 transform -translate-x-full md:translate-x-0">
+            <div>
+                <!-- Brand Header -->
+                <div class="p-4 bg-[#1a252f] text-white flex items-center justify-between font-semibold text-base border-b border-gray-700">
+                    <div class="flex items-center gap-3 overflow-hidden whitespace-nowrap">
+                        <i class="fa-solid fa-layer-group text-blue-400 text-lg shrink-0"></i>
+                        <span class="sidebar-text font-bold">EBPS</span>
+                    </div>
+                    <button onclick="toggleSidebarCollapse()" class="hidden md:inline-block text-gray-400 hover:text-white ml-2 focus:outline-none">
+                        <i id="collapse-icon" class="fa-solid fa-bars-staggered"></i>
+                    </button>
+                </div>
+                
+                <!-- Advanced Live Search Area -->
+                <div class="p-2 bg-[#233241] border-b border-gray-700/60 sidebar-text">
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-gray-500 text-xs"></i>
+                        <input type="text" id="menu-search" oninput="filterMenu()" placeholder="मेनु खोज्नुहोस्..." class="w-full bg-[#1a252f] text-gray-200 pl-8 pr-3 py-1.5 rounded-md text-xs border border-gray-600/50 focus:outline-none focus:border-blue-500">
+                    </div>
+                </div>
+                
+                <!-- Dynamic Navigation Container -->
+                <nav id="dynamic-sidebar" class="custom-scrollbar mt-2 flex flex-col gap-0.5 text-xs overflow-y-auto max-h-[calc(100vh-140px)]">
+                    <!-- Dynamic tabs will render here -->
+                </nav>
+            </div>
+            
+            <div class="p-3 bg-[#1a252f] text-center text-[10px] text-gray-500 border-t border-gray-700 sidebar-text whitespace-nowrap overflow-hidden">
+                डाइनामिक प्रणाली v8.0 Enterprise
+            </div>
+        </div>
+
+        <!-- WORKSPACE AREA (दायाँ मुख्य कार्यक्षेत्र) -->
+        <div class="flex-1 flex flex-col overflow-hidden w-full">
+            
+            <!-- TOPBAR -->
+            <header class="bg-gradient-to-r from-[#3182ce] to-[#2b6cb0] text-white flex items-center justify-between px-4 md:px-6 py-3 shadow-md z-20">
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleMobileSidebar()" class="md:hidden text-white text-lg focus:outline-none mr-1">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <h1 class="text-sm md:text-base font-bold tracking-wide flex items-center gap-2">
+                        <i class="fa-solid fa-city hidden sm:inline-block"></i>
+                        <span id="current-view-title">भवन व्यवस्थापन प्रणाली</span>
+                    </h1>
+                </div>
+
+                <div class="flex items-center gap-3 md:gap-4">
+                    <!-- Dynamic User Widget -->
+                    <div class="flex items-center gap-2 pr-3 md:pr-4">
+                        <div class="w-8 h-8 rounded-full bg-blue-900/80 text-white flex items-center justify-center font-bold text-xs border border-white/40 shadow-sm" id="user-avatar">A</div>
+                        <div class="hidden sm:flex flex-col text-left">
+                            <span class="font-bold text-xs" id="topbar-user-display">admin@galkotmun.gov.np</span>
+                            <span class="text-[10px] text-blue-100" id="topbar-role-display">प्रशासक (Admin)</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- CORE CONTENTS WRAPPER WITH LOADING STATE -->
+            <main class="flex-1 bg-gray-50 overflow-hidden relative">
+                <!-- Advanced Loader Spinner overlay -->
+                <div id="iframe-loader" class="absolute inset-0 bg-slate-100/70 z-10 flex flex-col items-center justify-center gap-3 opacity-0 pointer-events-none transition-opacity duration-200">
+                    <div class="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                    <span class="text-xs font-semibold text-gray-500 tracking-wider">डेटा लोड हुँदैछ...</span>
+                </div>
+                <iframe id="content-frame" src="about:blank" onload="hideIframeLoader()" class="w-full h-full border-none m-0 p-0 z-0"></iframe>
+            </main>
+        </div>
+    </div>
+
+    <!-- प्रणाली नियन्त्रण गर्ने जाभास्क्रिप्ट -->
+    <script>
+        const SUPABASE_URL = "https://lyjokogftwtvnhwszqni.supabase.co";
+        const SUPABASE_ANON_KEY = "sb_publishable_gxEL2-GVTVy8E0WxMBZHDQ_b5TzsDI9"; 
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let isSidebarCollapsed = false;
+
+        // MENU_CONFIG मा मेनु व्यवस्थापन
+        const MENU_CONFIG = [
+            { type: 'single', title: 'ड्यासबोर्ड', url: 'dashboard.html', icon: 'fa-solid fa-table-columns text-amber-400', isDefault: true },
+            { type: 'single', title: 'दर्ता गर्ने (Map Form)', url: 'mapform.html', icon: 'fa-solid fa-map text-blue-400' },
+            {
+                type: 'dropdown',
+                title: 'कागजात जाँचबुझ (Documents checking)',
+                icon: 'fa-solid fa-hand-holding-dollar text-yellow-400',
+                dropdownId: 'budget-dropdown',
+                items: [
+                    { title: 'कर्मचारीलाई आदेश', url: 'order.html', icon: 'fa-solid fa-building-columns text-yellow-500' },
+                    { title: 'कागजात जाँच प्रतिवेदेन', url: 'docoffice.html', icon: 'fa-solid fa-arrow-down-short-wide text-orange-400' }
+                ]
+            },
+            {
+                type: 'dropdown',
+                title: 'सूचना तथा मुचुल्का',
+                icon: 'fa-solid fa-map-marked-alt text-emerald-400',
+                dropdownId: 'planning-dropdown',
+                items: [
+                    { title: 'सूचना प्रकाशन', url: 'notice.html', icon: 'fa-solid fa-pen-to-square text-emerald-500' },
+                    { title: 'सूचना मुचुल्का', url: 'noticemuchulka.html', icon: 'fa-solid fa-file-contract text-indigo-400' },
+                    { title: 'सर्जमिन मुचुल्का', url: 'sarjaminmuchulka.html', icon: 'fa-solid fa-file-invoice text-indigo-400' },
+                ]
+            },
+            {
+                type: 'dropdown',
+                title: 'अनुगमन तथा मूल्याङ्कन',
+                icon: 'fa-solid fa-magnifying-glass-chart text-sky-400',
+                dropdownId: 'monitoring-dropdown',
+                items: [
+                    { title: 'अनुगमन समिति गठन', url: 'monitoring-committee.html', icon: 'fa-solid fa-users-gear text-sky-500' },
+                    { title: 'अनुगमन प्रतिवेदन प्रविष्टि', url: 'monitoring-report.html', icon: 'fa-solid fa-square-poll-horizontal text-teal-400' }
+                ]
+            },
+            {
+                type: 'dropdown',
+                title: 'भुक्तानी व्यवस्थापन',
+                icon: 'fa-solid fa-money-check-dollar text-rose-400',
+                dropdownId: 'payment-dropdown',
+                items: [
+                    { title: 'पेश्की भुक्तानी', url: 'advance-payment.html', icon: 'fa-solid fa-money-bill-transfer text-rose-500' },
+                    { title: 'रकम भुक्तानी (किस्ता/अन्तिम)', url: 'final-payment.html', icon: 'fa-solid fa-receipt text-red-400' }
+                ]
+            },
+            {
+                type: 'dropdown',
+                title: 'सिस्टम प्रयोगकर्ता सेटअप',
+                icon: 'fa-solid fa-user-lock text-purple-400',
+                dropdownId: 'user-setup-dropdown',
+                items: [
+                    { title: 'नयाँ प्रयोगकर्ता (User Create)', url: 'admin.html', icon: 'fa-solid fa-user-plus text-purple-500' },
+                ]
+            }
+        ];
+
+        // १. एड्भान्स टोस्ट नोटीफिकेशन प्रणाली
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `flex items-center gap-3 p-3.5 rounded-xl shadow-xl border bg-white text-gray-800 text-xs font-semibold pointer-events-auto transform transition-all duration-300 translate-x-20 opacity-0 min-w-[260px] max-w-sm`;
+            
+            const icon = type === 'success' ? '<i class="fa-solid fa-circle-check text-green-500 text-base"></i>' : '<i class="fa-solid fa-circle-exclamation text-red-500 text-base"></i>';
+            toast.innerHTML = `${icon} <div class="flex-1">${message}</div>`;
+            
+            container.appendChild(toast);
+            setTimeout(() => { toast.classList.remove('translate-x-20', 'opacity-0'); }, 10);
+            setTimeout(() => {
+                toast.classList.add('translate-x-20', 'opacity-0');
+                setTimeout(() => { toast.remove(); }, 300);
+            }, 3500);
+        }
+
+        // २. लाइभ मेनु सर्च फिल्टर मेकानिजम
+        function filterMenu() {
+            const query = document.getElementById('menu-search').value.toLowerCase().trim();
+            const elements = document.querySelectorAll('#dynamic-sidebar > *');
+            
+            elements.forEach(el => {
+                if(el.tagName === 'A') {
+                    const text = el.innerText.toLowerCase();
+                    el.style.display = text.includes(query) ? 'flex' : 'none';
+                } else {
+                    const buttons = el.querySelectorAll('button, .submenu-item');
+                    let match = false;
+                    buttons.forEach(b => { if(b.innerText.toLowerCase().includes(query)) match = true; });
+                    
+                    const subContainer = el.querySelector('div[id]');
+                    if(query !== "" && match) {
+                        subContainer?.classList.remove('hidden');
+                    } else if (query === "") {
+                        subContainer?.classList.add('hidden');
+                    }
+                    el.style.display = match ? 'block' : 'none';
+                }
+            });
+        }
+
+        // ३. साइडबार कोल्याप्स/एक्सपान्ड
+        function toggleSidebarCollapse() {
+            const sidebar = document.getElementById('sidebar-panel');
+            const texts = document.querySelectorAll('.sidebar-text');
+            const icon = document.getElementById('collapse-icon');
+            
+            isSidebarCollapsed = !isSidebarCollapsed;
+            if(isSidebarCollapsed) {
+                sidebar.classList.remove('w-64');
+                sidebar.classList.add('w-16');
+                texts.forEach(t => t.classList.add('hidden'));
+                icon.className = "fa-solid fa-arrow-right-to-bracket rotate-180";
+                document.getElementById('menu-search').parentElement.classList.add('hidden');
+            } else {
+                sidebar.classList.remove('w-16');
+                sidebar.classList.add('w-64');
+                texts.forEach(t => t.classList.remove('hidden'));
+                icon.className = "fa-solid fa-bars-staggered";
+                document.getElementById('menu-search').parentElement.classList.remove('hidden');
+            }
+        }
+
+        // ४. मोबाइल ड्रअर टगल मेकानिजम
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('sidebar-panel');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            if(sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.remove('-translate-x-full');
+                backdrop.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                backdrop.classList.add('hidden');
+            }
+        }
+
+        // ५. भूमिका (Role) अनुसार मेनु रेन्डर गर्ने (Default: admin)
+        function renderSidebarMenu(userRole) {
+            const sidebarContainer = document.getElementById('dynamic-sidebar');
+            sidebarContainer.innerHTML = ''; 
+
+            MENU_CONFIG.forEach(menu => {
+                if (menu.type === 'single') {
+                    const link = document.createElement('a');
+                    link.href = "#";
+                    link.className = "nav-item flex items-center gap-3 px-4 py-3 hover:bg-[#34495e] hover:text-white transition-colors group";
+                    if (menu.isDefault) link.id = "dynamic-default-tab";
+                    link.setAttribute('onclick', `loadPage('${menu.url}', '${menu.title}', this)`);
+                    link.innerHTML = `<i class="${menu.icon} w-5 text-sm transition-transform group-hover:scale-110"></i> <span class="sidebar-text">${menu.title}</span>`;
+                    sidebarContainer.appendChild(link);
+
+                } else if (menu.type === 'dropdown') {
+                    const dropdownWrapper = document.createElement('div');
+                    dropdownWrapper.className = "bg-[#1a252f]/40 border-y border-gray-700/50";
+                    const arrowId = `${menu.dropdownId}-arrow`;
+                    
+                    dropdownWrapper.innerHTML = `
+                        <button onclick="toggleDropdown('${menu.dropdownId}', '${arrowId}')" class="w-full flex items-center justify-between px-4 py-3 text-gray-300 hover:bg-[#34495e] hover:text-white transition-colors focus:outline-none">
+                            <span class="flex items-center gap-3">
+                                <i class="${menu.icon} w-5 text-sm"></i> 
+                                <span class="font-semibold text-gray-200 sidebar-text">${menu.title}</span>
+                            </span>
+                            <i id="${arrowId}" class="fa-solid fa-chevron-down text-[10px] transition-transform duration-200 transform sidebar-text"></i>
+                        </button>
+                        <div id="${menu.dropdownId}" class="pl-10 bg-[#1a252f]/60 divide-y divide-gray-800/30 text-[11px] hidden"></div>
+                    `;
+                    sidebarContainer.appendChild(dropdownWrapper);
+                    
+                    const submenuContainer = document.getElementById(menu.dropdownId);
+                    menu.items.forEach(subItem => {
+                        const subLink = document.createElement('a');
+                        subLink.href = "#";
+                        subLink.className = "submenu-item block py-2.5 text-gray-400 hover:text-white transition-colors";
+                        subLink.setAttribute('onclick', `loadPage('${subItem.url}', '${subItem.title}', this, true)`);
+                        subLink.innerHTML = `<i class="${subItem.icon} mr-2"></i> ${subItem.title}`;
+                        submenuContainer.appendChild(subLink);
+                    });
+                }
+            });
+        }
+
+        // ६. आईफ्रेम र टपबार व्यवस्थापन
+        function loadPage(pageUrl, title, element, isSubmenu = false) {
+            document.getElementById('iframe-loader').classList.remove('opacity-0', 'pointer-events-none');
+            document.getElementById('current-view-title').innerText = title;
+
+            const iframe = document.getElementById('content-frame');
+            const userRole = localStorage.getItem("userRole") || "admin";
+            let finalUrl = pageUrl;
+            
+            if (userRole) {
+                const separator = pageUrl.includes('?') ? '&' : '?';
+                finalUrl = `${pageUrl}${separator}role=${encodeURIComponent(userRole)}`;
+            }
+            iframe.src = finalUrl;
+
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('nav-active'));
+            document.querySelectorAll('.submenu-item').forEach(item => item.classList.remove('submenu-active'));
+            
+            if (element) {
+                if (isSubmenu) {
+                    element.classList.add('submenu-active');
+                } else {
+                    element.classList.add('nav-active');
+                }
+            }
+            if(window.innerWidth < 768) toggleMobileSidebar();
+        }
+
+        function hideIframeLoader() {
+            document.getElementById('iframe-loader').classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        function toggleDropdown(dropdownId, arrowId) {
+            const dropdown = document.getElementById(dropdownId);
+            const arrow = document.getElementById(arrowId);
+            if (dropdown && dropdown.classList.contains('hidden')) {
+                dropdown.classList.remove('hidden');
+                arrow.classList.add('rotate-180');
+            } else if(dropdown) {
+                dropdown.classList.add('hidden');
+                arrow.classList.remove('rotate-180');
+            }
+        }
+
+        // ७. प्रारम्भिक बुटलोडर (Initialize application directly without login check)
+        function initializeSystem() {
+            // अटो-सेटअप सेसन सुरक्षा र रन्टाइम मेनुका लागि
+            localStorage.setItem("userLoggedIn", "true");
+            localStorage.setItem("loggedInUserEmail", "admin@galkotmun.gov.np");
+            localStorage.setItem("userRole", "admin");
+
+            renderSidebarMenu("admin");
+            
+            // डिफल्ट रूपमा ड्यासबोर्ड लोड गर्ने मेकानिजम
+            const allNavLinks = document.querySelectorAll('#dynamic-sidebar a');
+            let defaultTab = null;
+            allNavLinks.forEach(link => {
+                if (link.getAttribute('onclick') && link.getAttribute('onclick').includes('dashboard.html')) {
+                    defaultTab = link;
+                }
+            });
+
+            if (defaultTab) {
+                loadPage('dashboard.html', 'ड्यासबोर्ड', defaultTab, false);
+            } else {
+                loadPage('dashboard.html', 'ड्यासबोर्ड', null, false);
+            }
+        }
+
+        window.onload = initializeSystem;
+    </script>
+</body>
+</html>
