@@ -170,6 +170,14 @@
 
     .decision-block { font-size: 16px; text-align: justify; line-height: 2; margin-top: 10px; }
     .decision-block .dotted-fill { min-height: 22px; }
+    .inline-blank {
+      display: inline-block; min-width: 160px; border-bottom: 1px dashed #444;
+      background-color: #fffde7; padding: 0 4px; outline: none; vertical-align: text-bottom;
+    }
+    .inline-blank:focus { background-color: #fff9c4; }
+    @media print {
+      .inline-blank { border-bottom: 1px dashed #999 !important; background-color: transparent !important; }
+    }
 
     .print-btn-wrapper { text-align: center; margin-top: 40px; }
     .btn-print {
@@ -320,13 +328,15 @@
 
     <div class="decision-block">
       <div style="font-weight:700; margin-bottom:8px;">श्रीमान् प्रमुख ज्यू तथा उप-प्रमुखज्यूबाट नक्सा पास निर्माण कार्यको सम्पन्नता को लागी भएको निर्णय :-</div>
-      माथि उल्लिखित विवरण अनुसारको निर्माण कार्य स्वीकृत नक्सा भन्दा बढी मापदण्ड विपरीत अन्य
-      <div class="dotted-fill" contenteditable="true">&nbsp;</div>
-      कार्य भए गरेको देखिएकोले सो सम्बन्धमा
-      <div class="dotted-fill" contenteditable="true">&nbsp;</div>
-      गरी सम्पन्न प्रमाण पत्र दिने/ नदिने र रोक्का राख्ने
-      <div class="dotted-fill" contenteditable="true">&nbsp;</div>
-      गर्ने गरी सदर ।
+      <div>
+        माथि उल्लिखित विवरण अनुसारको निर्माण कार्य स्वीकृत नक्सा भन्दा बढी मापदण्ड विपरीत अन्य
+        <span class="inline-blank" contenteditable="true">&nbsp;</span>
+        कार्य भए गरेको देखिएकोले सो सम्बन्धमा
+        <span class="inline-blank" contenteditable="true">&nbsp;</span>
+        गरी सम्पन्न प्रमाण पत्र दिने/ नदिने र रोक्का राख्ने
+        <span class="inline-blank" contenteditable="true">&nbsp;</span>
+        गर्ने गरी सदर ।
+      </div>
     </div>
 
     <div id="printGateNote" class="print-gate-note">⚠️ दुवै प्राविधिकको राय प्राप्त नभएसम्म प्रिन्ट बटन सक्रिय हुँदैन।</div>
@@ -370,7 +380,24 @@
         mapDatabase = data || [];
         renderPendingRequests();
         setupRealtimeNotifications();
+        applyDashboardAutoLoad();
       } catch (err) { console.error("Error fetching data:", err.message); }
+    }
+
+    // ड्यासबोर्डबाट नाममा क्लिक गरी आएको भए, कुनै खोजी नगरी सिधै त्यही विवरण देखाउने
+    function applyDashboardAutoLoad() {
+      const autoId = new URLSearchParams(window.location.search).get('id');
+      if (!autoId) return;
+      const rec = mapDatabase.find(r => String(r.id) === String(autoId));
+      const searchBox = document.getElementById('reportSearchBox');
+      const wrapper = document.querySelector('.report-search-wrapper');
+      const hint = wrapper ? wrapper.querySelector('.search-hint') : null;
+      if (rec && searchBox) {
+        searchBox.value = rec.registrano || rec.owner || rec.cit_no || '';
+        searchReportDatabase();
+      }
+      if (searchBox) searchBox.style.display = 'none';
+      if (hint) hint.innerHTML = '🔒 यो विवरण ड्यासबोर्डबाट छानिएको हो। फरक व्यक्तिको विवरण हेर्न ड्यासबोर्डमा फर्केर अर्को नाममा क्लिक गर्नुहोस्।';
     }
 
     function toNepaliNumber(num) {

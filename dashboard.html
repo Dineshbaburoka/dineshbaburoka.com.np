@@ -70,6 +70,37 @@
     .owner-link { color: var(--primary); text-decoration: none; cursor: pointer; }
     .owner-link:hover { text-decoration: underline; color: #1e3799; }
 
+    .table-search-wrap { margin-bottom: 14px; }
+    .table-search-box {
+      width: 100%; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: 8px;
+      font-size: 14px; outline: none; font-weight: 600; color: var(--primary); font-family: inherit;
+      transition: 0.2s;
+    }
+    .table-search-box:focus { border-color: #1e3799; box-shadow: 0 0 8px rgba(30,55,153,0.2); }
+
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+      z-index: 9998; align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: white; border-radius: 12px; max-width: 480px; width: 100%;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.25); overflow: hidden;
+    }
+    .modal-header {
+      background: var(--primary); color: white; padding: 16px 20px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .modal-header h3 { font-size: 16px; margin: 0; }
+    .modal-close { background: transparent; border: none; color: white; font-size: 20px; cursor: pointer; line-height: 1; }
+    .modal-body { padding: 18px 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+    .modal-report-btn {
+      background: #f4f7fb; border: 1px solid #dfe6ee; border-radius: 8px; padding: 12px 14px;
+      font-size: 13px; font-weight: 700; color: var(--primary); cursor: pointer; text-align: left;
+      transition: 0.15s;
+    }
+    .modal-report-btn:hover { background: #eaf0ff; border-color: #b7c6f2; }
+
     @media (max-width: 768px) {
       body { padding: 10px; }
       h2 { font-size: 18px; }
@@ -123,6 +154,10 @@
     <div class="table-header">
       <h3>📋 नक्सा पासको Track विवरण</h3>
       <button class="btn-excel" onclick="exportToExcel()">🟢 Excel मा डाउनलोड गर्नुहोस्</button>
+    </div>
+
+    <div class="table-search-wrap">
+      <input type="text" id="tableSearchBox" class="table-search-box" placeholder="🔍 नाम / दर्ता नं. / नागरिकता नं. टाइप गरी खोज्नुहोस्..." oninput="applySearchFilter()">
     </div>
     
     <div class="table-responsive">
@@ -243,17 +278,28 @@
     }
 
     function applyFiscalYearFilter() {
-      const selectedFY = document.getElementById('fiscalYearFilter').value;
+      applySearchFilter();
+    }
 
-      if (selectedFY === 'ALL') {
-        renderCalculatedData(globalDashboardData, 'ALL');
-      } else {
-        // दर्ता, अस्थायी, स्थायी वा सम्पन्न मध्ये कुनै एउटा मिति पनि छानिएको आ.व. भित्र परे देखाउने
-        const filtered = globalDashboardData.filter(row => {
-          return getAllFiscalYearsForRow(row).includes(selectedFY);
-        });
-        renderCalculatedData(filtered, selectedFY);
+    function applySearchFilter() {
+      const selectedFY = document.getElementById('fiscalYearFilter').value;
+      const query = document.getElementById('tableSearchBox').value.toLowerCase().trim();
+
+      let baseData = globalDashboardData;
+
+      if (selectedFY !== 'ALL') {
+        baseData = baseData.filter(row => getAllFiscalYearsForRow(row).includes(selectedFY));
       }
+
+      if (query !== "") {
+        baseData = baseData.filter(row =>
+          (row.owner && row.owner.toLowerCase().includes(query)) ||
+          (row.registrano && String(row.registrano).toLowerCase().includes(query)) ||
+          (row.cit_no && String(row.cit_no).toLowerCase().includes(query))
+        );
+      }
+
+      renderCalculatedData(baseData, selectedFY);
     }
 
     function renderCalculatedData(filteredData, selectedFY) {
@@ -347,7 +393,7 @@
         tbody.innerHTML += `
           <tr>
             <td>${index + 1}</td>
-            <td><a href="javascript:void(0)" class="owner-link" onclick="openTrackView(${row.id}, ${JSON.stringify(row.owner || '')})"><strong>${row.owner || 'नाम नखुलेको'}</strong></a></td>
+            <td><a href="javascript:void(0)" class="owner-link" onclick="openReportPicker(${row.id}, '${encodeURIComponent(row.owner || '')}')"><strong>${row.owner || 'नाम नखुलेको'}</strong></a></td>
             <td>${row.registrano || '<span style="color:red; font-size:11px;">(दर्ता छैन)</span>'}</td>
             <td>${row.registrano_date || '-'}</td>
             <td>${row.tem_issued_date || '-'}</td>
@@ -366,10 +412,44 @@
       XLSX.writeFile(wb, `Galkot_Report_${today}.xlsx`);
     }
 
-    // नाममा क्लिक गर्दा Track विवरण page मा सोझै जाने (सबै Tab सहितको all_setup shell खोल्ने)
-    function openTrackView(recordId, ownerName) {
+    // नाममा क्लिक गर्दा popup खोल्ने, जसमा सबै report को button देखिन्छ
+    const REPORT_TABS = [
+      { label: '📝 आदेश पत्र (नक्सा पास)', file: 'order.html' },
+      { label: '🗒️ टिप्पणी आदेश (अस्थायी)', file: 'temorder.html' },
+      { label: '📄 अस्थायी इजाजतपत्र', file: 'tem_certi.html' },
+      { label: '🗒️ टिप्पणी आदेश (स्थायी)', file: 'perorder.html' },
+      { label: '📜 स्थायी इजाजतपत्र', file: 'per_certi.html' },
+      { label: '🗒️ टिप्पणी आदेश (निर्माण सम्पन्न)', file: 'doneorder.html' },
+      { label: '🎓 निर्माण सम्पन्न प्रमाणपत्र', file: 'final_cert.html' },
+      { label: '🏢 कार्यालय प्रतिवेदन', file: 'docoffice.html' },
+      { label: '📢 सूचना व्यवस्थापन', file: 'notice.html' },
+      { label: '💰 राजस्व व्यवस्थापन', file: 'revenue.html' }
+    ];
+
+    let pickerRecordId = null;
+    let pickerOwnerName = '';
+
+    function openReportPicker(recordId, ownerNameEncoded) {
       if (!recordId) return;
-      const targetUrl = `all_setup.html?track=${encodeURIComponent(recordId)}&owner=${encodeURIComponent(ownerName || '')}`;
+      pickerRecordId = recordId;
+      pickerOwnerName = decodeURIComponent(ownerNameEncoded || '');
+
+      document.getElementById('reportPickerTitle').innerText = `📄 ${pickerOwnerName || 'विवरण'} - कुन report हेर्ने?`;
+      const body = document.getElementById('reportPickerBody');
+      body.innerHTML = REPORT_TABS.map(r =>
+        `<button class="modal-report-btn" onclick="goToReport('${r.file}')">${r.label}</button>`
+      ).join('');
+
+      document.getElementById('reportPickerModal').classList.add('open');
+    }
+
+    function closeReportPicker() {
+      document.getElementById('reportPickerModal').classList.remove('open');
+    }
+
+    function goToReport(file) {
+      if (!pickerRecordId) return;
+      const targetUrl = `all_setup.html?track=${encodeURIComponent(pickerRecordId)}&owner=${encodeURIComponent(pickerOwnerName || '')}&target=${encodeURIComponent(file)}`;
 
       // dashboard.html कुनै iframe भित्र (all_setup.html को शेल भित्र) लोड भएको भए माथिल्लो विन्डोलाई नेभिगेट गर्ने,
       // होइन भने सोझै यही विन्डोमा खोल्ने
@@ -380,7 +460,26 @@
       }
     }
 
+    // popup बाहिर click गर्दा बन्द हुने (DOM पूर्ण लोड भएपछि मात्र जोड्ने)
+    window.addEventListener('load', () => {
+      const modalEl = document.getElementById('reportPickerModal');
+      if (modalEl) {
+        modalEl.addEventListener('click', (e) => {
+          if (e.target.id === 'reportPickerModal') closeReportPicker();
+        });
+      }
+    });
+
     window.onload = loadDashboard;
-  </script>
+  </script>  <div class="modal-overlay" id="reportPickerModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="reportPickerTitle">📄 विवरण छनौट गर्नुस्</h3>
+        <button class="modal-close" onclick="closeReportPicker()">✕</button>
+      </div>
+      <div class="modal-body" id="reportPickerBody"></div>
+    </div>
+  </div>
+
 </body>
 </html>

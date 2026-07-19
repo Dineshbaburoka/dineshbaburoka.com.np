@@ -119,10 +119,16 @@
         let idleTimeout;
         const IDLE_TIME_LIMIT = 5 * 60 * 1000; // ५ मिनेट मिलिसेकेन्डमा
 
+        // ड्यासबोर्डबाट नाममा क्लिक गरी छानिएको व्यक्तिको विवरण (Tab बदल्दा पनि कायम रहन्छ)
+        let activeTrackId = null;
+        let activeTrackOwner = '';
+
         // MENU_CONFIG मा प्रमाणिक र चल्ने FontAwesome आइकनहरू व्यवस्थापन गरिएको छ
         const MENU_CONFIG = [
             { type: 'single', title: 'ड्यासबोर्ड', url: 'dashboard.html', icon: 'fa-solid fa-chart-pie text-amber-400', isDefault: true },
+            { type: 'single', title: 'Track विवरण', url: 'trackview.html', icon: 'fa-solid fa-magnifying-glass-chart text-cyan-400' },
             { type: 'single', title: 'दर्ता गर्ने (Map Form)', url: 'mapform.html', icon: 'fa-solid fa-map-location-dot text-blue-400' },
+            { type: 'single', title: 'राजस्व व्यवस्थापन', url: 'revenue.html', icon: 'fa-solid fa-sack-dollar text-lime-400' },
             {
                 type: 'dropdown',
                 title: 'कागजात जाँचबुझ (Documents checking)',
@@ -144,7 +150,6 @@
                     { title: 'सर्जमिन मुचुल्का', url: 'sarjaminmuchulka.html', icon: 'fa-solid fa-file-contract text-indigo-400' },
                 ]
             },
-            { type: 'single', title: 'नक्सा पास दस्तुर', url: 'revenue.html', icon: 'fa-solid fa-magnifying-glass-chart text-cyan-400' },
             {
                 type: 'dropdown',
                 title: 'अस्थायी इजाजत',
@@ -316,10 +321,27 @@
             const iframe = document.getElementById('content-frame');
             const userRole = localStorage.getItem("userRole") || "staff";
             let finalUrl = pageUrl;
+
+            // पहिले नै कुनै व्यक्ति ट्र्याक भइरहेको छ र यो URL मा आफैं id नराखिएको भए, उही व्यक्तिको id जोड्ने
+            // (ड्यासबोर्ड र दर्ता फारम जस्ता पेजमा id आवश्यक नभएकोले ती अपवाद)
+            const skipAutoId = ['dashboard.html', 'mapform.html', 'admin.html'];
+            const baseName = pageUrl.split('?')[0];
+
+            // ड्यासबोर्डमा फर्किंदा ट्र्याक भइरहेको व्यक्ति खाली गर्ने (नयाँ नाम नछानेसम्म)
+            if (baseName === 'dashboard.html') {
+                activeTrackId = null;
+                activeTrackOwner = '';
+            }
+
+            if (activeTrackId && !pageUrl.includes('id=') && !skipAutoId.includes(baseName)) {
+                const sep = pageUrl.includes('?') ? '&' : '?';
+                pageUrl = `${pageUrl}${sep}id=${encodeURIComponent(activeTrackId)}&owner=${encodeURIComponent(activeTrackOwner || '')}`;
+                finalUrl = pageUrl;
+            }
             
             if (userRole) {
-                const separator = pageUrl.includes('?') ? '&' : '?';
-                finalUrl = `${pageUrl}${separator}role=${encodeURIComponent(userRole)}`;
+                const separator = finalUrl.includes('?') ? '&' : '?';
+                finalUrl = `${finalUrl}${separator}role=${encodeURIComponent(userRole)}`;
             }
             iframe.src = finalUrl;
 
@@ -426,19 +448,27 @@
             renderSidebarMenu(userRole);
             setupIdleTracker(); 
             
-            // यदि URL मा ?track=ID दिइएको छ भने सिधै Track विवरण देखाउने (कुनै खोजी नगरी)
+            // यदि URL मा ?track=ID दिइएको छ भने सिधै तोकिएको page मा त्यो विवरण देखाउने (कुनै खोजी नगरी)
+            // र त्यसपछि जुनसुकै अर्को Tab मा गए पनि उही व्यक्तिको विवरण कायम राख्ने
             const trackId = new URLSearchParams(window.location.search).get('track');
             const trackOwner = new URLSearchParams(window.location.search).get('owner');
+            const trackTarget = new URLSearchParams(window.location.search).get('target') || 'trackview.html';
             const allNavLinks = document.querySelectorAll('#dynamic-sidebar a');
 
             if (trackId) {
+                activeTrackId = trackId;
+                activeTrackOwner = trackOwner || '';
+
                 let trackTab = null;
                 allNavLinks.forEach(link => {
-                    if (link.getAttribute('onclick') && link.getAttribute('onclick').includes('trackview.html')) {
+                    if (link.getAttribute('onclick') && link.getAttribute('onclick').includes(trackTarget)) {
                         trackTab = link;
                     }
                 });
-                loadPage(`trackview.html?id=${encodeURIComponent(trackId)}&owner=${encodeURIComponent(trackOwner || '')}`, 'Track विवरण', trackTab, false);
+                loadPage(`${trackTarget}?id=${encodeURIComponent(trackId)}&owner=${encodeURIComponent(trackOwner || '')}`, 'Track विवरण', trackTab, false);
+
+                // URL बाट ?track=... हटाउने, ताकि Refresh (F5) गर्दा फेरि उही व्यक्तिमा नफर्की सुरुबाट (Dashboard) खुल्ने
+                window.history.replaceState({}, '', window.location.pathname);
                 return;
             }
 
