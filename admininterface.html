@@ -1,15 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ne">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Employee Tracking System</title>
+    <title>गलकोट नगरपालिका-कर्मचारी व्यवस्थापन प्रणाली</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .map-instance { height: 400px; width: 100%; z-index: 1; }
+        @media print {
+            .no-print { display: none !important; }
+            .print-border-none { border: none !important; }
+        }
     </style>
 </head>
 <body class="bg-gray-100 font-sans">
@@ -21,8 +25,8 @@
                 <div class="inline-flex items-center justify-center w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full mb-3 text-2xl">
                     <i class="fa-solid fa-user-shield"></i>
                 </div>
-                <h2 class="text-2xl font-bold text-slate-800">TrackAdmin Login</h2>
-                <p class="text-xs text-gray-500 mt-1">तपाईँको Admin Credentials प्रयोग गरी लगइन गर्नुहोस्</p>
+                <h2 class="text-2xl font-bold text-slate-800">गलकोट नगरपालिका</h2>
+                <p class="text-xs text-gray-500 mt-1">कर्मचारी व्यवस्थापन प्रणाली</p>
             </div>
 
             <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
@@ -57,10 +61,11 @@
 
     <!-- MAIN DASHBOARD CONTENT -->
     <div id="app-container" class="flex h-screen overflow-hidden hidden">
+        <!-- Sidebar -->
         <div class="w-64 bg-slate-800 text-white flex flex-col justify-between hidden md:flex">
             <div class="p-5">
                 <h1 class="text-2xl font-bold tracking-wider flex items-center gap-2">
-                    <i class="fa-solid fa-map-location-dot text-emerald-400"></i> TrackAdmin
+                    <i class="fa-solid fa-map-location-dot text-emerald-400"></i> फिल्ड कार्य व्यवस्थापन
                 </h1>
                 <nav class="mt-10 space-y-2">
                     <a href="#" onclick="switchTab('dashboard')" class="tab-btn flex items-center gap-3 px-4 py-3 bg-slate-700 rounded-lg text-white font-medium transition">
@@ -72,8 +77,11 @@
                     <a href="#" onclick="switchTab('employees')" class="tab-btn flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-700 hover:text-white rounded-lg font-medium transition">
                         <i class="fa-solid fa-users w-5"></i> Employees
                     </a>
+                    <a href="#" onclick="switchTab('fieldbooks')" class="tab-btn flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-700 hover:text-white rounded-lg font-medium transition">
+                        <i class="fa-solid fa-book-open w-5"></i> Fieldbook Reports
+                    </a>
                     <a href="#" onclick="switchTab('reports')" class="tab-btn flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-slate-700 hover:text-white rounded-lg font-medium transition">
-                        <i class="fa-solid fa-file-invoice w-5"></i> History Reports
+                        <i class="fa-solid fa-file-invoice w-5"></i> Location History
                     </a>
                 </nav>
             </div>
@@ -87,10 +95,28 @@
         <div class="flex-1 flex flex-col overflow-y-auto">
             <header class="bg-white shadow-sm px-6 py-4 flex justify-between items-center border-b border-gray-200">
                 <h2 id="page-title" class="text-xl font-semibold text-gray-800">Dashboard Overview</h2>
-                <div class="flex items-center gap-4">
-                    <div id="connection-status" class="flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">
-                        <span class="h-2 w-2 rounded-full bg-amber-500 animate-pulse"></span> Connecting Supabase...
+                
+                <div class="flex items-center gap-6">
+                    <!-- NOTIFICATION BUTTON & DROPDOWN CONTAINER -->
+                    <div class="relative">
+                        <button onclick="toggleNotificationDropdown()" class="relative p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-full transition cursor-pointer focus:outline-none">
+                            <i class="fa-solid fa-bell text-lg"></i>
+                            <span id="notif-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold h-5 w-5 rounded-full flex items-center justify-center hidden border-2 border-white">0</span>
+                        </button>
+
+                        <!-- DROPDOWN PANEL -->
+                        <div id="notif-dropdown" class="absolute right-0 mt-3 w-80 bg-white rounded-2xl shadow-2xl border border-gray-100 hidden z-50 overflow-hidden">
+                            <div class="p-3.5 bg-slate-800 text-white flex justify-between items-center">
+                                <span class="font-bold text-xs uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-bell text-amber-400"></i> प्रणाली सूचनाहरू (Notifications)</span>
+                                <button onclick="clearNotifications()" class="text-[11px] text-slate-300 hover:text-white underline cursor-pointer">Clear All</button>
+                            </div>
+                            
+                            <div id="notif-list" class="max-h-80 overflow-y-auto divide-y divide-gray-100">
+                                <p class="text-xs text-gray-400 italic p-4 text-center">कुनै नयाँ सूचना छैन।</p>
+                            </div>
+                        </div>
                     </div>
+
                     <div class="font-medium text-gray-700 flex items-center gap-2">
                         <i class="fa-solid fa-user-shield text-slate-600"></i> <span id="user-display">Admin Panel</span>
                     </div>
@@ -98,8 +124,9 @@
             </header>
 
             <main class="p-6">
+                <!-- Dashboard Section -->
                 <section id="dashboard-section" class="tab-content block space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                         <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex items-center justify-between">
                             <div>
                                 <p class="text-sm font-medium text-gray-500 uppercase">Total Staff</p>
@@ -120,6 +147,13 @@
                                 <h3 id="stat-offline-staff" class="text-3xl font-bold text-amber-600 mt-1">0</h3>
                             </div>
                             <div class="p-4 bg-amber-50 text-amber-600 rounded-lg text-2xl"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500 uppercase">Fieldbook Count</p>
+                                <h3 id="stat-total-fieldbooks" class="text-3xl font-bold text-indigo-600 mt-1">0</h3>
+                            </div>
+                            <div class="p-4 bg-indigo-50 text-indigo-600 rounded-lg text-2xl"><i class="fa-solid fa-book"></i></div>
                         </div>
                     </div>
 
@@ -143,6 +177,7 @@
                     </div>
                 </section>
 
+                <!-- Tracking Section -->
                 <section id="tracking-section" class="tab-content hidden space-y-6">
                     <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
                         <div class="lg:col-span-3 bg-white p-4 rounded-xl shadow-sm border border-gray-200">
@@ -155,47 +190,77 @@
                             <div id="live-map" class="map-instance rounded-lg border border-gray-300"></div>
                         </div>
                         
-                        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-                            <h3 class="font-semibold text-gray-700 mb-3 border-b pb-2">Duty Staff Status</h3>
-                            <div id="map-employee-list" class="space-y-3 overflow-y-auto max-h-[350px] p-1">
+                        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col">
+                            <h3 class="font-semibold text-gray-700 mb-2 border-b pb-2">Duty Staff Status</h3>
+                            <div class="mb-3">
+                                <input type="text" id="live-staff-search" onkeyup="filterLiveStaffList()" placeholder="कर्मचारी खोज्नुहोस्..." class="w-full p-2 border border-gray-300 rounded text-xs bg-slate-50 focus:bg-white focus:outline-none">
+                            </div>
+                            <div id="map-employee-list" class="space-y-3 overflow-y-auto max-h-[350px] p-1 flex-1">
                                 <p class="text-sm text-gray-400 italic">No employees online.</p>
                             </div>
                         </div>
                     </div>
                 </section>
 
+                <!-- Employees Section -->
                 <section id="employees-section" class="tab-content hidden space-y-6">
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4"><i class="fa-solid fa-user-plus text-emerald-600 mr-2"></i>नयाँ कर्मचारी दर्ता</h3>
+                        
                         <form id="employee-form" onsubmit="handleAddEmployee(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
                             <div>
-                                <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Full Name</label>
-                                <input type="text" id="emp-name" required class="w-full p-2 border border-gray-300 rounded text-sm bg-white" placeholder="John Doe">
+                                <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Full Name (पुरा नाम)</label>
+                                <input type="text" id="emp-name" required class="w-full p-2 border border-gray-300 rounded text-sm bg-white" placeholder="राम बहादुर श्रेष्ठ">
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Employee ID / Code</label>
                                 <input type="text" id="emp-code" required class="w-full p-2 border border-gray-300 rounded text-sm bg-white" placeholder="EMP-101">
                             </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Designation / पद</label>
+                                <input type="text" id="emp-post" required class="w-full p-2 border border-gray-300 rounded text-sm bg-white" placeholder="इन्जिनियर / सहायक">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Office / कार्यालय/शाखा</label>
+                                <input type="text" id="emp-office" required class="w-full p-2 border border-gray-300 rounded text-sm bg-white" placeholder="गाउँपालिका / प्राविधिक शाखा">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Contact / फोन नं.</label>
+                                <input type="tel" id="emp-phone" class="w-full p-2 border border-gray-300 rounded text-sm bg-white" placeholder="98XXXXXXXX">
+                            </div>
                             <div class="flex items-end">
                                 <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-4 rounded text-sm transition cursor-pointer">
-                                    <i class="fa-solid fa-user-plus mr-1"></i> Add Employee
+                                    <i class="fa-solid fa-user-plus mr-1"></i> कर्मचारी दर्ता गर्नुहोस्
                                 </button>
                             </div>
                         </form>
 
-                        <div class="mt-8 overflow-x-auto">
+                        <div class="mt-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-4">
+                            <h4 class="font-semibold text-gray-700 text-md">दर्ता भएका कर्मचारीहरू</h4>
+                            <div class="relative w-full sm:w-64">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                                    <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                                </span>
+                                <input type="text" id="emp-search-input" onkeyup="filterEmployeesTable()" class="w-full pl-9 pr-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="नाम वा कोडबाट खोज्नुहोस्...">
+                            </div>
+                        </div>
+
+                        <div class="mt-4 overflow-x-auto">
                             <table class="w-full text-left border-collapse">
                                 <thead>
-                                    <tr class="bg-slate-100 border-b border-gray-200 text-slate-700 text-sm font-semibold uppercase">
-                                        <th class="p-4">Employee ID</th>
-                                        <th class="p-4">Name</th>
-                                        <th class="p-4">Status</th>
-                                        <th class="p-4">Last Sync</th>
-                                        <th class="p-4 text-center">Action</th>
+                                    <tr class="bg-slate-100 border-b border-gray-200 text-slate-700 text-xs font-semibold uppercase">
+                                        <th class="p-3">ID Code</th>
+                                        <th class="p-3">कर्मचारीको नाम</th>
+                                        <th class="p-3">पद (Post)</th>
+                                        <th class="p-3">कार्यालय (Office)</th>
+                                        <th class="p-3">फोन</th>
+                                        <th class="p-3 text-center">Fieldbook</th>
+                                        <th class="p-3 text-center">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody id="employee-table-body" class="text-sm text-gray-600 divide-y divide-gray-100">
                                     <tr>
-                                        <td colspan="5" class="p-4 text-center italic text-gray-400">Loading database...</td>
+                                        <td colspan="7" class="p-4 text-center italic text-gray-400">Loading database...</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -203,6 +268,48 @@
                     </div>
                 </section>
 
+                <!-- Fieldbooks Section -->
+                <section id="fieldbooks-section" class="tab-content hidden space-y-6">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 border-b pb-4">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800">कर्मचारी फिल्डबुक प्रतिवेदनहरू (Photo View)</h3>
+                                <p class="text-xs text-gray-500">फिल्ड कार्य तथा अनुगमन फाराम (फोटो सहित)</p>
+                            </div>
+                            
+                            <div class="flex items-center gap-2">
+                                <label class="text-xs font-semibold text-gray-600 whitespace-nowrap"><i class="fa-solid fa-filter text-indigo-500 mr-1"></i>कर्मचारी छान्नुहोस्:</label>
+                                <select id="fieldbook-filter-emp" onchange="filterFieldbookList()" class="p-2 border border-gray-300 rounded text-xs bg-slate-50 focus:bg-white focus:outline-none font-medium min-w-[180px]">
+                                    <option value="all">सबै कर्मचारीहरू (All)</option>
+                                </select>
+                                <button onclick="loadFieldbookList()" class="text-xs bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-3 py-2 rounded font-semibold border border-indigo-200 cursor-pointer">
+                                    <i class="fa-solid fa-rotate-right"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse text-sm">
+                                <thead>
+                                    <tr class="bg-slate-100 border-b border-gray-200 text-slate-700 font-semibold text-xs uppercase">
+                                        <th class="p-3">मिति/समय</th>
+                                        <th class="p-3">कर्मचारी कोड</th>
+                                        <th class="p-3">नाम</th>
+                                        <th class="p-3">कार्यालय</th>
+                                        <th class="p-3 text-center">कार्य (Action)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="fieldbook-list-tbody" class="divide-y divide-gray-100 text-gray-600">
+                                    <tr>
+                                        <td colspan="5" class="p-4 text-center text-gray-400 italic">डाटा लोड हुँदैछ...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Location Reports Section -->
                 <section id="reports-section" class="tab-content hidden space-y-6">
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 border-b pb-4">
@@ -268,6 +375,94 @@
         </div>
     </div>
 
+    <!-- NOTIFICATION DETAIL MODAL -->
+    <div id="notif-detail-modal" class="fixed inset-0 bg-slate-900 bg-opacity-80 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 space-y-4 border border-gray-200">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-info text-blue-600"></i> सूचनाको पूरा विवरण (Notification Detail)
+                </h3>
+                <button onclick="closeNotifModal()" class="text-gray-400 hover:text-gray-600 cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div id="notif-modal-content" class="space-y-3 text-sm text-slate-700">
+                <!-- Details render here -->
+            </div>
+            <div class="flex justify-end pt-3 border-t">
+                <button onclick="closeNotifModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-xs font-semibold cursor-pointer">
+                    बन्द गर्नुहोस्
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- EDIT EMPLOYEE MODAL -->
+    <div id="edit-employee-modal" class="fixed inset-0 bg-slate-900 bg-opacity-80 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 space-y-4 border border-gray-200">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="text-base font-bold text-slate-800"><i class="fa-solid fa-user-pen text-blue-600 mr-2"></i>कर्मचारी विवरण सम्पादन (Edit Staff Info)</h3>
+                <button onclick="closeEditEmpModal()" class="text-gray-400 hover:text-gray-600 cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form id="edit-emp-form" onsubmit="saveEmployeeDetails(event)" class="space-y-3">
+                <input type="hidden" id="edit-emp-id">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Employee ID / Code</label>
+                    <input type="text" id="edit-emp-code" readonly class="w-full p-2 border border-gray-300 rounded text-sm bg-gray-100 text-gray-500 font-mono">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">कर्मचारीको नाम (Full Name)</label>
+                    <input type="text" id="edit-emp-name" required class="w-full p-2 border border-gray-300 rounded text-sm bg-white">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">पद (Designation / Post)</label>
+                    <input type="text" id="edit-emp-post" required class="w-full p-2 border border-gray-300 rounded text-sm bg-white">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">कार्यालय/शाखा (Office)</label>
+                    <input type="text" id="edit-emp-office" required class="w-full p-2 border border-gray-300 rounded text-sm bg-white">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">फोन नम्बर (Phone)</label>
+                    <input type="tel" id="edit-emp-phone" class="w-full p-2 border border-gray-300 rounded text-sm bg-white">
+                </div>
+                <div class="flex justify-end gap-2 pt-3 border-t">
+                    <button type="button" onclick="closeEditEmpModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded text-xs font-semibold cursor-pointer">रद्द गर्नुहोस्</button>
+                    <button type="submit" id="btn-save-emp" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs font-semibold cursor-pointer">
+                        <i class="fa-solid fa-floppy-disk mr-1"></i> सेभ गर्नुहोस्
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- READ-ONLY FIELDBOOK MODAL -->
+    <div id="fieldbook-modal" class="fixed inset-0 bg-slate-900 bg-opacity-80 z-50 flex items-center justify-center p-4 hidden overflow-y-auto">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto border border-gray-200">
+            <div class="flex justify-between items-center border-b pb-3 no-print">
+                <h3 class="text-lg font-bold text-slate-800"><i class="fa-solid fa-file-invoice text-indigo-600 mr-2"></i>कर्मचारी फिल्डबुक प्रतिवेदन (फोटो सहित)</h3>
+                <div class="flex gap-2">
+                    <button onclick="printAdminFieldbook()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 shadow cursor-pointer">
+                        <i class="fa-solid fa-print"></i> Print / PDF
+                    </button>
+                    <button onclick="closeFieldbookModal()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer">
+                        <i class="fa-solid fa-xmark"></i> बन्द गर्नुहोस्
+                    </button>
+                </div>
+            </div>
+
+            <div id="admin-fieldbook-content" class="p-6 border rounded-xl bg-white text-slate-900 text-sm">
+                <!-- Fieldbook view loads here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- PHOTO ZOOM MODAL -->
+    <div id="photo-zoom-modal" class="fixed inset-0 bg-black/90 z-60 flex items-center justify-center p-4 hidden cursor-pointer" onclick="this.classList.add('hidden')">
+        <div class="max-w-3xl max-h-[90vh]">
+            <img id="zoomed-image" src="" class="max-w-full max-h-[85vh] rounded-lg shadow-2xl object-contain mx-auto" />
+            <p class="text-center text-white text-xs mt-2">कहीँ पनि क्लिक गरी बन्द गर्नुहोस्</p>
+        </div>
+    </div>
+
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <script>
@@ -284,11 +479,15 @@
 
         let dashboardFeatureGroup = null;
         let globalEmployees = [];
+        let rawFieldbooks = [];
         let supabaseClient = null;
 
-        // Inactivity Timer variables
+        // NOTIFICATIONS STORAGE
+        let notificationsList = [];
+        let unreadCount = 0;
+
         let inactivityTimer;
-        const INACTIVITY_LIMIT = 5 * 60 * 1000; // 5 Minutes in milliseconds
+        const INACTIVITY_LIMIT = 5 * 60 * 1000;
 
         document.addEventListener("DOMContentLoaded", () => {
             initSupabase();
@@ -297,7 +496,6 @@
 
         function initSupabase() {
             try {
-                // Using sessionStorage so refresh / new window forces re-authentication
                 supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
                     auth: {
                         storage: window.sessionStorage,
@@ -305,16 +503,12 @@
                         persistSession: true
                     }
                 });
-                updateStatus("Supabase Connected", "bg-emerald-100 text-emerald-700", "bg-emerald-500");
             } catch (error) {
-                console.error(error);
-                updateStatus("Connection Failed", "bg-red-100 text-red-700", "bg-red-500");
+                console.error("Supabase init error:", error);
             }
         }
 
-        // Authentication & Session Guard
         async function checkSessionState() {
-            // Force logout on page refresh / first load by checking sessionStorage marker
             if (!sessionStorage.getItem("is_logged_in")) {
                 await logout();
                 return;
@@ -380,7 +574,6 @@
             showLoginScreen();
         }
 
-        // 5 MINUTE AUTO LOGOUT SYSTEM
         function startInactivityTimer() {
             resetInactivityTimer();
             window.addEventListener("mousemove", resetInactivityTimer);
@@ -401,38 +594,24 @@
 
         function initMaps() {
             dashboardMap = L.map('dashboard-map').setView([27.7172, 85.3240], 13);
-            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                attribution: 'Tiles &copy; Esri'
-            }).addTo(dashboardMap);
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution: 'Tiles &copy; Esri' }).addTo(dashboardMap);
             L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', { maxZoom: 20 }).addTo(dashboardMap);
             dashboardFeatureGroup = L.featureGroup().addTo(dashboardMap);
 
             liveMap = L.map('live-map').setView([27.7172, 85.3240], 13);
-            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                attribution: 'Tiles &copy; Esri'
-            }).addTo(liveMap);
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution: 'Tiles &copy; Esri' }).addTo(liveMap);
             L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', { maxZoom: 20 }).addTo(liveMap);
 
             historyMap = L.map('history-map').setView([27.7172, 85.3240], 13);
-            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                attribution: 'Tiles &copy; Esri'
-            }).addTo(historyMap);
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution: 'Tiles &copy; Esri' }).addTo(historyMap);
             L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', { maxZoom: 20 }).addTo(historyMap);
-        }
-
-        function updateStatus(text, wrapperClass, pointClass) {
-            const el = document.getElementById("connection-status");
-            if (el) {
-                el.className = `flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold ${wrapperClass}`;
-                el.innerHTML = `<span class="h-2 w-2 rounded-full ${pointClass}"></span> ${text}`;
-            }
         }
 
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.getElementById(`${tabId}-section`).classList.remove('hidden');
             
-            const trigger = event.currentTarget;
+            const trigger = window.event ? window.event.currentTarget : null;
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.remove('bg-slate-700', 'text-white');
                 btn.classList.add('text-slate-400');
@@ -443,12 +622,11 @@
             }
             
             if (tabId === 'dashboard' && dashboardMap) {
-                setTimeout(() => {
-                    dashboardMap.invalidateSize();
-                    autoZoomAllStaff();
-                }, 200);
+                setTimeout(() => { dashboardMap.invalidateSize(); autoZoomAllStaff(); }, 200);
             } else if (tabId === 'tracking' && liveMap) {
                 setTimeout(() => liveMap.invalidateSize(), 200);
+            } else if (tabId === 'fieldbooks') {
+                loadFieldbookList();
             } else if (tabId === 'reports' && historyMap) {
                 setTimeout(() => historyMap.invalidateSize(), 200);
             }
@@ -458,7 +636,7 @@
 
         async function fetchInitialData() {
             if (!supabaseClient) return;
-            const { data: employees } = await supabaseClient.from('employees').select('*');
+            const { data: employees } = await supabaseClient.from('employees').select('*').order('id', { ascending: true });
             if (employees) {
                 globalEmployees = employees;
                 renderEmployeeTable();
@@ -472,6 +650,8 @@
                 updateLiveDutyStaffList(locations);
                 setTimeout(() => autoZoomAllStaff(), 400);
             }
+
+            updateFieldbookStats();
         }
 
         function setupRealtimeSubscriptions() {
@@ -483,11 +663,147 @@
                     if(record && record.emp_code) {
                         updateBothMaps(record);
                         logActivity(record);
+                        addNotification(record); // Push Notification
                         refreshStatsAndList();
                     }
                 })
                 .subscribe();
         }
+
+        // ================= NOTIFICATION SYSTEM LOGIC =================
+
+        function addNotification(record) {
+            const empInfo = globalEmployees.find(e => e.emp_code === record.emp_code) || { name: record.emp_code };
+            const timeStr = new Date().toLocaleTimeString();
+            
+            const notifItem = {
+                id: Date.now(),
+                emp_name: empInfo.name,
+                emp_code: record.emp_code,
+                reason: record.reason1 || "फिल्ड कार्य",
+                time: timeStr,
+                lat: record.latitude,
+                lng: record.longitude,
+                device: record.device_name || "मोबाइल उपकरण",
+                battery: record.battery_level || "100"
+            };
+
+            notificationsList.unshift(notifItem);
+            unreadCount++;
+            updateNotifBadge();
+            renderNotifDropdown();
+        }
+
+        function updateNotifBadge() {
+            const badge = document.getElementById('notif-badge');
+            if (unreadCount > 0) {
+                badge.innerText = unreadCount;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        function toggleNotificationDropdown() {
+            const dropdown = document.getElementById('notif-dropdown');
+            dropdown.classList.toggle('hidden');
+            if (!dropdown.classList.contains('hidden')) {
+                unreadCount = 0;
+                updateNotifBadge();
+            }
+        }
+
+        function renderNotifDropdown() {
+            const container = document.getElementById('notif-list');
+            if (notificationsList.length === 0) {
+                container.innerHTML = `<p class="text-xs text-gray-400 italic p-4 text-center">कुनै नयाँ सूचना छैन।</p>`;
+                return;
+            }
+
+            container.innerHTML = notificationsList.map(n => `
+                <div onclick="openNotifDetail(${n.id})" class="p-3 hover:bg-slate-50 transition cursor-pointer flex items-start gap-3">
+                    <div class="h-8 w-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 text-xs">
+                        <i class="fa-solid fa-location-dot"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex justify-between items-center">
+                            <h4 class="text-xs font-bold text-slate-800 truncate">${n.emp_name} (${n.emp_code})</h4>
+                            <span class="text-[10px] text-gray-400">${n.time}</span>
+                        </div>
+                        <p class="text-xs text-amber-600 font-medium truncate mt-0.5"><i class="fa-solid fa-bullseye text-[10px]"></i> ${n.reason}</p>
+                        <p class="text-[10px] text-indigo-600 font-semibold mt-1">विवरण हेर्नुहोस् &rarr;</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openNotifDetail(notifId) {
+            const item = notificationsList.find(n => n.id === notifId);
+            if (!item) return;
+
+            const modalContent = document.getElementById('notif-modal-content');
+            modalContent.innerHTML = `
+                <div class="bg-slate-50 p-4 rounded-xl border border-gray-200 space-y-2">
+                    <div class="flex justify-between border-b pb-2">
+                        <span class="font-semibold text-gray-500">कर्मचारी नाम:</span>
+                        <span class="font-bold text-slate-800">${item.emp_name}</span>
+                    </div>
+                    <div class="flex justify-between border-b pb-2">
+                        <span class="font-semibold text-gray-500">कर्मचारी कोड:</span>
+                        <span class="font-mono bg-white px-2 py-0.5 rounded border font-bold text-slate-800">${item.emp_code}</span>
+                    </div>
+                    <div class="flex justify-between border-b pb-2">
+                        <span class="font-semibold text-gray-500">कार्य उद्देश्य:</span>
+                        <span class="font-bold text-amber-600">${item.reason}</span>
+                    </div>
+                    <div class="flex justify-between border-b pb-2">
+                        <span class="font-semibold text-gray-500">प्राप्त समय:</span>
+                        <span class="font-medium text-slate-700">${item.time}</span>
+                    </div>
+                    <div class="flex justify-between border-b pb-2">
+                        <span class="font-semibold text-gray-500">GPS Latitude:</span>
+                        <span class="font-mono text-slate-800">${item.lat}</span>
+                    </div>
+                    <div class="flex justify-between border-b pb-2">
+                        <span class="font-semibold text-gray-500">GPS Longitude:</span>
+                        <span class="font-mono text-slate-800">${item.lng}</span>
+                    </div>
+                    <div class="flex justify-between border-b pb-2">
+                        <span class="font-semibold text-gray-500">डिभाइस:</span>
+                        <span class="font-medium text-slate-800">${item.device}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="font-semibold text-gray-500">ब्याट्री प्रतिशत:</span>
+                        <span class="font-bold text-emerald-600">${item.battery}%</span>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('notif-dropdown').classList.add('hidden');
+            document.getElementById('notif-detail-modal').classList.remove('hidden');
+        }
+
+        function closeNotifModal() {
+            document.getElementById('notif-detail-modal').classList.add('hidden');
+        }
+
+        function clearNotifications() {
+            notificationsList = [];
+            unreadCount = 0;
+            updateNotifBadge();
+            renderNotifDropdown();
+        }
+
+        // Dropdown बन्द गर्न बाहिर क्लिक गर्दा
+        window.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('notif-dropdown');
+            const notifBtn = e.target.closest('button[onclick="toggleNotificationDropdown()"]');
+            if (dropdown && !dropdown.contains(e.target) && !notifBtn) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        // ================= MAPS & STATS LOGIC =================
 
         async function refreshStatsAndList() {
             const { data: locations } = await supabaseClient.from('latest_locations').select('*');
@@ -559,7 +875,8 @@
                 const currentReason = loc.reason1 ? loc.reason1 : "कारण नखुलेको"; 
                 const bat = loc.battery_level !== undefined ? loc.battery_level : '100';
                 const item = document.createElement('div');
-                item.className = "p-3 hover:bg-slate-50 border border-gray-200 rounded-lg flex flex-col cursor-pointer transition text-slate-800 bg-white shadow-xs";
+                item.className = "live-staff-item p-3 hover:bg-slate-50 border border-gray-200 rounded-lg flex flex-col cursor-pointer transition text-slate-800 bg-white shadow-xs";
+                item.setAttribute('data-search', `${empInfo.name} ${loc.emp_code}`.toLowerCase());
                 
                 item.onclick = () => {
                     if(liveMarkers[loc.emp_code]) {
@@ -579,6 +896,19 @@
                     </div>
                 `;
                 container.appendChild(item);
+            });
+        }
+
+        function filterLiveStaffList() {
+            const query = document.getElementById('live-staff-search').value.toLowerCase();
+            const items = document.querySelectorAll('#map-employee-list .live-staff-item');
+            items.forEach(item => {
+                const searchData = item.getAttribute('data-search') || '';
+                if(searchData.includes(query)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
             });
         }
 
@@ -602,19 +932,44 @@
             document.getElementById('stat-offline-staff').innerText = Math.max(0, globalEmployees.length - activeCount);
         }
 
+        async function updateFieldbookStats() {
+            if(!supabaseClient) return;
+            try {
+                const { count } = await supabaseClient.from('fieldbook_reports').select('*', { count: 'exact', head: true });
+                document.getElementById('stat-total-fieldbooks').innerText = count || 0;
+            } catch(e) { console.log(e); }
+        }
+
+        // ================= EMPLOYEE MANAGEMENT LOGIC =================
         function renderEmployeeTable() {
             const tbody = document.getElementById('employee-table-body');
-            if(!tbody) return; tbody.innerHTML = '';
+            if(!tbody) return; 
+            tbody.innerHTML = '';
+
+            if (globalEmployees.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center italic text-gray-400">कुनै पनि कर्मचारी दर्ता भएको छैन।</td></tr>`;
+                return;
+            }
+
             globalEmployees.forEach(emp => {
                 tbody.innerHTML += `
-                    <tr class="hover:bg-gray-50 transition">
-                        <td class="p-4 font-semibold text-slate-700">${emp.emp_code}</td>
-                        <td class="p-4 font-medium">${emp.name}</td>
-                        <td class="p-4"><span class="bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs">Registered</span></td>
-                        <td class="p-4 text-xs text-gray-400">${new Date(emp.created_at || Date.now()).toLocaleDateString()}</td>
-                        <td class="p-4 text-center">
+                    <tr class="emp-row hover:bg-gray-50 transition text-xs border-b border-gray-100" data-search="${emp.name.toLowerCase()} ${emp.emp_code.toLowerCase()} ${(emp.post||'').toLowerCase()} ${(emp.office||'').toLowerCase()}">
+                        <td class="p-3 font-semibold text-slate-700 font-mono">${emp.emp_code}</td>
+                        <td class="p-3 font-bold text-slate-800">${emp.name}</td>
+                        <td class="p-3 text-slate-600">${emp.post || '-'}</td>
+                        <td class="p-3 text-slate-600">${emp.office || '-'}</td>
+                        <td class="p-3 text-slate-600">${emp.phone || '-'}</td>
+                        <td class="p-3 text-center">
+                            <button onclick="viewEmployeeFieldbook('${emp.emp_code}')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border border-indigo-200 px-2.5 py-1 rounded text-xs font-semibold flex items-center gap-1 mx-auto cursor-pointer">
+                                <i class="fa-solid fa-book-open"></i> हेर्नुहोस्
+                            </button>
+                        </td>
+                        <td class="p-3 text-center flex items-center justify-center gap-2">
+                            <button onclick="openEditEmpModal(${emp.id})" class="bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 px-2 py-1 rounded text-xs font-semibold cursor-pointer">
+                                <i class="fa-solid fa-user-pen mr-1"></i> Edit
+                            </button>
                             <button onclick="deleteEmployee(${emp.id}, '${emp.emp_code}')" class="text-red-500 hover:text-red-700 font-medium cursor-pointer">
-                                <i class="fa-regular fa-trash-can mr-1"></i> Remove
+                                <i class="fa-regular fa-trash-can"></i>
                             </button>
                         </td>
                     </tr>
@@ -622,12 +977,89 @@
             });
         }
 
+        function filterEmployeesTable() {
+            const query = document.getElementById('emp-search-input').value.toLowerCase();
+            const rows = document.querySelectorAll('#employee-table-body .emp-row');
+            rows.forEach(row => {
+                const searchData = row.getAttribute('data-search') || '';
+                if (searchData.includes(query)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
         async function handleAddEmployee(e) {
             e.preventDefault();
-            const name = document.getElementById('emp-name').value;
+            const name = document.getElementById('emp-name').value.trim();
             const emp_code = document.getElementById('emp-code').value.trim().toUpperCase();
-            const { error } = await supabaseClient.from('employees').insert([{ name, emp_code }]);
-            if (!error) { document.getElementById('employee-form').reset(); fetchInitialData(); }
+            const post = document.getElementById('emp-post').value.trim();
+            const office = document.getElementById('emp-office').value.trim();
+            const phone = document.getElementById('emp-phone').value.trim();
+
+            const { error } = await supabaseClient.from('employees').insert([{ 
+                name: name, 
+                emp_code: emp_code,
+                post: post,
+                office: office,
+                phone: phone
+            }]);
+
+            if (!error) { 
+                alert("कर्मचारी सफलतापूर्वक दर्ता गरियो!");
+                document.getElementById('employee-form').reset(); 
+                fetchInitialData(); 
+            } else {
+                alert("त्रुटि भयो: " + error.message);
+            }
+        }
+
+        function openEditEmpModal(empId) {
+            const emp = globalEmployees.find(e => e.id === empId);
+            if (!emp) return;
+
+            document.getElementById('edit-emp-id').value = emp.id;
+            document.getElementById('edit-emp-code').value = emp.emp_code;
+            document.getElementById('edit-emp-name').value = emp.name;
+            document.getElementById('edit-emp-post').value = emp.post || '';
+            document.getElementById('edit-emp-office').value = emp.office || '';
+            document.getElementById('edit-emp-phone').value = emp.phone || '';
+
+            document.getElementById('edit-employee-modal').classList.remove('hidden');
+        }
+
+        function closeEditEmpModal() {
+            document.getElementById('edit-employee-modal').classList.add('hidden');
+        }
+
+        async function saveEmployeeDetails(e) {
+            e.preventDefault();
+            const empId = document.getElementById('edit-emp-id').value;
+            const name = document.getElementById('edit-emp-name').value.trim();
+            const post = document.getElementById('edit-emp-post').value.trim();
+            const office = document.getElementById('edit-emp-office').value.trim();
+            const phone = document.getElementById('edit-emp-phone').value.trim();
+
+            const btn = document.getElementById('btn-save-emp');
+            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Saving...`;
+            btn.disabled = true;
+
+            const { error } = await supabaseClient
+                .from('employees')
+                .update({ name, post, office, phone })
+                .eq('id', empId);
+
+            btn.innerHTML = `<i class="fa-solid fa-floppy-disk mr-1"></i> सेभ गर्नुहोस्`;
+            btn.disabled = false;
+
+            if (!error) {
+                alert("कर्मचारीको विवरण सफलतापूर्वक अपडेट भयो!");
+                closeEditEmpModal();
+                fetchInitialData();
+            } else {
+                alert("विवरण सेभ गर्दा त्रुटि भयो: " + error.message);
+            }
         }
 
         async function deleteEmployee(id, emp_code) {
@@ -652,13 +1084,281 @@
             } catch (err) { console.error(err); }
         }
 
-        function populateDropdowns() {
-            const select = document.getElementById('report-filter-emp');
-            if(!select) return; 
-            select.innerHTML = '<option value="all">All Employees</option>';
-            globalEmployees.forEach(emp => { 
-                select.innerHTML += `<option value="${emp.emp_code}">${emp.name}</option>`; 
+        // ================= FIELDBOOK READ-ONLY VIEW LOGIC =================
+        
+        async function loadFieldbookList() {
+            const tbody = document.getElementById('fieldbook-list-tbody');
+            if(!tbody) return;
+            tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-400 italic">फिल्डबुक प्रतिवेदन लोड हुँदैछ...</td></tr>`;
+
+            if(!supabaseClient) return;
+            try {
+                const { data, error } = await supabaseClient.from('fieldbook_reports').select('*').order('created_at', { ascending: false });
+                if(error || !data || data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-red-400 font-medium">कुनै पनि फिल्डबुक प्रतिवेदन प्राप्त भएको छैन।</td></tr>`;
+                    return;
+                }
+
+                rawFieldbooks = data;
+                filterFieldbookList();
+            } catch(err) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-red-500">त्रुटि भयो: ${err.message}</td></tr>`;
+            }
+        }
+
+        function filterFieldbookList() {
+            const tbody = document.getElementById('fieldbook-list-tbody');
+            const selectedEmp = document.getElementById('fieldbook-filter-emp').value;
+            if(!tbody) return;
+
+            let filtered = rawFieldbooks;
+            if(selectedEmp !== 'all') {
+                filtered = rawFieldbooks.filter(fb => fb.emp_code === selectedEmp);
+            }
+
+            if(filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-amber-600 font-medium">छानिएको कर्मचारीको कुनै प्रतिवेदन भेटिएन।</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(fb => `
+                <tr class="hover:bg-gray-50 border-b border-gray-100 text-xs">
+                    <td class="p-3 text-gray-500 font-medium">${new Date(fb.created_at).toLocaleString()}</td>
+                    <td class="p-3 font-mono font-bold text-slate-700">${fb.emp_code}</td>
+                    <td class="p-3 font-medium text-slate-800">${fb.emp_name}</td>
+                    <td class="p-3 text-slate-600">${fb.office || '-'}</td>
+                    <td class="p-3 text-center">
+                        <button onclick="viewSingleFieldbookReport('${fb.id}')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded text-xs font-semibold cursor-pointer flex items-center gap-1 mx-auto shadow-xs">
+                            <i class="fa-solid fa-eye"></i> हेर्नुहोस् (Photo)
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function viewSingleFieldbookReport(reportId) {
+            const container = document.getElementById('admin-fieldbook-content');
+            container.innerHTML = `<div class="p-8 text-center text-slate-500"><i class="fa-solid fa-spinner animate-spin text-2xl mb-2"></i><br>प्रतिवेदन विवरण लोड हुँदैछ...</div>`;
+            document.getElementById('fieldbook-modal').classList.remove('hidden');
+
+            if (!supabaseClient) return;
+
+            const { data: report, error } = await supabaseClient
+                .from('fieldbook_reports')
+                .select('*')
+                .eq('id', reportId)
+                .single();
+
+            if (error || !report) {
+                container.innerHTML = `<div class="p-8 text-center text-red-500 font-bold">विवरण भेटिएन!</div>`;
+                return;
+            }
+
+            let entriesRows = (report.entries || []).map((e, idx) => `
+                <tr class="border-b text-xs hover:bg-slate-50">
+                    <td class="p-2 border text-center font-bold">${idx + 1}</td>
+                    <td class="p-2 border whitespace-nowrap">${e.date || '-'}</td>
+                    <td class="p-2 border font-medium">${e.place || '-'}</td>
+                    <td class="p-2 border">${e.work || '-'}</td>
+                    <td class="p-2 border">
+                        <span class="font-semibold text-slate-800 block">${e.clientName || '-'}</span>
+                        <span class="text-[11px] text-gray-500">${e.clientPhone || ''}</span>
+                    </td>
+                    <td class="p-2 border whitespace-nowrap">${e.returnInfo || '-'}</td>
+                    <td class="p-2 border text-center">
+                        ${e.photo ? `
+                            <div class="flex flex-col items-center gap-1">
+                                <img src="${e.photo}" onclick="zoomPhoto('${e.photo}')" class="h-16 w-20 object-cover rounded border border-gray-300 shadow-sm cursor-pointer hover:opacity-80 transition" title="ठूलो पारेर हेर्न क्लिक गर्नुहोस्" />
+                                <span class="text-[10px] text-indigo-600 cursor-pointer font-semibold" onclick="zoomPhoto('${e.photo}')"><i class="fa-solid fa-magnifying-glass-plus"></i> Zoom</span>
+                            </div>
+                        ` : '<span class="text-slate-400 text-[11px] italic">फोटो छैन</span>'}
+                    </td>
+                </tr>
+            `).join('');
+
+            container.innerHTML = `
+                <div class="space-y-5 font-sans">
+                    <div class="text-center border-b pb-3">
+                        <h2 class="text-lg font-bold text-slate-900 uppercase tracking-wide">गलकोट नगरपालिका</h2>
+                        <p class="text-xs font-semibold text-slate-600 mt-1">फिल्डबुक प्रतिवेदन (पेस गरेको मिति: ${new Date(report.created_at).toLocaleString()})</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs bg-slate-50 p-3.5 rounded-lg border border-slate-200">
+                        <div><span class="font-bold text-slate-700">कर्मचारीको नाम:</span> <span class="text-slate-900">${report.emp_name}</span></div>
+                        <div><span class="font-bold text-slate-700">कर्मचारी कोड:</span> <span class="font-mono bg-white px-1.5 py-0.5 rounded border text-slate-800">${report.emp_code}</span></div>
+                        <div><span class="font-bold text-slate-700">पद:</span> <span class="text-slate-900">${report.post || '-'}</span></div>
+                        <div><span class="font-bold text-slate-700">आर्थिक वर्ष:</span> <span class="text-slate-900">${report.fiscal_year || '-'}</span></div>
+                        <div><span class="font-bold text-slate-700">कार्यालय:</span> <span class="text-slate-900">${report.office || '-'}</span></div>
+                        <div><span class="font-bold text-slate-700">आदेश नं.:</span> <span class="text-slate-900">${report.order_no || '-'}</span></div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse border border-slate-300">
+                            <thead>
+                                <tr class="bg-slate-100 text-xs font-bold border-b text-slate-700">
+                                    <th class="p-2 border text-center">क्र.स.</th>
+                                    <th class="p-2 border">मिति</th>
+                                    <th class="p-2 border">स्थान</th>
+                                    <th class="p-2 border">सम्पादित काम</th>
+                                    <th class="p-2 border">सेवाग्राही विवरण</th>
+                                    <th class="p-2 border">फर्कने/बस्ने</th>
+                                    <th class="p-2 border text-center">प्रमाण फोटो</th>
+                                </tr>
+                            </thead>
+                            <tbody>${entriesRows}</tbody>
+                        </table>
+                    </div>
+
+                    <div class="text-xs pt-4 border-t flex justify-between items-center text-slate-700">
+                        <div><b>पेस गर्नेको नाम:</b> ${report.sig_name || report.emp_name}</div>
+                        <div><b>रिर्पोट जनरेट मिति:</b> ${new Date().toLocaleDateString()}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function viewEmployeeFieldbook(empCode) {
+            const container = document.getElementById('admin-fieldbook-content');
+            container.innerHTML = `<div class="p-8 text-center text-slate-500"><i class="fa-solid fa-spinner animate-spin text-2xl mb-2"></i><br>कर्मचारीको हालसम्मका सबै फिल्ड कार्यहरू लोड हुँदैछ...</div>`;
+            document.getElementById('fieldbook-modal').classList.remove('hidden');
+
+            let reports = [];
+
+            if (supabaseClient) {
+                try {
+                    const { data, error } = await supabaseClient
+                        .from('fieldbook_reports')
+                        .select('*')
+                        .eq('emp_code', empCode)
+                        .order('created_at', { ascending: false });
+
+                    if (!error && data && data.length > 0) {
+                        reports = data;
+                    }
+                } catch (e) {
+                    console.error("Supabase report fetch error:", e);
+                }
+            }
+
+            if (reports.length === 0) {
+                container.innerHTML = `
+                    <div class="p-8 text-center text-red-500 space-y-2">
+                        <i class="fa-solid fa-file-circle-xmark text-4xl text-red-400"></i>
+                        <p class="font-bold text-base">कुनै पनि फिल्डबुक प्रतिवेदन भेटिएन!</p>
+                        <p class="text-xs text-slate-500">यस कर्मचारी (${empCode}) ले हालसम्म कुनै पनि फिल्डबुक submit गरेको छैन।</p>
+                    </div>`;
+                return;
+            }
+
+            let allEntries = [];
+            reports.forEach(r => {
+                if (r.entries && Array.isArray(r.entries)) {
+                    allEntries = allEntries.concat(r.entries);
+                }
             });
+
+            const firstReport = reports[0];
+
+            let entriesRows = allEntries.map((e, idx) => `
+                <tr class="border-b text-xs hover:bg-slate-50">
+                    <td class="p-2 border text-center font-bold">${idx + 1}</td>
+                    <td class="p-2 border whitespace-nowrap">${e.date || '-'}</td>
+                    <td class="p-2 border font-medium">${e.place || '-'}</td>
+                    <td class="p-2 border">${e.work || '-'}</td>
+                    <td class="p-2 border">
+                        <span class="font-semibold text-slate-800 block">${e.clientName || '-'}</span>
+                        <span class="text-[11px] text-gray-500">${e.clientPhone || ''}</span>
+                    </td>
+                    <td class="p-2 border whitespace-nowrap">${e.returnInfo || '-'}</td>
+                    <td class="p-2 border text-center">
+                        ${e.photo ? `
+                            <div class="flex flex-col items-center gap-1">
+                                <img src="${e.photo}" onclick="zoomPhoto('${e.photo}')" class="h-16 w-20 object-cover rounded border border-gray-300 shadow-sm cursor-pointer hover:opacity-80 transition" title="ठूलो पारेर हेर्न क्लिक गर्नुहोस्" />
+                                <span class="text-[10px] text-indigo-600 cursor-pointer font-semibold" onclick="zoomPhoto('${e.photo}')"><i class="fa-solid fa-magnifying-glass-plus"></i> Zoom</span>
+                            </div>
+                        ` : '<span class="text-slate-400 text-[11px] italic">फोटो छैन</span>'}
+                    </td>
+                </tr>
+            `).join('');
+
+            container.innerHTML = `
+                <div class="space-y-5 font-sans">
+                    <div class="text-center border-b pb-3">
+                        <h2 class="text-lg font-bold text-slate-900 uppercase tracking-wide">गलकोट नगरपालिका</h2>
+                        <p class="text-xs font-semibold text-slate-600 mt-1">कर्मचारीको हालसम्मको सम्पूर्ण फिल्ड कार्य विवरण (All Historical Data)</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs bg-slate-50 p-3.5 rounded-lg border border-slate-200">
+                        <div><span class="font-bold text-slate-700">कर्मचारीको नाम:</span> <span class="text-slate-900">${firstReport.emp_name}</span></div>
+                        <div><span class="font-bold text-slate-700">कर्मचारी कोड:</span> <span class="font-mono bg-white px-1.5 py-0.5 rounded border text-slate-800">${firstReport.emp_code}</span></div>
+                        <div><span class="font-bold text-slate-700">पद:</span> <span class="text-slate-900">${firstReport.post || '-'}</span></div>
+                        <div><span class="font-bold text-slate-700">आर्थिक वर्ष:</span> <span class="text-slate-900">${firstReport.fiscal_year || '-'}</span></div>
+                        <div><span class="font-bold text-slate-700">कुल Field कार्य:</span> <span class="font-bold text-emerald-600">${allEntries.length} वटा</span></div>
+                        <div><span class="font-bold text-slate-700">कुल Submissions:</span> <span class="text-slate-900">${reports.length} पटक</span></div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse border border-slate-300">
+                            <thead>
+                                <tr class="bg-slate-100 text-xs font-bold border-b text-slate-700">
+                                    <th class="p-2 border text-center">क्र.स.</th>
+                                    <th class="p-2 border">मिति</th>
+                                    <th class="p-2 border">स्थान</th>
+                                    <th class="p-2 border">सम्पादित काम</th>
+                                    <th class="p-2 border">सेवाग्राही विवरण</th>
+                                    <th class="p-2 border">फर्कने/बस्ने</th>
+                                    <th class="p-2 border text-center">प्रमाण फोटो</th>
+                                </tr>
+                            </thead>
+                            <tbody>${entriesRows}</tbody>
+                        </table>
+                    </div>
+
+                    <div class="text-xs pt-4 border-t flex justify-between items-center text-slate-700">
+                        <div><b>पेस गर्नेको नाम:</b> ${firstReport.sig_name || firstReport.emp_name}</div>
+                        <div><b>रिर्पोट जनरेट मिति:</b> ${new Date().toLocaleDateString()}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function zoomPhoto(imgSrc) {
+            document.getElementById('zoomed-image').src = imgSrc;
+            document.getElementById('photo-zoom-modal').classList.remove('hidden');
+        }
+
+        function closeFieldbookModal() {
+            document.getElementById('fieldbook-modal').classList.add('hidden');
+        }
+
+        function printAdminFieldbook() {
+            const printContents = document.getElementById('admin-fieldbook-content').innerHTML;
+            const originalContents = document.body.innerHTML;
+            document.body.innerHTML = printContents;
+            window.print();
+            document.body.innerHTML = originalContents;
+            location.reload();
+        }
+
+        // ================= LOCATION REPORTS LOGIC =================
+        function populateDropdowns() {
+            const reportEmpSelect = document.getElementById('report-filter-emp');
+            const fieldbookEmpSelect = document.getElementById('fieldbook-filter-emp');
+
+            if(reportEmpSelect) {
+                reportEmpSelect.innerHTML = '<option value="all">All Employees</option>';
+                globalEmployees.forEach(emp => { 
+                    reportEmpSelect.innerHTML += `<option value="${emp.emp_code}">${emp.name} (${emp.emp_code})</option>`; 
+                });
+            }
+
+            if(fieldbookEmpSelect) {
+                fieldbookEmpSelect.innerHTML = '<option value="all">सबै कर्मचारीहरू (All)</option>';
+                globalEmployees.forEach(emp => { 
+                    fieldbookEmpSelect.innerHTML += `<option value="${emp.emp_code}">${emp.name} (${emp.emp_code})</option>`; 
+                });
+            }
+
             handleEmployeeChange();
         }
 
@@ -800,7 +1500,7 @@
 
         function downloadExcelReport() {
             const rows = document.querySelectorAll('#report-table-body tr');
-            if(rows.length === 0 || rows[0].innerText.includes("Filter")) { alert("पहिलेडाटा लोड गर्नुहोस्!"); return; }
+            if(rows.length === 0 || rows[0].innerText.includes("Filter")) { alert("पहिले डाटा लोड गर्नुहोस्!"); return; }
             let csvContent = "data:text/csv;charset=utf-8,Timestamp,Employee Code,Reason,Device,Latitude,Longitude,Battery\n";
             rows.forEach(row => {
                 const cols = row.querySelectorAll('td');
