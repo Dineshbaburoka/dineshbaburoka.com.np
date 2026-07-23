@@ -14,7 +14,49 @@
 </head>
 <body class="bg-gray-100 font-sans">
 
-    <div class="flex h-screen overflow-hidden">
+    <!-- LOGIN MODAL / SCREEN -->
+    <div id="login-screen" class="fixed inset-0 bg-slate-900 bg-opacity-95 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full border border-gray-100">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full mb-3 text-2xl">
+                    <i class="fa-solid fa-user-shield"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-800">TrackAdmin Login</h2>
+                <p class="text-xs text-gray-500 mt-1">तपाईँको Admin Credentials प्रयोग गरी लगइन गर्नुहोस्</p>
+            </div>
+
+            <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Email Address</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fa-solid fa-envelope"></i>
+                        </span>
+                        <input type="email" id="login-email" required class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" placeholder="admin@example.com">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Password</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fa-solid fa-lock"></i>
+                        </span>
+                        <input type="password" id="login-password" required class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" placeholder="••••••••">
+                    </div>
+                </div>
+
+                <div id="login-error" class="hidden text-xs text-red-600 bg-red-50 p-2.5 rounded-lg text-center font-medium"></div>
+
+                <button type="submit" id="login-btn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 rounded-lg shadow-md hover:shadow-lg transition flex items-center justify-center gap-2 cursor-pointer">
+                    <i class="fa-solid fa-right-to-bracket"></i> Login
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN DASHBOARD CONTENT -->
+    <div id="app-container" class="flex h-screen overflow-hidden hidden">
         <div class="w-64 bg-slate-800 text-white flex flex-col justify-between hidden md:flex">
             <div class="p-5">
                 <h1 class="text-2xl font-bold tracking-wider flex items-center gap-2">
@@ -36,7 +78,7 @@
                 </nav>
             </div>
             <div class="p-5 border-t border-slate-700">
-                <button onclick="logout()" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-medium transition flex items-center justify-center gap-2">
+                <button onclick="logout()" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-medium transition flex items-center justify-center gap-2 cursor-pointer">
                     <i class="fa-solid fa-right-from-bracket"></i> Logout
                 </button>
             </div>
@@ -50,7 +92,7 @@
                         <span class="h-2 w-2 rounded-full bg-amber-500 animate-pulse"></span> Connecting Supabase...
                     </div>
                     <div class="font-medium text-gray-700 flex items-center gap-2">
-                        <i class="fa-solid fa-user-shield text-slate-600"></i> Admin Panel
+                        <i class="fa-solid fa-user-shield text-slate-600"></i> <span id="user-display">Admin Panel</span>
                     </div>
                 </div>
             </header>
@@ -134,7 +176,7 @@
                                 <input type="text" id="emp-code" required class="w-full p-2 border border-gray-300 rounded text-sm bg-white" placeholder="EMP-101">
                             </div>
                             <div class="flex items-end">
-                                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-4 rounded text-sm transition">
+                                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-4 rounded text-sm transition cursor-pointer">
                                     <i class="fa-solid fa-user-plus mr-1"></i> Add Employee
                                 </button>
                             </div>
@@ -168,7 +210,7 @@
                                 <h3 class="text-lg font-semibold text-gray-800">Location Log History</h3>
                                 <p class="text-xs text-gray-500">View complete GPS trails with reasons</p>
                             </div>
-                            <button onclick="downloadExcelReport()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded font-medium text-sm transition flex items-center gap-2">
+                            <button onclick="downloadExcelReport()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded font-medium text-sm transition flex items-center gap-2 cursor-pointer">
                                 <i class="fa-solid fa-file-excel"></i> Export as CSV
                             </button>
                         </div>
@@ -187,7 +229,7 @@
                                 </select>
                             </div>
                             <div class="flex items-end">
-                                <button onclick="loadReportLogs()" class="w-full bg-slate-700 hover:bg-slate-800 text-white font-medium py-2 px-4 rounded text-sm transition">
+                                <button onclick="loadReportLogs()" class="w-full bg-slate-700 hover:bg-slate-800 text-white font-medium py-2 px-4 rounded text-sm transition cursor-pointer">
                                     <i class="fa-solid fa-filter mr-1"></i> Apply Filter & Draw Route
                                 </button>
                             </div>
@@ -229,8 +271,8 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <script>
-        const SUPABASE_URL = "https://fsoltknfkwptcrsmvjlh.supabase.co";
-        const SUPABASE_KEY = "sb_publishable_PIXaEa6gmVIa8vWPRzhq1A_zY7o-AoT";
+        const SUPABASE_URL = "https://tcnifetrdsjldcoamzdk.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_4uPjctG1R08HVVJQNRZqYw_z1NiWYSx";
         
         let dashboardMap = null;
         let liveMap = null;
@@ -244,18 +286,25 @@
         let globalEmployees = [];
         let supabaseClient = null;
 
+        // Inactivity Timer variables
+        let inactivityTimer;
+        const INACTIVITY_LIMIT = 5 * 60 * 1000; // 5 Minutes in milliseconds
+
         document.addEventListener("DOMContentLoaded", () => {
             initSupabase();
-            initMaps();
-            if(supabaseClient) {
-                fetchInitialData();
-                setupRealtimeSubscriptions();
-            }
+            checkSessionState();
         });
 
         function initSupabase() {
             try {
-                supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                // Using sessionStorage so refresh / new window forces re-authentication
+                supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+                    auth: {
+                        storage: window.sessionStorage,
+                        autoRefreshToken: false,
+                        persistSession: true
+                    }
+                });
                 updateStatus("Supabase Connected", "bg-emerald-100 text-emerald-700", "bg-emerald-500");
             } catch (error) {
                 console.error(error);
@@ -263,8 +312,94 @@
             }
         }
 
+        // Authentication & Session Guard
+        async function checkSessionState() {
+            // Force logout on page refresh / first load by checking sessionStorage marker
+            if (!sessionStorage.getItem("is_logged_in")) {
+                await logout();
+                return;
+            }
+
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (session) {
+                showDashboard(session.user.email);
+            } else {
+                showLoginScreen();
+            }
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById("login-email").value;
+            const password = document.getElementById("login-password").value;
+            const errorEl = document.getElementById("login-error");
+            const btn = document.getElementById("login-btn");
+
+            errorEl.classList.add("hidden");
+            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Authenticating...`;
+            btn.disabled = true;
+
+            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+            if (error) {
+                errorEl.innerText = error.message || "Invalid email or password.";
+                errorEl.classList.remove("hidden");
+                btn.innerHTML = `<i class="fa-solid fa-right-to-bracket"></i> Login`;
+                btn.disabled = false;
+            } else {
+                sessionStorage.setItem("is_logged_in", "true");
+                showDashboard(data.user.email);
+            }
+        }
+
+        function showDashboard(email) {
+            document.getElementById("login-screen").classList.add("hidden");
+            document.getElementById("app-container").classList.remove("hidden");
+            document.getElementById("user-display").innerText = email;
+
+            if (!dashboardMap) {
+                initMaps();
+                fetchInitialData();
+                setupRealtimeSubscriptions();
+            }
+
+            startInactivityTimer();
+        }
+
+        function showLoginScreen() {
+            document.getElementById("login-screen").classList.remove("hidden");
+            document.getElementById("app-container").classList.add("hidden");
+            resetInactivityTimer();
+        }
+
+        async function logout() {
+            sessionStorage.removeItem("is_logged_in");
+            if (supabaseClient) {
+                await supabaseClient.auth.signOut();
+            }
+            showLoginScreen();
+        }
+
+        // 5 MINUTE AUTO LOGOUT SYSTEM
+        function startInactivityTimer() {
+            resetInactivityTimer();
+            window.addEventListener("mousemove", resetInactivityTimer);
+            window.addEventListener("keydown", resetInactivityTimer);
+            window.addEventListener("click", resetInactivityTimer);
+            window.addEventListener("scroll", resetInactivityTimer);
+        }
+
+        function resetInactivityTimer() {
+            clearTimeout(inactivityTimer);
+            if (sessionStorage.getItem("is_logged_in")) {
+                inactivityTimer = setTimeout(() => {
+                    alert("५ मिनेटसम्म कुनै गतिविधि नभएकाले सुरक्षाका लागि Auto Logout गरिएको छ!");
+                    logout();
+                }, INACTIVITY_LIMIT);
+            }
+        }
+
         function initMaps() {
-            // Dashboard Map Initialize
             dashboardMap = L.map('dashboard-map').setView([27.7172, 85.3240], 13);
             L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
                 attribution: 'Tiles &copy; Esri'
@@ -272,14 +407,12 @@
             L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', { maxZoom: 20 }).addTo(dashboardMap);
             dashboardFeatureGroup = L.featureGroup().addTo(dashboardMap);
 
-            // Live Tracking Map Initialize
             liveMap = L.map('live-map').setView([27.7172, 85.3240], 13);
             L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
                 attribution: 'Tiles &copy; Esri'
             }).addTo(liveMap);
             L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', { maxZoom: 20 }).addTo(liveMap);
 
-            // Polyline History Route Map Initialize
             historyMap = L.map('history-map').setView([27.7172, 85.3240], 13);
             L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
                 attribution: 'Tiles &copy; Esri'
@@ -519,7 +652,6 @@
             } catch (err) { console.error(err); }
         }
 
-        // POPULATE EMPLOYEE DROPDOWN FILTER
         function populateDropdowns() {
             const select = document.getElementById('report-filter-emp');
             if(!select) return; 
@@ -530,7 +662,6 @@
             handleEmployeeChange();
         }
 
-        // LOAD REASONS ACCORDING TO SELECTED EMPLOYEE
         async function handleEmployeeChange() {
             const empFilter = document.getElementById('report-filter-emp').value;
             const reasonSelect = document.getElementById('report-filter-reason');
@@ -554,7 +685,6 @@
             }
         }
 
-        // APPLY FILTERS AND DRAW USERWISE/REASONWISE POLYLINE ON MAP
         async function loadReportLogs() {
             if(!supabaseClient) return;
             const empFilter = document.getElementById('report-filter-emp').value;
@@ -563,11 +693,9 @@
             
             tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center italic text-gray-400">Loading records...</td></tr>`;
 
-            // Clear previous layer tracks from history map
             historyLayers.forEach(layer => historyMap.removeLayer(layer));
             historyLayers = [];
 
-            // Get data from oldest to newest (ascending: true) to preserve correct routing path line
             let query = supabaseClient.from('location_logs').select('*').order('created_at', { ascending: true }).limit(500);
             
             if(empFilter !== 'all') query = query.eq('emp_code', empFilter);
@@ -580,7 +708,6 @@
             }
 
             tbody.innerHTML = '';
-            // Display Table rows in Reverse Order (Newest Logs First on UI)
             const displayLogs = [...logs].reverse();
             displayLogs.forEach(log => {
                 const currentReason = log.reason1 ? log.reason1 : "-"; 
@@ -599,7 +726,6 @@
                 `;
             });
 
-            // Group Coordinates by unique Key (EmployeeCode + Reason)
             let routesByGroup = {};
             logs.forEach(log => {
                 const lat = parseFloat(log.latitude);
@@ -623,7 +749,6 @@
             let colorIndex = 0;
             let bounds = L.latLngBounds();
 
-            // Draw individual separate Polylines for each group on Map
             for (const key in routesByGroup) {
                 const routeData = routesByGroup[key];
                 const coordinates = routeData.coordinates;
@@ -632,7 +757,6 @@
                     const color = routeColors[colorIndex % routeColors.length];
                     colorIndex++;
 
-                    // 1. Draw Polyline Trail Line
                     const polyline = L.polyline(coordinates, {
                         color: color,
                         weight: 5,
@@ -650,14 +774,12 @@
                     `);
                     historyLayers.push(polyline);
 
-                    // 2. Mark Journey Start Point (Circle Pin)
                     const startPt = coordinates[0];
                     const startCircle = L.circleMarker(startPt, {
                         radius: 6, fillColor: color, color: '#fff', weight: 2, fillOpacity: 1
                     }).addTo(historyMap).bindPopup(`<b>${empInfo.name}</b><br>शुरुवात विन्दु<br>उद्देश्य: ${routeData.reason}`);
                     historyLayers.push(startCircle);
 
-                    // 3. Mark Journey Final/Latest Point (Standard Marker)
                     const endPt = coordinates[coordinates.length - 1];
                     const endMarker = L.marker(endPt).addTo(historyMap).bindPopup(`
                         <div class="text-xs">
@@ -667,12 +789,10 @@
                     `);
                     historyLayers.push(endMarker);
 
-                    // Extend boundary view limits
                     coordinates.forEach(coord => bounds.extend(coord));
                 }
             }
 
-            // Automate focus zoom layout bounds
             if (bounds.isValid()) {
                 historyMap.fitBounds(bounds, { padding: [50, 50] });
             }
@@ -694,7 +814,6 @@
         }
 
         function resetMapFocus(mapTarget) { if(mapTarget) mapTarget.setView([27.7172, 85.3240], 13); }
-        function logout() { window.location.reload(); }
     </script>
 </body>
 </html>
