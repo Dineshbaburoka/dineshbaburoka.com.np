@@ -406,7 +406,7 @@
             <div style="clear:both;"></div>
             <h2 id="print-palika">गलकोट नगरपालिका</h2>
             <h3>नगर कार्यपालिकाको कार्यालय</h3>
-            <h4>फिल्ड कार्य तथा अनुगमन मूल्याङ्कन फाराम</h4>
+            <h4>गलकोट, बागलुङ</h4>
         </div>
 
         <table class="meta-grid">
@@ -416,7 +416,7 @@
                 <td style="width:40%;"><strong>शाखा / कार्यालय:</strong> <span id="print-office" class="dotted-line"></span></td>
             </tr>
             <tr>
-                <td><strong>फिल्ड भ्रमण अवधि:</strong> मिति <span id="print-date-from" class="dotted-line" style="min-width:60px;"></span> देखि <span id="print-date-to" class="dotted-line" style="min-width:60px;"></span> सम्म</td>
+                <td><strong>अवधि:</strong> मिति <span id="print-date-from" class="dotted-line" style="min-width:60px;"></span> देखि <span id="print-date-to" class="dotted-line" style="min-width:60px;"></span> सम्म</td>
                 <td><strong>आर्थिक वर्ष:</strong> <span id="print-fiscal-year" class="dotted-line" style="min-width:70px;"></span></td>
                 <td><strong>भ्रमण आदेश स्वीकृत नं./मिति:</strong> <span id="print-order-no" class="dotted-line"></span></td>
             </tr>
@@ -427,11 +427,11 @@
                 <tr>
                     <th rowspan="2" style="width:3%;">क्र.स.</th>
                     <th rowspan="2" style="width:6%;">मिति</th>
-                    <th rowspan="2" style="width:7%;">स्थान</th>
-                    <th rowspan="2" style="width:14%;">सम्पादित कामको संक्षिप्त विवरण</th>
-                    <th colspan="3" style="width:15%;">सेवाग्राहीको विवरण</th>
-                    <th rowspan="2" style="width:8%;">काम गरी फर्कने / बस्ने</th>
-                    <th rowspan="2" style="width:18%;" class="photo-cell">फोटो अनुसूची<br><span class="sub-header">(सामुदायिक कामको संक्षिप्त विवरण)</span></th>
+                    <th rowspan="2" style="width:7%;">जानु पर्ने स्थान</th>
+                    <th rowspan="2" style="width:14%;">कार्यालय छोड्नेु पर्ने कारण</th>
+                    <th colspan="3" style="width:15%;">कार्यालय छाडेको समय</th>
+                    <th rowspan="2" style="width:8%;">पुन कार्यालय फर्किने अनुमानित समय/फर्केको समय</th>
+                    <th rowspan="2" style="width:18%;" class="photo-cell">फोटो <br><span class="sub-header"></span></th>
                 </tr>
                 <tr>
                     <th style="width:7%;">नाम</th>
@@ -614,7 +614,7 @@
                 <div id="fieldbook-form-view" class="space-y-4">
                     <div class="bg-slate-900/60 rounded-xl border border-slate-700/60 p-3 space-y-3">
                         <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-700 pb-2">
-                            <i class="fa-solid fa-file-lines mr-1 text-emerald-400"></i> फिल्ड कार्य तथा अनुगमन प्रतिवेदन फाराम
+                            <i class="fa-solid fa-file-lines mr-1 text-emerald-400"></i> कार्यालय छोड्दाको विवरण
                         </p>
 
                         <div class="grid grid-cols-2 gap-2">
@@ -645,7 +645,6 @@
                             <div>
                                 <label class="fb-label">आर्थिक वर्ष</label>
                                 <select id="fb-fiscal-year" name="fiscal_year" class="fb-input">
-                                  <option value="">-- छनोट गर्नुहोस् --</option>
                                   <option value="2083/084">२०८३/०८४</option>
                                   <option value="2084/085">२०८४/०८५</option>
                                   <option value="2085/086">२०८५/०८६</option>
@@ -654,10 +653,6 @@
                                   <option value="2088/089">२०८८/०८९</option>
                                   <option value="2089/090">२०८९/०९०</option>
                                 </select>
-                            </div>
-                            <div>
-                                <label class="fb-label">यदी भ्रमण आदेश हो भने स्वीकृत नं./मिति</label>
-                                <input type="text" id="fb-order-no" class="fb-input" placeholder="स्वीकृत नं./मिति">
                             </div>
                         </div>
                     </div>
@@ -738,6 +733,7 @@
     let isReportSubmitted = false;
     let entryCount = 0;
     let reportData = null;
+    let departureTime = null; // कार्यालय छाडेको समय
 
     // Capacitor Geolocation reference
     const Geolocation = window.Capacitor ? window.Capacitor.Plugins.Geolocation : null;
@@ -748,6 +744,16 @@
         const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
         const dd = String(dateObj.getDate()).padStart(2, '0');
         return `${yyyy}/${mm}/${dd}`;
+    }
+
+    function formatTimeInput(input) {
+        let v = input.value.replace(/\D/g, '');
+        if (v.length > 4) v = v.substring(0, 4);
+        if (v.length >= 3) {
+            input.value = `${v.substring(0, 2)}:${v.substring(2)}`;
+        } else {
+            input.value = v;
+        }
     }
 
     function formatDateInput(input) {
@@ -1023,30 +1029,27 @@
                         <input type="text" id="entry-date-${num}" class="fb-input date-format-input" placeholder="YYYY/MM/DD" maxlength="10" oninput="formatDateInput(this)">
                     </div>
                     <div>
-                        <label class="fb-label">गएको स्थान</label>
+                        <label class="fb-label">जानु पर्ने स्थान</label>
                         <input type="text" id="entry-place-${num}" class="fb-input" placeholder="ठाउँको नाम">
                     </div>
                 </div>
                 <div>
-                    <label class="fb-label">सम्पादित कामको विवरण</label>
-                    <textarea id="entry-work-${num}" class="fb-textarea" placeholder="कामको संक्षिप्त विवरण, समय सहित..."></textarea>
+                    <label class="fb-label">कार्यालय छाड्नु पर्ने कारण</label>
+                    <textarea id="entry-work-${num}" class="fb-textarea" placeholder="कामको संक्षिप्त विवरण,"></textarea>
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="fb-label">सेवाग्राहीको नाम</label>
-                        <input type="text" id="entry-client-name-${num}" class="fb-input" placeholder="नाम">
+                        <label class="fb-label">कार्यालय छाडेको समय <span class="text-emerald-400 text-[9px]">(auto)</span></label>
+                        <input type="text" id="entry-client-name-${num}" class="fb-input" placeholder="HH:MM:SS" readonly style="background:#0a1628;color:#34d399;cursor:default;">
                     </div>
                     <div>
-                        <label class="fb-label">फोन नं.</label>
-                        <input type="tel" id="entry-client-phone-${num}" class="fb-input" placeholder="फोन">
+                        <label class="fb-label">पुन फर्किने अनुमानित समय</label>
+                        <input type="text" id="entry-client-phone-${num}" class="fb-input" placeholder="HH:MM" maxlength="8" oninput="formatTimeInput(this)">
                     </div>
                 </div>
                 <div>
-                    <label class="fb-label">काम गरी फर्कने / बस्ने</label>
-                    <select id="entry-return-${num}" class="fb-input">
-                        <option value="काम गरी फर्किने">काम गरी फर्किने</option>
-                        <option value="तोकिएको ठाउँमै बस्ने">तोकिएको ठाउँमै बस्ने</option>
-                    </select>
+                    <label class="fb-label">फर्केको समय <span class="text-slate-500 text-[9px]">(कार्यालय फर्किँदा auto भर्छ)</span></label>
+                    <input type="text" id="entry-return-${num}" class="fb-input" placeholder="—" readonly style="background:#0a1628;color:#94a3b8;cursor:default;">
                 </div>
                 <div>
                     <label class="fb-label">फोटो अनुसूची</label>
@@ -1061,6 +1064,9 @@
         `;
         container.appendChild(card);
         document.getElementById('entry-date-' + num).value = getFormattedDate();
+        // कार्यालय छाडेको समय auto-fill (Supabase मा पठाएको अन्तिम समय वा शुरु गरेको समय)
+        const depTime = departureTime || localStorage.getItem('departure_time') || '';
+        if (depTime) document.getElementById('entry-client-name-' + num).value = depTime;
     }
 
     function removeEntry(num) {
@@ -1132,7 +1138,9 @@
                     sig_name: reportData.sigName,
                     sig_post: reportData.sigPost,
                     sig_date: reportData.sigDate,
-                    entries: reportData.entries
+                    entries: reportData.entries,
+                    departure_time: departureTime || localStorage.getItem('departure_time') || null,
+                    departure_time_at: localStorage.getItem('departure_time_iso') || null
                 };
 
                 const { data, error } = await supabaseClient
@@ -1218,6 +1226,8 @@
             reportData.entries.forEach((e, idx) => {
                 const tr = document.createElement('tr');
                 let photoHtml = e.photo ? `<img src="${e.photo}" alt="फोटो" style="max-width:100%;max-height:60px;border:1px solid #ccc;border-radius:3px;">` : `<span class="no-photo">तस्वीर छैन</span>`;
+                // returnInfo = अनुमानित समय, returnTime = फर्किएको वास्तविक समय
+                const returnDisplay = e.returnInfo ? `अनु.: ${e.returnInfo}` + (e.returnTime ? `\nफर्के: ${e.returnTime}` : '') : (e.returnTime || '');
                 tr.innerHTML = `
                     <td>${idx + 1}</td>
                     <td>${e.date || ''}</td>
@@ -1226,7 +1236,7 @@
                     <td>${e.clientName || ''}</td>
                     <td>${e.clientPhone || ''}</td>
                     <td></td>
-                    <td>${e.returnInfo || ''}</td>
+                    <td style="font-size:6pt;white-space:pre-line;">${returnDisplay}</td>
                     <td class="photo-cell">${photoHtml}</td>
                 `;
                 tbody.appendChild(tr);
@@ -1386,6 +1396,8 @@
     function checkSavedSession() {
         const savedCode = localStorage.getItem('active_emp_code');
         const savedReason = localStorage.getItem('active_emp_reason');
+        const savedDeparture = localStorage.getItem('departure_time');
+        if (savedDeparture) departureTime = savedDeparture;
         if (savedCode) {
             document.getElementById('emp-code-input').value = savedCode;
             if (savedReason) document.getElementById('emp-reason-input').value = savedReason;
@@ -1453,6 +1465,19 @@
         localStorage.setItem('active_emp_code', employeeCode);
         localStorage.setItem('active_emp_reason', trackingReason);
         document.getElementById('lbl-emp-reason').innerText = trackingReason;
+
+        // कार्यालय छाडेको समय record गर्ने
+        if (!departureTime) {
+            const savedDeparture = localStorage.getItem('departure_time');
+            if (savedDeparture) {
+                departureTime = savedDeparture;
+            } else {
+                const depNow = new Date();
+                departureTime = depNow.toLocaleTimeString('ne-NP', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+                localStorage.setItem('departure_time', departureTime);
+                localStorage.setItem('departure_time_iso', depNow.toISOString());
+            }
+        }
 
         showTrackingDashboard();
 
@@ -1573,18 +1598,66 @@
     }
 
     // ── STOP TRACKING ──
-    function stopTracking() {
+    async function stopTracking() {
         if (!isReportSubmitted) {
             alert("कार्यालय फर्किनु अघि 'प्रतिवेदन' tab मा फाराम भरी बुझाउनुहोस्!");
             switchTab('fieldbook');
             return;
         }
+
+        const returnTime = new Date();
+        const returnTimeStr = returnTime.toLocaleTimeString('ne-NP', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+
+        // Entry cards मा फर्किएको समय भर्ने
+        const cards = document.querySelectorAll('#entries-container .entry-card');
+        cards.forEach(card => {
+            const id = card.id.replace('entry-', '');
+            const returnField = document.getElementById('entry-return-' + id);
+            if (returnField) returnField.value = returnTimeStr;
+        });
+
+        // Supabase मा return time पठाउने
+        if (navigator.onLine && supabaseClient) {
+            try {
+                const empCode = employeeCode || localStorage.getItem('active_emp_code') || '';
+
+                // latest_locations table मा return_time update गर्ने
+                await supabaseClient
+                    .from('latest_locations')
+                    .update({
+                        return_time: returnTime.toISOString(),
+                        return_time_str: returnTimeStr,
+                        status: 'returned'
+                    })
+                    .eq('emp_code', empCode);
+
+                // fieldbook_reports table मा पनि return_time update गर्ने (सबैभन्दा नयाँ record)
+                await supabaseClient
+                    .from('fieldbook_reports')
+                    .update({
+                        return_time: returnTime.toISOString(),
+                        return_time_str: returnTimeStr
+                    })
+                    .eq('emp_code', empCode)
+                    .order('created_at', { ascending: false })
+                    .limit(1);
+
+                console.log("Return time sent to Supabase:", returnTimeStr);
+            } catch (err) {
+                console.error("Return time Supabase error:", err);
+            }
+        }
+
         isTrackingActive = false;
         localStorage.removeItem('active_emp_code');
         localStorage.removeItem('active_emp_reason');
         localStorage.removeItem('report_submitted');
         localStorage.removeItem('fieldbook_report');
-        alert("कार्यालय बाहिर गएर कार्य गर्नु भएकोमा धन्यवाद!\nप्रतिवेदन सफलतापूर्वक बुझाइएको छ।");
+        localStorage.removeItem('departure_time');
+        localStorage.removeItem('departure_time_iso');
+        departureTime = null;
+
+        alert(`कार्यालय बाहिर गएर कार्य गर्नु भएकोमा धन्यवाद!\nप्रतिवेदन सफलतापूर्वक बुझाइएको छ।\nकार्यालय फर्किएको समय: ${returnTimeStr}`);
         window.location.reload();
     }
 </script>
