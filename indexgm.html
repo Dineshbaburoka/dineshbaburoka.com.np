@@ -212,6 +212,75 @@
             margin-left: 6px;
         }
 
+        /* ── GLOBAL LOADING OVERLAY ── */
+        #global-loading-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 18px;
+            background: rgba(2, 6, 23, 0.72);
+            backdrop-filter: blur(3px);
+            -webkit-backdrop-filter: blur(3px);
+        }
+        #global-loading-overlay.active {
+            display: flex;
+        }
+        .gl-spinner {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 3px solid rgba(16, 185, 129, 0.2);
+            border-top-color: #10b981;
+            animation: gl-spin 0.8s linear infinite;
+        }
+        @keyframes gl-spin {
+            to { transform: rotate(360deg); }
+        }
+        .gl-progress-track {
+            width: 180px;
+            height: 5px;
+            border-radius: 999px;
+            background: #1e293b;
+            overflow: hidden;
+            position: relative;
+        }
+        .gl-progress-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 40%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #059669, #10b981, #34d399);
+            animation: gl-indeterminate 1.1s ease-in-out infinite;
+        }
+        @keyframes gl-indeterminate {
+            0% { left: -40%; width: 40%; }
+            50% { width: 55%; }
+            100% { left: 100%; width: 40%; }
+        }
+        .gl-text {
+            color: #e2e8f0;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+        }
+        /* Freeze interaction + visually dim while loading */
+        body.gl-locked button,
+        body.gl-locked input,
+        body.gl-locked textarea,
+        body.gl-locked .tab-btn {
+            pointer-events: none !important;
+        }
+        body.gl-locked #global-loading-overlay,
+        body.gl-locked #global-loading-overlay * {
+            pointer-events: auto !important;
+        }
+
         /* ── PRINT STYLES ── */
         @page {
             size: A4 landscape;
@@ -395,6 +464,13 @@
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans flex items-center justify-center min-h-screen p-3 sm:p-4 select-none">
 
+    <!-- ===== GLOBAL LOADING OVERLAY ===== -->
+    <div id="global-loading-overlay">
+        <div class="gl-spinner"></div>
+        <div class="gl-progress-track"><div class="gl-progress-bar"></div></div>
+        <div class="gl-text" id="gl-text">प्रोसेस हुँदैछ...</div>
+    </div>
+
     <!-- ===== DATALISTS FOR AUTO-SUGGEST ===== -->
     <datalist id="emp-names-list"></datalist>
     <datalist id="posts-list"></datalist>
@@ -428,14 +504,14 @@
                     <th rowspan="2" style="width:3%;">क्र.स.</th>
                     <th rowspan="2" style="width:6%;">मिति</th>
                     <th rowspan="2" style="width:7%;">जानु पर्ने स्थान</th>
-                    <th rowspan="2" style="width:14%;">कार्यालय छोड्नेु पर्ने कारण</th>
-                    <th colspan="3" style="width:15%;">कार्यालय छाडेको समय</th>
-                    <th rowspan="2" style="width:8%;">पुन कार्यालय फर्किने अनुमानित समय/फर्केको समय</th>
+                    <th rowspan="2" style="width:14%;">कार्यालय छोड्नु पर्ने कारण</th>
+                    <th colspan="3" style="width:15%;">कार्यालय छाडेको/फर्कने समय</th>
+                    <th rowspan="2" style="width:8%;">वास्तविक फर्केको समय</th>
                     <th rowspan="2" style="width:18%;" class="photo-cell">फोटो <br><span class="sub-header"></span></th>
                 </tr>
                 <tr>
-                    <th style="width:7%;">नाम</th>
-                    <th style="width:5%;">फोन</th>
+                    <th style="width:7%;">गएको समय</th>
+                    <th style="width:5%;">अनु. फर्कने</th>
                     <th style="width:4%;">हस्ताक्षर</th>
                 </tr>
             </thead>
@@ -528,7 +604,7 @@
                         </div>
                     </div>
                 </div>
-                <button onclick="verifyAndStart()" class="w-full bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 text-base cursor-pointer transition-all shadow-lg shadow-emerald-900/20">
+                <button onclick="withLoading(verifyAndStart, 'प्रमाणीकरण हुँदैछ...')" class="w-full bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 text-base cursor-pointer transition-all shadow-lg shadow-emerald-900/20">
                     <i class="fa-solid fa-play text-sm"></i> फिल्ड कार्य शुरु गर्ने
                 </button>
             </div>
@@ -588,7 +664,7 @@
                     </p>
                 </div>
 
-                <button id="stop-btn" onclick="stopTracking()" disabled
+                <button id="stop-btn" onclick="withLoading(stopTracking, 'कार्यालय फर्किने प्रक्रिया...')" disabled
                     class="w-full bg-slate-600 text-slate-400 font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 text-base cursor-not-allowed transition-all shadow-lg opacity-50 mt-auto">
                     <i class="fa-solid fa-stop text-sm"></i> फिल्ड काम सकेर कार्यालय फर्किने
                 </button>
@@ -697,7 +773,7 @@
                         <p class="text-xs text-rose-400 font-medium" id="fb-error-text"></p>
                     </div>
 
-                    <button onclick="submitFieldbook()" class="w-full bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 text-sm cursor-pointer transition-all shadow-lg shadow-emerald-900/30">
+                    <button onclick="withLoading(submitFieldbook, 'प्रतिवेदन बुझाउँदै...')" class="w-full bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 text-sm cursor-pointer transition-all shadow-lg shadow-emerald-900/30">
                         <i class="fa-solid fa-paper-plane text-sm"></i> प्रतिवेदन बुझाउने र फर्किन अनलक गर्ने
                     </button>
                 </div>
@@ -734,6 +810,48 @@
     let entryCount = 0;
     let reportData = null;
     let departureTime = null; // कार्यालय छाडेको समय
+
+    // ── GLOBAL LOADING OVERLAY HELPERS ──
+    let glLockCount = 0;
+    function showLoading(message) {
+        glLockCount++;
+        const overlay = document.getElementById('global-loading-overlay');
+        const textEl = document.getElementById('gl-text');
+        if (textEl) textEl.textContent = message || 'प्रोसेस हुँदैछ...';
+        overlay.classList.add('active');
+        document.body.classList.add('gl-locked');
+    }
+    function hideLoading() {
+        glLockCount = Math.max(0, glLockCount - 1);
+        if (glLockCount === 0) {
+            document.getElementById('global-loading-overlay').classList.remove('active');
+            document.body.classList.remove('gl-locked');
+        }
+    }
+    // Wraps an async action: shows the loading bar, blocks further clicks,
+    // runs the action, then always hides the loading bar again.
+    async function withLoading(actionFn, message) {
+        showLoading(message);
+        try {
+            await actionFn();
+        } catch (err) {
+            console.error(err);
+        } finally {
+            hideLoading();
+        }
+    }
+
+    // Escapes text before it goes into innerHTML, so typed field values
+    // (place, work description, etc.) can never be interpreted as HTML/script.
+    function escapeHtml(str) {
+        if (str === null || str === undefined) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
 
     // Capacitor Geolocation reference
     const Geolocation = window.Capacitor ? window.Capacitor.Plugins.Geolocation : null;
@@ -1225,16 +1343,16 @@
         if (reportData.entries && reportData.entries.length > 0) {
             reportData.entries.forEach((e, idx) => {
                 const tr = document.createElement('tr');
-                let photoHtml = e.photo ? `<img src="${e.photo}" alt="फोटो" style="max-width:100%;max-height:60px;border:1px solid #ccc;border-radius:3px;">` : `<span class="no-photo">तस्वीर छैन</span>`;
+                let photoHtml = (e.photo && /^data:image\//.test(e.photo)) ? `<img src="${e.photo}" alt="फोटो" style="max-width:100%;max-height:60px;border:1px solid #ccc;border-radius:3px;">` : `<span class="no-photo">तस्वीर छैन</span>`;
                 // returnInfo = अनुमानित समय, returnTime = फर्किएको वास्तविक समय
-                const returnDisplay = e.returnInfo ? `अनु.: ${e.returnInfo}` + (e.returnTime ? `\nफर्के: ${e.returnTime}` : '') : (e.returnTime || '');
+                const returnDisplay = escapeHtml(e.returnInfo || '');
                 tr.innerHTML = `
                     <td>${idx + 1}</td>
-                    <td>${e.date || ''}</td>
-                    <td>${e.place || ''}</td>
-                    <td style="text-align:left;font-size:6.5pt;">${e.work || ''}</td>
-                    <td>${e.clientName || ''}</td>
-                    <td>${e.clientPhone || ''}</td>
+                    <td>${escapeHtml(e.date)}</td>
+                    <td>${escapeHtml(e.place)}</td>
+                    <td style="text-align:left;font-size:6.5pt;">${escapeHtml(e.work)}</td>
+                    <td>${escapeHtml(e.clientName)}</td>
+                    <td>${escapeHtml(e.clientPhone)}</td>
                     <td></td>
                     <td style="font-size:6pt;white-space:pre-line;">${returnDisplay}</td>
                     <td class="photo-cell">${photoHtml}</td>
@@ -1631,12 +1749,12 @@
                     })
                     .eq('emp_code', empCode);
 
-                // fieldbook_reports table मा पनि return_time update गर्ने (सबैभन्दा नयाँ record)
+                // fieldbook_reports table मा departure_time_at कोलममा फर्किएको समय अपडेट गर्ने
+                // (यही कोलम अब फर्किएको समय (return time) राख्नको लागि प्रयोग हुन्छ, departure_time जस्ताको त्यस्तै रहन्छ)
                 await supabaseClient
                     .from('fieldbook_reports')
                     .update({
-                        return_time: returnTime.toISOString(),
-                        return_time_str: returnTimeStr
+                        departure_time_at: returnTime.toISOString()
                     })
                     .eq('emp_code', empCode)
                     .order('created_at', { ascending: false })
