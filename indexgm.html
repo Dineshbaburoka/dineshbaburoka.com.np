@@ -1,0 +1,1593 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>फिल्ड कार्य तथा अनुगमन मूल्याङ्कन कार्यको फाराम</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Capacitor Core Script -->
+    <script src="capacitor.js"></script>
+
+    <style>
+        /* ── GENERAL ── */
+        button:active {
+            transform: scale(0.98);
+        }
+        .pulse-emerald {
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            animation: pulse-geo 2s infinite;
+        }
+        @keyframes pulse-geo {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            }
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+            }
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+            }
+        }
+
+        /* All Input Auto-Uppercase Styling */
+        input[type="text"], input[type="tel"], textarea {
+            text-transform: uppercase;
+        }
+
+        /* Tab styles */
+        .tab-btn {
+            flex: 1;
+            padding: 10px 6px;
+            font-size: 11px;
+            font-weight: 700;
+            border-bottom: 3px solid transparent;
+            color: #94a3b8;
+            transition: all 0.2s;
+            cursor: pointer;
+            text-align: center;
+            background: transparent;
+            border-top: none;
+            border-left: none;
+            border-right: none;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .tab-btn.active {
+            color: #10b981;
+            border-bottom-color: #10b981;
+        }
+        .tab-btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+        .tab-panel {
+            display: none;
+        }
+        .tab-panel.active {
+            display: block;
+        }
+
+        /* Fieldbook form styles */
+        .fb-label {
+            display: block;
+            font-size: 10px;
+            font-weight: 700;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 4px;
+        }
+        .fb-input {
+            width: 100%;
+            background: #0f172a;
+            border: 1px solid #475569;
+            border-radius: 10px;
+            padding: 9px 12px;
+            color: #f1f5f9;
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.2s;
+            font-family: inherit;
+        }
+        .fb-input:focus {
+            border-color: #10b981;
+        }
+        .fb-input::placeholder {
+            color: #475569;
+            text-transform: none;
+        }
+        .fb-textarea {
+            width: 100%;
+            background: #0f172a;
+            border: 1px solid #475569;
+            border-radius: 10px;
+            padding: 9px 12px;
+            color: #f1f5f9;
+            font-size: 12px;
+            outline: none;
+            resize: vertical;
+            min-height: 70px;
+            transition: border-color 0.2s;
+            font-family: inherit;
+        }
+        .fb-textarea:focus {
+            border-color: #10b981;
+        }
+        .fb-textarea::placeholder {
+            color: #475569;
+            text-transform: none;
+        }
+
+        /* Entry card */
+        .entry-card {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+        .entry-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .entry-num {
+            font-size: 11px;
+            font-weight: 800;
+            color: #10b981;
+            background: #064e3b20;
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+        .remove-btn {
+            background: #7f1d1d30;
+            color: #f87171;
+            border: none;
+            border-radius: 6px;
+            padding: 3px 8px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .submitted-badge {
+            background: linear-gradient(135deg, #064e3b, #065f46);
+            border: 1px solid #10b981;
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        /* Scrollable fieldbook panel */
+        #tab-fieldbook {
+            max-height: 62vh;
+            overflow-y: auto;
+            padding-right: 2px;
+        }
+        #tab-fieldbook::-webkit-scrollbar {
+            width: 4px;
+        }
+        #tab-fieldbook::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        #tab-fieldbook::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+
+        /* Photo upload button */
+        .photo-upload-btn {
+            background: #1e293b;
+            border: 1px dashed #475569;
+            border-radius: 8px;
+            padding: 6px 12px;
+            color: #94a3b8;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .photo-upload-btn:hover {
+            border-color: #10b981;
+            color: #10b981;
+        }
+        .photo-preview {
+            max-width: 80px;
+            max-height: 60px;
+            border-radius: 6px;
+            margin-top: 4px;
+            border: 1px solid #334155;
+        }
+        .photo-filename {
+            font-size: 9px;
+            color: #64748b;
+            margin-left: 6px;
+        }
+
+        /* ── PRINT STYLES ── */
+        @page {
+            size: A4 landscape;
+            margin: 10mm;
+        }
+
+        @media print {
+            body {
+                background: white !important;
+                color: black !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                font-family: 'Kalimati', 'Noto Sans Devanagari', Arial, sans-serif !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            #printable-fieldbook {
+                display: block !important;
+                background: white !important;
+                padding: 5mm 8mm !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                color: #000 !important;
+                font-size: 8pt !important;
+                line-height: 1.3 !important;
+            }
+            #printable-fieldbook .print-header {
+                text-align: center;
+                border-bottom: 2px solid #000;
+                padding-bottom: 4px;
+                margin-bottom: 6px;
+            }
+            #printable-fieldbook .print-header h2 {
+                font-size: 12pt;
+                font-weight: bold;
+                margin: 0 0 1px 0;
+            }
+            #printable-fieldbook .print-header h3 {
+                font-size: 10pt;
+                font-weight: bold;
+                margin: 0 0 1px 0;
+            }
+            #printable-fieldbook .print-header h4 {
+                font-size: 11pt;
+                font-weight: bold;
+                text-decoration: underline;
+                margin-top: 2px;
+                color: #000;
+            }
+            #printable-fieldbook .meta-grid {
+                width: 100%;
+                margin-bottom: 4px;
+                border-collapse: collapse;
+                font-size: 8pt;
+            }
+            #printable-fieldbook .meta-grid td {
+                padding: 2px 4px;
+                vertical-align: top;
+                border: none !important;
+            }
+            #printable-fieldbook .dotted-line {
+                border-bottom: 1px dotted #000;
+                display: inline-block;
+                min-width: 80px;
+            }
+
+            #printable-fieldbook .data-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 2px;
+                margin-bottom: 4px;
+                font-size: 6.8pt;
+            }
+            #printable-fieldbook .data-table th,
+            #printable-fieldbook .data-table td {
+                border: 1px solid #000 !important;
+                padding: 3px 2px !important;
+                text-align: center;
+                vertical-align: middle;
+                word-wrap: break-word;
+                background: white !important;
+                color: black !important;
+            }
+            #printable-fieldbook .data-table th {
+                background: #f0f4f8 !important;
+                font-weight: bold;
+            }
+            #printable-fieldbook .data-table .photo-cell {
+                width: 18%;
+                vertical-align: middle;
+                text-align: center;
+            }
+            #printable-fieldbook .data-table .photo-cell img {
+                max-width: 100%;
+                max-height: 70px;
+                border: 1px solid #ccc;
+                border-radius: 3px;
+            }
+            #printable-fieldbook .data-table .photo-cell .no-photo {
+                color: #aaa;
+                font-size: 6pt;
+            }
+            #printable-fieldbook .sub-header {
+                font-size: 5.5pt;
+                font-weight: normal;
+            }
+
+            #printable-fieldbook .notes-card {
+                border: 1px solid #777;
+                background: #fafafa;
+                padding: 3px 6px;
+                font-size: 6.5pt;
+                margin-top: 4px;
+                border-radius: 2px;
+            }
+            #printable-fieldbook .notes-card ol {
+                margin: 0;
+                padding-left: 16px;
+            }
+            #printable-fieldbook .notes-card li {
+                margin-bottom: 1px;
+            }
+
+            #printable-fieldbook .sig-section {
+                margin-top: 14px;
+                width: 100%;
+                page-break-inside: avoid;
+            }
+            #printable-fieldbook .sig-table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            #printable-fieldbook .sig-table td {
+                width: 25%;
+                text-align: center;
+                vertical-align: top;
+                padding: 0 6px;
+                font-size: 7.5pt;
+                border: none !important;
+                background: white !important;
+            }
+            #printable-fieldbook .sig-line {
+                margin-top: 20px;
+                border-top: 1px dashed #000;
+                padding-top: 3px;
+                font-weight: bold;
+                font-size: 7.5pt;
+            }
+            #printable-fieldbook .sig-title {
+                font-size: 6.5pt;
+                color: #333;
+                text-align: left;
+                margin-top: 3px;
+                padding-left: 8%;
+            }
+
+            #app-main,
+            #login-form-box,
+            #tab-bar,
+            #tab-tracking,
+            #tab-fieldbook .no-print {
+                display: none !important;
+            }
+        }
+
+        #printable-fieldbook {
+            display: none;
+        }
+        .print-preview-active #printable-fieldbook {
+            display: block !important;
+        }
+        .print-preview-active #app-main {
+            display: none !important;
+        }
+
+        .hidden-input {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans flex items-center justify-center min-h-screen p-3 sm:p-4 select-none">
+
+    <!-- ===== DATALISTS FOR AUTO-SUGGEST ===== -->
+    <datalist id="emp-names-list"></datalist>
+    <datalist id="posts-list"></datalist>
+    <datalist id="fiscal-years-list"></datalist>
+
+    <!-- ===== PRINTABLE FIELDBOOK ===== -->
+    <div id="printable-fieldbook">
+        <div class="print-header">
+            <div style="clear:both;"></div>
+            <h2 id="print-palika">गलकोट नगरपालिका</h2>
+            <h3>नगर कार्यपालिकाको कार्यालय</h3>
+            <h4>फिल्ड कार्य तथा अनुगमन मूल्याङ्कन फाराम</h4>
+        </div>
+
+        <table class="meta-grid">
+            <tr>
+                <td style="width:30%;"><strong>कर्मचारीको नाम:</strong> <span id="print-emp-name" class="dotted-line"></span></td>
+                <td style="width:30%;"><strong>पद / श्रेणी:</strong> <span id="print-emp-post" class="dotted-line"></span></td>
+                <td style="width:40%;"><strong>शाखा / कार्यालय:</strong> <span id="print-office" class="dotted-line"></span></td>
+            </tr>
+            <tr>
+                <td><strong>फिल्ड भ्रमण अवधि:</strong> मिति <span id="print-date-from" class="dotted-line" style="min-width:60px;"></span> देखि <span id="print-date-to" class="dotted-line" style="min-width:60px;"></span> सम्म</td>
+                <td><strong>आर्थिक वर्ष:</strong> <span id="print-fiscal-year" class="dotted-line" style="min-width:70px;"></span></td>
+                <td><strong>भ्रमण आदेश स्वीकृत नं./मिति:</strong> <span id="print-order-no" class="dotted-line"></span></td>
+            </tr>
+        </table>
+
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th rowspan="2" style="width:3%;">क्र.स.</th>
+                    <th rowspan="2" style="width:6%;">मिति</th>
+                    <th rowspan="2" style="width:7%;">स्थान</th>
+                    <th rowspan="2" style="width:14%;">सम्पादित कामको संक्षिप्त विवरण</th>
+                    <th colspan="3" style="width:15%;">सेवाग्राहीको विवरण</th>
+                    <th rowspan="2" style="width:8%;">काम गरी फर्कने / बस्ने</th>
+                    <th rowspan="2" style="width:18%;" class="photo-cell">फोटो अनुसूची<br><span class="sub-header">(सामुदायिक कामको संक्षिप्त विवरण)</span></th>
+                </tr>
+                <tr>
+                    <th style="width:7%;">नाम</th>
+                    <th style="width:5%;">फोन</th>
+                    <th style="width:4%;">हस्ताक्षर</th>
+                </tr>
+            </thead>
+            <tbody id="print-entries-body">
+            </tbody>
+        </table>
+
+        <div class="notes-card">
+            <strong>द्रष्टव्य / नियमहरू:</strong>
+            <ol>
+                <li>योजनाको हकमा सेवाग्राहीको विवरणको महलमा उपभोक्ता समितिका पदाधिकारी (अध्यक्ष/सचिव) वा निर्माण व्यवसायी/प्रतिनिधिको विवरण अनिवार्य रूपमा खुलाउनुपर्ने छ।</li>
+                <li>अनुगमन मूल्याङ्कन कार्यमा खटिने कर्मचारीले सम्पादित कामको प्रगतिको संक्षिप्त प्रतिवेदन/तस्वीर संलग्न गर्नुपर्नेछ।</li>
+            </ol>
+        </div>
+
+        <div class="sig-section">
+            <table class="sig-table">
+                <tr>
+                    <td>
+                        <div class="sig-line">पेश गर्ने कर्मचारीको दस्तखत</div>
+                        <div class="sig-title">नाम: <span id="print-sig-name"></span><br>पद: <span id="print-sig-post"></span><br>मिति: <span id="print-sig-date"></span></div>
+                    </td>
+                    <td>
+                        <div class="sig-line">सिफारिस गर्ने शाखा प्रमुख</div>
+                        <div class="sig-title">नाम:<br>पद:<br>मिति:</div>
+                    </td>
+                    <td>
+                        <div class="sig-line">जाँच / ऋजु गर्ने (लेखा शाखा)</div>
+                        <div class="sig-title">नाम:<br>पद:<br>मिति:</div>
+                    </td>
+                    <td>
+                        <div class="sig-line">स्वीकृत गर्ने कार्यालय प्रमुख</div>
+                        <div class="sig-title">नाम:<br>पद:<br>मिति:</div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- ===== APP UI ===== -->
+    <div id="app-main" class="w-full max-w-md bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col justify-between min-h-[90vh] sm:min-h-0">
+
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-emerald-500 to-teal-600 p-5 text-center text-white relative shadow-md flex-shrink-0">
+            <div class="absolute top-3 right-3 flex items-center gap-1.5 bg-black/35 px-2.5 py-1 rounded-full text-[11px] font-semibold backdrop-blur-sm">
+                <span id="sync-dot" class="h-2 w-2 rounded-full bg-red-500 animate-pulse"></span>
+                <span id="sync-text">Offline</span>
+            </div>
+            <i class="fa-solid fa-location-crosshairs text-3xl mb-1 drop-shadow-md"></i>
+            <h1 class="text-xl font-bold tracking-tight">गलकोट नगरपालिका</h1>
+            <p class="text-[11px] text-emerald-100 mt-0.5">फिल्ड कार्य व्यवस्थापन प्रणाली</p>
+        </div>
+
+        <!-- Tab Bar -->
+        <div id="tab-bar" class="hidden border-b border-slate-700 bg-slate-800/80 flex-shrink-0">
+            <div class="flex">
+                <button class="tab-btn active" id="tab-btn-tracking" onclick="switchTab('tracking')">
+                    <i class="fa-solid fa-map-location-dot mr-1"></i> ट्र्याकिङ
+                </button>
+                <button class="tab-btn" id="tab-btn-fieldbook" onclick="switchTab('fieldbook')">
+                    <i class="fa-solid fa-file-lines mr-1"></i> प्रतिवेदन
+                    <span id="report-badge" class="hidden ml-1 bg-emerald-500 text-white text-[9px] px-1.5 py-0.5 rounded-full">✓</span>
+                    <span id="report-required-dot" class="ml-1 bg-rose-500 text-white text-[9px] px-1.5 py-0.5 rounded-full">!</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="p-4 sm:p-5 flex-1 flex flex-col overflow-hidden">
+
+            <!-- ===== LOGIN ===== -->
+            <div id="login-form-box" class="space-y-4 w-full flex-1 flex flex-col justify-center">
+                <div class="bg-slate-700/40 p-4 rounded-xl border border-slate-600/60 shadow-inner space-y-3.5">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Enter Employee ID / Code</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                                <i class="fa-solid fa-id-card text-base"></i>
+                            </span>
+                            <input type="text" id="emp-code-input" class="w-full bg-slate-900 border border-slate-600 rounded-xl pl-10 pr-3 py-3 text-white text-base placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-mono tracking-wide uppercase transition-all" placeholder="e.g. EMP-101">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">बाहिर जानुको कारण / Reason</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                                <i class="fa-solid fa-pen-to-square text-base"></i>
+                            </span>
+                            <input type="text" id="emp-reason-input" class="w-full bg-slate-900 border border-slate-600 rounded-xl pl-10 pr-3 py-3 text-white text-sm placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-all" placeholder="उदा: बजार सर्वेक्षण, ग्राहक भेटघाट">
+                        </div>
+                    </div>
+                </div>
+                <button onclick="verifyAndStart()" class="w-full bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 text-base cursor-pointer transition-all shadow-lg shadow-emerald-900/20">
+                    <i class="fa-solid fa-play text-sm"></i> फिल्ड कार्य शुरु गर्ने
+                </button>
+            </div>
+
+            <!-- ===== TRACKING ===== -->
+            <div id="tab-tracking" class="tab-panel hidden space-y-4 w-full flex-1 flex flex-col">
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-slate-900/90 p-3 rounded-xl border border-slate-700 text-center shadow-md">
+                        <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Duty Status</p>
+                        <p class="text-emerald-400 font-bold text-sm mt-1 flex items-center justify-center gap-1.5">
+                            <span class="h-2 w-2 rounded-full bg-emerald-400 animate-ping"></span> ON FIELD
+                        </p>
+                    </div>
+                    <div class="bg-slate-900/90 p-3 rounded-xl border border-slate-700 text-center shadow-md">
+                        <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Device Battery</p>
+                        <p id="battery-display" class="text-slate-200 font-bold text-sm mt-1"><i class="fa-solid fa-battery-three-quarters text-slate-400 mr-1"></i> Checking...</p>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700/80 font-mono text-xs space-y-2.5 shadow-inner backdrop-blur-sm">
+                    <div class="flex justify-between border-b border-slate-800 pb-2">
+                        <span class="text-slate-400">Employee:</span>
+                        <span id="lbl-emp-identity" class="text-slate-200 font-bold truncate max-w-[180px]">---</span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-800 pb-2">
+                        <span class="text-slate-400">Device Model:</span>
+                        <span id="lbl-device-name" class="text-blue-400 font-bold truncate max-w-[180px]">---</span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-800 pb-2">
+                        <span class="text-slate-400">Reason:</span>
+                        <span id="lbl-emp-reason" class="text-amber-400 font-bold max-w-[180px] truncate">---</span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-800 pb-2">
+                        <span class="text-slate-400">Latitude:</span>
+                        <span id="lbl-lat" class="text-emerald-400 font-bold">0.000000</span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-800 pb-2">
+                        <span class="text-slate-400">Longitude:</span>
+                        <span id="lbl-lng" class="text-emerald-400 font-bold">0.000000</span>
+                    </div>
+                    <div class="flex justify-between pt-0.5">
+                        <span class="text-slate-400">Last Pushed:</span>
+                        <span id="lbl-time" class="text-slate-300 bg-slate-800 px-1.5 py-0.5 rounded text-[10px]">Never</span>
+                    </div>
+                </div>
+
+                <div id="report-reminder" class="bg-rose-500/10 border border-rose-500/30 rounded-xl p-3 text-center">
+                    <p class="text-xs text-rose-400 font-medium">
+                        <i class="fa-solid fa-triangle-exclamation mr-1"></i>
+                        कार्यालय फर्किनु अघि <strong>प्रतिवेदन</strong> tab मा फाराम भर्नुहोस्
+                    </p>
+                </div>
+                <div id="report-done-reminder" class="hidden bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-3 text-center">
+                    <p class="text-xs text-emerald-400 font-medium">
+                        <i class="fa-solid fa-circle-check mr-1"></i>
+                        प्रतिवेदन बुझाइसकेको छ। अब कार्यालय फर्किन सकिन्छ।
+                    </p>
+                </div>
+
+                <button id="stop-btn" onclick="stopTracking()" disabled
+                    class="w-full bg-slate-600 text-slate-400 font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 text-base cursor-not-allowed transition-all shadow-lg opacity-50 mt-auto">
+                    <i class="fa-solid fa-stop text-sm"></i> फिल्ड काम सकेर कार्यालय फर्किने
+                </button>
+            </div>
+
+            <!-- ===== FIELDBOOK ===== -->
+            <div id="tab-fieldbook" class="tab-panel hidden w-full">
+
+                <!-- Submitted view -->
+                <div id="fieldbook-submitted-view" class="hidden submitted-badge">
+                    <i class="fa-solid fa-circle-check text-3xl text-emerald-400 mb-2"></i>
+                    <p class="text-emerald-300 font-bold text-sm">प्रतिवेदन बुझाइसकियो!</p>
+                    <p class="text-slate-400 text-xs mt-1">अब ट्र्याकिङ tab मा गएर कार्यालय फर्किन सकिन्छ।</p>
+                    <button onclick="resetFieldbook()" class="mt-3 text-[11px] text-slate-400 underline bg-transparent border-none cursor-pointer">
+                        पुनः भर्नुहोस् (Edit)
+                    </button>
+                    <button onclick="printReport()" class="mt-3 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-bold py-2.5 px-6 rounded-xl flex items-center justify-center gap-2 text-sm cursor-pointer transition-all shadow-lg shadow-emerald-900/30 w-full">
+                        <i class="fa-solid fa-print text-sm"></i> प्रतिवेदन प्रिन्ट गर्नुहोस्
+                    </button>
+                </div>
+
+                <!-- Form view -->
+                <div id="fieldbook-form-view" class="space-y-4">
+                    <div class="bg-slate-900/60 rounded-xl border border-slate-700/60 p-3 space-y-3">
+                        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-700 pb-2">
+                            <i class="fa-solid fa-file-lines mr-1 text-emerald-400"></i> फिल्ड कार्य तथा अनुगमन प्रतिवेदन फाराम
+                        </p>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="fb-label">कर्मचारीको नाम</label>
+                                <input type="text" id="fb-emp-name" list="emp-names-list" class="fb-input" placeholder="छान्नुहोस् वा लेख्नुहोस्">
+                            </div>
+                            <div>
+                                <label class="fb-label">पद / श्रेणी</label>
+                                <input type="text" id="fb-emp-post" list="posts-list" class="fb-input" placeholder="छान्नुहोस् वा नयाँ टाइप गर्नुहोस्">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="fb-label">शाखा / कार्यालय</label>
+                            <input type="text" id="fb-office" class="fb-input" placeholder="शाखाको नाम">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="fb-label">भ्रमण अवधि (देखि)</label>
+                                <input type="text" id="fb-date-from" class="fb-input date-format-input" placeholder="YYYY/MM/DD" maxlength="10" oninput="formatDateInput(this)">
+                            </div>
+                            <div>
+                                <label class="fb-label">भ्रमण अवधि (सम्म)</label>
+                                <input type="text" id="fb-date-to" class="fb-input date-format-input" placeholder="YYYY/MM/DD" maxlength="10" oninput="formatDateInput(this)">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="fb-label">आर्थिक वर्ष</label>
+                                <select id="fb-fiscal-year" name="fiscal_year" class="fb-input">
+                                  <option value="">-- छनोट गर्नुहोस् --</option>
+                                  <option value="2083/084">२०८३/०८४</option>
+                                  <option value="2084/085">२०८४/०८५</option>
+                                  <option value="2085/086">२०८५/०८६</option>
+                                  <option value="2086/087">२०८६/०८७</option>
+                                  <option value="2087/088">२०८७/०८८</option>
+                                  <option value="2088/089">२०८८/०८९</option>
+                                  <option value="2089/090">२०८९/०९०</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="fb-label">यदी भ्रमण आदेश हो भने स्वीकृत नं./मिति</label>
+                                <input type="text" id="fb-order-no" class="fb-input" placeholder="स्वीकृत नं./मिति">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Entries with Photo Upload -->
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                                <i class="fa-solid fa-list-check mr-1 text-emerald-400"></i> दैनिक कार्य विवरण
+                            </p>
+                            <button onclick="addEntry()" class="bg-emerald-600/20 text-emerald-400 border border-emerald-700/40 text-[11px] font-bold px-3 py-1 rounded-lg cursor-pointer hover:bg-emerald-600/30 transition-all">
+                                <i class="fa-solid fa-plus mr-1"></i> थप्ने
+                            </button>
+                        </div>
+                        <div id="entries-container">
+                            <!-- Dynamic Entry cards -->
+                        </div>
+                    </div>
+
+                    <!-- Signature -->
+                    <div class="bg-slate-900/60 rounded-xl border border-slate-700/60 p-3 space-y-2">
+                        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-700 pb-2">
+                            <i class="fa-solid fa-pen-nib mr-1 text-emerald-400"></i> पेश गर्ने कर्मचारीको विवरण
+                        </p>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="fb-label">नाम</label>
+                                <input type="text" id="fb-sig-name" list="emp-names-list" class="fb-input" placeholder="पूरा नाम">
+                            </div>
+                            <div>
+                                <label class="fb-label">पद</label>
+                                <input type="text" id="fb-sig-post" list="posts-list" class="fb-input" placeholder="पद">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="fb-label">मिति</label>
+                            <input type="text" id="fb-sig-date" class="fb-input date-format-input" placeholder="YYYY/MM/DD" maxlength="10" oninput="formatDateInput(this)">
+                        </div>
+                    </div>
+
+                    <div id="fb-error" class="hidden bg-rose-500/10 border border-rose-500/30 rounded-xl p-3 text-center">
+                        <p class="text-xs text-rose-400 font-medium" id="fb-error-text"></p>
+                    </div>
+
+                    <button onclick="submitFieldbook()" class="w-full bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 text-sm cursor-pointer transition-all shadow-lg shadow-emerald-900/30">
+                        <i class="fa-solid fa-paper-plane text-sm"></i> प्रतिवेदन बुझाउने र फर्किन अनलक गर्ने
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Offline alert -->
+        <div id="offline-buffer-alert" class="hidden bg-amber-500/10 border-t border-amber-500/30 p-3 text-center animate-pulse flex-shrink-0">
+            <p class="text-xs text-amber-400 font-medium">
+                <i class="fa-solid fa-cloud-arrow-up mr-1 text-sm"></i> Connection weak. Saving logs locally...
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <div class="p-3 border-t border-slate-700/40 text-center text-[10px] text-slate-500 bg-slate-900/30 font-mono flex-shrink-0">
+            Background Service: Verified Secure
+        </div>
+    </div>
+
+<script>
+    const SUPABASE_URL = "https://tcnifetrdsjldcoamzdk.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_4uPjctG1R08HVVJQNRZqYw_z1NiWYSx";
+    let supabaseClient = null;
+    let employeeCode = "";
+    let trackingReason = "";
+    let offlineQueue = [];
+    let isTrackingActive = false;
+    let currentBatteryLevel = 100;
+    let lastSavedLat = null;
+    let lastSavedLng = null;
+    let lastSavedTime = null;
+    let isReportSubmitted = false;
+    let entryCount = 0;
+    let reportData = null;
+
+    // Capacitor Geolocation reference
+    const Geolocation = window.Capacitor ? window.Capacitor.Plugins.Geolocation : null;
+
+    // ── DATE FORMATTER HELPER (YYYY/MM/DD) ──
+    function getFormattedDate(dateObj = new Date()) {
+        const yyyy = dateObj.getFullYear();
+        const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const dd = String(dateObj.getDate()).padStart(2, '0');
+        return `${yyyy}/${mm}/${dd}`;
+    }
+
+    function formatDateInput(input) {
+        let v = input.value.replace(/\D/g, '');
+        if (v.length > 8) v = v.substring(0, 8);
+        
+        if (v.length >= 6) {
+            input.value = `${v.substring(0, 4)}/${v.substring(4, 6)}/${v.substring(6)}`;
+        } else if (v.length >= 4) {
+            input.value = `${v.substring(0, 4)}/${v.substring(4)}`;
+        } else {
+            input.value = v;
+        }
+    }
+
+    // ── PHOTO HANDLING & AUTO-COMPRESSION ──
+    let photoData = {};
+
+    // Base64 फोटोलाई Compress गरेर १ MB भन्दा सानो बनाउने Helper Function
+    async function compressImage(base64Str, maxSizeMB = 1) {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.src = base64Str;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+
+                // Maximum Size 1024px भन्दा ठूलो छ भने घटाउने
+                const maxDimension = 1024;
+                if (width > maxDimension || height > maxDimension) {
+                    if (width > height) {
+                        height = Math.round((height * maxDimension) / width);
+                        width = maxDimension;
+                    } else {
+                        width = Math.round((width * maxDimension) / height);
+                        height = maxDimension;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                let quality = 0.7; // 70% Quality बाट सुरु गर्ने
+                let compressedBase64 = canvas.toDataURL('image/jpeg', quality);
+
+                // यदि अझै पनि 1 MB भन्दा ठूलो छ भने Quality अझ घटाउने Loop
+                while (compressedBase64.length * (3 / 4) > maxSizeMB * 1024 * 1024 && quality > 0.1) {
+                    quality -= 0.1;
+                    compressedBase64 = canvas.toDataURL('image/jpeg', quality);
+                }
+
+                resolve(compressedBase64);
+            };
+        });
+    }
+
+    // triggerPhotoUpload (Capacitor Camera + Canvas Compression)
+    async function triggerPhotoUpload(entryId) {
+        if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Camera) {
+            const Camera = window.Capacitor.Plugins.Camera;
+            try {
+                const image = await Camera.getPhoto({
+                    quality: 50,
+                    allowEditing: false,
+                    resultType: 'base64',
+                    source: 'PROMPT',
+                    correctOrientation: true
+                });
+
+                if (image && image.base64String) {
+                    const rawBase64 = `data:image/${image.format};base64,${image.base64String}`;
+                    
+                    // १ MB भन्दा सानो बनाउन Compress गर्ने
+                    const finalCompressedPhoto = await compressImage(rawBase64, 1);
+
+                    photoData[entryId] = finalCompressedPhoto;
+                    updatePhotoPreview(entryId, finalCompressedPhoto, `Photo_${Date.now()}.jpg`);
+                }
+            } catch (err) {
+                console.log("Camera Error/Canceled:", err);
+            }
+        } else {
+            // Web Browser Fallback
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.className = 'hidden-input';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = async function(ev) {
+                        const rawBase64 = ev.target.result;
+                        const finalCompressedPhoto = await compressImage(rawBase64, 1);
+                        photoData[entryId] = finalCompressedPhoto;
+                        updatePhotoPreview(entryId, finalCompressedPhoto, file.name);
+                    };
+                    reader.readAsDataURL(file);
+                }
+                input.remove();
+            };
+            document.body.appendChild(input);
+            input.click();
+        }
+    }
+
+    function updatePhotoPreview(entryId, base64, filename) {
+        const container = document.getElementById('photo-container-' + entryId);
+        if (container) {
+            container.innerHTML = `
+                <img src="${base64}" class="photo-preview" alt="फोटो">
+                <span class="photo-filename">${filename || 'फोटो'}</span>
+                <button onclick="removePhoto('${entryId}')" class="text-rose-400 text-[10px] ml-2 bg-transparent border-none cursor-pointer hover:text-rose-300">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            `;
+        }
+    }
+
+    function removePhoto(entryId) {
+        delete photoData[entryId];
+        const container = document.getElementById('photo-container-' + entryId);
+        if (container) {
+            container.innerHTML = `
+                <button onclick="triggerPhotoUpload('${entryId}')" class="photo-upload-btn">
+                    <i class="fa-solid fa-camera"></i> फोटो संलग्न गर्नुहोस्
+                </button>
+                <span class="photo-filename">कुनै फोटो छैन</span>
+            `;
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        initSupabase();
+        setupUppercaseInputs();
+        checkSavedSession();
+        fetchDropdownOptions();
+
+        window.addEventListener('online', () => { 
+            updateNetworkStatus(true);
+            syncOfflineData(); 
+            fetchDropdownOptions();
+        });
+        window.addEventListener('offline', () => updateNetworkStatus(false));
+        
+        const todayStr = getFormattedDate();
+        document.getElementById('fb-sig-date').value = todayStr;
+        document.getElementById('fb-date-from').value = todayStr;
+        document.getElementById('fb-date-to').value = todayStr;
+        addEntry();
+    });
+
+    // ── AUTO UPPERCASE ALL INPUTS ──
+    function setupUppercaseInputs() {
+        document.body.addEventListener('input', (e) => {
+            if ((e.target.tagName === 'INPUT' && (e.target.type === 'text' || e.target.type === 'search')) || e.target.tagName === 'TEXTAREA') {
+                if (e.target.classList.contains('date-format-input')) return;
+                const start = e.target.selectionStart;
+                const end = e.target.selectionEnd;
+                e.target.value = e.target.value.toUpperCase();
+                if (start !== null && end !== null) {
+                    e.target.setSelectionRange(start, end);
+                }
+            }
+        });
+    }
+
+    // ── SUPABASE DROPDOWN DATA FETCH ──
+    async function fetchDropdownOptions() {
+        if (!supabaseClient || !navigator.onLine) return;
+
+        try {
+            const { data: emps } = await supabaseClient.from('employees').select('name');
+            if (emps) {
+                const list = document.getElementById('emp-names-list');
+                list.innerHTML = '';
+                emps.forEach(item => {
+                    if (item.name) {
+                        const opt = document.createElement('option');
+                        opt.value = item.name.toUpperCase();
+                        list.appendChild(opt);
+                    }
+                });
+            }
+
+            const { data: posts } = await supabaseClient.from('posts').select('post_title');
+            if (posts) {
+                const list = document.getElementById('posts-list');
+                list.innerHTML = '';
+                posts.forEach(item => {
+                    if (item.post_title) {
+                        const opt = document.createElement('option');
+                        opt.value = item.post_title.toUpperCase();
+                        list.appendChild(opt);
+                    }
+                });
+            }
+
+            const { data: fiscalYears } = await supabaseClient.from('fiscal_years').select('year_label');
+            if (fiscalYears) {
+                const list = document.getElementById('fiscal-years-list');
+                list.innerHTML = '';
+                fiscalYears.forEach(item => {
+                    if (item.year_label) {
+                        const opt = document.createElement('option');
+                        opt.value = item.year_label.toUpperCase();
+                        list.appendChild(opt);
+                    }
+                });
+            }
+        } catch (e) {
+            console.error("Error fetching dropdowns:", e);
+        }
+    }
+
+    async function autoSaveNewOptions(post, fiscalYear) {
+        if (!supabaseClient || !navigator.onLine) return;
+        try {
+            if (post) {
+                await supabaseClient.from('posts').upsert({ post_title: post.toUpperCase() }, { onConflict: 'post_title' });
+            }
+            if (fiscalYear) {
+                await supabaseClient.from('fiscal_years').upsert({ year_label: fiscalYear.toUpperCase() }, { onConflict: 'year_label' });
+            }
+        } catch (e) {
+            console.log("Option auto-save error:", e);
+        }
+    }
+
+    // ── TAB SWITCH ──
+    function switchTab(tab) {
+        document.getElementById('tab-tracking').classList.remove('active');
+        document.getElementById('tab-fieldbook').classList.remove('active');
+        document.getElementById('tab-btn-tracking').classList.remove('active');
+        document.getElementById('tab-btn-fieldbook').classList.remove('active');
+        document.getElementById('tab-' + tab).classList.add('active');
+        document.getElementById('tab-btn-' + tab).classList.add('active');
+    }
+
+    function showTrackingDashboard() {
+        document.getElementById('login-form-box').classList.add('hidden');
+        document.getElementById('tab-bar').classList.remove('hidden');
+        document.getElementById('tab-tracking').classList.add('active');
+        document.getElementById('tab-tracking').classList.remove('hidden');
+        document.getElementById('tab-fieldbook').classList.remove('hidden');
+    }
+
+    // ── FIELDBOOK ENTRIES ──
+    function addEntry() {
+        entryCount++;
+        const num = entryCount;
+        const container = document.getElementById('entries-container');
+        const card = document.createElement('div');
+        card.className = 'entry-card';
+        card.id = 'entry-' + num;
+        const entryId = 'entry-' + num;
+
+        photoData[entryId] = null;
+
+        card.innerHTML = `
+            <div class="entry-card-header">
+                <span class="entry-num">क्र.स. ${toNepaliNum(num)}</span>
+                ${num > 1 ? `<button class="remove-btn" onclick="removeEntry(${num})"><i class="fa-solid fa-trash-can mr-1"></i>हटाउने</button>` : ''}
+            </div>
+            <div class="space-y-2">
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="fb-label">मिति</label>
+                        <input type="text" id="entry-date-${num}" class="fb-input date-format-input" placeholder="YYYY/MM/DD" maxlength="10" oninput="formatDateInput(this)">
+                    </div>
+                    <div>
+                        <label class="fb-label">गएको स्थान</label>
+                        <input type="text" id="entry-place-${num}" class="fb-input" placeholder="ठाउँको नाम">
+                    </div>
+                </div>
+                <div>
+                    <label class="fb-label">सम्पादित कामको विवरण</label>
+                    <textarea id="entry-work-${num}" class="fb-textarea" placeholder="कामको संक्षिप्त विवरण, समय सहित..."></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="fb-label">सेवाग्राहीको नाम</label>
+                        <input type="text" id="entry-client-name-${num}" class="fb-input" placeholder="नाम">
+                    </div>
+                    <div>
+                        <label class="fb-label">फोन नं.</label>
+                        <input type="tel" id="entry-client-phone-${num}" class="fb-input" placeholder="फोन">
+                    </div>
+                </div>
+                <div>
+                    <label class="fb-label">काम गरी फर्कने / बस्ने</label>
+                    <select id="entry-return-${num}" class="fb-input">
+                        <option value="काम गरी फर्किने">काम गरी फर्किने</option>
+                        <option value="तोकिएको ठाउँमै बस्ने">तोकिएको ठाउँमै बस्ने</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="fb-label">फोटो अनुसूची</label>
+                    <div id="photo-container-${entryId}" class="flex items-center gap-2 flex-wrap">
+                        <button onclick="triggerPhotoUpload('${entryId}')" class="photo-upload-btn">
+                            <i class="fa-solid fa-camera"></i> फोटो संलग्न गर्नुहोस्
+                        </button>
+                        <span class="photo-filename">कुनै फोटो छैन</span>
+                    </div>
+                </div>
+            </div>
+        `;
+        container.appendChild(card);
+        document.getElementById('entry-date-' + num).value = getFormattedDate();
+    }
+
+    function removeEntry(num) {
+        const el = document.getElementById('entry-' + num);
+        if (el) {
+            const entryId = 'entry-' + num;
+            delete photoData[entryId];
+            el.remove();
+        }
+    }
+
+    function toNepaliNum(n) {
+        const digits = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
+        return String(n).split('').map(d => digits[parseInt(d)] || d).join('');
+    }
+
+    // ── SUBMIT FIELDBOOK ──
+    async function submitFieldbook() {
+        const errorDiv = document.getElementById('fb-error');
+        const errorText = document.getElementById('fb-error-text');
+        const showError = (msg) => {
+            errorText.textContent = msg;
+            errorDiv.classList.remove('hidden');
+            errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        };
+        errorDiv.classList.add('hidden');
+
+        const empPost = document.getElementById('fb-emp-post').value.trim();
+        const fiscalYear = document.getElementById('fb-fiscal-year') ? document.getElementById('fb-fiscal-year').value.trim() : '';
+        const empName = document.getElementById('fb-emp-name').value.trim();
+
+        if (!empName) return showError('कर्मचारीको नाम अनिवार्य छ।');
+        if (!empPost) return showError('पद / श्रेणी अनिवार्य छ।');
+        if (!document.getElementById('fb-office').value.trim()) return showError('शाखा / कार्यालय अनिवार्य छ।');
+        if (!document.getElementById('fb-date-from').value) return showError('भ्रमण अवधि (देखि) अनिवार्य छ।');
+        if (!document.getElementById('fb-date-to').value) return showError('भ्रमण अवधि (सम्म) अनिवार्य छ।');
+
+        const cards = document.querySelectorAll('#entries-container .entry-card');
+        if (cards.length === 0) return showError('कम्तीमा एउटा कार्य विवरण भर्नुहोस्।');
+
+        let hasFilledEntry = false;
+        for (const card of cards) {
+            const id = card.id.replace('entry-', '');
+            const place = document.getElementById('entry-place-' + id)?.value.trim();
+            const work = document.getElementById('entry-work-' + id)?.value.trim();
+            if (place && work) { hasFilledEntry = true; break; }
+        }
+        if (!hasFilledEntry) return showError('कम्तीमा एउटा कार्य विवरण (स्थान र काम) अनिवार्य रूपमा भर्नुहोस्।');
+
+        if (!document.getElementById('fb-sig-name').value.trim()) return showError('पेश गर्ने कर्मचारीको नाम अनिवार्य छ।');
+        if (!document.getElementById('fb-sig-date').value) return showError('मिति अनिवार्य छ।');
+
+        reportData = collectFieldbookData();
+        reportData.photos = photoData;
+
+        localStorage.setItem('fieldbook_report', JSON.stringify(reportData));
+
+        if (navigator.onLine && supabaseClient) {
+            try {
+                const payload = {
+                    emp_code: employeeCode || localStorage.getItem('active_emp_code') || '',
+                    emp_name: reportData.empName,
+                    post: reportData.post,
+                    office: reportData.office,
+                    date_from: reportData.dateFrom,
+                    date_to: reportData.dateTo,
+                    fiscal_year: reportData.fiscalYear,
+                    order_no: reportData.orderNo,
+                    sig_name: reportData.sigName,
+                    sig_post: reportData.sigPost,
+                    sig_date: reportData.sigDate,
+                    entries: reportData.entries
+                };
+
+                const { data, error } = await supabaseClient
+                    .from('fieldbook_reports')
+                    .insert([payload]);
+
+                if (error) {
+                    console.error("Supabase Save Error:", error);
+                    alert("रिपोर्ट सेभ गर्दा समस्या आयो: " + error.message);
+                } else {
+                    console.log("Fieldbook Report successfully saved!");
+                }
+            } catch (err) {
+                console.error("Unexpected Error:", err);
+            }
+        } else {
+            alert("इन्टरनेट नभएकाले प्रतिवेदन लोकलमा मात्र सेभ भयो।");
+        }
+
+        await autoSaveNewOptions(empPost, fiscalYear);
+
+        isReportSubmitted = true;
+        localStorage.setItem('report_submitted', '1');
+
+        unlockStopButton();
+        document.getElementById('fieldbook-submitted-view').classList.remove('hidden');
+        document.getElementById('fieldbook-form-view').classList.add('hidden');
+        document.getElementById('report-badge').classList.remove('hidden');
+        document.getElementById('report-required-dot').classList.add('hidden');
+        document.getElementById('report-reminder').classList.add('hidden');
+        document.getElementById('report-done-reminder').classList.remove('hidden');
+
+        populatePrintData();
+        setTimeout(() => switchTab('tracking'), 800);
+    }
+
+    function collectFieldbookData() {
+        const cards = document.querySelectorAll('#entries-container .entry-card');
+        const entries = [];
+        cards.forEach(card => {
+            const id = card.id.replace('entry-', '');
+            entries.push({
+                date: document.getElementById('entry-date-' + id)?.value || '',
+                place: document.getElementById('entry-place-' + id)?.value || '',
+                work: document.getElementById('entry-work-' + id)?.value || '',
+                clientName: document.getElementById('entry-client-name-' + id)?.value || '',
+                clientPhone: document.getElementById('entry-client-phone-' + id)?.value || '',
+                returnInfo: document.getElementById('entry-return-' + id)?.value || '',
+                photo: photoData['entry-' + id] || null
+            });
+        });
+        return {
+            empName: document.getElementById('fb-emp-name').value,
+            post: document.getElementById('fb-emp-post').value,
+            office: document.getElementById('fb-office').value,
+            dateFrom: document.getElementById('fb-date-from').value,
+            dateTo: document.getElementById('fb-date-to').value,
+            fiscalYear: document.getElementById('fb-fiscal-year') ? document.getElementById('fb-fiscal-year').value : '',
+            orderNo: document.getElementById('fb-order-no') ? document.getElementById('fb-order-no').value : '',
+            sigName: document.getElementById('fb-sig-name').value,
+            sigPost: document.getElementById('fb-sig-post').value,
+            sigDate: document.getElementById('fb-sig-date').value,
+            entries
+        };
+    }
+
+    function populatePrintData() {
+        if (!reportData) return;
+        document.getElementById('print-emp-name').textContent = reportData.empName || '';
+        document.getElementById('print-emp-post').textContent = reportData.post || '';
+        document.getElementById('print-office').textContent = reportData.office || '';
+        document.getElementById('print-date-from').textContent = reportData.dateFrom || '';
+        document.getElementById('print-date-to').textContent = reportData.dateTo || '';
+        document.getElementById('print-fiscal-year').textContent = reportData.fiscalYear || '';
+        document.getElementById('print-order-no').textContent = reportData.orderNo || '';
+        document.getElementById('print-sig-name').textContent = reportData.sigName || '';
+        document.getElementById('print-sig-post').textContent = reportData.sigPost || '';
+        document.getElementById('print-sig-date').textContent = reportData.sigDate || '';
+
+        const tbody = document.getElementById('print-entries-body');
+        tbody.innerHTML = '';
+        if (reportData.entries && reportData.entries.length > 0) {
+            reportData.entries.forEach((e, idx) => {
+                const tr = document.createElement('tr');
+                let photoHtml = e.photo ? `<img src="${e.photo}" alt="फोटो" style="max-width:100%;max-height:60px;border:1px solid #ccc;border-radius:3px;">` : `<span class="no-photo">तस्वीर छैन</span>`;
+                tr.innerHTML = `
+                    <td>${idx + 1}</td>
+                    <td>${e.date || ''}</td>
+                    <td>${e.place || ''}</td>
+                    <td style="text-align:left;font-size:6.5pt;">${e.work || ''}</td>
+                    <td>${e.clientName || ''}</td>
+                    <td>${e.clientPhone || ''}</td>
+                    <td></td>
+                    <td>${e.returnInfo || ''}</td>
+                    <td class="photo-cell">${photoHtml}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } else {
+            for (let i = 0; i < 8; i++) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${i + 1}</td>
+                    <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                    <td class="photo-cell"><span class="no-photo">तस्वीर छैन</span></td>
+                `;
+                tbody.appendChild(tr);
+            }
+        }
+    }
+
+    function resetFieldbook() {
+        isReportSubmitted = false;
+        localStorage.removeItem('report_submitted');
+        document.getElementById('fieldbook-submitted-view').classList.add('hidden');
+        document.getElementById('fieldbook-form-view').classList.remove('hidden');
+        document.getElementById('report-badge').classList.add('hidden');
+        document.getElementById('report-required-dot').classList.remove('hidden');
+        document.getElementById('report-reminder').classList.remove('hidden');
+        document.getElementById('report-done-reminder').classList.add('hidden');
+        lockStopButton();
+        photoData = {};
+    }
+
+    function unlockStopButton() {
+        const btn = document.getElementById('stop-btn');
+        btn.disabled = false;
+        btn.className = 'w-full bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 text-base cursor-pointer transition-all shadow-lg shadow-rose-900/20 mt-auto';
+    }
+
+    function lockStopButton() {
+        const btn = document.getElementById('stop-btn');
+        btn.disabled = true;
+        btn.className = 'w-full bg-slate-600 text-slate-400 font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 text-base cursor-not-allowed transition-all shadow-lg opacity-50 mt-auto';
+    }
+
+    // ── PRINT FUNCTION ──
+    function printReport() {
+        if (!reportData) {
+            const saved = localStorage.getItem('fieldbook_report');
+            if (saved) {
+                reportData = JSON.parse(saved);
+                if (reportData.photos) photoData = reportData.photos;
+                populatePrintData();
+            } else {
+                alert('प्रतिवेदन डाटा फेला परेन। कृपया पहिले प्रतिवेदन बुझाउनुहोस्।');
+                return;
+            }
+        }
+        document.body.classList.add('print-preview-active');
+        setTimeout(() => {
+            window.print();
+            setTimeout(() => {
+                document.body.classList.remove('print-preview-active');
+            }, 1000);
+        }, 300);
+    }
+
+    // ── SUPABASE INITIALIZATION ──
+    function initSupabase() {
+        try { 
+            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            updateNetworkStatus(navigator.onLine); 
+        } catch (e) { console.error(e); }
+    }
+
+    // ── BATTERY ──
+    async function updateBatteryStatus() {
+        let rawBattery = 1.0;
+        if (window.Capacitor && window.Capacitor.Plugins.Device) {
+            try { 
+                const info = await window.Capacitor.Plugins.Device.getBatteryInfo();
+                rawBattery = info.batteryLevel; 
+            } catch (e) {}
+        } else if (navigator.getBattery) {
+            try { 
+                const battery = await navigator.getBattery();
+                rawBattery = battery.level;
+                battery.onlevelchange = () => { 
+                    currentBatteryLevel = Math.round(battery.level * 100);
+                    renderBatteryUI(); 
+                }; 
+            } catch (e) {}
+        }
+        currentBatteryLevel = (rawBattery <= 1 && rawBattery >= 0) ? Math.round(rawBattery * 100) : Math.round(rawBattery);
+        renderBatteryUI();
+    }
+
+    function renderBatteryUI() {
+        const batDisplay = document.getElementById('battery-display');
+        if (!batDisplay) return;
+        let icon = "fa-battery-full text-emerald-400";
+        if (currentBatteryLevel <= 20) icon = "fa-battery-empty text-red-500 animate-pulse";
+        else if (currentBatteryLevel <= 50) icon = "fa-battery-quarter text-amber-500";
+        else if (currentBatteryLevel <= 80) icon = "fa-battery-half text-slate-300";
+        batDisplay.innerHTML = `<i class="fa-solid ${icon} mr-1"></i> ${currentBatteryLevel}%`;
+    }
+
+    // ── DEVICE NAME ──
+    async function getDeviceName() {
+        if (window.Capacitor && window.Capacitor.Plugins.Device) {
+            try { 
+                const info = await window.Capacitor.Plugins.Device.getInfo();
+                const brand = info.manufacturer ? info.manufacturer.toUpperCase() : '';
+                return `${brand} ${info.model} (${info.operatingSystem.toUpperCase()})`; 
+            } catch (e) {}
+        }
+        const ua = navigator.userAgent;
+        if (navigator.userAgentData && navigator.userAgentData.brands) {
+            const brands = navigator.userAgentData.brands.map(b => b.brand).join(", ");
+            if (/android/i.test(ua)) return `Android (${brands})`;
+        }
+        if (/android/i.test(ua)) {
+            const match = ua.match(/Android\s+[^;]+;\s+([^;)]+)/);
+            let modelStr = match ? match[1] : "Android Phone";
+            if (ua.includes("Samsung") || ua.includes("SM-")) modelStr = "Samsung " + modelStr;
+            return modelStr;
+        }
+        if (/iPhone|iPad|iPod/.test(ua)) {
+            return "Apple Device";
+        }
+        return "Desktop/Mobile Browser";
+    }
+
+    // ── DISTANCE ──
+    function getDistanceMeters(lat1, lon1, lat2, lon2) {
+        const R = 6371e3;
+        const phi1 = lat1 * Math.PI / 180;
+        const phi2 = lat2 * Math.PI / 180;
+        const deltaPhi = (lat2 - lat1) * Math.PI / 180;
+        const deltaLambda = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(deltaPhi / 2) ** 2 + Math.cos(phi1) * Math.cos(phi2) * Math.sin(deltaLambda / 2) ** 2;
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    // ── NETWORK STATUS ──
+    function updateNetworkStatus(isOnline) {
+        const dot = document.getElementById('sync-dot');
+        const txt = document.getElementById('sync-text');
+        if (!dot || !txt) return;
+        if (isOnline) { 
+            dot.className = "h-2 w-2 rounded-full bg-emerald-400 pulse-emerald";
+            txt.innerText = "Connected"; 
+        } else { 
+            dot.className = "h-2 w-2 rounded-full bg-amber-500 animate-pulse";
+            txt.innerText = "Offline Mode"; 
+        }
+    }
+
+    // ── CHECK SAVED SESSION ──
+    function checkSavedSession() {
+        const savedCode = localStorage.getItem('active_emp_code');
+        const savedReason = localStorage.getItem('active_emp_reason');
+        if (savedCode) {
+            document.getElementById('emp-code-input').value = savedCode;
+            if (savedReason) document.getElementById('emp-reason-input').value = savedReason;
+            verifyAndStart();
+        }
+        const savedQueue = localStorage.getItem('offline_gps_logs');
+        if (savedQueue) { 
+            offlineQueue = JSON.parse(savedQueue);
+            if (offlineQueue.length > 0) document.getElementById('offline-buffer-alert').classList.remove('hidden'); 
+        }
+        if (localStorage.getItem('report_submitted') === '1') {
+            isReportSubmitted = true;
+            const savedReport = localStorage.getItem('fieldbook_report');
+            if (savedReport) {
+                reportData = JSON.parse(savedReport);
+                if (reportData.photos) photoData = reportData.photos;
+                populatePrintData();
+            }
+        }
+    }
+
+    // ── VERIFY & AUTO-FILL FROM SUPABASE ──
+    async function verifyAndStart() {
+        const inputField = document.getElementById('emp-code-input');
+        const reasonField = document.getElementById('emp-reason-input');
+        employeeCode = inputField.value.trim().toUpperCase();
+        trackingReason = reasonField.value.trim().toUpperCase();
+
+        if (!employeeCode) { alert("कृपया ID राख्नुहोस्!"); return; }
+        if (!trackingReason) { alert("कृपया बाहिर जानुको कारण राख्नुहोस्!"); return; }
+
+        await updateBatteryStatus();
+        const devName = await getDeviceName();
+        document.getElementById('lbl-device-name').innerText = devName;
+
+        if (navigator.onLine && supabaseClient) {
+            const { data, error } = await supabaseClient
+                .from('employees')
+                .select('name, post, office')
+                .eq('emp_code', employeeCode)
+                .single();
+
+            if (error || !data) { 
+                alert("यो ID फेला परेन!"); 
+                return; 
+            }
+
+            const empNameUpper = data.name ? data.name.toUpperCase() : '';
+            const empPostUpper = data.post ? data.post.toUpperCase() : '';
+            const empOfficeUpper = data.office ? data.office.toUpperCase() : '';
+
+            document.getElementById('lbl-emp-identity').innerText = `${empNameUpper} (${employeeCode})`;
+
+            document.getElementById('fb-emp-name').value = empNameUpper;
+            document.getElementById('fb-emp-post').value = empPostUpper;
+            document.getElementById('fb-office').value = empOfficeUpper;
+            
+            document.getElementById('fb-sig-name').value = empNameUpper;
+            document.getElementById('fb-sig-post').value = empPostUpper;
+
+        } else {
+            document.getElementById('lbl-emp-identity').innerText = `OFFLINE USER (${employeeCode})`;
+        }
+
+        localStorage.setItem('active_emp_code', employeeCode);
+        localStorage.setItem('active_emp_reason', trackingReason);
+        document.getElementById('lbl-emp-reason').innerText = trackingReason;
+
+        showTrackingDashboard();
+
+        if (isReportSubmitted) {
+            unlockStopButton();
+            document.getElementById('report-badge').classList.remove('hidden');
+            document.getElementById('report-required-dot').classList.add('hidden');
+            document.getElementById('report-reminder').classList.add('hidden');
+            document.getElementById('report-done-reminder').classList.remove('hidden');
+            document.getElementById('fieldbook-submitted-view').classList.remove('hidden');
+            document.getElementById('fieldbook-form-view').classList.add('hidden');
+            if (reportData) populatePrintData();
+        }
+
+        startBackgroundTracking();
+    }
+
+    // ── BACKGROUND TRACKING VIA CAPACITOR / GEOLOCATION ──
+    async function startBackgroundTracking() {
+        isTrackingActive = true;
+
+        if (Geolocation) {
+            try {
+                const perm = await Geolocation.requestPermissions();
+                if (perm.location === 'granted' || perm.location === 'prompt-with-rationale') {
+                    const currentPos = await Geolocation.getCurrentPosition({ enableHighAccuracy: true });
+                    processIncomingCoords(currentPos.coords.latitude, currentPos.coords.longitude);
+
+                    setInterval(async () => {
+                        if (!isTrackingActive) return;
+                        try {
+                            const pos = await Geolocation.getCurrentPosition({ enableHighAccuracy: true, timeout: 10000 });
+                            processIncomingCoords(pos.coords.latitude, pos.coords.longitude);
+                        } catch (e) {
+                            console.error("GPS Fetch Error:", e);
+                        }
+                    }, 5000);
+                    return;
+                }
+            } catch (err) {
+                console.warn("Capacitor Geolocation error, falling back to Web Geolocation:", err);
+            }
+        }
+
+        navigator.geolocation.watchPosition(
+            (pos) => { if (isTrackingActive) processIncomingCoords(pos.coords.latitude, pos.coords.longitude); },
+            (err) => console.error(err),
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+    }
+
+    async function processIncomingCoords(lat, lng) {
+        const currentTime = new Date();
+        if (lastSavedLat !== null && lastSavedLng !== null && lastSavedTime !== null) {
+            const distanceMoved = getDistanceMeters(lastSavedLat, lastSavedLng, lat, lng);
+            const timeElapsedMs = currentTime - lastSavedTime;
+            if (distanceMoved < 100 && timeElapsedMs < 15 * 60 * 1000) { return; }
+        }
+        document.getElementById('lbl-lat').innerText = lat.toFixed(6);
+        document.getElementById('lbl-lng').innerText = lng.toFixed(6);
+        document.getElementById('lbl-time').innerText = currentTime.toLocaleTimeString();
+        await updateBatteryStatus();
+        const detectedDevice = await getDeviceName();
+        lastSavedLat = lat;
+        lastSavedLng = lng;
+        lastSavedTime = currentTime;
+
+        const payload = {
+            emp_code: employeeCode,
+            reason1: trackingReason,
+            latitude: lat,
+            longitude: lng,
+            battery_level: currentBatteryLevel,
+            device_name: detectedDevice,
+            created_at: currentTime.toISOString()
+        };
+
+        if (navigator.onLine) { transmitToSupabase(payload); } else {
+            offlineQueue.push(payload);
+            localStorage.setItem('offline_gps_logs', JSON.stringify(offlineQueue));
+            document.getElementById('offline-buffer-alert').classList.remove('hidden');
+            updateNetworkStatus(false);
+        }
+    }
+
+    async function transmitToSupabase(payload) {
+        if (!supabaseClient) return false;
+        try {
+            await supabaseClient.from('location_logs').insert([payload]);
+            await supabaseClient.from('latest_locations').upsert({
+                emp_code: payload.emp_code,
+                reason1: payload.reason1,
+                latitude: payload.latitude,
+                longitude: payload.longitude,
+                battery_level: payload.battery_level,
+                device_name: payload.device_name,
+                updated_at: payload.created_at
+            }, { onConflict: 'emp_code' });
+            return true;
+        } catch (e) { console.error("Supabase Push Error:", e); return false; }
+    }
+
+    async function syncOfflineData() {
+        if (!navigator.onLine || offlineQueue.length === 0) return;
+        document.getElementById('offline-buffer-alert').classList.remove('hidden');
+        const qLen = offlineQueue.length;
+        for (let i = 0; i < qLen; i++) {
+            const success = await transmitToSupabase(offlineQueue[0]);
+            if (success) { 
+                offlineQueue.shift();
+                localStorage.setItem('offline_gps_logs', JSON.stringify(offlineQueue)); 
+            } else break;
+        }
+        if (offlineQueue.length === 0) { 
+            document.getElementById('offline-buffer-alert').classList.add('hidden');
+            updateNetworkStatus(true); 
+        }
+    }
+
+    // ── STOP TRACKING ──
+    function stopTracking() {
+        if (!isReportSubmitted) {
+            alert("कार्यालय फर्किनु अघि 'प्रतिवेदन' tab मा फाराम भरी बुझाउनुहोस्!");
+            switchTab('fieldbook');
+            return;
+        }
+        isTrackingActive = false;
+        localStorage.removeItem('active_emp_code');
+        localStorage.removeItem('active_emp_reason');
+        localStorage.removeItem('report_submitted');
+        localStorage.removeItem('fieldbook_report');
+        alert("कार्यालय बाहिर गएर कार्य गर्नु भएकोमा धन्यवाद!\nप्रतिवेदन सफलतापूर्वक बुझाइएको छ।");
+        window.location.reload();
+    }
+</script>
+
+</body>
+</html>
