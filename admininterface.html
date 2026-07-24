@@ -488,6 +488,20 @@
     <script>
         const SUPABASE_URL = "https://tcnifetrdsjldcoamzdk.supabase.co";
         const SUPABASE_KEY = "sb_publishable_4uPjctG1R08HVVJQNRZqYw_z1NiWYSx";
+
+        // Escapes text before it goes into innerHTML. Field-worker-entered text
+        // (name, reason, place, work description, device name, etc.) is untrusted
+        // input — without this, a malicious value typed on the field app could
+        // run script in the admin's logged-in browser (stored XSS).
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
         
         let dashboardMap = null;
         let liveMap = null;
@@ -747,10 +761,10 @@
                     </div>
                     <div class="flex-1 min-w-0">
                         <div class="flex justify-between items-center">
-                            <h4 class="text-xs font-bold text-slate-800 truncate">${n.emp_name} (${n.emp_code})</h4>
-                            <span class="text-[10px] text-gray-400">${n.time}</span>
+                            <h4 class="text-xs font-bold text-slate-800 truncate">${escapeHtml(n.emp_name)} (${escapeHtml(n.emp_code)})</h4>
+                            <span class="text-[10px] text-gray-400">${escapeHtml(n.time)}</span>
                         </div>
-                        <p class="text-xs text-amber-600 font-medium truncate mt-0.5"><i class="fa-solid fa-bullseye text-[10px]"></i> ${n.reason}</p>
+                        <p class="text-xs text-amber-600 font-medium truncate mt-0.5"><i class="fa-solid fa-bullseye text-[10px]"></i> ${escapeHtml(n.reason)}</p>
                         <p class="text-[10px] text-indigo-600 font-semibold mt-1">विवरण हेर्नुहोस् &rarr;</p>
                     </div>
                 </div>
@@ -766,35 +780,35 @@
                 <div class="bg-slate-50 p-4 rounded-xl border border-gray-200 space-y-2">
                     <div class="flex justify-between border-b pb-2">
                         <span class="font-semibold text-gray-500">कर्मचारी नाम:</span>
-                        <span class="font-bold text-slate-800">${item.emp_name}</span>
+                        <span class="font-bold text-slate-800">${escapeHtml(item.emp_name)}</span>
                     </div>
                     <div class="flex justify-between border-b pb-2">
                         <span class="font-semibold text-gray-500">कर्मचारी कोड:</span>
-                        <span class="font-mono bg-white px-2 py-0.5 rounded border font-bold text-slate-800">${item.emp_code}</span>
+                        <span class="font-mono bg-white px-2 py-0.5 rounded border font-bold text-slate-800">${escapeHtml(item.emp_code)}</span>
                     </div>
                     <div class="flex justify-between border-b pb-2">
                         <span class="font-semibold text-gray-500">कार्य उद्देश्य:</span>
-                        <span class="font-bold text-amber-600">${item.reason}</span>
+                        <span class="font-bold text-amber-600">${escapeHtml(item.reason)}</span>
                     </div>
                     <div class="flex justify-between border-b pb-2">
                         <span class="font-semibold text-gray-500">प्राप्त समय:</span>
-                        <span class="font-medium text-slate-700">${item.time}</span>
+                        <span class="font-medium text-slate-700">${escapeHtml(item.time)}</span>
                     </div>
                     <div class="flex justify-between border-b pb-2">
                         <span class="font-semibold text-gray-500">GPS Latitude:</span>
-                        <span class="font-mono text-slate-800">${item.lat}</span>
+                        <span class="font-mono text-slate-800">${escapeHtml(item.lat)}</span>
                     </div>
                     <div class="flex justify-between border-b pb-2">
                         <span class="font-semibold text-gray-500">GPS Longitude:</span>
-                        <span class="font-mono text-slate-800">${item.lng}</span>
+                        <span class="font-mono text-slate-800">${escapeHtml(item.lng)}</span>
                     </div>
                     <div class="flex justify-between border-b pb-2">
                         <span class="font-semibold text-gray-500">डिभाइस:</span>
-                        <span class="font-medium text-slate-800">${item.device}</span>
+                        <span class="font-medium text-slate-800">${escapeHtml(item.device)}</span>
                     </div>
                     <div class="flex justify-between">
                         <span class="font-semibold text-gray-500">ब्याट्री प्रतिशत:</span>
-                        <span class="font-bold text-emerald-600">${item.battery}%</span>
+                        <span class="font-bold text-emerald-600">${escapeHtml(item.battery)}%</span>
                     </div>
                 </div>
             `;
@@ -846,10 +860,10 @@
             
             const popupContent = `
                 <div class="text-xs p-1 text-slate-900">
-                    <b class="text-sm text-slate-800">${empInfo.name}</b> (${emp_code})<br>
-                    <span class="text-amber-600 font-bold">उद्देश्य: ${currentReason}</span><br>
-                    <span class="text-blue-600 font-medium">डिभाइस: <i class="fa-solid fa-mobile-screen-button text-[10px]"></i> ${device}</span><br>
-                    <span class="text-slate-600 font-medium">ब्याट्री: <i class="fa-solid fa-battery-three-quarters text-[10px]"></i> ${bat}%</span><br>
+                    <b class="text-sm text-slate-800">${escapeHtml(empInfo.name)}</b> (${escapeHtml(emp_code)})<br>
+                    <span class="text-amber-600 font-bold">उद्देश्य: ${escapeHtml(currentReason)}</span><br>
+                    <span class="text-blue-600 font-medium">डिभाइस: <i class="fa-solid fa-mobile-screen-button text-[10px]"></i> ${escapeHtml(device)}</span><br>
+                    <span class="text-slate-600 font-medium">ब्याट्री: <i class="fa-solid fa-battery-three-quarters text-[10px]"></i> ${escapeHtml(bat)}%</span><br>
                     <span class="text-emerald-600 font-medium">Synced: ${new Date(updated_at).toLocaleTimeString()}</span>
                 </div>
             `;
@@ -906,12 +920,12 @@
                 };
                 item.innerHTML = `
                     <div class="flex justify-between items-start">
-                        <span class="text-sm font-semibold text-slate-800">${empInfo.name}</span>
-                        <span class="text-[10px] font-mono bg-slate-100 px-1.5 py-0.5 rounded text-slate-600">${loc.emp_code}</span>
+                        <span class="text-sm font-semibold text-slate-800">${escapeHtml(empInfo.name)}</span>
+                        <span class="text-[10px] font-mono bg-slate-100 px-1.5 py-0.5 rounded text-slate-600">${escapeHtml(loc.emp_code)}</span>
                     </div>
-                    <span class="text-xs text-amber-600 font-medium mt-1 truncate max-w-full"><i class="fa-solid fa-file-pen text-[10px]"></i> ${currentReason}</span>
+                    <span class="text-xs text-amber-600 font-medium mt-1 truncate max-w-full"><i class="fa-solid fa-file-pen text-[10px]"></i> ${escapeHtml(currentReason)}</span>
                     <div class="flex justify-between text-[10px] text-gray-500 mt-1">
-                        <span>Battery: ${bat}%</span>
+                        <span>Battery: ${escapeHtml(bat)}%</span>
                         <span class="text-emerald-600 font-medium">${new Date(loc.updated_at).toLocaleTimeString()}</span>
                     </div>
                 `;
@@ -940,7 +954,7 @@
             const currentReason = data.reason1 ? data.reason1 : "कारण नखुलेको"; 
             const logRow = document.createElement('p');
             logRow.className = "border-b border-gray-50 pb-1 font-mono text-xs text-slate-700";
-            logRow.innerHTML = `<span class="text-blue-500">[${new Date().toLocaleTimeString()}]</span> Staff <b>${data.emp_code}</b> (${currentReason}) pinged.`;
+            logRow.innerHTML = `<span class="text-blue-500">[${new Date().toLocaleTimeString()}]</span> Staff <b>${escapeHtml(data.emp_code)}</b> (${escapeHtml(currentReason)}) pinged.`;
             container.prepend(logRow);
         }
 
@@ -1169,9 +1183,9 @@
 
                 const actualReturnVal = firstEntryAct || fb.return_time_str || formatTimeOnly(fb.departure_time_at);
 
-                const estText = firstEntryEst ? `<span class="text-amber-700 font-medium"><i class="fa-solid fa-clock text-[9px]"></i> अनुमानित समय(घण्टा:मिनेट): ${firstEntryEst}</span>` : '';
+                const estText = firstEntryEst ? `<span class="text-amber-700 font-medium"><i class="fa-solid fa-clock text-[9px]"></i> अनुमानित समय(घण्टा:मिनेट): ${escapeHtml(firstEntryEst)}</span>` : '';
                 const actText = actualReturnVal
-                    ? `<span class="text-emerald-700 font-semibold"><i class="fa-solid fa-circle-check text-[9px]"></i> फर्केको समय: ${actualReturnVal}</span>` 
+                    ? `<span class="text-emerald-700 font-semibold"><i class="fa-solid fa-circle-check text-[9px]"></i> फर्केको समय: ${escapeHtml(actualReturnVal)}</span>` 
                     : `<span class="text-amber-600 font-medium"><i class="fa-solid fa-clock text-[9px]"></i> फिल्डमा</span>`;
 
                 const combinedReturn = `<div class="flex flex-col items-center justify-center gap-0.5 text-[11px]">${estText}${actText}</div>`;
@@ -1179,12 +1193,12 @@
                 return `
                 <tr class="hover:bg-gray-50 border-b border-gray-100 text-xs">
                     <td class="p-3 text-gray-500 font-medium">${new Date(fb.created_at).toLocaleString()}</td>
-                    <td class="p-3 font-mono font-bold text-slate-700">${fb.emp_code}</td>
-                    <td class="p-3 font-medium text-slate-800">${fb.emp_name}</td>
-                    <td class="p-3 text-slate-600">${fb.office || '-'}</td>
+                    <td class="p-3 font-mono font-bold text-slate-700">${escapeHtml(fb.emp_code)}</td>
+                    <td class="p-3 font-medium text-slate-800">${escapeHtml(fb.emp_name)}</td>
+                    <td class="p-3 text-slate-600">${escapeHtml(fb.office) || '-'}</td>
                     <td class="p-3 text-center">
                         <span class="inline-flex items-center gap-1 bg-rose-50 text-rose-700 border border-rose-200 px-2 py-0.5 rounded-full text-[10px] font-semibold">
-                            <i class="fa-solid fa-arrow-right-from-bracket text-[9px]"></i> ${deptTime}
+                            <i class="fa-solid fa-arrow-right-from-bracket text-[9px]"></i> ${escapeHtml(deptTime)}
                         </span>
                     </td>
                     <td class="p-3 text-center">${combinedReturn}</td>
@@ -1230,22 +1244,22 @@
                 const departureTimeField = e.departureTime || deptTimeReport;
 
                 // "पुन फर्किने" column: अनुमानित + फर्किएको (एउटै cell मा)
-                const estimated = e.clientPhone ? `<div class="text-amber-700 font-medium"><i class="fa-solid fa-clock text-[10px]"></i> अनुमानित समय (घण्टा मिनेट): ${e.clientPhone}</div>` : '';
-                const actual = e.returnInfo ? `<div class="text-emerald-700 font-semibold"><i class="fa-solid fa-circle-check text-[10px]"></i> फर्केको समय: ${e.returnInfo}</div>` : (retTimeReport ? `<div class="text-emerald-700 font-semibold"><i class="fa-solid fa-circle-check text-[10px]"></i> फर्के: ${retTimeReport}</div>` : '');
+                const estimated = e.clientPhone ? `<div class="text-amber-700 font-medium"><i class="fa-solid fa-clock text-[10px]"></i> अनुमानित समय (घण्टा मिनेट): ${escapeHtml(e.clientPhone)}</div>` : '';
+                const actual = e.returnInfo ? `<div class="text-emerald-700 font-semibold"><i class="fa-solid fa-circle-check text-[10px]"></i> फर्केको समय: ${escapeHtml(e.returnInfo)}</div>` : (retTimeReport ? `<div class="text-emerald-700 font-semibold"><i class="fa-solid fa-circle-check text-[10px]"></i> फर्के: ${escapeHtml(retTimeReport)}</div>` : '');
                 const returnCell = (estimated || actual) ? `<div class="space-y-0.5 text-[11px]">${estimated}${actual}</div>` : '-';
 
                 return `
                 <tr class="border-b text-xs hover:bg-slate-50">
                     <td class="p-2 border text-center font-bold">${idx + 1}</td>
-                    <td class="p-2 border whitespace-nowrap">${e.date || '-'}</td>
-                    <td class="p-2 border font-medium">${e.place || '-'}</td>
-                    <td class="p-2 border">${e.work || '-'}</td>
+                    <td class="p-2 border whitespace-nowrap">${escapeHtml(e.date) || '-'}</td>
+                    <td class="p-2 border font-medium">${escapeHtml(e.place) || '-'}</td>
+                    <td class="p-2 border">${escapeHtml(e.work) || '-'}</td>
                     <td class="p-2 border text-center whitespace-nowrap font-semibold text-rose-700 bg-rose-50/30">
-                        ${departureTimeField}
+                        ${escapeHtml(departureTimeField)}
                     </td>
                     <td class="p-2 border whitespace-nowrap">${returnCell}</td>
                     <td class="p-2 border text-center">
-                        ${e.photo ? `
+                        ${(e.photo && /^data:image\//.test(e.photo)) ? `
                             <div class="flex flex-col items-center gap-1">
                                 <img src="${e.photo}" onclick="zoomPhoto('${e.photo}')" class="h-16 w-20 object-cover rounded border border-gray-300 shadow-sm cursor-pointer hover:opacity-80 transition" title="ठूलो पारेर हेर्न क्लिक गर्नुहोस्" />
                                 <span class="text-[10px] text-indigo-600 cursor-pointer font-semibold" onclick="zoomPhoto('${e.photo}')"><i class="fa-solid fa-magnifying-glass-plus"></i> Zoom</span>
@@ -1263,20 +1277,20 @@
                     </div>
                     
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs bg-slate-50 p-3.5 rounded-lg border border-slate-200">
-                        <div><span class="font-bold text-slate-700">कर्मचारीको नाम:</span> <span class="text-slate-900">${report.emp_name}</span></div>
-                        <div><span class="font-bold text-slate-700">कर्मचारी कोड:</span> <span class="font-mono bg-white px-1.5 py-0.5 rounded border text-slate-800">${report.emp_code}</span></div>
-                        <div><span class="font-bold text-slate-700">पद:</span> <span class="text-slate-900">${report.post || '-'}</span></div>
-                        <div><span class="font-bold text-slate-700">आर्थिक वर्ष:</span> <span class="text-slate-900">${report.fiscal_year || '-'}</span></div>
-                        <div><span class="font-bold text-slate-700">कार्यालय:</span> <span class="text-slate-900">${report.office || '-'}</span></div>
-                        <div><span class="font-bold text-slate-700">आदेश नं.:</span> <span class="text-slate-900">${report.order_no || '-'}</span></div>
+                        <div><span class="font-bold text-slate-700">कर्मचारीको नाम:</span> <span class="text-slate-900">${escapeHtml(report.emp_name)}</span></div>
+                        <div><span class="font-bold text-slate-700">कर्मचारी कोड:</span> <span class="font-mono bg-white px-1.5 py-0.5 rounded border text-slate-800">${escapeHtml(report.emp_code)}</span></div>
+                        <div><span class="font-bold text-slate-700">पद:</span> <span class="text-slate-900">${escapeHtml(report.post) || '-'}</span></div>
+                        <div><span class="font-bold text-slate-700">आर्थिक वर्ष:</span> <span class="text-slate-900">${escapeHtml(report.fiscal_year) || '-'}</span></div>
+                        <div><span class="font-bold text-slate-700">कार्यालय:</span> <span class="text-slate-900">${escapeHtml(report.office) || '-'}</span></div>
+                        <div><span class="font-bold text-slate-700">आदेश नं.:</span> <span class="text-slate-900">${escapeHtml(report.order_no) || '-'}</span></div>
                         <div class="col-span-1">
                             <span class="font-bold text-slate-700">कार्यालय छाडेको:</span>
-                            <span class="ml-1 bg-rose-50 text-rose-700 border border-rose-200 px-2 py-0.5 rounded-full font-semibold">${deptTimeReport}</span>
+                            <span class="ml-1 bg-rose-50 text-rose-700 border border-rose-200 px-2 py-0.5 rounded-full font-semibold">${escapeHtml(deptTimeReport)}</span>
                         </div>
                         <div class="col-span-1">
                             <span class="font-bold text-slate-700">कार्यालय फर्किएको:</span>
                             ${retTimeReport
-                                ? `<span class="ml-1 bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full font-semibold">${retTimeReport}</span>`
+                                ? `<span class="ml-1 bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full font-semibold">${escapeHtml(retTimeReport)}</span>`
                                 : `<span class="ml-1 bg-amber-50 text-amber-600 border border-amber-200 px-2 py-0.5 rounded-full text-[10px]">फिल्डमा</span>`}
                         </div>
                     </div>
@@ -1356,20 +1370,20 @@
             let entriesRows = allEntries.map((e, idx) => {
                 const deptTimeVal = e.departureTime || e.parentDeparture || '-';
 
-                const estimated = e.clientPhone ? `<div class="text-amber-700 font-medium text-[11px]"><i class="fa-solid fa-clock text-[9px]"></i> अनुमानित समय (घण्टा मिनेट): ${e.clientPhone}</div>` : '';
-                const actual = e.returnInfo ? `<div class="text-emerald-700 font-semibold text-[11px]"><i class="fa-solid fa-circle-check text-[9px]"></i> फर्केको समय: ${e.returnInfo}</div>` : (e.parentReturn ? `<div class="text-emerald-700 font-semibold text-[11px]"><i class="fa-solid fa-circle-check text-[9px]"></i> फर्केको समय: ${e.parentReturn}</div>` : '');
+                const estimated = e.clientPhone ? `<div class="text-amber-700 font-medium text-[11px]"><i class="fa-solid fa-clock text-[9px]"></i> अनुमानित समय (घण्टा मिनेट): ${escapeHtml(e.clientPhone)}</div>` : '';
+                const actual = e.returnInfo ? `<div class="text-emerald-700 font-semibold text-[11px]"><i class="fa-solid fa-circle-check text-[9px]"></i> फर्केको समय: ${escapeHtml(e.returnInfo)}</div>` : (e.parentReturn ? `<div class="text-emerald-700 font-semibold text-[11px]"><i class="fa-solid fa-circle-check text-[9px]"></i> फर्केको समय: ${escapeHtml(e.parentReturn)}</div>` : '');
                 const returnCell = (estimated || actual) ? `<div class="space-y-0.5">${estimated}${actual}</div>` : '-';
 
                 return `
                 <tr class="border-b text-xs hover:bg-slate-50">
                     <td class="p-2 border text-center font-bold">${idx + 1}</td>
-                    <td class="p-2 border whitespace-nowrap">${e.date || '-'}</td>
-                    <td class="p-2 border font-medium">${e.place || '-'}</td>
-                    <td class="p-2 border">${e.work || '-'}</td>
-                    <td class="p-2 border text-center whitespace-nowrap font-semibold text-rose-700 bg-rose-50/30">${deptTimeVal}</td>
+                    <td class="p-2 border whitespace-nowrap">${escapeHtml(e.date) || '-'}</td>
+                    <td class="p-2 border font-medium">${escapeHtml(e.place) || '-'}</td>
+                    <td class="p-2 border">${escapeHtml(e.work) || '-'}</td>
+                    <td class="p-2 border text-center whitespace-nowrap font-semibold text-rose-700 bg-rose-50/30">${escapeHtml(deptTimeVal)}</td>
                     <td class="p-2 border whitespace-nowrap">${returnCell}</td>
                     <td class="p-2 border text-center">
-                        ${e.photo ? `
+                        ${(e.photo && /^data:image\//.test(e.photo)) ? `
                             <div class="flex flex-col items-center gap-1">
                                 <img src="${e.photo}" onclick="zoomPhoto('${e.photo}')" class="h-16 w-20 object-cover rounded border border-gray-300 shadow-sm cursor-pointer hover:opacity-80 transition" title="ठूलो पारेर हेर्न क्लिक गर्नुहोस्" />
                                 <span class="text-[10px] text-indigo-600 cursor-pointer font-semibold" onclick="zoomPhoto('${e.photo}')"><i class="fa-solid fa-magnifying-glass-plus"></i> Zoom</span>
@@ -1384,14 +1398,14 @@
                     <div class="text-center border-b pb-3">
                         <h2 class="text-lg font-bold text-slate-900 uppercase tracking-wide">गलकोट नगरपालिका</h2>
                         <p class="text-xs font-semibold text-slate-600 mt-1">नगर कार्यपालिकाको कार्यालय — गलकोट, बागलुङ</p>
-                        <p class="text-xs font-semibold text-slate-600 mt-1">कार्यालय समयमा कर्मचारीले कार्यालय छोड्दा भर्ने लगबुक</p>
+                        <p class="text-xs font-semibold text-slate-600 mt-1 underline">कार्यालय समयमा कर्मचारीले कार्यालय छोड्दा भर्ने लगबुक</p>
                     </div>
                     
                     <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs bg-slate-50 p-3.5 rounded-lg border border-slate-200">
-                        <div><span class="font-bold text-slate-700">कर्मचारीको नाम:</span> <span class="text-slate-900">${firstReport.emp_name}</span></div>
-                        <div><span class="font-bold text-slate-700">कर्मचारी कोड:</span> <span class="font-mono bg-white px-1.5 py-0.5 rounded border text-slate-800">${firstReport.emp_code}</span></div>
-                        <div><span class="font-bold text-slate-700">पद:</span> <span class="text-slate-900">${firstReport.post || '-'}</span></div>
-                        <div><span class="font-bold text-slate-700">आर्थिक वर्ष:</span> <span class="text-slate-900">${firstReport.fiscal_year || '२०८३/०८४'}</span></div>
+                        <div><span class="font-bold text-slate-700">कर्मचारीको नाम:</span> <span class="text-slate-900">${escapeHtml(firstReport.emp_name)}</span></div>
+                        <div><span class="font-bold text-slate-700">कर्मचारी कोड:</span> <span class="font-mono bg-white px-1.5 py-0.5 rounded border text-slate-800">${escapeHtml(firstReport.emp_code)}</span></div>
+                        <div><span class="font-bold text-slate-700">पद:</span> <span class="text-slate-900">${escapeHtml(firstReport.post) || '-'}</span></div>
+                        <div><span class="font-bold text-slate-700">आर्थिक वर्ष:</span> <span class="text-slate-900">${escapeHtml(firstReport.fiscal_year) || '२०८३/०८४'}</span></div>
                         <div><span class="font-bold text-slate-700">जम्मा कार्य:</span> <span class="text-slate-900">${reports.length} पटक</span></div>
                     </div>
 
@@ -1446,14 +1460,14 @@
             if(reportEmpSelect) {
                 reportEmpSelect.innerHTML = '<option value="all">All Employees</option>';
                 globalEmployees.forEach(emp => { 
-                    reportEmpSelect.innerHTML += `<option value="${emp.emp_code}">${emp.name} (${emp.emp_code})</option>`; 
+                    reportEmpSelect.innerHTML += `<option value="${escapeHtml(emp.emp_code)}">${escapeHtml(emp.name)} (${escapeHtml(emp.emp_code)})</option>`; 
                 });
             }
 
             if(fieldbookEmpSelect) {
                 fieldbookEmpSelect.innerHTML = '<option value="all">सबै कर्मचारीहरू (All)</option>';
                 globalEmployees.forEach(emp => { 
-                    fieldbookEmpSelect.innerHTML += `<option value="${emp.emp_code}">${emp.name} (${emp.emp_code})</option>`; 
+                    fieldbookEmpSelect.innerHTML += `<option value="${escapeHtml(emp.emp_code)}">${escapeHtml(emp.name)} (${escapeHtml(emp.emp_code)})</option>`; 
                 });
             }
 
@@ -1478,7 +1492,7 @@
             if(logs && logs.length > 0) {
                 const uniqueReasons = [...new Set(logs.map(l => l.reason1 ? l.reason1.trim() : "").filter(r => r !== ""))];
                 uniqueReasons.forEach(reason => {
-                    reasonSelect.innerHTML += `<option value="${reason}">${reason}</option>`;
+                    reasonSelect.innerHTML += `<option value="${escapeHtml(reason)}">${escapeHtml(reason)}</option>`;
                 });
             }
         }
@@ -1529,12 +1543,12 @@
                 tbody.innerHTML += `
                     <tr class="hover:bg-gray-50 text-xs">
                         <td class="p-3 text-slate-500">${new Date(log.created_at).toLocaleString()}</td>
-                        <td class="p-3 font-semibold text-slate-700">${log.emp_code}</td>
-                        <td class="p-3 font-medium text-amber-700 bg-amber-50/50">${currentReason}</td>
-                        <td class="p-3 text-slate-600 font-medium"><i class="fa-solid fa-mobile-screen-button text-gray-400 mr-1"></i> ${device}</td>
-                        <td class="p-3">${log.latitude}</td>
-                        <td class="p-3">${log.longitude}</td>
-                        <td class="p-3 font-semibold">${bat}%</td>
+                        <td class="p-3 font-semibold text-slate-700">${escapeHtml(log.emp_code)}</td>
+                        <td class="p-3 font-medium text-amber-700 bg-amber-50/50">${escapeHtml(currentReason)}</td>
+                        <td class="p-3 text-slate-600 font-medium"><i class="fa-solid fa-mobile-screen-button text-gray-400 mr-1"></i> ${escapeHtml(device)}</td>
+                        <td class="p-3">${escapeHtml(log.latitude)}</td>
+                        <td class="p-3">${escapeHtml(log.longitude)}</td>
+                        <td class="p-3 font-semibold">${escapeHtml(bat)}%</td>
                     </tr>
                 `;
             });
