@@ -2546,10 +2546,16 @@
             return value; // पहिचान नभएको ढाँचा भए जस्ताको त्यस्तै देखाउने
         }
 
-        // कुनै पनि समय (जस्तै "3:45 PM", "15:45", वा timestamp) लाई मध्यरातदेखिको मिनेटमा बदल्ने
+        // देवनागरी (नेपाली) अंकलाई English अंकमा फर्काउने (parseTimeToMinutes जस्ता ठाउँमा प्रयोगको लागि)
+        function toEnglishDigits(value) {
+            if (value === null || value === undefined) return value;
+            return String(value).replace(/[०-९]/g, d => NEPALI_DIGITS.indexOf(d));
+        }
+
+        // कुनै पनि समय (जस्तै "3:45 PM", "15:45", "१०:०० PM", वा timestamp) लाई मध्यरातदेखिको मिनेटमा बदल्ने
         function parseTimeToMinutes(value) {
             if (!value) return null;
-            const s = String(value).trim();
+            const s = toEnglishDigits(String(value).trim());
 
             // Format: "H:MM" वा "H:MM AM/PM"
             let m = s.match(/^(\d{1,2}):(\d{2})\s*([AaPp][Mm])?$/);
@@ -4635,14 +4641,28 @@
 
                 // fieldbook_reports table मा departure_time_at कोलममा फर्किएको समय अपडेट गर्ने
                 // (यही कोलम अब फर्किएको समय (return time) राख्नको लागि प्रयोग हुन्छ, departure_time जस्ताको त्यस्तै रहन्छ)
-                await supabaseClient
+                // नोट: Supabase/PostgREST को UPDATE query मा .order()+.limit() ले असर गर्दैन,
+                // त्यसैले पहिले पछिल्लो report को unique id पत्ता लगाएर मात्र त्यसैलाई update गर्नुपर्छ,
+                // नत्र emp_code मिल्ने सबै (पुराना) reports हरूको departure_time_at ओभरराइट भएर
+                // अन्तिम फर्केको समय सबैमा लागू भएको जस्तो देखिन्छ।
+                const { data: latestReport, error: latestErr } = await supabaseClient
                     .from('fieldbook_reports')
-                    .update({
-                        departure_time_at: returnTime.toISOString()
-                    })
+                    .select('id')
                     .eq('emp_code', empCode)
                     .order('created_at', { ascending: false })
-                    .limit(1);
+                    .limit(1)
+                    .maybeSingle();
+
+                if (!latestErr && latestReport && latestReport.id) {
+                    await supabaseClient
+                        .from('fieldbook_reports')
+                        .update({
+                            departure_time_at: returnTime.toISOString()
+                        })
+                        .eq('id', latestReport.id);
+                } else {
+                    console.warn("पछिल्लो fieldbook report भेटिएन, departure_time_at अपडेट गरिएन:", latestErr);
+                }
 
                 console.log("Return time sent to Supabase:", returnTimeStr);
             } catch (err) {
