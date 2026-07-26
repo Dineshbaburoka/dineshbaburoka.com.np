@@ -558,7 +558,7 @@
                 </nav>
             </div>
             <div class="p-5 border-t border-slate-700">
-                <button onclick="logout()" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-medium transition flex items-center justify-center gap-2 cursor-pointer">
+                <button id="sidebar-logout-btn" onclick="logout()" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-medium transition flex items-center justify-center gap-2 cursor-pointer">
                     <i class="fa-solid fa-right-from-bracket"></i> Logout
                 </button>
             </div>
@@ -567,7 +567,7 @@
         <div class="flex-1 flex flex-col overflow-y-auto min-w-0">
             <header class="bg-white shadow-sm px-3 md:px-6 py-3 md:py-4 flex justify-between items-center border-b border-gray-200 gap-2">
                 <div class="flex items-center gap-1 md:gap-3 min-w-0">
-                    <button onclick="toggleSidebar(true)" class="md:hidden p-2 -ml-1 text-gray-600 hover:bg-gray-100 rounded-lg cursor-pointer flex-shrink-0">
+                    <button id="mobile-sidebar-toggle" onclick="toggleSidebar(true)" class="md:hidden p-2 -ml-1 text-gray-600 hover:bg-gray-100 rounded-lg cursor-pointer flex-shrink-0">
                         <i class="fa-solid fa-bars text-lg"></i>
                     </button>
                     <h2 id="page-title" class="text-base md:text-xl font-semibold text-gray-800 truncate">Dashboard Overview</h2>
@@ -1686,8 +1686,16 @@
             try {
                 supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
                     auth: {
-                        storage: window.sessionStorage,
-                        autoRefreshToken: false,
+                        // पहिले sessionStorage प्रयोग हुन्थ्यो — त्यो app process सँगै
+                        // मर्ने अस्थायी भण्डार हो, त्यसैले Android ले Recent Apps बाट
+                        // app clean/kill गर्नेबित्तिकै login session नै हराउँथ्यो र
+                        // फेरि app खोल्दा साँच्चै logout भइसकेको देखिन्थ्यो। अब
+                        // localStorage प्रयोग गरिन्छ, जुन app बन्द/kill भए पनि टिक्छ।
+                        storage: window.localStorage,
+                        // Token (सामान्यतया १ घण्टामा expire हुने) आफैं refresh हुनेगरी —
+                        // नत्र घण्टौं चल्ने field-work tracking बीचमै token expire भएर
+                        // logout जस्तो देखिन्थ्यो।
+                        autoRefreshToken: true,
                         persistSession: true
                     }
                 });
@@ -1697,15 +1705,18 @@
         }
 
         async function checkSessionState() {
-            if (!sessionStorage.getItem("is_logged_in")) {
-                await logout();
-                return;
-            }
-
+            // पहिले sessionStorage मात्र हेरिन्थ्यो — तर Android ले "Recent Apps"
+            // बाट app clear/swipe गर्दा वा background मा kill गर्दा sessionStorage
+            // (memory-based) हराउँछ, जबकि Supabase को login भने localStorage मा
+            // persist (persistSession: true) भइरहेको हुन्छ। त्यसैले अब असली
+            // Supabase session लाई नै source-of-truth मान्ने — sessionStorage
+            // झुक्किएर हराए पनि प्रयोगकर्ता फेरि login गर्नुपर्दैन।
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (session) {
+                sessionStorage.setItem("is_logged_in", "true");
                 showDashboard(session.user);
             } else {
+                sessionStorage.removeItem("is_logged_in");
                 showLoginScreen();
             }
         }
@@ -1836,6 +1847,10 @@
         }
 
         async function logout() {
+            if (typeof isTrackingActive !== 'undefined' && isTrackingActive) {
+                alert("फिल्ड कार्य / ट्र्याकिङ जारी रहेकोले Logout गर्न मिल्दैन। कृपया पहिले 'फिल्ड काम सकेर कार्यालय फर्किने' बटन थिचेर ट्र्याकिङ बन्द गर्नुहोस्।");
+                return;
+            }
             sessionStorage.removeItem("is_logged_in");
             if (supabaseClient) {
                 await supabaseClient.auth.signOut();
@@ -1887,7 +1902,41 @@
             if (window.innerWidth >= 768) toggleSidebar(false);
         });
 
+        // ── TRACKING LOCK: कार्यालय फर्किनु अघि "फिल्ड कार्य" बाहेक बाँकी सबै ──
+        // ── (Sidebar tabs, Logout, Sidebar toggle) लुकाउने/निष्क्रिय गर्ने ──
+        function applyTrackingLockUI(active) {
+            document.querySelectorAll('#app-sidebar .tab-btn').forEach(btn => {
+                if (btn.getAttribute('data-tab') === 'fieldwork') return;
+                if (active) {
+                    btn.classList.add('hidden');
+                    btn.setAttribute('data-tracking-locked', '1');
+                } else if (btn.getAttribute('data-tracking-locked') === '1') {
+                    // असली role-permission अनुसार फेरि देखाउने जिम्मा applyRolePermissions() लाई
+                    btn.removeAttribute('data-tracking-locked');
+                }
+            });
+
+            const logoutBtn = document.getElementById('sidebar-logout-btn');
+            if (logoutBtn) {
+                logoutBtn.disabled = !!active;
+                logoutBtn.classList.toggle('opacity-40', !!active);
+                logoutBtn.classList.toggle('cursor-not-allowed', !!active);
+                logoutBtn.classList.toggle('pointer-events-none', !!active);
+            }
+
+            if (!active && typeof applyRolePermissions === 'function') {
+                // Tracking बन्द भएपछि role अनुसार सही tab-list फेरि लागू गर्ने
+                applyRolePermissions();
+            }
+        }
+
         function switchTab(tabId) {
+            // Tracking चलिरहेको बेला "फिल्ड कार्य" बाहेक अरू कुनै tab मा जान नदिने —
+            // कसैले URL/hash वा console बाट switchTab() सिधै call गरे पनि यहीं रोकिन्छ।
+            if (typeof isTrackingActive !== 'undefined' && isTrackingActive && tabId !== 'fieldwork') {
+                tabId = 'fieldwork';
+            }
+
             // Role-based guard: अनुमति नभएको ट्याबमा जान नदिने
             const tabPermissions = {
                 'normal':      ['dashboard', 'fieldwork', 'tracking', 'fieldbooks', 'reports', 'notices'],
@@ -4595,8 +4644,61 @@
     }
 
     // ── BACKGROUND TRACKING VIA CAPACITOR / GEOLOCATION ──
+    // App पूर्ण बन्द (kill/swipe) भए पछि पनि GPS चलिरहनको लागि
+    // @capacitor-community/background-geolocation प्रयोग गरिन्छ (यसले आफ्नै Android
+    // Foreground Service + अनिवार्य persistent notification बनाउँछ)। plugin नभेटिए
+    // पुरानै Capacitor Geolocation / Web Geolocation मा fallback हुन्छ (तर त्यो चाहिँ
+    // app बन्द भएपछि रोकिन्छ)।
+    let bgGeoWatcherId = null;
+
+    function getBackgroundGeolocationPlugin() {
+        return (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.BackgroundGeolocation)
+            ? window.Capacitor.Plugins.BackgroundGeolocation
+            : null;
+    }
+
     async function startBackgroundTracking() {
         isTrackingActive = true;
+        if (typeof applyTrackingLockUI === 'function') applyTrackingLockUI(true);
+
+        const BackgroundGeolocation = getBackgroundGeolocationPlugin();
+
+        if (BackgroundGeolocation) {
+            // असली native foreground-service tracking — app बन्द/स्वाइप गरे पनि जारी रहन्छ।
+            // यसकै mandatory notification ले notification bar मा status देखाउने काम गर्छ,
+            // त्यसैले छुट्टै LocalNotifications notification अनावश्यक भएर skip गरिन्छ।
+            try {
+                const empLabel = employeeCode || localStorage.getItem('active_emp_code') || '';
+                const reasonLabel = trackingReason || localStorage.getItem('active_emp_reason') || '';
+
+                bgGeoWatcherId = await BackgroundGeolocation.addWatcher(
+                    {
+                        backgroundTitle: '🟢 फिल्ड कार्य जारी छ',
+                        backgroundMessage: `${empLabel ? empLabel + ' — ' : ''}${reasonLabel || 'ट्र्याकिङ चलिरहेको छ'}। "कार्यालय फर्किने" नथिच्दासम्म बन्द हुँदैन।`,
+                        requestPermissions: true,
+                        stale: false,
+                        distanceFilter: 15   // मिटर — ब्याट्री बचाउन थोरै movement मा मात्र update
+                    },
+                    (location, error) => {
+                        if (error) {
+                            if (error.code === 'NOT_AUTHORIZED') {
+                                alert("Location अनुमति (Background Location समेत) दिनु आवश्यक छ। कृपया App Settings बाट Location लाई 'Allow all the time' गर्नुहोस्।");
+                            }
+                            console.error("BackgroundGeolocation error:", error);
+                            return;
+                        }
+                        if (!isTrackingActive || !location) return;
+                        processIncomingCoords(location.latitude, location.longitude);
+                    }
+                );
+                return; // सफल भएमा तलको fallback चाहिँदैन
+            } catch (err) {
+                console.warn("BackgroundGeolocation start गर्न सकिएन, fallback मा जाँदै:", err);
+                bgGeoWatcherId = null;
+            }
+        }
+
+        // Plugin उपलब्ध नभएमा / असफल भएमा — notification bar मा मात्र status देखाउने (पुरानो व्यवहार)
         showFieldworkNotification();
 
         if (Geolocation) {
@@ -4627,6 +4729,18 @@
             (err) => console.error(err),
             { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
         );
+    }
+
+    async function stopBackgroundGeolocationWatcher() {
+        const BackgroundGeolocation = getBackgroundGeolocationPlugin();
+        if (BackgroundGeolocation && bgGeoWatcherId) {
+            try {
+                await BackgroundGeolocation.removeWatcher({ id: bgGeoWatcherId });
+            } catch (err) {
+                console.error("BackgroundGeolocation watcher हटाउँदा त्रुटि:", err);
+            }
+            bgGeoWatcherId = null;
+        }
     }
 
     async function processIncomingCoords(lat, lng) {
@@ -4763,6 +4877,8 @@
         }
 
         isTrackingActive = false;
+        if (typeof applyTrackingLockUI === 'function') applyTrackingLockUI(false);
+        await stopBackgroundGeolocationWatcher();
         hideFieldworkNotification();
         localStorage.removeItem('active_emp_code');
         localStorage.removeItem('active_emp_reason');
