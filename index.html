@@ -636,37 +636,90 @@ body.dark .conv-tab.active { background: var(--brass); color: var(--ink); border
 .conv-note { margin-top: 20px; font-size: 0.8rem; color: var(--muted); font-family: var(--font-mono); line-height: 1.6; }
 
 /* =========================================================
-   GALLERY + LIGHTBOX
+   GALLERY + LIGHTBOX  (modern animated masonry version)
    ========================================================= */
-.gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 30px; }
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: 160px;
+  gap: 16px;
+  margin-top: 30px;
+}
 .gallery-item {
-  position: relative; border-radius: var(--radius); overflow: hidden; cursor: pointer;
-  border: 1px solid var(--border); aspect-ratio: 4/3; opacity: 0; transform: scale(0.92);
+  position: relative; border-radius: 10px; overflow: hidden; cursor: pointer;
+  border: 1px solid var(--border); opacity: 0; transform: scale(0.9) translateY(24px);
+  grid-column: span 1; grid-row: span 2;
+  box-shadow: var(--shadow);
 }
-.gallery-item.in-view { opacity: 1; transform: scale(1); transition: var(--transition); }
-.gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; display: block; }
-.gallery-item:hover img { transform: scale(1.1); }
-.gallery-overlay {
-  position: absolute; inset: 0; background: rgba(16,27,22,0.5); display: flex; align-items: center; justify-content: center;
-  opacity: 0; transition: opacity 0.3s ease; color: #fff; font-size: 1.4rem;
+.gallery-item.featured { grid-column: span 2; grid-row: span 3; }
+.gallery-item.in-view { opacity: 1; transform: scale(1) translateY(0); transition: var(--transition); }
+.gallery-item img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  transition: transform 0.7s cubic-bezier(.25,.8,.25,1), filter 0.5s ease;
+  filter: saturate(0.94);
 }
-.gallery-item:hover .gallery-overlay { opacity: 1; }
+.gallery-item:hover img { transform: scale(1.12) rotate(-0.4deg); filter: saturate(1.08); }
+.gallery-item::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(10,16,13,0.92) 0%, rgba(10,16,13,0.28) 42%, rgba(10,16,13,0) 68%);
+  opacity: 0.55; transition: opacity 0.4s ease;
+}
+.gallery-item:hover::after { opacity: 0.92; }
+.gallery-item .gallery-number {
+  position: absolute; top: 12px; left: 12px; z-index: 2;
+  font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 1px; color: rgba(255,255,255,0.85);
+  background: rgba(16,27,22,0.55); border: 1px solid rgba(255,255,255,0.2);
+  padding: 3px 9px; border-radius: 20px; backdrop-filter: blur(4px);
+  transform: translateY(-8px); opacity: 0; transition: var(--transition);
+}
+.gallery-item:hover .gallery-number { transform: translateY(0); opacity: 1; }
+.gallery-caption {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 2;
+  padding: 16px 18px; color: #fff;
+  transform: translateY(14px); opacity: 0; transition: var(--transition);
+}
+.gallery-item:hover .gallery-caption { transform: translateY(0); opacity: 1; }
+.gallery-caption .tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 1px; text-transform: uppercase;
+  color: var(--brass-bright); margin-bottom: 5px;
+}
+.gallery-caption h4 { font-family: var(--font-display); font-size: 0.98rem; font-weight: 600; line-height: 1.3; }
+.gallery-item .gallery-zoom-icon {
+  position: absolute; top: 12px; right: 12px; z-index: 2;
+  width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); color: #fff; font-size: 0.85rem;
+  backdrop-filter: blur(4px); transform: scale(0.6) rotate(-20deg); opacity: 0; transition: var(--transition);
+}
+.gallery-item:hover .gallery-zoom-icon { transform: scale(1) rotate(0deg); opacity: 1; }
 
 .lightbox {
   position: fixed; inset: 0; background: rgba(8,12,10,0.94); z-index: 10005;
-  display: none; align-items: center; justify-content: center;
+  display: none; align-items: center; justify-content: center; backdrop-filter: blur(6px);
 }
 .lightbox.active { display: flex; }
-.lightbox img { max-width: 86vw; max-height: 82vh; border-radius: 4px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+.lightbox-stage { position: relative; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+.lightbox img { max-width: 86vw; max-height: 74vh; border-radius: 6px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); opacity: 0; transform: scale(0.94); transition: opacity 0.35s ease, transform 0.35s ease; }
+.lightbox img.show { opacity: 1; transform: scale(1); }
+.lightbox-caption { text-align: center; color: var(--paper-2); max-width: 70vw; }
+.lightbox-caption h4 { font-family: var(--font-display); font-size: 1.1rem; font-weight: 600; margin-bottom: 4px; }
+.lightbox-caption span { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 1px; color: var(--brass-bright); text-transform: uppercase; }
 .lightbox-close, .lightbox-nav {
   position: absolute; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2);
   color: #fff; width: 46px; height: 46px; border-radius: 50%; cursor: pointer; font-size: 1.1rem;
   display: flex; align-items: center; justify-content: center; transition: var(--transition);
 }
 .lightbox-close:hover, .lightbox-nav:hover { background: var(--brass); border-color: var(--brass); color: var(--ink); }
+.lightbox-nav:hover { transform: translateY(-50%) scale(1.08); }
+.lightbox-close:hover { transform: scale(1.08); }
 .lightbox-close { top: 24px; right: 24px; }
 .lightbox-prev { left: 24px; top: 50%; transform: translateY(-50%); }
 .lightbox-next { right: 24px; top: 50%; transform: translateY(-50%); }
+@media (max-width: 950px) {
+  .gallery-grid { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 150px; }
+  .gallery-item.featured { grid-column: span 2; grid-row: span 2; }
+}
 
 /* =========================================================
    TESTIMONIALS
@@ -1102,23 +1155,32 @@ body.dark .conv-tab.active { background: var(--brass); color: var(--ink); border
 
 <section class="container" id="gallery">
   <div class="section-title" data-reveal>
-    <span class="field-tag">GALLERY · फिल्ड फोटोहरू</span>
+    <span class="field-tag">GALLERY · कार्य अनुभवका तस्बिरहरू</span>
     <h2>कार्यस्थल झलक</h2>
+    <p class="section-sub">कार्य अनुभवको क्रममा फिल्डमा, कार्यालयमा र नागरिकसँगको सेवा प्रदानको बेला खिचिएका तस्बिरहरू।</p>
   </div>
-  <div class="gallery-grid">
-    <div class="gallery-item" data-reveal><img src="img1.jpg" alt="जग्गा मापन कार्य १" loading="lazy"><div class="gallery-overlay"><i class="fa-solid fa-magnifying-glass-plus"></i></div></div>
-    <div class="gallery-item" data-reveal><img src="img2.jpg" alt="सम्पत्ति मूल्याङ्कन कार्य" loading="lazy"><div class="gallery-overlay"><i class="fa-solid fa-magnifying-glass-plus"></i></div></div>
-    <div class="gallery-item" data-reveal><img src="img3.jpg" alt="डिजिटल म्यापिङ" loading="lazy"><div class="gallery-overlay"><i class="fa-solid fa-magnifying-glass-plus"></i></div></div>
-    <div class="gallery-item" data-reveal><img src="brp.jpg" alt="कार्यालय भ्रमण" loading="lazy"><div class="gallery-overlay"><i class="fa-solid fa-magnifying-glass-plus"></i></div></div>
-    <div class="gallery-item" data-reveal><img src="img1.jpg" alt="फिल्ड सर्वे उपकरण" loading="lazy"><div class="gallery-overlay"><i class="fa-solid fa-magnifying-glass-plus"></i></div></div>
-    <div class="gallery-item" data-reveal><img src="img2.jpg" alt="नागरिक सेवा प्रदान" loading="lazy"><div class="gallery-overlay"><i class="fa-solid fa-magnifying-glass-plus"></i></div></div>
+  <div class="gallery-grid" id="galleryGrid">
+    <div class="gallery-item featured" data-reveal data-index="0"><img src="img1.jpg" alt="जग्गा नापजाँच — फिल्ड कार्य" loading="lazy"><div class="gallery-number">०१ / ०८</div><div class="gallery-zoom-icon"><i class="fa-solid fa-magnifying-glass-plus"></i></div><div class="gallery-caption"><span class="tag"><i class="fa-solid fa-drafting-compass"></i> फिल्ड सर्वे</span><h4>कार्य अनुभवको क्रममा जग्गा नापजाँच गर्दै</h4></div></div>
+    <div class="gallery-item" data-reveal data-index="1"><img src="img2.jpg" alt="सम्पत्ति मूल्याङ्कन कार्य" loading="lazy"><div class="gallery-number">०२ / ०८</div><div class="gallery-zoom-icon"><i class="fa-solid fa-magnifying-glass-plus"></i></div><div class="gallery-caption"><span class="tag"><i class="fa-solid fa-file-invoice"></i> मूल्याङ्कन</span><h4>कार्य अवधिमा सम्पत्ति मूल्याङ्कन गर्दै</h4></div></div>
+    <div class="gallery-item" data-reveal data-index="2"><img src="img3.jpg" alt="डिजिटल म्यापिङ कार्य" loading="lazy"><div class="gallery-number">०३ / ०८</div><div class="gallery-zoom-icon"><i class="fa-solid fa-magnifying-glass-plus"></i></div><div class="gallery-caption"><span class="tag"><i class="fa-solid fa-map-location-dot"></i> GIS म्यापिङ</span><h4>कार्य अनुभवमा डिजिटल नक्सांकन गर्दै</h4></div></div>
+    <div class="gallery-item" data-reveal data-index="3"><img src="img4.jpg" alt="कार्यालयमा कागजात प्रशोधन" loading="lazy"><div class="gallery-number">०४ / ०८</div><div class="gallery-zoom-icon"><i class="fa-solid fa-magnifying-glass-plus"></i></div><div class="gallery-caption"><span class="tag"><i class="fa-solid fa-folder-open"></i> कार्यालय कार्य</span><h4>कार्य समयमा कागजात प्रशोधन गर्दै</h4></div></div>
+    <div class="gallery-item" data-reveal data-index="4"><img src="img5.jpg" alt="फिल्ड सर्वे उपकरण जाँच" loading="lazy"><div class="gallery-number">०५ / ०८</div><div class="gallery-zoom-icon"><i class="fa-solid fa-magnifying-glass-plus"></i></div><div class="gallery-caption"><span class="tag"><i class="fa-solid fa-toolbox"></i> उपकरण जाँच</span><h4>कार्य अनुभवमा नापी उपकरण जाँच गर्दै</h4></div></div>
+    <div class="gallery-item" data-reveal data-index="5"><img src="img6.jpg" alt="नागरिकलाई सेवा प्रदान" loading="lazy"><div class="gallery-number">०६ / ०८</div><div class="gallery-zoom-icon"><i class="fa-solid fa-magnifying-glass-plus"></i></div><div class="gallery-caption"><span class="tag"><i class="fa-solid fa-handshake"></i> नागरिक सेवा</span><h4>कार्य अवधिमा नागरिकलाई सेवा प्रदान गर्दै</h4></div></div>
+    <div class="gallery-item" data-reveal data-index="6"><img src="img7.jpg" alt="कार्यक्षेत्र निरीक्षण" loading="lazy"><div class="gallery-number">०७ / ०८</div><div class="gallery-zoom-icon"><i class="fa-solid fa-magnifying-glass-plus"></i></div><div class="gallery-caption"><span class="tag"><i class="fa-solid fa-binoculars"></i> स्थल निरीक्षण</span><h4>कार्य अनुभवको क्रममा कार्यक्षेत्र निरीक्षण गर्दै</h4></div></div>
+    <div class="gallery-item" data-reveal data-index="7"><img src="img8.jpg" alt="टिमसँग फिल्ड कार्य" loading="lazy"><div class="gallery-number">०८ / ०८</div><div class="gallery-zoom-icon"><i class="fa-solid fa-magnifying-glass-plus"></i></div><div class="gallery-caption"><span class="tag"><i class="fa-solid fa-people-group"></i> टिम कार्य</span><h4>कार्य अनुभवमा सहकर्मीहरूसँग फिल्ड कार्य</h4></div></div>
   </div>
 </section>
 
 <div class="lightbox" id="lightbox">
   <button class="lightbox-close" id="lightboxClose" aria-label="Close"><i class="fa fa-xmark"></i></button>
   <button class="lightbox-nav lightbox-prev" id="lightboxPrev" aria-label="Previous"><i class="fa fa-chevron-left"></i></button>
-  <img src="" alt="" id="lightboxImg">
+  <div class="lightbox-stage">
+    <img src="" alt="" id="lightboxImg">
+    <div class="lightbox-caption">
+      <span id="lightboxCounter">०१ / ०८</span>
+      <h4 id="lightboxCaptionText"></h4>
+    </div>
+  </div>
   <button class="lightbox-nav lightbox-next" id="lightboxNext" aria-label="Next"><i class="fa fa-chevron-right"></i></button>
 </div>
 
@@ -1637,6 +1699,88 @@ window.addEventListener('scroll', () => {
   else { gsap.to(headerEl, { y: 0, duration: 0.4, ease: 'power2.out' }); }
   lastY = y;
 });
+
+/* =========================================================
+   SCROLL REVEAL — IntersectionObserver drives .in-view for
+   every [data-reveal] element plus gallery/converter/blog cards
+   ========================================================= */
+const revealTargets = document.querySelectorAll('[data-reveal], .converter-card, .gallery-item, .blog-card');
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => {
+    if(entry.isIntersecting) {
+      const el = entry.target;
+      const delay = el.classList.contains('gallery-item') ? (Array.from(el.parentElement.children).indexOf(el) % 4) * 70 : 0;
+      setTimeout(() => el.classList.add('in-view'), delay);
+      revealObserver.unobserve(el);
+    }
+  });
+}, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
+revealTargets.forEach(el => revealObserver.observe(el));
+
+/* =========================================================
+   GALLERY LIGHTBOX — click to open, prev/next, keyboard nav
+   ========================================================= */
+(function() {
+  const items = Array.from(document.querySelectorAll('#galleryGrid .gallery-item'));
+  if(!items.length) return;
+
+  const photos = items.map(el => {
+    const img = el.querySelector('img');
+    const title = el.querySelector('.gallery-caption h4');
+    return { src: img.getAttribute('src'), alt: img.getAttribute('alt'), caption: title ? title.textContent : img.getAttribute('alt') };
+  });
+
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightboxImg');
+  const lightboxCounter = document.getElementById('lightboxCounter');
+  const lightboxCaptionText = document.getElementById('lightboxCaptionText');
+  const btnClose = document.getElementById('lightboxClose');
+  const btnPrev = document.getElementById('lightboxPrev');
+  const btnNext = document.getElementById('lightboxNext');
+  let current = 0;
+
+  function pad(n) { return String(n).padStart(2, '0').replace(/[0-9]/g, d => '०१२३४५६७८९'[d]); }
+
+  function renderSlide() {
+    const p = photos[current];
+    lightboxImg.classList.remove('show');
+    const swap = () => {
+      lightboxImg.src = p.src;
+      lightboxImg.alt = p.alt;
+      lightboxCaptionText.textContent = p.caption;
+      lightboxCounter.textContent = pad(current + 1) + ' / ' + pad(photos.length);
+      requestAnimationFrame(() => lightboxImg.classList.add('show'));
+    };
+    setTimeout(swap, 120);
+  }
+
+  function openLightbox(index) {
+    current = index;
+    lightbox.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    renderSlide();
+  }
+  function closeLightbox() {
+    lightbox.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+  function nextSlide() { current = (current + 1) % photos.length; renderSlide(); }
+  function prevSlide() { current = (current - 1 + photos.length) % photos.length; renderSlide(); }
+
+  items.forEach((el, i) => {
+    el.addEventListener('click', () => openLightbox(i));
+  });
+  btnClose.addEventListener('click', closeLightbox);
+  btnNext.addEventListener('click', nextSlide);
+  btnPrev.addEventListener('click', prevSlide);
+  lightbox.addEventListener('click', (e) => { if(e.target === lightbox) closeLightbox(); });
+  document.addEventListener('keydown', (e) => {
+    if(!lightbox.classList.contains('active')) return;
+    if(e.key === 'Escape') closeLightbox();
+    if(e.key === 'ArrowRight') nextSlide();
+    if(e.key === 'ArrowLeft') prevSlide();
+  });
+})();
 </script>
 
 </body>
