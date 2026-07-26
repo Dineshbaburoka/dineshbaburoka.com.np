@@ -1845,21 +1845,11 @@
 
 
         function startInactivityTimer() {
-            resetInactivityTimer();
-            window.addEventListener("mousemove", resetInactivityTimer);
-            window.addEventListener("keydown", resetInactivityTimer);
-            window.addEventListener("click", resetInactivityTimer);
-            window.addEventListener("scroll", resetInactivityTimer);
+            // Auto-logout (inactivity) सुविधा हटाइयो।
         }
 
         function resetInactivityTimer() {
-            clearTimeout(inactivityTimer);
-            if (sessionStorage.getItem("is_logged_in")) {
-                inactivityTimer = setTimeout(() => {
-                    alert("५ मिनेटसम्म कुनै गतिविधि नभएकाले सुरक्षाका लागि Auto Logout गरिएको छ!");
-                    logout();
-                }, INACTIVITY_LIMIT);
-            }
+            // Auto-logout (inactivity) सुविधा हटाइयो।
         }
 
         function initMaps() {
@@ -2404,14 +2394,15 @@
 
             globalEmployees.forEach(emp => {
                 const canManage = (currentRole === 'admin' || currentRole === 'super-admin');
+                const canDelete = (currentRole === 'super-admin');
                 const actionCell = canManage ? `
                         <td class="p-3 text-center flex items-center justify-center gap-2">
                             <button onclick="openEditEmpModal(${emp.id})" class="bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 px-2 py-1 rounded text-xs font-semibold cursor-pointer">
                                 <i class="fa-solid fa-user-pen mr-1"></i> Edit
                             </button>
-                            <button onclick="deleteEmployee(${emp.id}, '${emp.emp_code}')" data-async-managed class="text-red-500 hover:text-red-700 font-medium cursor-pointer">
+                            ${canDelete ? `<button onclick="deleteEmployee(${emp.id}, '${emp.emp_code}')" data-async-managed class="text-red-500 hover:text-red-700 font-medium cursor-pointer">
                                 <i class="fa-regular fa-trash-can"></i>
-                            </button>
+                            </button>` : ''}
                         </td>` : `<td class="p-3 text-center text-slate-300 text-[11px] italic">हेर्ने मात्र</td>`;
                 tbody.innerHTML += `
                     <tr class="emp-row hover:bg-gray-50 transition text-xs border-b border-gray-100" data-search="${emp.name.toLowerCase()} ${emp.emp_code.toLowerCase()} ${(emp.post||'').toLowerCase()} ${(emp.office||'').toLowerCase()}">
@@ -2522,6 +2513,7 @@
 
         async function deleteEmployee(id, emp_code) {
             if (!supabaseClient) return;
+            if (currentRole !== 'super-admin') { alert("यो सुविधा Super-Admin लाई मात्र उपलब्ध छ।"); return; }
             const confirmed = confirm(`के तपाईं कर्मचारी कोड: ${emp_code} लाई सिस्टमबाट हटाउन चाहनुहुन्छ?`);
             if (!confirmed) return;
 
@@ -3705,6 +3697,72 @@
     let offlineQueue = [];
     let isTrackingActive = false;
     let currentBatteryLevel = 100;
+
+    // ── FIELD-WORK चलिरहेको बेला Mobile Notification Bar मा देखिने Ongoing/Persistent Notification ──
+    // (Capacitor @capacitor/local-notifications plugin आवश्यक — नेटिभ प्रोजेक्टमा install गरिएको हुनुपर्छ)
+    const FIELDWORK_NOTIFICATION_ID = 991197;
+    const FIELDWORK_NOTIFICATION_CHANNEL = 'fieldwork-status';
+
+    function getLocalNotificationsPlugin() {
+        return (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.LocalNotifications)
+            ? window.Capacitor.Plugins.LocalNotifications
+            : null;
+    }
+
+    async function showFieldworkNotification() {
+        const LocalNotifications = getLocalNotificationsPlugin();
+        if (!LocalNotifications) {
+            console.warn("LocalNotifications plugin भेटिएन — @capacitor/local-notifications install गर्नुहोस्।");
+            return;
+        }
+        try {
+            const permStatus = await LocalNotifications.checkPermissions();
+            if (permStatus.display !== 'granted') {
+                await LocalNotifications.requestPermissions();
+            }
+
+            // Android मा High-importance channel — नत्र ongoing notification झट्टै लुक्न सक्छ
+            if (LocalNotifications.createChannel) {
+                try {
+                    await LocalNotifications.createChannel({
+                        id: FIELDWORK_NOTIFICATION_CHANNEL,
+                        name: 'फिल्ड कार्य स्थिति',
+                        description: 'फिल्ड कार्य जारी रहेको सूचना',
+                        importance: 4,
+                        visibility: 1,
+                        vibration: false
+                    });
+                } catch (chErr) { console.warn("Notification channel error:", chErr); }
+            }
+
+            const empLabel = employeeCode || localStorage.getItem('active_emp_code') || '';
+            const reasonLabel = trackingReason || localStorage.getItem('active_emp_reason') || '';
+
+            await LocalNotifications.schedule({
+                notifications: [{
+                    id: FIELDWORK_NOTIFICATION_ID,
+                    channelId: FIELDWORK_NOTIFICATION_CHANNEL,
+                    title: '🟢 फिल्ड कार्य जारी छ',
+                    body: `${empLabel ? empLabel + ' — ' : ''}${reasonLabel || 'फिल्ड कार्यमा हुनुहुन्छ'}। "कार्यालय फर्किने" नथिच्दासम्म ट्र्याकिङ चलिरहन्छ।`,
+                    ongoing: true,       // Swipe गरेर हटाउन नमिल्ने (Android)
+                    autoCancel: false,   // ट्याप गर्दा पनि आफैं हराउँदैन
+                    schedule: { at: new Date(Date.now() + 500) }
+                }]
+            });
+        } catch (err) {
+            console.error("Ongoing notification देखाउँदा त्रुटि:", err);
+        }
+    }
+
+    async function hideFieldworkNotification() {
+        const LocalNotifications = getLocalNotificationsPlugin();
+        if (!LocalNotifications) return;
+        try {
+            await LocalNotifications.cancel({ notifications: [{ id: FIELDWORK_NOTIFICATION_ID }] });
+        } catch (err) {
+            console.error("Ongoing notification हटाउँदा त्रुटि:", err);
+        }
+    }
     let lastSavedLat = null;
     let lastSavedLng = null;
     let lastSavedTime = null;
@@ -4539,6 +4597,7 @@
     // ── BACKGROUND TRACKING VIA CAPACITOR / GEOLOCATION ──
     async function startBackgroundTracking() {
         isTrackingActive = true;
+        showFieldworkNotification();
 
         if (Geolocation) {
             try {
@@ -4704,6 +4763,7 @@
         }
 
         isTrackingActive = false;
+        hideFieldworkNotification();
         localStorage.removeItem('active_emp_code');
         localStorage.removeItem('active_emp_reason');
         localStorage.removeItem('report_submitted');
