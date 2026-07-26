@@ -3,235 +3,382 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="description" content="दिनेश बाबु रोका — गलकोट नगरपालिका, बागलुङमा कार्यरत व्यावसायिक सर्भेयर तथा जियोस्पेसियल कन्सल्टेन्ट। जग्गा नापजाँच, GIS म्यापिङ, सम्पत्तिकर हिसाब, क्षेत्रफल रूपान्तरण र नगरपालिका सम्बन्धी डिजिटल सेवाहरू।">
+<meta name="keywords" content="Dinesh Babu Roka, Surveyor Nepal, Galkot Municipality, गलकोट सर्भेयर, GIS मापिङ, जग्गा नापजाँच, सम्पत्तिकर, रोपनी आना, land survey Baglung">
+<meta name="author" content="Dinesh Babu Roka">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#101b16">
+<link rel="canonical" href="https://dineshbaburoka.com.np/">
+
+<!-- Open Graph / Social Preview -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Dinesh Babu Roka | Professional Surveyor — Galkot Municipality">
+<meta property="og:description" content="जग्गा नापजाँच, GIS म्यापिङ र नगरपालिका प्राविधिक सेवाहरू — गलकोट नगरपालिका, बागलुङ।">
+<meta property="og:image" content="brp.jpg">
+<meta property="og:locale" content="ne_NP">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Dinesh Babu Roka | Professional Surveyor">
+<meta name="twitter:description" content="गलकोट नगरपालिका, बागलुङका नापी प्राविधिक — डिजिटल भूमि सेवाहरू।">
+<meta name="twitter:image" content="brp.jpg">
+
 <title>Dinesh Babu Roka | Professional Surveyor</title>
 
 <link rel="icon" href="brp.ico">
+<link rel="apple-touch-icon" href="brp.jpg">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@300;400;500;600;700;800&family=Segoe+UI:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<!-- Structured data for search engines: identifies this page as a local professional service -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  "name": "Dinesh Babu Roka — Surveyor & Geospatial Consultant",
+  "image": "brp.jpg",
+  "telephone": "+9779857626542",
+  "email": "dineshbaburoka82@gmail.com",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Galkot Municipality",
+    "addressRegion": "Baglung",
+    "addressCountry": "NP"
+  },
+  "areaServed": "Galkot Municipality, Baglung, Nepal",
+  "founder": {
+    "@type": "Person",
+    "name": "Dinesh Babu Roka",
+    "jobTitle": "Surveyor"
+  },
+  "sameAs": ["https://facebook.com"],
+  "makesOffer": [
+    { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "जग्गा मापन तथा नक्सांकन" } },
+    { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "सम्पत्तिकर हिसाब" } },
+    { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "GIS म्यापिङ" } },
+    { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "क्षेत्रफल रूपान्तरण" } }
+  ]
+}
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600;9..144,700;9..144,800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+Devanagari:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 
 <style>
+/* =========================================================
+   FIELD SURVEY THEME — Dinesh Babu Roka
+   Palette: blueprint ink, brass instrument gold, contour green,
+   field-notebook paper. Motif: cadastral contour lines, brass
+   theodolite tones, stamped survey-stake markers.
+   ========================================================= */
 :root {
-  --primary: #0078d4; 
-  --primary-tint: #eff6fc;
-  --secondary: #107c41; 
-  --dark: #111111;
-  --light: #f3f3f3;
-  --bg-main: #fafafa;
-  --card: #ffffff;
-  --text: #242424;
-  --muted: #616161;
-  --border: #e0e0e0;
-  --shadow: 0 4px 16px rgba(0,0,0,0.04), 0 1px 4px rgba(0,0,0,0.03);
-  --radius: 8px;
-  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --ink: #101b16;
+  --ink-2: #16261e;
+  --blueprint: #0e2436;
+  --brass: #b98b3e;
+  --brass-bright: #d8a94f;
+  --contour: #4c7a58;
+  --contour-soft: #8fae95;
+  --paper: #f4efe1;
+  --paper-2: #ece4d0;
+  --card: #fbf8ef;
+  --ink-text: #1c241f;
+  --muted: #5b6459;
+  --border: #d8cdae;
+  --shadow: 0 10px 30px rgba(16, 27, 22, 0.08), 0 2px 8px rgba(16, 27, 22, 0.06);
+  --radius: 3px;
+  --transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  --font-display: 'Fraunces', 'Noto Sans Devanagari', serif;
+  --font-body: 'Inter', 'Noto Sans Devanagari', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
 }
 
 body.dark {
-  --bg-main: #1f1f1f;
-  --light: #292929;
-  --card: #252525;
-  --text: #ffffff;
-  --muted: #adadad;
-  --border: #333333;
-  --primary-tint: #132839;
-  --shadow: 0 4px 20px rgba(0,0,0,0.2);
+  --ink: #0a1410;
+  --paper: #101b16;
+  --paper-2: #16241c;
+  --card: #142019;
+  --ink-text: #ece7d8;
+  --muted: #9aa596;
+  --border: #2a382f;
+  --shadow: 0 10px 34px rgba(0,0,0,0.4);
+  --brass: #d8a94f;
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-html {
-  scroll-behavior: smooth;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
 
 body {
-  font-family: 'Segoe UI', 'Noto Sans Devanagari', -apple-system, sans-serif;
-  background-color: var(--bg-main);
-  background-image: radial-gradient(var(--border) 1px, transparent 1px);
-  background-size: 24px 24px;
-  color: var(--text);
+  font-family: var(--font-body);
+  background-color: var(--paper);
+  color: var(--ink-text);
   overflow-x: hidden;
   width: 100%;
-  transition: var(--transition);
+  transition: background-color 0.4s ease, color 0.4s ease;
+  position: relative;
 }
 
-body.loading {
-  overflow: hidden;
+/* subtle cadastral grid + contour texture */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.5;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: radial-gradient(ellipse 90% 60% at 50% 0%, #000 40%, transparent 90%);
+  -webkit-mask-image: radial-gradient(ellipse 90% 60% at 50% 0%, #000 40%, transparent 90%);
 }
 
-.container {
-  width: min(1160px, 92%);
-  margin: auto;
+/* grain overlay for a hand-processed, non-digital feel */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
+body.dark .grain { opacity: 0.08; mix-blend-mode: overlay; }
 
-/* SMART PRELOADER */
+body.loading { overflow: hidden; }
+
+.container { width: min(1160px, 92%); margin: auto; position: relative; z-index: 1; }
+
+/* custom crosshair cursor (desktop only) */
+.crosshair {
+  position: fixed;
+  width: 26px; height: 26px;
+  border: 1px solid var(--brass);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 10001;
+  transform: translate(-50%,-50%);
+  transition: width .2s, height .2s, border-color .2s, opacity .2s;
+  mix-blend-mode: difference;
+  display: none;
+}
+.crosshair::before, .crosshair::after {
+  content: '';
+  position: absolute;
+  background: var(--brass);
+}
+.crosshair::before { width: 1px; height: 8px; left: 50%; top: -12px; transform: translateX(-50%); }
+.crosshair::after { width: 8px; height: 1px; top: 50%; left: -12px; transform: translateY(-50%); }
+.crosshair-dot {
+  position: fixed;
+  width: 4px; height: 4px;
+  background: var(--brass-bright);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 10001;
+  transform: translate(-50%,-50%);
+  display: none;
+}
+@media (hover:hover) and (pointer:fine) {
+  .crosshair, .crosshair-dot { display: block; }
+}
+.crosshair.grow { width: 46px; height: 46px; border-color: var(--contour); }
+
+/* PRELOADER — theodolite/compass spin */
 #preloader {
   position: fixed;
   inset: 0;
-  background: #fafafa;
+  background: var(--paper);
   z-index: 10000;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 24px;
-  transition: opacity 0.4s ease, visibility 0.4s ease;
+  gap: 22px;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
 }
-
-body.dark #preloader {
-  background: #1f1f1f;
+.compass-loader {
+  width: 74px; height: 74px;
+  position: relative;
 }
-
-.preloader-icon {
-  width: 90px;
-  height: 90px;
-  object-fit: contain;
-  animation: pulseLogo 2s infinite ease-in-out;
-}
-
-.microsoft-spinner {
-  width: 28px;
-  height: 28px;
-  border: 3px solid rgba(0, 120, 212, 0.15);
-  border-top-color: var(--primary);
+.compass-loader .ring {
+  position: absolute; inset: 0;
   border-radius: 50%;
-  animation: spin 0.8s linear infinite;
+  border: 2px solid var(--border);
+  border-top-color: var(--brass);
+  animation: spin 1.1s linear infinite;
 }
+.compass-loader .ring2 {
+  position: absolute; inset: 12px;
+  border-radius: 50%;
+  border: 1px dashed var(--contour-soft);
+  animation: spin 2.4s linear infinite reverse;
+}
+.compass-loader .needle {
+  position: absolute; left: 50%; top: 50%;
+  width: 2px; height: 26px;
+  background: linear-gradient(var(--brass-bright), transparent);
+  transform-origin: bottom center;
+  transform: translate(-50%,-100%) rotate(0deg);
+  animation: needleSwing 1.6s ease-in-out infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes needleSwing {
+  0%,100% { transform: translate(-50%,-100%) rotate(-24deg); }
+  50% { transform: translate(-50%,-100%) rotate(24deg); }
+}
+.preload-label {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 2px;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.preload-percent {
+  font-family: var(--font-display);
+  font-size: 2.6rem;
+  font-weight: 700;
+  color: var(--ink-text);
+  letter-spacing: -1px;
+  font-variant-numeric: tabular-nums;
+}
+.preload-bar-track {
+  width: 220px; height: 2px; background: var(--border); position: relative; overflow: hidden; border-radius: 2px;
+}
+.preload-bar-fill { position: absolute; inset: 0; width: 0%; background: var(--brass); }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
+/* MARQUEE STRIP */
+.marquee-strip {
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: var(--ink);
+  color: var(--paper-2);
+  overflow: hidden;
+  padding: 14px 0;
+  white-space: nowrap;
 }
+.marquee-track {
+  display: inline-flex;
+  gap: 40px;
+  animation: marqueeScroll 28s linear infinite;
+  will-change: transform;
+}
+.marquee-strip:hover .marquee-track { animation-play-state: paused; }
+.marquee-track span {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+.marquee-track span i { color: var(--brass-bright); font-size: 0.65rem; }
+@keyframes marqueeScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
-@keyframes pulseLogo {
-  0%, 100% { transform: scale(1); opacity: 0.9; }
-  50% { transform: scale(1.05); opacity: 1; }
+/* TILT WRAPPER */
+.tilt { transform-style: preserve-3d; will-change: transform; }
+
+/* magnetic btn inner wrap for smoother transform */
+.btn { will-change: transform; }
+
+/* FIELD TAG — replaces generic uppercase eyebrow */
+.field-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 1.5px;
+  color: var(--brass);
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--card);
 }
+.field-tag::before { content: '◎'; font-size: 0.85rem; }
 
 /* HEADER */
 header {
   position: sticky;
   top: 0;
   z-index: 999;
-  background: rgba(250, 250, 250, 0.85);
-  backdrop-filter: blur(20px);
+  background: color-mix(in srgb, var(--paper) 86%, transparent);
+  backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border);
   transition: var(--transition);
 }
 
-body.dark header {
-  background: rgba(31, 31, 31, 0.85);
-}
+.navbar { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; }
+.logo { display: flex; align-items: center; gap: 12px; }
+.logo img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid var(--brass); }
+.logo h1 { font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; color: var(--ink-text); letter-spacing: -0.2px; }
+.logo p { color: var(--muted); font-size: .74rem; font-family: var(--font-mono); letter-spacing: 0.4px; }
 
-.navbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 0;
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.logo img {
-  width: 44px;
-  height: 44px;
-  border-radius: 6px;
-  object-fit: cover;
-  border: 1px solid var(--border);
-}
-
-.logo h1 {
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--text);
-  letter-spacing: -0.3px;
-}
-
-.logo p {
-  color: var(--muted);
-  font-size: .78rem;
-  font-weight: 400;
-}
-
-.nav-links {
-  display: flex;
-  gap: 4px;
-}
-
+.nav-links { display: flex; gap: 2px; align-items: center; }
 .nav-links a {
-  text-decoration: none;
-  color: var(--text);
-  font-weight: 600;
-  font-size: 0.9rem;
-  padding: 8px 16px;
-  border-radius: 4px;
-  transition: background 0.2s, color 0.2s;
+  text-decoration: none; color: var(--ink-text); font-weight: 600; font-size: 0.87rem;
+  padding: 8px 14px; border-radius: 20px; transition: background 0.25s, color 0.25s;
+  position: relative;
 }
+.nav-links a:hover, .nav-links a.active { background: var(--ink); color: var(--paper); }
+body.dark .nav-links a:hover, body.dark .nav-links a.active { background: var(--brass); color: var(--ink); }
 
-.nav-links a:hover, .nav-links a.active {
-  background: var(--light);
-  color: var(--primary);
-}
-
-.menu-btn {
-  display: none;
-  font-size: 1.3rem;
-  cursor: pointer;
-  color: var(--text);
-  padding: 8px;
-}
+.menu-btn { display: none; font-size: 1.3rem; cursor: pointer; color: var(--ink-text); padding: 8px; }
 
 /* HERO */
 .hero {
-  min-height: 75vh;
+  min-height: 78vh;
   display: grid;
   grid-template-columns: 1.1fr 0.9fr;
   align-items: center;
   gap: 60px;
-  padding: 60px 0;
+  padding: 70px 0 50px;
+  position: relative;
 }
 
-.hero-left h4 {
-  color: var(--primary);
-  margin-bottom: 12px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  letter-spacing: 0.5px;
+.contour-decor {
+  position: absolute;
+  right: -8%;
+  top: -6%;
+  width: 620px;
+  max-width: 60vw;
+  opacity: 0.35;
+  z-index: -1;
+  pointer-events: none;
 }
+body.dark .contour-decor { opacity: 0.22; }
+
+.hero-left { opacity: 0; }
+.hero-left .word { display: inline-block; overflow: hidden; }
+.hero-left .word span { display: inline-block; transform: translateY(110%); }
 
 .hero-left h2 {
-  font-size: 3rem;
-  line-height: 1.2;
-  margin-bottom: 20px;
+  font-family: var(--font-display);
+  font-size: 3.3rem;
+  line-height: 1.08;
+  margin: 14px 0 18px;
   font-weight: 700;
-  color: var(--text);
-  letter-spacing: -0.8px;
+  color: var(--ink-text);
+  letter-spacing: -1px;
 }
+.hero-left .typed-role {
+  font-family: var(--font-mono);
+  color: var(--contour);
+  font-size: 0.98rem;
+  display: inline-block;
+  min-height: 1.4em;
+  border-right: 2px solid var(--brass);
+  padding-right: 4px;
+}
+.hero-left p { color: var(--muted); line-height: 1.7; font-size: 1.03rem; max-width: 540px; }
 
-.hero-left p {
-  color: var(--muted);
-  line-height: 1.6;
-  font-size: 1.05rem;
-  max-width: 540px;
-}
-
-.hero-buttons {
-  margin-top: 32px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
+.hero-buttons { margin-top: 32px; display: flex; flex-wrap: wrap; gap: 14px; }
 
 .btn {
   text-decoration: none;
-  padding: 12px 24px;
-  border-radius: 4px;
+  padding: 13px 26px;
+  border-radius: 30px;
   font-weight: 600;
   font-size: 0.9rem;
   transition: var(--transition);
@@ -239,535 +386,418 @@ body.dark header {
   align-items: center;
   justify-content: center;
   gap: 8px;
+  position: relative;
+  overflow: hidden;
 }
+.btn-primary { background: var(--ink); color: var(--paper); border: 1px solid var(--ink); }
+.btn-primary:hover { background: var(--brass); border-color: var(--brass); color: var(--ink); transform: translateY(-3px); box-shadow: 0 10px 22px rgba(185,139,62,0.3); }
+.btn-outline { border: 1px solid var(--border); color: var(--ink-text); background: var(--card); }
+.btn-outline:hover { border-color: var(--contour); color: var(--contour); transform: translateY(-3px); }
 
-.btn-primary {
-  background: var(--primary);
-  color: #fff;
-  border: 1px solid transparent;
-}
+/* PROFILE CARD — stamped field card */
+.hero-right { opacity: 0; }
 
-.btn-primary:hover {
-  background: #005a9e;
-  transform: translateY(-2px);
-}
-
-.btn-outline {
-  border: 1px solid var(--border);
-  color: var(--text);
-  background: var(--card);
-}
-
-.btn-outline:hover {
-  background: var(--light);
-  transform: translateY(-2px);
-}
-
-/* PROFILE CARD */
 .profile-card {
   background: var(--card);
   border-radius: var(--radius);
-  padding: 32px;
+  padding: 34px;
   box-shadow: var(--shadow);
   text-align: center;
   border: 1px solid var(--border);
-  transition: var(--transition);
-}
-
-.profile-card img {
-  width: 140px;
-  height: 140px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 1px solid var(--border);
-  padding: 4px;
-  background: var(--card);
-}
-
-.profile-card h3 {
-  margin-top: 16px;
-  font-size: 1.4rem;
-  font-weight: 700;
-}
-
-.profile-card p {
-  color: var(--muted);
-  margin-top: 4px;
-  font-size: 0.88rem;
-}
-
-.social-icons {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 20px;
-}
-
-.social-icons a {
-  width: 40px;
-  height: 40px;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--light);
-  color: var(--text);
-  text-decoration: none;
-  font-size: 1rem;
-  transition: var(--transition);
-}
-
-.social-icons a:hover {
-  background: var(--primary-tint);
-  color: var(--primary);
-  transform: scale(1.05);
-}
-
-/* STATS */
-.stats {
-  margin-top: 28px;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
-
-.stat-box {
-  background: var(--light);
-  padding: 12px 8px;
-  border-radius: 4px;
-  transition: var(--transition);
-}
-
-.stat-box h3 {
-  font-size: 1.25rem;
-  color: var(--primary);
-  font-weight: 700;
-}
-
-.stat-box p {
-  font-size: .75rem;
-  color: var(--muted);
-  font-weight: 600;
-}
-
-/* INTERACTIVE SLIDER WITH DOTS */
-.slider-section {
-  padding: 40px 0;
-}
-
-.slider {
   position: relative;
-  height: 450px;
-  overflow: hidden;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow);
 }
-
-.slide {
+.profile-card::before {
+  content: '';
+  position: absolute; inset: 8px;
+  border: 1px dashed var(--border);
+  pointer-events: none;
+}
+.profile-card::after {
+  content: 'VERIFIED';
   position: absolute;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.6s;
+  top: 18px; right: 14px;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 1.5px;
+  color: var(--contour-soft);
+  border: 1px solid var(--contour-soft);
+  padding: 2px 6px;
+  border-radius: 3px;
+  transform: rotate(6deg);
 }
+.profile-card img {
+  width: 138px; height: 138px; border-radius: 50%; object-fit: cover;
+  border: 3px solid var(--brass); padding: 4px; background: var(--card);
+}
+.profile-card h3 { margin-top: 16px; font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; }
+.profile-card p { color: var(--muted); margin-top: 4px; font-size: 0.88rem; font-family: var(--font-mono); }
 
-.slide.active {
-  opacity: 1;
-  visibility: visible;
+.social-icons { display: flex; justify-content: center; gap: 8px; margin-top: 20px; }
+.social-icons a {
+  width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  background: var(--paper-2); color: var(--ink-text); text-decoration: none; font-size: 1rem; transition: var(--transition);
 }
+.social-icons a:hover { background: var(--brass); color: var(--ink); transform: scale(1.12) rotate(-6deg); }
 
-.slide img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+/* STATS with animated counters */
+.stats { margin-top: 28px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.stat-box { background: var(--paper-2); padding: 14px 8px; border-radius: var(--radius); border: 1px solid var(--border); transition: var(--transition); }
+.stat-box:hover { transform: translateY(-3px); border-color: var(--brass); }
+.stat-box h3 { font-family: var(--font-display); font-size: 1.35rem; color: var(--contour); font-weight: 700; }
+.stat-box p { font-size: .72rem; color: var(--muted); font-weight: 600; font-family: var(--font-mono); margin-top: 2px; }
 
-.overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.1) 100%);
-}
+/* traverse-line divider (like a survey chain between points) */
+.traverse-divider { padding: 26px 0 6px; }
+.traverse-divider svg { width: 100%; height: 26px; display: block; }
+.traverse-divider path { stroke: var(--border); stroke-width: 1.5; fill: none; stroke-dasharray: 6 6; }
+.traverse-divider circle { fill: var(--brass); }
 
-.slide-content {
-  position: absolute;
-  left: 32px;
-  bottom: 40px;
-  color: #fff;
+/* SLIDER */
+.slider-section { padding: 30px 0 50px; }
+.slider {
+  position: relative; height: 460px; overflow: hidden; border-radius: var(--radius);
+  border: 1px solid var(--border); box-shadow: var(--shadow);
 }
+.slide { position: absolute; width: 100%; height: 100%; opacity: 0; visibility: hidden; transition: opacity 0.8s cubic-bezier(0.4,0,0.2,1), visibility 0.8s; }
+.slide.active { opacity: 1; visibility: visible; }
+.slide img { width: 100%; height: 100%; object-fit: cover; transition: transform 6s ease; }
+.slide.active img { transform: scale(1.06); }
+.overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(10,16,12,0.85) 0%, rgba(10,16,12,0.08) 100%); }
+.slide-content { position: absolute; left: 34px; bottom: 42px; color: #fdfaf1; }
+.slide-content h2 { font-family: var(--font-display); font-size: 2.1rem; margin-bottom: 6px; font-weight: 700; }
+.slide-content p { font-family: var(--font-mono); font-size: 0.85rem; opacity: 0.85; }
+.slider-dots { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.35); cursor: pointer; transition: var(--transition); }
+.dot.active { background: var(--brass-bright); transform: scale(1.3); }
 
-.slide-content h2 {
-  font-size: 2rem;
-  margin-bottom: 6px;
-  font-weight: 700;
-}
-
-.slider-dots {
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 10px;
-}
-
-.dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.4);
-  cursor: pointer;
-  transition: var(--transition);
-}
-
-.dot.active {
-  background: #fff;
-  transform: scale(1.2);
-}
+/* SECTION TITLES */
+.section-title { text-align: center; margin-bottom: 44px; }
+.section-title h2 { font-family: var(--font-display); font-size: 2.1rem; font-weight: 700; margin-top: 10px; }
+.section-title p.field-tag { margin: 0 auto; }
 
 /* SERVICES */
-.section-title {
-  text-align: center;
-  margin-bottom: 40px;
-}
-
-.section-title h2 {
-  font-size: 2rem;
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-
-.section-title p {
-  color: var(--primary);
-  font-weight: 600;
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.services {
-  padding: 60px 0;
-}
-
-.service-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 20px;
-}
+.services { padding: 60px 0; }
+.service-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 22px; }
 
 .service-card {
-  background: var(--card);
-  border-radius: var(--radius);
-  padding: 28px;
-  box-shadow: var(--shadow);
-  border: 1px solid var(--border);
-  transition: var(--transition);
-  display: flex;
-  flex-direction: column;
+  background: var(--card); border-radius: var(--radius); padding: 30px;
+  box-shadow: var(--shadow); border: 1px solid var(--border);
+  transition: var(--transition); display: flex; flex-direction: column;
+  position: relative; overflow: hidden;
+  opacity: 0; transform: translateY(30px);
 }
-
-.service-card:hover {
-  transform: translateY(-5px);
-  border-color: var(--primary);
-  box-shadow: 0 8px 24px rgba(0, 120, 212, 0.12);
+.service-card.in-view { opacity: 1; transform: translateY(0); }
+.service-card::before {
+  content: '';
+  position: absolute; left: 0; top: 0; height: 3px; width: 0%;
+  background: var(--brass); transition: width .5s ease;
 }
+.service-card:hover::before { width: 100%; }
+.service-card:hover { transform: translateY(-7px); border-color: var(--brass); box-shadow: 0 16px 32px rgba(16,27,22,0.12); }
 
 .service-card i {
-  font-size: 1.5rem;
-  color: var(--primary);
-  background: var(--primary-tint);
-  width: 48px;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 6px;
-  margin-bottom: 20px;
-  transition: var(--transition);
+  font-size: 1.4rem; color: var(--ink); background: var(--paper-2);
+  width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;
+  border-radius: 50%; margin-bottom: 20px; transition: var(--transition);
+  border: 1px solid var(--border);
 }
+.service-card:hover i { background: var(--brass); color: var(--ink); transform: rotate(-8deg) scale(1.05); }
 
-.service-card:nth-child(2n) i {
-  color: var(--secondary);
-  background: #e6f4ea;
-}
-body.dark .service-card:nth-child(2n) i {
-  background: #132a1c;
-}
-
-.service-card h3 {
-  margin-bottom: 10px;
-  font-size: 1.2rem;
-  font-weight: 700;
-}
-
-.service-card p {
-  color: var(--muted);
-  line-height: 1.5;
-  font-size: 0.9rem;
-  flex-grow: 1;
-}
-
+.service-card h3 { margin-bottom: 10px; font-family: var(--font-display); font-size: 1.18rem; font-weight: 700; }
+.service-card p { color: var(--muted); line-height: 1.55; font-size: 0.9rem; flex-grow: 1; }
 .service-card a {
-  display: inline-flex;
-  align-items: center;
-  margin-top: 16px;
-  color: var(--primary);
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 0.9rem;
-  transition: transform 0.2s;
+  display: inline-flex; align-items: center; margin-top: 16px; color: var(--contour);
+  text-decoration: none; font-weight: 700; font-size: 0.87rem; transition: transform 0.2s;
+  font-family: var(--font-mono);
 }
-
-.service-card a:hover {
-  text-decoration: underline;
-  transform: translateX(4px);
-}
+.service-card a:hover { transform: translateX(6px); }
 
 /* VIDEO */
-.video-section {
-  padding: 40px 0;
-}
-
+.video-section { padding: 40px 0; }
 .video-card {
-  background: var(--card);
-  border-radius: var(--radius);
-  overflow: hidden;
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow);
-  padding: 12px;
-  max-width: 800px;
-  margin: 0 auto;
+  background: var(--card); border-radius: var(--radius); overflow: hidden;
+  border: 1px solid var(--border); box-shadow: var(--shadow);
+  padding: 14px; max-width: 800px; margin: 0 auto;
 }
+.video-card video { width: 100%; border-radius: 2px; display: block; }
 
-.video-card video {
-  width: 100%;
-  border-radius: 4px;
-  display: block;
-}
-
-/* EXPERIENCE */
-.timeline {
-  margin-top: 30px;
-  position: relative;
-  max-width: 800px;
-  margin: auto;
-}
-
-.timeline::before {
-  content: '';
-  position: absolute;
-  left: 20px;
-  top: 0;
-  width: 2px;
-  height: 100%;
-  background: var(--border);
-}
-
-.timeline-item {
-  position: relative;
-  padding-left: 50px;
-}
-
+/* EXPERIENCE — survey traverse timeline */
+.timeline { margin-top: 30px; position: relative; max-width: 800px; margin-inline: auto; }
+.timeline::before { content: ''; position: absolute; left: 20px; top: 0; width: 2px; height: 100%; background: repeating-linear-gradient(to bottom, var(--brass) 0 6px, transparent 6px 12px); }
+.timeline-item { position: relative; padding-left: 50px; opacity: 0; transform: translateX(-24px); }
+.timeline-item.in-view { opacity: 1; transform: translateX(0); transition: var(--transition); }
 .timeline-item::before {
-  content: '';
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  left: 15px;
-  top: 26px;
-  background: var(--primary);
-  border: 2px solid var(--bg-main);
+  content: ''; position: absolute; width: 14px; height: 14px; border-radius: 50%;
+  left: 14px; top: 26px; background: var(--brass); border: 3px solid var(--paper);
+  box-shadow: 0 0 0 1px var(--brass);
 }
-
-.timeline-card {
-  background: var(--card);
-  padding: 24px;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow);
-  transition: var(--transition);
-}
-
-.timeline-card h3 {
-  font-weight: 700;
-  font-size: 1.2rem;
-}
-
-.timeline-card span {
-  color: var(--muted);
-  font-weight: 600;
-  font-size: 0.85rem;
-  display: inline-block;
-  margin-top: 4px;
-}
+.timeline-card { background: var(--card); padding: 26px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); transition: var(--transition); }
+.timeline-card:hover { border-color: var(--brass); }
+.timeline-card h3 { font-family: var(--font-display); font-weight: 700; font-size: 1.18rem; }
+.timeline-card span { color: var(--brass); font-weight: 600; font-size: 0.82rem; display: inline-block; margin-top: 4px; font-family: var(--font-mono); }
 
 /* CONTACT */
-.contact {
-  padding: 60px 0;
-}
+.contact { padding: 60px 0; }
+.contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+.contact-card { background: var(--card); padding: 32px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); }
+.contact-card h3 { margin-bottom: 20px; font-family: var(--font-display); font-size: 1.3rem; font-weight: 700; }
 
-.contact-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 32px;
+.input-group { margin-bottom: 18px; }
+.input-group input, .input-group textarea {
+  width: 100%; padding: 14px; border: 1px solid var(--border); background: var(--paper);
+  color: var(--ink-text); border-radius: 6px; font-family: inherit; font-size: 0.95rem;
+  outline: none; transition: var(--transition);
 }
-
-.contact-card {
-  background: var(--card);
-  padding: 32px;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow);
-}
-
-.contact-card h3 {
-  margin-bottom: 20px;
-  font-size: 1.3rem;
-  font-weight: 700;
-}
-
-.input-group {
-  margin-bottom: 18px;
-}
-
-.input-group input,
-.input-group textarea {
-  width: 100%;
-  padding: 14px;
-  border: 1px solid var(--border);
-  background: var(--bg-main);
-  color: var(--text);
-  border-radius: 6px;
-  font-family: inherit;
-  font-size: 0.95rem;
-  outline: none;
-  transition: var(--transition);
-}
-
-.input-group input:focus,
-.input-group textarea:focus {
-  border-color: var(--primary);
-  background: var(--card);
-  box-shadow: 0 0 0 3px rgba(0, 120, 212, 0.15);
+.input-group input:focus, .input-group textarea:focus {
+  border-color: var(--brass); background: var(--card); box-shadow: 0 0 0 3px rgba(185,139,62,0.18);
 }
 
 /* FOOTER */
-footer {
-  margin-top: 60px;
-  padding: 40px 0 24px;
-  background: var(--card);
-  border-top: 1px solid var(--border);
-  color: var(--muted);
-  transition: var(--transition);
-}
-
-.footer-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 24px;
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 24px;
-}
-
-.footer-content h3 {
-  color: var(--text);
-  font-weight: 700;
-  font-size: 1.2rem;
-}
-
-.footer-links {
-  display: flex;
-  gap: 20px;
-}
-
-.footer-content a {
-  color: var(--muted);
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 0.9rem;
-  transition: color 0.2s;
-}
-
-.footer-content a:hover {
-  color: var(--primary);
-}
+footer { margin-top: 60px; padding: 40px 0 24px; background: var(--ink); color: var(--paper-2); }
+.footer-content { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 24px; border-bottom: 1px solid rgba(244,239,225,0.15); padding-bottom: 24px; }
+.footer-content h3 { color: var(--paper); font-family: var(--font-display); font-weight: 700; font-size: 1.2rem; }
+.footer-content p { font-family: var(--font-mono); font-size: 0.82rem; opacity: 0.7; }
+.footer-links { display: flex; gap: 20px; }
+.footer-content a { color: var(--paper-2); text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: color 0.2s; }
+.footer-content a:hover { color: var(--brass-bright); }
+footer > div:last-child { text-align: center; margin-top: 24px; font-size: 0.8rem; font-family: var(--font-mono); opacity: 0.6; }
 
 /* FLOAT BUTTONS */
-.float-buttons {
-  position: fixed;
-  right: 24px;
-  bottom: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  z-index: 999;
-}
-
+.float-buttons { position: fixed; right: 24px; bottom: 24px; display: flex; flex-direction: column; gap: 12px; z-index: 999; }
 .float-buttons a, .dark-toggle {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  text-decoration: none;
-  font-size: 1.2rem;
-  box-shadow: 0 8px 16px rgba(0,0,0,0.15);
-  transition: transform 0.2s, background-color 0.3s;
-  border: none;
-  cursor: pointer;
+  width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  color: #fff; text-decoration: none; font-size: 1.2rem; box-shadow: 0 8px 18px rgba(0,0,0,0.22);
+  transition: transform 0.25s, background-color 0.3s; border: none; cursor: pointer;
+}
+.float-buttons a:hover, .dark-toggle:hover { transform: scale(1.12) rotate(-6deg); }
+.whatsapp { background: #2f8f57; }
+.call { background: var(--brass); color: var(--ink); }
+.dark-toggle { background: var(--card); color: var(--ink-text); border: 1px solid var(--border); }
+
+/* scroll reveal helper */
+[data-reveal] { opacity: 0; transform: translateY(26px); transition: opacity .7s cubic-bezier(.4,0,.2,1), transform .7s cubic-bezier(.4,0,.2,1); }
+[data-reveal].in-view { opacity: 1; transform: translateY(0); }
+
+@keyframes riseIn { to { opacity: 1; transform: translateY(0); } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+  .hero-left, .hero-right { opacity: 1 !important; }
+  .hero-left .word span { transform: translateY(0) !important; }
 }
 
-.float-buttons a:hover, .dark-toggle:hover {
-  transform: scale(1.1);
+/* back to top */
+#backToTop {
+  position: fixed; left: 24px; bottom: 24px; z-index: 999;
+  width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--border);
+  background: var(--card); color: var(--ink-text); display: flex; align-items: center; justify-content: center;
+  cursor: pointer; opacity: 0; pointer-events: none; transition: var(--transition);
 }
+#backToTop.show { opacity: 1; pointer-events: auto; }
+#backToTop:hover { background: var(--brass); color: var(--ink); transform: translateY(-4px); }
 
-.whatsapp { background: #107c41; }
-.call { background: #d83b01; }
-.dark-toggle { background: var(--card); color: var(--text); border: 1px solid var(--border); }
+/* scroll progress bar */
+#scrollProgress { position: fixed; top: 0; left: 0; height: 3px; background: linear-gradient(90deg, var(--contour), var(--brass)); width: 0%; z-index: 10002; }
 
-/* RESPONSIVE CSS */
+/* =========================================================
+   CONVERTER TOOL — Land unit calculator
+   Converts traditional Nepali hilly (Ropani-Aana-Paisa-Daam)
+   and terai (Bigha-Kattha-Dhur) units into Sq.ft / Sq.m
+   ========================================================= */
+.converter-section { padding: 60px 0; }
+.section-sub { color: var(--muted); margin-top: 10px; max-width: 560px; margin-inline: auto; font-size: 0.95rem; }
+.converter-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow); max-width: 800px; margin: 0 auto; padding: 32px; opacity: 0; transform: translateY(30px);
+}
+.converter-card.in-view { opacity: 1; transform: translateY(0); transition: var(--transition); }
+.converter-tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+.conv-tab {
+  flex: 1; min-width: 200px; padding: 12px; border-radius: 20px; border: 1px solid var(--border);
+  background: var(--paper-2); color: var(--muted); font-weight: 600; font-size: 0.85rem; cursor: pointer;
+  transition: var(--transition); font-family: var(--font-body);
+}
+.conv-tab.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+body.dark .conv-tab.active { background: var(--brass); color: var(--ink); border-color: var(--brass); }
+.converter-panel { display: none; }
+.converter-panel.active { display: block; animation: fadeInPanel 0.4s ease; }
+@keyframes fadeInPanel { from { opacity: 0; transform: translateY(8px);} to { opacity: 1; transform: translateY(0);} }
+.conv-inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 14px; margin-bottom: 20px; }
+.conv-field label { display: block; font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+.conv-field input {
+  width: 100%; padding: 12px; border: 1px solid var(--border); background: var(--paper);
+  color: var(--ink-text); border-radius: 6px; font-size: 1rem; font-family: var(--font-mono); outline: none; transition: var(--transition);
+}
+.conv-field input:focus { border-color: var(--brass); box-shadow: 0 0 0 3px rgba(185,139,62,0.18); }
+.conv-results { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-top: 24px; }
+.conv-result-box { background: var(--paper-2); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; text-align: center; }
+.conv-result-box span { display: block; font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; color: var(--contour); font-variant-numeric: tabular-nums; }
+.conv-result-box p { font-size: 0.75rem; color: var(--muted); margin-top: 4px; font-family: var(--font-mono); }
+.conv-note { margin-top: 20px; font-size: 0.8rem; color: var(--muted); font-family: var(--font-mono); line-height: 1.6; }
+
+/* =========================================================
+   GALLERY + LIGHTBOX
+   ========================================================= */
+.gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 30px; }
+.gallery-item {
+  position: relative; border-radius: var(--radius); overflow: hidden; cursor: pointer;
+  border: 1px solid var(--border); aspect-ratio: 4/3; opacity: 0; transform: scale(0.92);
+}
+.gallery-item.in-view { opacity: 1; transform: scale(1); transition: var(--transition); }
+.gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; display: block; }
+.gallery-item:hover img { transform: scale(1.1); }
+.gallery-overlay {
+  position: absolute; inset: 0; background: rgba(16,27,22,0.5); display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity 0.3s ease; color: #fff; font-size: 1.4rem;
+}
+.gallery-item:hover .gallery-overlay { opacity: 1; }
+
+.lightbox {
+  position: fixed; inset: 0; background: rgba(8,12,10,0.94); z-index: 10005;
+  display: none; align-items: center; justify-content: center;
+}
+.lightbox.active { display: flex; }
+.lightbox img { max-width: 86vw; max-height: 82vh; border-radius: 4px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+.lightbox-close, .lightbox-nav {
+  position: absolute; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2);
+  color: #fff; width: 46px; height: 46px; border-radius: 50%; cursor: pointer; font-size: 1.1rem;
+  display: flex; align-items: center; justify-content: center; transition: var(--transition);
+}
+.lightbox-close:hover, .lightbox-nav:hover { background: var(--brass); border-color: var(--brass); color: var(--ink); }
+.lightbox-close { top: 24px; right: 24px; }
+.lightbox-prev { left: 24px; top: 50%; transform: translateY(-50%); }
+.lightbox-next { right: 24px; top: 50%; transform: translateY(-50%); }
+
+/* =========================================================
+   TESTIMONIALS
+   ========================================================= */
+.testimonial-section { padding: 60px 0; background: var(--paper-2); }
+.testi-slider { max-width: 760px; margin: 0 auto; position: relative; overflow: hidden; }
+.testi-track { display: flex; transition: transform 0.6s cubic-bezier(.4,0,.2,1); }
+.testi-card {
+  flex: 0 0 100%; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 40px; text-align: center; box-shadow: var(--shadow);
+}
+.testi-card p { font-family: var(--font-display); font-size: 1.2rem; line-height: 1.6; color: var(--ink-text); font-style: italic; }
+.testi-author { margin-top: 20px; }
+.testi-author strong { display: block; font-size: 0.95rem; }
+.testi-author span { color: var(--brass); font-family: var(--font-mono); font-size: 0.75rem; }
+.testi-dots { display: flex; justify-content: center; gap: 8px; margin-top: 22px; }
+.testi-dots .dot { background: var(--border); }
+.testi-dots .dot.active { background: var(--brass); transform: scale(1.3); }
+
+/* =========================================================
+   FAQ ACCORDION
+   ========================================================= */
+.faq-section { padding: 60px 0; }
+.faq-list { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+.faq-item { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.faq-question {
+  width: 100%; text-align: left; background: none; border: none; padding: 20px 22px;
+  font-family: var(--font-body); font-weight: 700; font-size: 0.95rem; color: var(--ink-text);
+  display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+}
+.faq-question i { color: var(--brass); transition: transform 0.3s ease; }
+.faq-item.open .faq-question i { transform: rotate(45deg); }
+.faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+.faq-answer p { padding: 0 22px 20px; color: var(--muted); line-height: 1.6; font-size: 0.9rem; }
+
+/* =========================================================
+   BLOG / NEWS
+   ========================================================= */
+.blog-section { padding: 60px 0; }
+.blog-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+.blog-card {
+  display: flex; gap: 18px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 22px; box-shadow: var(--shadow); opacity: 0; transform: translateY(24px);
+}
+.blog-card.in-view { opacity: 1; transform: translateY(0); transition: var(--transition); }
+.blog-date {
+  flex-shrink: 0; width: 56px; height: 56px; background: var(--paper-2); border: 1px solid var(--border);
+  border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.blog-date span { font-family: var(--font-display); font-weight: 700; font-size: 1.2rem; color: var(--brass); line-height: 1; }
+.blog-date small { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; }
+.blog-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 6px; font-family: var(--font-display); }
+.blog-card p { font-size: 0.85rem; color: var(--muted); line-height: 1.5; }
+
+/* =========================================================
+   TOAST NOTIFICATIONS
+   ========================================================= */
+.toast-container { position: fixed; top: 24px; right: 24px; z-index: 10010; display: flex; flex-direction: column; gap: 10px; }
+.toast {
+  background: var(--ink); color: var(--paper); padding: 14px 20px; border-radius: 8px; box-shadow: var(--shadow);
+  display: flex; align-items: center; gap: 10px; font-size: 0.88rem; min-width: 240px;
+  transform: translateX(120%); opacity: 0; transition: transform 0.4s cubic-bezier(.4,0,.2,1), opacity 0.4s;
+  border-left: 3px solid var(--brass);
+}
+.toast.show { transform: translateX(0); opacity: 1; }
+.toast i { color: var(--brass-bright); }
+
+/* =========================================================
+   COOKIE CONSENT BANNER
+   ========================================================= */
+.cookie-banner {
+  position: fixed; left: 24px; bottom: 24px; right: 24px; max-width: 460px;
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 20px; z-index: 10001;
+  display: flex; flex-direction: column; gap: 14px;
+  transform: translateY(140%); transition: transform 0.5s cubic-bezier(.4,0,.2,1);
+}
+.cookie-banner.show { transform: translateY(0); }
+.cookie-banner p { font-size: 0.85rem; color: var(--muted); line-height: 1.5; }
+.cookie-actions { display: flex; gap: 10px; }
+.cookie-actions .btn { padding: 9px 16px; font-size: 0.8rem; flex: 1; }
+
+/* =========================================================
+   PRINT STYLES
+   ========================================================= */
+@media print {
+  .float-buttons, #backToTop, .crosshair, .crosshair-dot, .grain, #scrollProgress,
+  #preloader, .cookie-banner, .toast-container, .lightbox, .marquee-strip, header { display: none !important; }
+  body { background: #fff; color: #000; }
+  .service-card, .contact-card, .timeline-card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; }
+}
 @media(max-width:950px){
   .hero { grid-template-columns: 1fr; gap: 40px; text-align: center; }
   .contact-grid { grid-template-columns: 1fr; }
   .hero-buttons { justify-content: center; }
   .profile-card { max-width: 450px; margin: auto; }
   .hero-left h2 { font-size: 2.5rem; }
+  .contour-decor { display: none; }
 }
-
 @media(max-width:768px){
   .nav-links {
-    position: fixed;
-    top: 73px;
-    right: -100%;
-    width: 280px;
-    height: calc(100vh - 73px);
-    background: var(--card);
-    flex-direction: column;
-    padding: 32px 24px;
-    transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    border-left: 1px solid var(--border);
-    box-shadow: var(--shadow);
-    z-index: 1000;
+    position: fixed; top: 73px; right: -100%; width: 280px; height: calc(100vh - 73px);
+    background: var(--card); flex-direction: column; padding: 32px 24px;
+    transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); border-left: 1px solid var(--border);
+    box-shadow: var(--shadow); z-index: 1000; align-items: flex-start;
   }
   .nav-links.active { right: 0; }
   .menu-btn { display: block; }
   .slider { height: 320px; }
   .slide-content h2 { font-size: 1.5rem; }
+  #backToTop { left: 16px; bottom: 16px; }
 }
 </style>
 </head>
 
 <body class="loading">
 
+<div id="scrollProgress"></div>
+<div class="grain"></div>
+<div class="crosshair" id="crosshair"></div>
+<div class="crosshair-dot" id="crosshairDot"></div>
+
 <div id="preloader">
-  <img src="brp.ico" alt="BRP Icon" class="preloader-icon" onerror="this.src='brp.jpg';">
-  <div class="microsoft-spinner"></div>
+  <div class="compass-loader">
+    <div class="ring"></div>
+    <div class="ring2"></div>
+    <div class="needle"></div>
+  </div>
+  <div class="preload-percent" id="preloadPercent">0%</div>
+  <div class="preload-bar-track"><div class="preload-bar-fill" id="preloadBar"></div></div>
+  <p class="preload-label">Plotting coordinates…</p>
 </div>
 
 <header>
@@ -776,13 +806,16 @@ footer {
       <img src="brp.jpg" alt="Dinesh Babu Roka">
       <div>
         <h1>Dinesh Babu Roka</h1>
-        <p>Surveyor & Geospatial Consultant</p>
+        <p>SURVEYOR · GEOSPATIAL CONSULTANT</p>
       </div>
     </div>
 
     <nav class="nav-links" id="navLinks" aria-label="Main Navigation">
       <a href="#home" class="active">गृहपृष्ठ</a>
       <a href="#services">सेवाहरू</a>
+      <a href="#converter">क्यालकुलेटर</a>
+      <a href="#gallery">ग्यालरी</a>
+      <a href="#faq">FAQ</a>
       <a href="#experience">अनुभव</a>
       <a href="#contact">सम्पर्क</a>
       <a href="mapbranch.html"><i class="fa-solid fa-map-marked-alt"></i> नक्सा शाखा</a>
@@ -799,11 +832,22 @@ footer {
 </header>
 
 <section class="hero container" id="home">
+  <svg class="contour-decor" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+    <g fill="none" stroke="currentColor" style="color:var(--contour)">
+      <ellipse cx="260" cy="230" rx="190" ry="150" stroke-width="1"/>
+      <ellipse cx="255" cy="235" rx="150" ry="115" stroke-width="1"/>
+      <ellipse cx="250" cy="240" rx="112" ry="82" stroke-width="1"/>
+      <ellipse cx="245" cy="245" rx="76" ry="52" stroke-width="1"/>
+      <ellipse cx="240" cy="250" rx="42" ry="26" stroke-width="1"/>
+    </g>
+  </svg>
+
   <div class="hero-left">
-    <h4>गलकोट नगरपालिका • प्राविधिक सेवा</h4>
-    <h2>Dinesh Babu Roka</h2>
-    <p>नमस्ते! म दिनेश। विगत लामो समयदेखि गलकोट नगरपालिकामा नापी प्राविधिक (Surveyor) को रूपमा कार्यरत छु। जग्गाको डिजिटल नक्सांकन, भूउपयोग वर्गीकरण, नक्सा पास र जग्गा सम्बन्धी स्थानीय सरकारी प्रशासनिक कार्यहरूमा यहाँहरूलाई सहजीकरण गर्दै आएको छु।</p>
-    
+    <span class="field-tag">गलकोट नगरपालिका · N28.25° E83.24°</span>
+    <h2 id="heroTitle" aria-label="Dinesh Babu Roka">Dinesh Babu Roka</h2>
+    <span class="typed-role" id="typedRole"></span>
+    <p style="margin-top:16px;">नमस्ते! म दिनेश। विगत लामो समयदेखि गलकोट नगरपालिकामा नापी प्राविधिक (Surveyor) को रूपमा कार्यरत छु। जग्गाको डिजिटल नक्सांकन, भूउपयोग वर्गीकरण, नक्सा पास र जग्गा सम्बन्धी स्थानीय सरकारी प्रशासनिक कार्यहरूमा यहाँहरूलाई सहजीकरण गर्दै आएको छु।</p>
+
     <div class="hero-buttons">
       <a href="#services" class="btn btn-primary">
         <i class="fa fa-layer-group"></i> सेवाहरू हेर्नुहोस्
@@ -815,10 +859,10 @@ footer {
   </div>
 
   <div class="hero-right">
-    <div class="profile-card">
+    <div class="profile-card tilt" id="profileTilt">
       <img src="brp.jpg" alt="Profile Picture of Dinesh Babu Roka">
       <h3>Dinesh Babu Roka</h3>
-      <p>Surveyor • Galkot Municipality</p>
+      <p>Surveyor · Galkot Municipality</p>
 
       <div class="social-icons">
         <a href="tel:+9779857626542" aria-label="Call Phone Number"><i class="fa fa-phone"></i></a>
@@ -828,11 +872,11 @@ footer {
 
       <div class="stats">
         <div class="stat-box">
-          <h3>६+ वर्ष</h3>
+          <h3><span class="counter" data-target="6" data-suffix="+ वर्ष">0</span></h3>
           <p>कार्य अनुभव</p>
         </div>
         <div class="stat-box">
-          <h3>५००+</h3>
+          <h3><span class="counter" data-target="500" data-suffix="+">0</span></h3>
           <p>सफल आयोजना</p>
         </div>
         <div class="stat-box">
@@ -843,6 +887,33 @@ footer {
     </div>
   </div>
 </section>
+
+<div class="traverse-divider container">
+  <svg viewBox="0 0 1160 26" preserveAspectRatio="none">
+    <path d="M0,13 L1160,13" id="traversePath"/>
+    <circle cx="20" cy="13" r="4"/>
+    <circle cx="390" cy="13" r="4"/>
+    <circle cx="770" cy="13" r="4"/>
+    <circle cx="1140" cy="13" r="4"/>
+  </svg>
+</div>
+
+<div class="marquee-strip">
+  <div class="marquee-track" id="marqueeTrack">
+    <span><i class="fa-solid fa-compass-drafting"></i> जग्गा मापन</span>
+    <span><i class="fa-solid fa-map-location-dot"></i> GIS म्यापिङ</span>
+    <span><i class="fa-solid fa-ruler-combined"></i> क्षेत्रफल हिसाब</span>
+    <span><i class="fa-solid fa-file-signature"></i> वर्गीकरण सिफारिस</span>
+    <span><i class="fa-solid fa-calculator"></i> सम्पत्तिकर हिसाब</span>
+    <span><i class="fa-solid fa-scroll"></i> नागरिक बडापत्र</span>
+    <span><i class="fa-solid fa-compass-drafting"></i> जग्गा मापन</span>
+    <span><i class="fa-solid fa-map-location-dot"></i> GIS म्यापिङ</span>
+    <span><i class="fa-solid fa-ruler-combined"></i> क्षेत्रफल हिसाब</span>
+    <span><i class="fa-solid fa-file-signature"></i> वर्गीकरण सिफारिस</span>
+    <span><i class="fa-solid fa-calculator"></i> सम्पत्तिकर हिसाब</span>
+    <span><i class="fa-solid fa-scroll"></i> नागरिक बडापत्र</span>
+  </div>
+</div>
 
 <section class="slider-section container">
   <div class="slider" id="mainSlider">
@@ -876,8 +947,8 @@ footer {
 
 <section class="services" id="services">
   <div class="container">
-    <div class="section-title">
-      <p>हाम्रा सेवाहरू</p>
+    <div class="section-title" data-reveal>
+      <span class="field-tag">FIELD LOG · सेवाहरू</span>
       <h2>डिजिटल तथा भूमिसम्बन्धी सेवाहरू</h2>
     </div>
 
@@ -946,12 +1017,83 @@ footer {
   </div>
 </section>
 
+<section class="converter-section" id="converter">
+  <div class="container">
+    <div class="section-title" data-reveal>
+      <span class="field-tag">FIELD TOOL · क्षेत्रफल क्यालकुलेटर</span>
+      <h2>रोपनी-आना ⇄ वर्गफिट रूपान्तरण उपकरण</h2>
+      <p class="section-sub">नेपालको परम्परागत जग्गा नाप एकाइलाई अन्तर्राष्ट्रिय एकाइमा तत्काल रूपान्तरण गर्नुहोस्।</p>
+    </div>
+
+    <div class="converter-card" data-reveal>
+      <div class="converter-tabs">
+        <button class="conv-tab active" data-tab="hilly">पहाडी क्षेत्र (रोपनी-आना-पैसा-दाम)</button>
+        <button class="conv-tab" data-tab="terai">तराई क्षेत्र (बिघा-कठ्ठा-धुर)</button>
+      </div>
+
+      <div class="converter-panel active" id="panel-hilly">
+        <div class="conv-inputs">
+          <div class="conv-field">
+            <label for="ropani">रोपनी</label>
+            <input type="number" id="ropani" min="0" value="0">
+          </div>
+          <div class="conv-field">
+            <label for="aana">आना</label>
+            <input type="number" id="aana" min="0" max="15" value="0">
+          </div>
+          <div class="conv-field">
+            <label for="paisa">पैसा</label>
+            <input type="number" id="paisa" min="0" max="3" value="0">
+          </div>
+          <div class="conv-field">
+            <label for="daam">दाम</label>
+            <input type="number" id="daam" min="0" max="3" value="0">
+          </div>
+        </div>
+        <button class="btn btn-primary" id="calcHilly" type="button"><i class="fa fa-calculator"></i> गणना गर्नुहोस्</button>
+
+        <div class="conv-results" id="hillyResults">
+          <div class="conv-result-box"><span id="resSqFt">—</span><p>वर्ग फिट (Sq.ft)</p></div>
+          <div class="conv-result-box"><span id="resSqM">—</span><p>वर्ग मिटर (Sq.m)</p></div>
+          <div class="conv-result-box"><span id="resAana">—</span><p>दशमलव आना</p></div>
+        </div>
+      </div>
+
+      <div class="converter-panel" id="panel-terai">
+        <div class="conv-inputs">
+          <div class="conv-field">
+            <label for="bigha">बिघा</label>
+            <input type="number" id="bigha" min="0" value="0">
+          </div>
+          <div class="conv-field">
+            <label for="kattha">कठ्ठा</label>
+            <input type="number" id="kattha" min="0" max="19" value="0">
+          </div>
+          <div class="conv-field">
+            <label for="dhur">धुर</label>
+            <input type="number" id="dhur" min="0" max="19" value="0">
+          </div>
+        </div>
+        <button class="btn btn-primary" id="calcTerai" type="button"><i class="fa fa-calculator"></i> गणना गर्नुहोस्</button>
+
+        <div class="conv-results" id="teraiResults">
+          <div class="conv-result-box"><span id="resSqFtT">—</span><p>वर्ग फिट (Sq.ft)</p></div>
+          <div class="conv-result-box"><span id="resSqMT">—</span><p>वर्ग मिटर (Sq.m)</p></div>
+          <div class="conv-result-box"><span id="resBigha">—</span><p>दशमलव बिघा</p></div>
+        </div>
+      </div>
+
+      <p class="conv-note"><i class="fa-solid fa-circle-info"></i> मापदण्ड: १ रोपनी = १६ आना = ६४ पैसा = २५६ दाम = ५४७६ वर्ग फिट। १ बिघा = २० कठ्ठा = ४०० धुर = ७२९०० वर्ग फिट।</p>
+    </div>
+  </div>
+</section>
+
 <section class="video-section container">
-  <div class="section-title">
-    <p>Visual Tour</p>
+  <div class="section-title" data-reveal>
+    <span class="field-tag">VISUAL TOUR</span>
     <h2>परिचय भिडियो</h2>
   </div>
-  <div class="video-card">
+  <div class="video-card" data-reveal>
     <video controls poster="brp.jpg" preload="none">
       <source src="video.mp4" type="video/mp4">
       Your browser does not support the video tag.
@@ -959,9 +1101,92 @@ footer {
   </div>
 </section>
 
+<section class="container" id="gallery">
+  <div class="section-title" data-reveal>
+    <span class="field-tag">GALLERY · फिल्ड फोटोहरू</span>
+    <h2>कार्यस्थल झलक</h2>
+  </div>
+  <div class="gallery-grid">
+    <div class="gallery-item" data-reveal><img src="img1.jpg" alt="जग्गा मापन कार्य १" loading="lazy"><div class="gallery-overlay"><i class="fa-solid fa-magnifying-glass-plus"></i></div></div>
+    <div class="gallery-item" data-reveal><img src="img2.jpg" alt="सम्पत्ति मूल्याङ्कन कार्य" loading="lazy"><div class="gallery-overlay"><i class="fa-solid fa-magnifying-glass-plus"></i></div></div>
+    <div class="gallery-item" data-reveal><img src="img3.jpg" alt="डिजिटल म्यापिङ" loading="lazy"><div class="gallery-overlay"><i class="fa-solid fa-magnifying-glass-plus"></i></div></div>
+    <div class="gallery-item" data-reveal><img src="brp.jpg" alt="कार्यालय भ्रमण" loading="lazy"><div class="gallery-overlay"><i class="fa-solid fa-magnifying-glass-plus"></i></div></div>
+    <div class="gallery-item" data-reveal><img src="img1.jpg" alt="फिल्ड सर्वे उपकरण" loading="lazy"><div class="gallery-overlay"><i class="fa-solid fa-magnifying-glass-plus"></i></div></div>
+    <div class="gallery-item" data-reveal><img src="img2.jpg" alt="नागरिक सेवा प्रदान" loading="lazy"><div class="gallery-overlay"><i class="fa-solid fa-magnifying-glass-plus"></i></div></div>
+  </div>
+</section>
+
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="lightboxClose" aria-label="Close"><i class="fa fa-xmark"></i></button>
+  <button class="lightbox-nav lightbox-prev" id="lightboxPrev" aria-label="Previous"><i class="fa fa-chevron-left"></i></button>
+  <img src="" alt="" id="lightboxImg">
+  <button class="lightbox-nav lightbox-next" id="lightboxNext" aria-label="Next"><i class="fa fa-chevron-right"></i></button>
+</div>
+
+<section class="testimonial-section" id="testimonials">
+  <div class="container">
+    <div class="section-title" data-reveal>
+      <span class="field-tag">TESTIMONIALS · प्रतिक्रिया</span>
+      <h2>नागरिकहरूको अनुभव</h2>
+    </div>
+    <div class="testi-slider" id="testiSlider">
+      <div class="testi-track" id="testiTrack">
+        <div class="testi-card">
+          <p>"दिनेश सरले हाम्रो जग्गा नापजाँच छिटो र सफा तरिकाले गरिदिनुभयो। कागजात प्रक्रिया पनि धेरै सजिलो भयो।"</p>
+          <div class="testi-author"><strong>राम बहादुर थापा</strong><span>स्थानीय बासिन्दा, गलकोट</span></div>
+        </div>
+        <div class="testi-card">
+          <p>"सम्पत्तिकर हिसाब गर्न ल्याप्चे लगाउनुपर्ने झन्झट हटेको छ। अनलाइन प्रणालीले धेरै समय बचायो।"</p>
+          <div class="testi-author"><strong>सीता गुरुङ</strong><span>घर धनी, बागलुङ</span></div>
+        </div>
+        <div class="testi-card">
+          <p>"नक्सा पास प्रक्रियाका बारे स्पष्ट जानकारी पाइयो। प्राविधिक सरको सहयोग धेरै राम्रो थियो।"</p>
+          <div class="testi-author"><strong>कृष्ण प्रसाद पौडेल</strong><span>घर निर्माणकर्ता</span></div>
+        </div>
+        <div class="testi-card">
+          <p>"जग्गा वर्गीकरण सम्बन्धी सिफारिस पत्र समयमै र सही तरिकाले तयार गरिदिनुभयो। धन्यवाद!"</p>
+          <div class="testi-author"><strong>गीता शर्मा</strong><span>व्यवसायी</span></div>
+        </div>
+      </div>
+      <div class="testi-dots" id="testiDots"></div>
+    </div>
+  </div>
+</section>
+
+<section class="faq-section" id="faq">
+  <div class="container">
+    <div class="section-title" data-reveal>
+      <span class="field-tag">FAQ · बारम्बार सोधिने प्रश्न</span>
+      <h2>जिज्ञासाहरू</h2>
+    </div>
+    <div class="faq-list" id="faqList">
+      <div class="faq-item">
+        <button class="faq-question">जग्गा नापजाँचका लागि कुन-कुन कागजात चाहिन्छ? <i class="fa fa-plus"></i></button>
+        <div class="faq-answer"><p>जग्गाधनी प्रमाण पूर्जा, नागरिकता प्रमाणपत्र, हालसालैको मालपोत तिरेको रसिद, र चालु आ.व.को नक्सा प्रतिलिपि आवश्यक पर्दछ। थप जानकारीका लागि नागरिक बडापत्र हेर्नुहोस्।</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question">क्षेत्रफल रूपान्तरण कति भरपर्दो छ? <i class="fa fa-plus"></i></button>
+        <div class="faq-answer"><p>माथिको क्यालकुलेटरले नेपाल सरकारले तोकेको आधिकारिक रूपान्तरण दरमा आधारित गणना गर्दछ, तर कानुनी प्रयोजनका लागि सधैं नापी कार्यालयबाट प्रमाणित कागजात लिनुहोस्।</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question">सम्पत्तिकर कहिले र कसरी बुझाउने? <i class="fa fa-plus"></i></button>
+        <div class="faq-answer"><p>नेपाली आर्थिक वर्ष अनुसार हरेक वर्ष श्रावण देखि आषाढसम्म सम्पत्तिकर बुझाउन सकिन्छ। नगरपालिकाको राजस्व शाखा वा अनलाइन प्रणाली मार्फत भुक्तानी गर्न सकिन्छ।</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question">नक्सा पास गर्न कति समय लाग्छ? <i class="fa fa-plus"></i></button>
+        <div class="faq-answer"><p>सामान्यतया पूर्ण कागजात बुझाएपछि प्राविधिक जाँच र स्वीकृतिका लागि ७-१५ कार्यदिन लाग्ने गर्दछ, तर जग्गाको प्रकृति अनुसार समय फरक हुन सक्छ।</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question">GIS म्यापिङ सेवा कसका लागि हो? <i class="fa fa-plus"></i></button>
+        <div class="faq-answer"><p>यो सेवा नगरपालिका, व्यक्तिगत जग्गाधनी, विकास आयोजना, र भूउपयोग योजना तयार गर्ने सबैका लागि उपयोगी छ।</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="container" id="experience">
-  <div class="section-title">
-    <p>कार्य विवरण</p>
+  <div class="section-title" data-reveal>
+    <span class="field-tag">कार्य विवरण</span>
     <h2>कार्य अनुभव</h2>
   </div>
 
@@ -980,13 +1205,13 @@ footer {
 
 <section class="contact" id="contact">
   <div class="container">
-    <div class="section-title">
-      <p>सम्पर्क माध्यम</p>
+    <div class="section-title" data-reveal>
+      <span class="field-tag">सम्पर्क माध्यम</span>
       <h2>सम्पर्क गर्नुहोस्</h2>
     </div>
 
     <div class="contact-grid">
-      <div class="contact-card">
+      <div class="contact-card" data-reveal>
         <h3>सन्देश छोड्नुहोस्</h3>
         <form id="contactForm">
           <div class="input-group">
@@ -1004,21 +1229,21 @@ footer {
         </form>
       </div>
 
-      <div class="contact-card" style="display:flex; flex-direction:column; justify-content:space-between;">
+      <div class="contact-card" data-reveal style="display:flex; flex-direction:column; justify-content:space-between;">
         <div>
           <h3>कार्यालय जानकारी</h3>
           <p style="line-height:2; color:var(--muted); font-size:0.95rem;">
-            <i class="fa fa-location-dot" style="color:var(--primary); width:20px;"></i> गलकोट नगरपालिका, बागलुङ<br>
-            <i class="fa fa-phone" style="color:var(--primary); width:20px;"></i> +9779857626542<br>
-            <i class="fa fa-envelope" style="color:var(--primary); width:20px;"></i> dineshbaburoka82@gmail.com
+            <i class="fa fa-location-dot" style="color:var(--brass); width:20px;"></i> गलकोट नगरपालिका, बागलुङ<br>
+            <i class="fa fa-phone" style="color:var(--brass); width:20px;"></i> +9779857626542<br>
+            <i class="fa fa-envelope" style="color:var(--brass); width:20px;"></i> dineshbaburoka82@gmail.com
           </p>
         </div>
-        
-        <div style="width:100%; height:200px; margin-top:16px; border:1px solid var(--border); border-radius:4px; overflow:hidden; background:#e5e3df; position:relative; display:flex; align-items:center; justify-content:center; text-align:center;">
-          <div style="padding:20px; color:#555;">
-            <i class="fa-solid fa-map-location-dot" style="font-size:2rem; color:var(--primary); margin-bottom:8px;"></i>
-            <p style="font-size:0.85rem; font-weight:600;">गलकोट नगरपालिका, बागलुङ</p>
-            <a href="https://maps.google.com/?q=Galkot+Municipality+Baglung" target="_blank" rel="noopener noreferrer" style="font-size:0.8rem; color:var(--primary); text-decoration:none; font-weight:700; display:block; margin-top:4px;">गुगल म्यापमा हेर्नुहोस् →</a>
+
+        <div style="width:100%; height:200px; margin-top:16px; border:1px solid var(--border); border-radius:4px; overflow:hidden; background:var(--paper-2); position:relative; display:flex; align-items:center; justify-content:center; text-align:center;">
+          <div style="padding:20px;">
+            <i class="fa-solid fa-map-location-dot" style="font-size:2rem; color:var(--brass); margin-bottom:8px;"></i>
+            <p style="font-size:0.85rem; font-weight:600; color:var(--ink-text);">गलकोट नगरपालिका, बागलुङ</p>
+            <a href="https://maps.google.com/?q=Galkot+Municipality+Baglung" target="_blank" rel="noopener noreferrer" style="font-size:0.8rem; color:var(--contour); text-decoration:none; font-weight:700; display:block; margin-top:4px;">गुगल म्यापमा हेर्नुहोस् →</a>
           </div>
         </div>
       </div>
@@ -1026,6 +1251,37 @@ footer {
   </div>
 </section>
 
+<section class="blog-section" id="blog">
+  <div class="container">
+    <div class="section-title" data-reveal>
+      <span class="field-tag">NEWS · सूचना तथा जानकारी</span>
+      <h2>ताजा अपडेट</h2>
+    </div>
+    <div class="blog-grid">
+      <article class="blog-card" data-reveal>
+        <div class="blog-date"><span>१५</span><small>असार</small></div>
+        <div>
+          <h3>चालु आ.व.को सम्पत्तिकर बुझाउने अन्तिम मिति सार्वजनिक</h3>
+          <p>गलकोट नगरपालिकाले चालु आर्थिक वर्षको सम्पत्तिकर बुझाउने अन्तिम मिति सार्वजनिक गरेको छ। समयमै बुझाएमा छुट पाइनेछ।</p>
+        </div>
+      </article>
+      <article class="blog-card" data-reveal>
+        <div class="blog-date"><span>०२</span><small>असार</small></div>
+        <div>
+          <h3>डिजिटल नक्सा पास प्रणाली सञ्चालनमा</h3>
+          <p>अब नक्सा पासका लागि अनलाइन नै निवेदन दिन सकिने भएको छ, जसले प्रक्रिया छिटो र पारदर्शी बनाउनेछ।</p>
+        </div>
+      </article>
+      <article class="blog-card" data-reveal>
+        <div class="blog-date"><span>१८</span><small>जेठ</small></div>
+        <div>
+          <h3>जग्गा वर्गीकरण अद्यावधिक कार्यक्रम</h3>
+          <p>वडा नं. १ देखि ९ सम्मको जग्गा वर्गीकरण अद्यावधिक गर्ने कार्यक्रम शुरू भएको छ। सम्बन्धित वडाका बासिन्दालाई सूचित गरिन्छ।</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
 <footer>
   <div class="container footer-content">
     <div>
@@ -1037,10 +1293,22 @@ footer {
       <a href="tel:+9779857626542"><i class="fa fa-phone"></i> फोन गर्नुहोस्</a>
     </div>
   </div>
-  <div style="text-align:center; margin-top:24px; font-size:0.85rem;">
+  <div>
     © 2026 Dinesh Babu Roka — सर्वाधिकार सुरक्षित
   </div>
 </footer>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="cookie-banner" id="cookieBanner">
+  <p><i class="fa-solid fa-cookie-bite"></i> यो वेबसाइटले तपाईंको अनुभव सुधार गर्न कुकीज प्रयोग गर्दछ।</p>
+  <div class="cookie-actions">
+    <button class="btn btn-outline" id="cookieDecline">अस्वीकार</button>
+    <button class="btn btn-primary" id="cookieAccept">स्वीकार गर्नुहोस्</button>
+  </div>
+</div>
+
+<button id="backToTop" title="Back to top" aria-label="Back to top"><i class="fa fa-arrow-up"></i></button>
 
 <div class="float-buttons">
   <button class="dark-toggle" id="darkToggle" title="Dark Mode Toggle">
@@ -1055,22 +1323,37 @@ footer {
 </div>
 
 <script>
-/* OPTIMIZED PRELOADER */
-window.addEventListener('load', () => {
-  hidePreloader();
-});
+/* OPTIMIZED PRELOADER WITH PERCENTAGE COUNT */
+gsap.registerPlugin(ScrollTrigger);
 
-setTimeout(() => {
-  hidePreloader();
-}, 1000); 
+const preloadPercent = document.getElementById('preloadPercent');
+const preloadBar = document.getElementById('preloadBar');
+let pctObj = { val: 0 };
+gsap.to(pctObj, {
+  val: 100,
+  duration: 1.3,
+  ease: 'power2.inOut',
+  onUpdate: () => {
+    const v = Math.round(pctObj.val);
+    if(preloadPercent) preloadPercent.textContent = v + '%';
+    if(preloadBar) preloadBar.style.width = v + '%';
+  },
+  onComplete: hidePreloader
+});
+window.addEventListener('load', () => { hidePreloader(); });
+setTimeout(() => { hidePreloader(); }, 1800);
 
 function hidePreloader() {
   const preloader = document.getElementById('preloader');
   if(preloader && !preloader.classList.contains('hidden')) {
-    preloader.style.opacity = '0';
-    preloader.style.visibility = 'hidden';
-    document.body.classList.remove('loading');
     preloader.classList.add('hidden');
+    gsap.to(preloader, {
+      opacity: 0, duration: 0.5, onComplete: () => {
+        preloader.style.visibility = 'hidden';
+        document.body.classList.remove('loading');
+        playIntro();
+      }
+    });
   }
 }
 
@@ -1106,10 +1389,7 @@ if(slides.length > 0 && dotsContainer) {
     const dot = document.createElement('div');
     dot.classList.add('dot');
     if(i === 0) dot.classList.add('active');
-    dot.onclick = () => {
-      goToSlide(i);
-      resetSliderTimer();
-    };
+    dot.onclick = () => { goToSlide(i); resetSliderTimer(); };
     dotsContainer.appendChild(dot);
   });
 
@@ -1162,7 +1442,7 @@ document.getElementById('contactForm').addEventListener('submit', function(e) {
   const name = document.getElementById('contactName').value.trim();
   const email = document.getElementById('contactEmail').value.trim();
   const message = document.getElementById('contactMessage').value.trim();
-  
+
   if(name && email && message) {
     alert('धन्यवाद ' + name + ', तपाईंको सन्देश सफलतापूर्वक पठाइयो ।');
     this.reset();
@@ -1176,7 +1456,6 @@ const sections = document.querySelectorAll("section[id]");
 window.addEventListener("scroll", () => {
   let current = "";
   const scrollY = window.scrollY;
-
   sections.forEach(section => {
     const sectionTop = section.offsetTop - 140;
     const sectionHeight = section.offsetHeight;
@@ -1184,13 +1463,180 @@ window.addEventListener("scroll", () => {
       current = section.getAttribute("id");
     }
   });
-
   document.querySelectorAll(".nav-links a").forEach(a => {
     a.classList.remove("active");
-    if (a.getAttribute("href") === "#" + current) {
-      a.classList.add("active");
-    }
+    if (a.getAttribute("href") === "#" + current) { a.classList.add("active"); }
   });
+
+  /* scroll progress bar */
+  const docH = document.documentElement.scrollHeight - window.innerHeight;
+  document.getElementById('scrollProgress').style.width = (docH > 0 ? (scrollY / docH) * 100 : 0) + '%';
+
+  /* back to top visibility */
+  document.getElementById('backToTop').classList.toggle('show', scrollY > 500);
+});
+
+document.getElementById('backToTop').addEventListener('click', () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+/* CUSTOM CROSSHAIR CURSOR — smooth trailing via GSAP quickTo */
+const crosshair = document.getElementById('crosshair');
+const crosshairDot = document.getElementById('crosshairDot');
+const xTo = gsap.quickTo(crosshair, "x", { duration: 0.5, ease: "power3" });
+const yTo = gsap.quickTo(crosshair, "y", { duration: 0.5, ease: "power3" });
+const xDotTo = gsap.quickTo(crosshairDot, "x", { duration: 0.12, ease: "power3" });
+const yDotTo = gsap.quickTo(crosshairDot, "y", { duration: 0.12, ease: "power3" });
+window.addEventListener('mousemove', (e) => {
+  xTo(e.clientX); yTo(e.clientY);
+  xDotTo(e.clientX); yDotTo(e.clientY);
+});
+document.querySelectorAll('a, button, .service-card, .dot, input, textarea').forEach(el => {
+  el.addEventListener('mouseenter', () => crosshair.classList.add('grow'));
+  el.addEventListener('mouseleave', () => crosshair.classList.remove('grow'));
+});
+
+/* TYPED ROLE TEXT */
+const roles = ['नापी प्राविधिक — Surveyor', 'GIS म्यापिङ विशेषज्ञ', 'भूमि प्रशासन सहजकर्ता'];
+const typedEl = document.getElementById('typedRole');
+let rIndex = 0, cIndex = 0, deleting = false;
+function typeLoop() {
+  const current = roles[rIndex];
+  if(!deleting) {
+    cIndex++;
+    typedEl.textContent = current.slice(0, cIndex);
+    if(cIndex === current.length) { deleting = true; setTimeout(typeLoop, 1400); return; }
+  } else {
+    cIndex--;
+    typedEl.textContent = current.slice(0, cIndex);
+    if(cIndex === 0) { deleting = false; rIndex = (rIndex + 1) % roles.length; }
+  }
+  setTimeout(typeLoop, deleting ? 40 : 70);
+}
+
+/* SPLIT HERO TITLE INTO WORD/CHAR SPANS FOR CINEMATIC REVEAL */
+const heroTitle = document.getElementById('heroTitle');
+const words = heroTitle.textContent.trim().split(' ');
+heroTitle.innerHTML = words.map(w => `<span class="word"><span>${w}</span></span>`).join(' ');
+
+/* PAGE-LOAD INTRO TIMELINE */
+function playIntro() {
+  const tl = gsap.timeline({ defaults: { ease: 'power4.out' } });
+  tl.to('.hero-left', { opacity: 1, duration: 0.01 })
+    .from('.hero-left .field-tag', { opacity: 0, y: 16, duration: 0.6 }, 0)
+    .to('.hero-left .word span', { y: '0%', duration: 0.9, stagger: 0.06 }, 0.1)
+    .from('.hero-left .typed-role', { opacity: 0, duration: 0.6 }, 0.5)
+    .from('.hero-left p', { opacity: 0, y: 16, duration: 0.7 }, 0.6)
+    .from('.hero-buttons .btn', { opacity: 0, y: 16, duration: 0.6, stagger: 0.1 }, 0.7)
+    .to('.hero-right', { opacity: 1, duration: 0.01 }, 0.3)
+    .from('.hero-right', { opacity: 0, x: 40, rotateY: -8, duration: 1 }, 0.3)
+    .from('.stat-box', { opacity: 0, y: 12, duration: 0.5, stagger: 0.08 }, 1)
+    .call(() => typeLoop());
+}
+
+/* SCROLL-DRIVEN REVEALS (GSAP ScrollTrigger) — richer than plain fade */
+gsap.utils.toArray('.section-title').forEach(el => {
+  gsap.from(el, {
+    opacity: 0, y: 40, duration: 0.8, ease: 'power3.out',
+    scrollTrigger: { trigger: el, start: 'top 85%' }
+  });
+});
+
+gsap.utils.toArray('.service-card').forEach((card, i) => {
+  gsap.fromTo(card, { opacity: 0, y: 60, rotateX: -6 }, {
+    opacity: 1, y: 0, rotateX: 0, duration: 0.8, ease: 'power3.out',
+    scrollTrigger: { trigger: card, start: 'top 90%' },
+    delay: (i % 3) * 0.08
+  });
+});
+
+gsap.utils.toArray('.timeline-item').forEach(item => {
+  gsap.fromTo(item, { opacity: 0, x: -50 }, {
+    opacity: 1, x: 0, duration: 0.8, ease: 'power3.out',
+    scrollTrigger: { trigger: item, start: 'top 88%' }
+  });
+});
+
+gsap.utils.toArray('.contact-card').forEach((card, i) => {
+  gsap.from(card, {
+    opacity: 0, y: 50, duration: 0.8, ease: 'power3.out', delay: i * 0.1,
+    scrollTrigger: { trigger: card, start: 'top 90%' }
+  });
+});
+
+gsap.from('.video-card', {
+  opacity: 0, scale: 0.94, duration: 0.9, ease: 'power3.out',
+  scrollTrigger: { trigger: '.video-card', start: 'top 88%' }
+});
+
+/* DRAW-ON TRAVERSE LINE */
+const traversePath = document.getElementById('traversePath');
+if(traversePath) {
+  const len = traversePath.getTotalLength();
+  traversePath.style.strokeDasharray = len;
+  traversePath.style.strokeDashoffset = len;
+  gsap.to(traversePath, {
+    strokeDashoffset: 0, duration: 1.4, ease: 'power2.inOut',
+    scrollTrigger: { trigger: traversePath, start: 'top 95%' }
+  });
+}
+
+/* PARALLAX CONTOUR DECORATION */
+gsap.to('.contour-decor', {
+  y: 80, rotate: 6, ease: 'none',
+  scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 1 }
+});
+
+/* ANIMATED COUNTERS (GSAP-powered) */
+document.querySelectorAll('.counter').forEach(el => {
+  const target = parseInt(el.dataset.target, 10);
+  const suffix = el.dataset.suffix || '';
+  const obj = { val: 0 };
+  ScrollTrigger.create({
+    trigger: el, start: 'top 90%', once: true,
+    onEnter: () => gsap.to(obj, {
+      val: target, duration: 1.6, ease: 'power2.out',
+      onUpdate: () => el.textContent = Math.round(obj.val) + suffix
+    })
+  });
+});
+
+/* 3D TILT ON CARDS (mouse-driven) */
+function apply3DTilt(el, strength = 10) {
+  el.addEventListener('mousemove', (e) => {
+    const r = el.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width - 0.5;
+    const py = (e.clientY - r.top) / r.height - 0.5;
+    gsap.to(el, { rotateY: px * strength, rotateX: -py * strength, duration: 0.4, ease: 'power2.out', transformPerspective: 800 });
+  });
+  el.addEventListener('mouseleave', () => {
+    gsap.to(el, { rotateY: 0, rotateX: 0, duration: 0.6, ease: 'elastic.out(1,0.5)' });
+  });
+}
+document.querySelectorAll('.service-card, .timeline-card').forEach(c => apply3DTilt(c, 6));
+apply3DTilt(document.getElementById('profileTilt'), 8);
+
+/* MAGNETIC BUTTONS */
+document.querySelectorAll('.btn, .float-buttons a, .dark-toggle').forEach(btn => {
+  btn.addEventListener('mousemove', (e) => {
+    const r = btn.getBoundingClientRect();
+    const x = e.clientX - r.left - r.width / 2;
+    const y = e.clientY - r.top - r.height / 2;
+    gsap.to(btn, { x: x * 0.3, y: y * 0.3, duration: 0.3, ease: 'power2.out' });
+  });
+  btn.addEventListener('mouseleave', () => {
+    gsap.to(btn, { x: 0, y: 0, duration: 0.5, ease: 'elastic.out(1,0.4)' });
+  });
+});
+
+/* NAVBAR HIDE-ON-SCROLL-DOWN, SHOW-ON-SCROLL-UP */
+let lastY = window.scrollY;
+const headerEl = document.querySelector('header');
+window.addEventListener('scroll', () => {
+  const y = window.scrollY;
+  if(y > lastY && y > 200) { gsap.to(headerEl, { y: -90, duration: 0.4, ease: 'power2.out' }); }
+  else { gsap.to(headerEl, { y: 0, duration: 0.4, ease: 'power2.out' }); }
+  lastY = y;
 });
 </script>
 
