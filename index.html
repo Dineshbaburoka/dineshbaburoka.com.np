@@ -803,6 +803,82 @@ body.dark .conv-tab.active { background: var(--brass); color: var(--ink); border
 .cookie-actions .btn { padding: 9px 16px; font-size: 0.8rem; flex: 1; }
 
 /* =========================================================
+   APPS SECTION
+   ========================================================= */
+.apps-section { padding: 60px 0; }
+.apps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  margin-top: 30px;
+}
+.app-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px 24px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+  transition: var(--transition);
+  opacity: 0;
+  transform: translateY(30px);
+  position: relative;
+  overflow: hidden;
+}
+.app-card.in-view { opacity: 1; transform: translateY(0); transition: var(--transition); }
+.app-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(185,139,62,0.06) 0%, transparent 60%);
+  pointer-events: none;
+}
+.app-card:hover { border-color: var(--brass); transform: translateY(-4px); box-shadow: 0 16px 40px rgba(16,27,22,0.14); }
+.app-icon-wrap {
+  width: 72px; height: 72px;
+  background: linear-gradient(135deg, var(--ink) 0%, var(--contour) 100%);
+  border-radius: 18px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2rem; color: var(--paper);
+  box-shadow: 0 8px 20px rgba(16,27,22,0.2);
+  flex-shrink: 0;
+}
+.app-card h3 { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: var(--ink-text); line-height: 1.3; }
+.app-card p { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
+.app-meta { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: center; }
+.app-meta span {
+  font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.5px;
+  color: var(--muted); background: var(--paper-2); border: 1px solid var(--border);
+  padding: 3px 10px; border-radius: 20px;
+}
+.app-download-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: linear-gradient(135deg, var(--contour), var(--ink));
+  color: var(--paper); padding: 12px 24px; border-radius: 30px;
+  font-weight: 700; font-size: 0.88rem; text-decoration: none;
+  border: none; cursor: pointer; font-family: var(--font-body);
+  transition: var(--transition); box-shadow: 0 4px 14px rgba(76,122,88,0.35);
+  width: 100%;
+  justify-content: center;
+}
+.app-download-btn:hover { background: linear-gradient(135deg, var(--brass), var(--contour)); transform: scale(1.03); box-shadow: 0 6px 20px rgba(185,139,62,0.4); }
+.app-download-btn i { font-size: 1rem; }
+.app-badge {
+  position: absolute; top: 14px; right: 14px;
+  background: var(--brass); color: var(--ink);
+  font-family: var(--font-mono); font-size: 0.65rem; font-weight: 700;
+  padding: 3px 9px; border-radius: 20px; letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.app-coming { opacity: 0.55; }
+.app-coming .app-download-btn { background: var(--paper-2); color: var(--muted); box-shadow: none; cursor: default; }
+.app-coming .app-badge { background: var(--muted); color: var(--paper); }
+
+/* =========================================================
    PRINT STYLES
    ========================================================= */
 @media print {
@@ -875,6 +951,7 @@ body.dark .conv-tab.active { background: var(--brass); color: var(--ink); border
       <a href="C Admin.html"><i class="fa-solid fa-scroll"></i> नागरिक बडापत्र</a>
       <a href="gyankunja.html"><i class="fa-solid fa-book"></i> ज्ञानकुञ्ज</a>
       <a href="cv.html" download>CV</a>
+      <a href="#apps"><i class="fa-solid fa-mobile-screen-button"></i> Apps</a>
     </nav>
 
     <div class="menu-btn" id="menuBtn" role="button" aria-label="Toggle Navigation Menu">
@@ -1343,6 +1420,79 @@ body.dark .conv-tab.active { background: var(--brass); color: var(--ink); border
     </div>
   </div>
 </section>
+<!-- =========================================================
+     APPS SECTION
+     ========================================================= -->
+<section class="apps-section" id="apps">
+  <div class="container">
+    <div class="section-title" data-reveal>
+      <span class="field-tag">MOBILE APPS · डिजिटल उपकरण</span>
+      <h2>गलकोट नगरपालिका एप्स</h2>
+      <p class="section-sub">नगरपालिकाको डिजिटल सेवाहरू तपाईंको मोबाइलमा — Android एप्स डाउनलोड गर्नुहोस्।</p>
+    </div>
+
+    <div class="apps-grid">
+
+      <!-- App 1: कर्मचारी व्यवस्थापन — DOWNLOADABLE -->
+      <div class="app-card" data-reveal>
+        <div class="app-badge">नयाँ</div>
+        <div class="app-icon-wrap">
+          <i class="fa-solid fa-users-gear"></i>
+        </div>
+        <h3>गलकोट नगरपालिका कर्मचारी व्यवस्थापन</h3>
+        <p>नगरपालिकाका कर्मचारीहरूको विवरण, हाजिरी, पद र शाखा व्यवस्थापनका लागि आधिकारिक Android एप।</p>
+        <div class="app-meta">
+          <span><i class="fab fa-android"></i> Android</span>
+          <span>v1.0</span>
+          <span>गलकोट न.पा.</span>
+        </div>
+        <a class="app-download-btn" href="https://drive.google.com/uc?export=download&id=1ihb3UKHFBAzGJXu3ZkglWWbGvjDflNPq" target="_blank" rel="noopener noreferrer">
+          <i class="fa-solid fa-download"></i> APK डाउनलोड गर्नुहोस्
+        </a>
+      </div>
+
+      <!-- App 2: Coming Soon -->
+      <div class="app-card app-coming" data-reveal>
+        <div class="app-badge">छिटै</div>
+        <div class="app-icon-wrap" style="background: linear-gradient(135deg, var(--blueprint), var(--contour-soft));">
+          <i class="fa-solid fa-map-location-dot"></i>
+        </div>
+        <h3>जग्गा नापजाँच ट्र्याकर</h3>
+        <p>जग्गा नापजाँचको आवेदन अवस्था, नम्बर ट्र्याकिङ र नापी कार्यालयसँग सम्पर्कका लागि एप।</p>
+        <div class="app-meta">
+          <span><i class="fab fa-android"></i> Android</span>
+          <span>छिटै आउँदैछ</span>
+        </div>
+        <a class="app-download-btn">
+          <i class="fa-solid fa-clock"></i> छिटै उपलब्ध हुनेछ
+        </a>
+      </div>
+
+      <!-- App 3: Coming Soon -->
+      <div class="app-card app-coming" data-reveal>
+        <div class="app-badge">छिटै</div>
+        <div class="app-icon-wrap" style="background: linear-gradient(135deg, var(--blueprint), #2a5a7a);">
+          <i class="fa-solid fa-file-invoice-dollar"></i>
+        </div>
+        <h3>सम्पत्तिकर भुक्तानी</h3>
+        <p>घर तथा जग्गाको सम्पत्तिकर हिसाब, रसिद र अनलाइन भुक्तानीका लागि नगरपालिका एप।</p>
+        <div class="app-meta">
+          <span><i class="fab fa-android"></i> Android</span>
+          <span>छिटै आउँदैछ</span>
+        </div>
+        <a class="app-download-btn">
+          <i class="fa-solid fa-clock"></i> छिटै उपलब्ध हुनेछ
+        </a>
+      </div>
+
+    </div>
+
+    <p style="text-align:center; margin-top:24px; font-size:0.82rem; color:var(--muted); font-family:var(--font-mono);">
+      <i class="fa-solid fa-circle-info"></i> APK डाउनलोड गर्नुअघि Android सेटिङमा "Unknown sources" सक्षम गर्नुहोस्।
+    </p>
+  </div>
+</section>
+
 <footer>
   <div class="container footer-content">
     <div>
@@ -1704,7 +1854,7 @@ window.addEventListener('scroll', () => {
    SCROLL REVEAL — IntersectionObserver drives .in-view for
    every [data-reveal] element plus gallery/converter/blog cards
    ========================================================= */
-const revealTargets = document.querySelectorAll('[data-reveal], .converter-card, .gallery-item, .blog-card');
+const revealTargets = document.querySelectorAll('[data-reveal], .converter-card, .gallery-item, .blog-card, .app-card');
 const revealObserver = new IntersectionObserver((entries) => {
   entries.forEach((entry, i) => {
     if(entry.isIntersecting) {
