@@ -18,9 +18,60 @@
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #4a5568; border-radius: 4px; }
         /* Smooth Sidebar Transition */
         .sidebar-transition { transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        /* ===== सबै बटनको लोडिङ/प्रोसेसिङ अवस्था ===== */
+        #top-progress-bar {
+            position: fixed;
+            top: 0; left: 0;
+            height: 3px;
+            width: 0%;
+            background: linear-gradient(90deg, #3182ce, #63b3ed);
+            z-index: 9999;
+            opacity: 0;
+            transition: width 0.25s ease, opacity 0.2s ease;
+        }
+        #top-progress-bar.active {
+            opacity: 1;
+            width: 90%;
+            transition: width 4s cubic-bezier(0.1,0.7,0.4,1), opacity 0.2s ease;
+        }
+        #top-progress-bar.done {
+            width: 100%;
+            opacity: 0;
+            transition: width 0.2s ease, opacity 0.4s ease 0.15s;
+        }
+
+        button.btn-loading,
+        a.btn-loading {
+            pointer-events: none;
+            opacity: 0.7;
+            position: relative;
+        }
+        .btn-loading-spinner {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid rgba(255,255,255,0.5);
+            border-top-color: #ffffff;
+            border-radius: 50%;
+            animation: btn-spin 0.7s linear infinite;
+            margin-left: 6px;
+            vertical-align: middle;
+        }
+        .nav-item.btn-loading .btn-loading-spinner,
+        .submenu-item.btn-loading .btn-loading-spinner {
+            border: 2px solid rgba(255,255,255,0.25);
+            border-top-color: #63b3ed;
+        }
+        @keyframes btn-spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body class="bg-gray-100 h-screen text-sm font-sans overflow-hidden antialiased">
+
+    <!-- सबै बटन/लिंक क्लिकमा देखिने ग्लोबल प्रोग्रेस बार -->
+    <div id="top-progress-bar"></div>
 
     <!-- TOAST NOTIFICATION CONTAINER -->
     <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
@@ -114,6 +165,68 @@
         const SUPABASE_URL = "https://lyjokogftwtvnhwszqni.supabase.co";
         const SUPABASE_ANON_KEY = "sb_publishable_gxEL2-GVTVy8E0WxMBZHDQ_b5TzsDI9"; 
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // ===== सबै बटन/लिंकहरुमा Loading/Processing देखाउने साझा (universal) व्यवस्था =====
+        function startButtonLoading(el) {
+            if (!el || el.classList.contains('btn-loading')) return;
+            el.classList.add('btn-loading');
+            el.dataset.loadingActive = "true";
+            const spinner = document.createElement('span');
+            spinner.className = 'btn-loading-spinner';
+            spinner.setAttribute('data-btn-spinner', 'true');
+            el.appendChild(spinner);
+        }
+
+        function stopButtonLoading(el) {
+            if (!el) return;
+            el.classList.remove('btn-loading');
+            delete el.dataset.loadingActive;
+            const spinner = el.querySelector('[data-btn-spinner]');
+            if (spinner) spinner.remove();
+        }
+
+        function stopAllButtonLoading() {
+            document.querySelectorAll('.btn-loading').forEach(stopButtonLoading);
+        }
+
+        function showTopProgress() {
+            const bar = document.getElementById('top-progress-bar');
+            bar.classList.remove('done');
+            // Reflow ट्रिक ताकि transition पुनः सुरु होस्
+            void bar.offsetWidth;
+            bar.classList.add('active');
+        }
+
+        function finishTopProgress() {
+            const bar = document.getElementById('top-progress-bar');
+            bar.classList.remove('active');
+            bar.classList.add('done');
+            setTimeout(() => {
+                bar.classList.remove('done');
+                bar.style.width = '';
+            }, 500);
+        }
+
+        // कुनै पनि बटन/मेनु-लिंक क्लिक हुनेबित्तिकै तुरुन्तै Loading देखाउने,
+        // र iframe/खण्ड लोड सकिएपछि (hideIframeLoader/ठोस समय) स्वतः हटाउने
+        document.addEventListener('click', function (e) {
+            const target = e.target.closest('button, .nav-item, .submenu-item');
+            if (!target) return;
+            if (target.disabled) return;
+
+            const isNavAction = target.classList.contains('nav-item') || target.classList.contains('submenu-item');
+            startButtonLoading(target);
+
+            if (isNavAction) {
+                showTopProgress();
+                // यी बटनहरु iframe लोड सकिएपछि hideIframeLoader() मार्फत हटाइनेछन्
+                // सुरक्षाको लागि निश्चित समयपछि पनि स्वतः हटाउने (कुनै त्रुटिले अड्किन नदिन)
+                setTimeout(() => { stopButtonLoading(target); finishTopProgress(); }, 8000);
+            } else {
+                // टगल/ड्रपडाउन जस्ता तत्काल प्रतिक्रिया दिने बटनहरुका लागि छोटो प्रोसेसिङ प्रभाव
+                setTimeout(() => stopButtonLoading(target), 350);
+            }
+        }, true);
 
         let isSidebarCollapsed = false;
         let idleTimeout;
@@ -360,6 +473,9 @@
 
         function hideIframeLoader() {
             document.getElementById('iframe-loader').classList.add('opacity-0', 'pointer-events-none');
+            // सम्बन्धित मेनु/लिंक बटनको Loading अवस्था र माथिको प्रोग्रेस बार हटाउने
+            document.querySelectorAll('.nav-item.btn-loading, .submenu-item.btn-loading').forEach(stopButtonLoading);
+            finishTopProgress();
         }
 
         function toggleDropdown(dropdownId, arrowId) {
@@ -376,6 +492,13 @@
 
         // ७. लगआउट फङ्सन
         function handleLogout() {
+            // रिडाइरेक्ट नभएसम्म लगआउट बटनमा Loading अवस्था कायम राख्ने
+            const logoutBtn = document.querySelector('button[onclick="handleLogout()"]');
+            if (logoutBtn) {
+                startButtonLoading(logoutBtn);
+                logoutBtn.disabled = true;
+            }
+
             localStorage.removeItem("userLoggedIn");
             localStorage.removeItem("loggedInUserEmail");
             localStorage.removeItem("userRole");

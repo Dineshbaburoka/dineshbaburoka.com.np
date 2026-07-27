@@ -86,6 +86,24 @@
     .btn:hover { 
       background: var(--secondary-color); 
     }
+    .btn:disabled {
+      opacity: 0.75;
+      cursor: not-allowed;
+    }
+    .btn .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2.5px solid rgba(255,255,255,0.4);
+      border-top-color: #ffffff;
+      border-radius: 50%;
+      animation: btn-spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-left: 8px;
+    }
+    @keyframes btn-spin {
+      to { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
@@ -107,7 +125,7 @@
       </div>
       
       <!-- लगइन बटन -->
-      <button type="submit" class="btn">🔐 लगइन गर्नुस्</button>
+      <button type="submit" id="loginBtn" class="btn"><span id="loginBtnText">🔐 लगइन गर्नुस्</span></button>
     </form>
   </div>
 
@@ -123,6 +141,15 @@
       const email = document.getElementById('loginEmail').value.trim();
       const password = document.getElementById('loginPassword').value;
 
+      const loginBtn = document.getElementById('loginBtn');
+      const loginBtnText = document.getElementById('loginBtnText');
+      const originalText = loginBtnText.innerHTML;
+
+      // बटनमा प्रोसेसिङ/लोडिङ अवस्था देखाउने
+      loginBtn.disabled = true;
+      loginBtnText.innerHTML = 'प्रतीक्षा गर्नुहोस्...<span class="spinner"></span>';
+
+      try {
       // `system_users` टेबलबाट रोल (role) समेत तान्ने
       const { data, error } = await _supabase
         .from('system_users')
@@ -153,6 +180,15 @@
 
       } else {
         alert("❌ गलत इमेल वा पासवर्ड! कृपया पुनः जाँच्नुहोस्।");
+      }
+      } catch (err) {
+        alert("❌ अनपेक्षित त्रुटि भयो: " + err.message);
+      } finally {
+        // सफल भई रिडाइरेक्ट नभएको अवस्थामा (त्रुटि/गलत विवरण) बटन फेरि सक्रिय गर्ने
+        if (document.body.contains(loginBtn)) {
+          loginBtn.disabled = false;
+          loginBtnText.innerHTML = originalText;
+        }
       }
     });
   </script>
