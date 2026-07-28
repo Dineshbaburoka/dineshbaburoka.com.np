@@ -4,9 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>गलकोट नगरपालिका-कर्मचारी व्यवस्थापन प्रणाली</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://unpkg.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .map-instance { height: 400px; width: 100%; z-index: 1; }
@@ -218,73 +221,40 @@
             margin-left: 6px;
         }
 
-        /* ── GLOBAL LOADING OVERLAY (मेरो फिल्ड कार्य ट्याबभित्र मात्र देखिने) ── */
-        #global-loading-overlay {
-            position: absolute;
+        /* ── GLOBAL LOADING POPUP (पूरै admin interface मा जहाँसुकै loading हुँदा देखिने Golf-थिम popup) ── */
+        #global-loading-wrap {
+            position: fixed;
             inset: 0;
             z-index: 99999;
             display: none;
             align-items: center;
             justify-content: center;
-            flex-direction: column;
-            gap: 18px;
             background: rgba(2, 6, 23, 0.72);
             backdrop-filter: blur(3px);
             -webkit-backdrop-filter: blur(3px);
+            pointer-events: none;
         }
-        #global-loading-overlay.active {
+        #global-loading-wrap.active {
             display: flex;
+            pointer-events: auto; /* loading हुँदा पछाडिका सबै क्लिक रोक्ने */
         }
-        .gl-spinner {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            border: 3px solid rgba(16, 185, 129, 0.2);
-            border-top-color: #10b981;
-            animation: gl-spin 0.8s linear infinite;
+        #global-loading-card {
+            opacity: 0;
+            transform: scale(0.92) translateY(6px);
+            transition: opacity .25s ease-out, transform .25s cubic-bezier(.2,.8,.2,1);
+            width: min(92vw, 340px);
+            background: linear-gradient(180deg,#fdfaf3,#f3ecd8);
+            border-radius: 18px;
+            padding: 22px 20px 18px;
+            box-shadow: 0 20px 45px rgba(0,0,0,.45), 0 2px 0 rgba(255,255,255,.6) inset;
         }
-        @keyframes gl-spin {
-            to { transform: rotate(360deg); }
+        #global-loading-wrap.active #global-loading-card {
+            opacity: 1;
+            transform: scale(1) translateY(0);
         }
-        .gl-progress-track {
-            width: 180px;
-            height: 5px;
-            border-radius: 999px;
-            background: #1e293b;
+        /* सबै क्लिक/टच पूर्णतया रोक्ने — पछाडिको UI छुन नमिल्ने */
+        body.gl-locked {
             overflow: hidden;
-            position: relative;
-        }
-        .gl-progress-bar {
-            position: absolute;
-            top: 0;
-            left: 0;
-            height: 100%;
-            width: 40%;
-            border-radius: 999px;
-            background: linear-gradient(90deg, #059669, #10b981, #34d399);
-            animation: gl-indeterminate 1.1s ease-in-out infinite;
-        }
-        @keyframes gl-indeterminate {
-            0% { left: -40%; width: 40%; }
-            50% { width: 55%; }
-            100% { left: 100%; width: 40%; }
-        }
-        .gl-text {
-            color: #e2e8f0;
-            font-size: 12px;
-            font-weight: 700;
-            letter-spacing: 0.03em;
-        }
-        /* Freeze interaction + visually dim while loading */
-        #fieldwork-app-root.gl-locked button,
-        #fieldwork-app-root.gl-locked input,
-        #fieldwork-app-root.gl-locked textarea,
-        #fieldwork-app-root.gl-locked .fw-tab-btn {
-            pointer-events: none !important;
-        }
-        #fieldwork-app-root.gl-locked #global-loading-overlay,
-        #fieldwork-app-root.gl-locked #global-loading-overlay * {
-            pointer-events: auto !important;
         }
 
         /* ── PRINT STYLES ── */
@@ -470,8 +440,32 @@
 </head>
 <body class="bg-gray-100 font-sans">
 
-    <!-- GLOBAL LOADING BAR: बटन क्लिक गर्दा वा डाटा लोड हुँदा माथि देखिने प्रगति पट्टी -->
-    <div id="global-loading-bar" class="fixed top-0 left-0 h-1 bg-emerald-500 z-[9999]" style="width:0%; opacity:1;"></div>
+    <!-- GLOBAL LOADING POPUP: सम्पूर्ण Admin Interface भर जहाँसुकै loading हुँदा देखिने Golf-थिम popup।
+         यो सधैं सबैभन्दा माथिल्लो z-index मा बस्छ (login screen, sidebar, modal, dropdown जुनसुकैभन्दा माथि)
+         र active हुँदा पछाडिको सम्पूर्ण UI मा क्लिक/टच रोकिन्छ (pointer-events: auto हुने backdrop ले छोप्छ)। -->
+    <div id="global-loading-wrap" role="alert" aria-live="assertive" aria-busy="true">
+        <div id="global-loading-card" class="flex flex-col items-center">
+            <div id="gl-pct" style="font-family:'Georgia',serif; font-weight:700; font-size:16px; color:#5b4636; margin-bottom:6px; text-shadow:0 1px 0 rgba(255,255,255,.6); position:relative; left:0%; transition:left .22s ease-out;">0%</div>
+            <div id="gl-track" style="position:relative; width:100%; height:40px; border-radius:999px; overflow:hidden; box-shadow:0 6px 14px rgba(0,0,0,.28), inset 0 2px 3px rgba(0,0,0,.25), inset 0 -2px 3px rgba(255,255,255,.15);
+                background:
+                    repeating-radial-gradient(circle at 12% 30%, rgba(0,0,0,0.10) 0 1px, transparent 1px 5px),
+                    repeating-radial-gradient(circle at 68% 70%, rgba(0,0,0,0.08) 0 1px, transparent 1px 6px),
+                    repeating-linear-gradient(115deg, #4d9a3f 0 3px, #5aab48 3px 6px, #468636 6px 9px),
+                    linear-gradient(180deg, #63bd52 0%, #4a9a3c 55%, #3d8332 100%);">
+                <!-- hole (dark cup at the far end) -->
+                <div style="position:absolute; right:8px; top:50%; transform:translateY(-50%); width:23px; height:23px; border-radius:50%;
+                    background:radial-gradient(circle at 40% 35%, #3a2a1c, #150d08 70%);
+                    box-shadow:inset 0 3px 5px rgba(0,0,0,.9), inset 0 -1px 2px rgba(255,255,255,.05), 0 1px 1px rgba(255,255,255,.15);"></div>
+                <!-- golf ball -->
+                <div id="gl-ball" style="position:absolute; top:50%; left:6%; transform:translate(-50%,-50%); width:20px; height:20px; border-radius:50%; transition:left .22s ease-out;
+                    background:
+                        repeating-radial-gradient(circle, transparent 0 2.2px, rgba(0,0,0,0.10) 2.2px 2.8px),
+                        radial-gradient(circle at 32% 28%, #ffffff, #eceeea 55%, #c9ccc6 100%);
+                    box-shadow:0 3px 4px rgba(0,0,0,.45), inset 0 -2px 3px rgba(0,0,0,.12);"></div>
+            </div>
+            <div id="gl-message" style="font-family:'Georgia',serif; font-weight:600; font-size:13px; letter-spacing:.12em; color:#5b4636; margin-top:9px; text-shadow:0 1px 0 rgba(255,255,255,.6); text-align:center;">लोड हुँदै...</div>
+        </div>
+    </div>
 
     <!-- LOGIN MODAL / SCREEN -->
     <div id="login-screen" class="fixed inset-0 bg-slate-900 bg-opacity-95 z-50 flex items-center justify-center p-4">
@@ -659,13 +653,6 @@
                 <section id="fieldwork-section" class="tab-content hidden">
                     <div class="rounded-xl shadow-sm border border-gray-200 overflow-hidden" style="height: calc(100vh - 160px); min-height: 560px;">
                         <div id="fieldwork-app-root" class="bg-slate-900 text-slate-100 font-sans flex items-center justify-center h-full p-3 sm:p-4 select-none overflow-y-auto" style="position:relative;">
-
-    <!-- ===== GLOBAL LOADING OVERLAY ===== -->
-    <div id="global-loading-overlay">
-        <div class="gl-spinner"></div>
-        <div class="gl-progress-track"><div class="gl-progress-bar"></div></div>
-        <div class="gl-text" id="gl-text">प्रोसेस हुँदैछ...</div>
-    </div>
 
     <!-- ===== DATALISTS FOR AUTO-SUGGEST ===== -->
     <datalist id="emp-names-list"></datalist>
@@ -1585,37 +1572,81 @@
             return String(value).replace(/[0-9]/g, d => NEPALI_DIGITS[d]);
         }
 
-        // ================= GLOBAL LOADING BAR =================
-        // कुनै पनि बटन क्लिक गर्दा माथि देखिने loading progress bar
-        let loadingBarHideTimer = null;
+        // ================= GLOBAL LOADING BAR (Golf थिम) =================
+        // कुनै पनि बटन क्लिक गर्दा वा डाटा लोड हुँदा देखिने Golf-ball प्रगति पट्टी
         let loadingBarActiveCount = 0;
-        function showLoadingBar() {
-            loadingBarActiveCount++;
-            const bar = document.getElementById('global-loading-bar');
-            if (!bar) return;
-            clearTimeout(loadingBarHideTimer);
-            bar.style.transition = 'none';
-            bar.style.opacity = '1';
-            bar.style.width = '15%';
-            void bar.offsetWidth; // reflow
-            bar.style.transition = 'width 0.6s ease-out';
-            bar.style.width = '80%';
+        let loadingBarTrickleTimer = null;
+        let loadingBarHideTimer = null;
+        let loadingBarCurrentPct = 0;
+
+        // ball लाई track को सुरुदेखि (5%) होल नजिकसम्म (82%) मात्र सार्ने — दुवैतिर ball/hole को radius को लागि ठाउँ छोड्दै
+        function _glSetWidth(pct, withTransition) {
+            loadingBarCurrentPct = pct;
+            const ball = document.getElementById('gl-ball');
+            const pctLabel = document.getElementById('gl-pct');
+            const ballLeftPct = 5 + (pct / 100) * 77; // 5% देखि 82% सम्म यात्रा
+            if (ball) {
+                ball.style.transition = withTransition ? 'left 0.35s cubic-bezier(.3,.6,.3,1)' : 'none';
+                ball.style.left = ballLeftPct + '%';
+            }
+            if (pctLabel) {
+                pctLabel.style.transition = withTransition ? 'left 0.35s cubic-bezier(.3,.6,.3,1)' : 'none';
+                pctLabel.style.left = ballLeftPct + '%';
+                pctLabel.style.transform = 'translateX(-50%)';
+                pctLabel.textContent = Math.round(pct) + '%';
+            }
         }
+
+        // धेरै operations एकैसाथ चलिरहेको बेला पनि bar ले सही ढंगले (NProgress जस्तो)
+        // बिस्तारै अगाडि बढ्दै जाने trickle animation देखाउँछ, र सबै operation सकिएपछि मात्र ball होलमा पुगेर बिस्तारै हराउँछ।
+        // message दिइएमा popup को तलको text अपडेट गर्ने (नदिइएमा default "लोड हुँदै..." कायम रहन्छ)
+        function _glSetMessage(message) {
+            const msgEl = document.getElementById('gl-message');
+            if (msgEl) msgEl.textContent = message || 'लोड हुँदै...';
+        }
+
+        function showLoadingBar(message) {
+            loadingBarActiveCount++;
+            clearTimeout(loadingBarHideTimer);
+
+            const wrap = document.getElementById('global-loading-wrap');
+            if (wrap) wrap.classList.add('active');
+            document.body.classList.add('gl-locked'); // पछाडिको सम्पूर्ण UI मा क्लिक/स्क्रोल रोक्ने
+            if (message) _glSetMessage(message);
+
+            if (loadingBarActiveCount === 1) {
+                if (!message) _glSetMessage(); // पहिलो operation मा default text देखाउने
+                // पहिलो operation सुरु हुँदा ball लाई सुरुबाटै देखाउने
+                _glSetWidth(0, false);
+                requestAnimationFrame(() => _glSetWidth(12, true));
+            }
+
+            clearInterval(loadingBarTrickleTimer);
+            loadingBarTrickleTimer = setInterval(() => {
+                // 92% सम्म बिस्तारै (जति नजिक पुग्दै जान्छ उति सुस्तसुस्त) बढ्दै जाने — real progress थाहा नभएको बेला पनि "काम भइरहेको छ" भन्ने अनुभूति दिन
+                if (loadingBarCurrentPct >= 92) return;
+                const remaining = 92 - loadingBarCurrentPct;
+                const step = Math.max(0.4, remaining * 0.06);
+                _glSetWidth(Math.min(92, loadingBarCurrentPct + step), true);
+            }, 220);
+        }
+
         function hideLoadingBar() {
             loadingBarActiveCount = Math.max(0, loadingBarActiveCount - 1);
-            if (loadingBarActiveCount > 0) return; // अन्य कुनै अपरेसन अझै चलिरहेको छ
-            const bar = document.getElementById('global-loading-bar');
-            if (!bar) return;
-            bar.style.transition = 'width 0.25s ease-out';
-            bar.style.width = '100%';
+            if (loadingBarActiveCount > 0) return; // अन्य कुनै operation अझै चलिरहेको छ
+
+            clearInterval(loadingBarTrickleTimer);
+            _glSetWidth(100, true); // ball होलमा पुग्छ
+
             clearTimeout(loadingBarHideTimer);
             loadingBarHideTimer = setTimeout(() => {
-                bar.style.transition = 'opacity 0.35s ease-out';
-                bar.style.opacity = '0';
-                setTimeout(() => { bar.style.transition = 'none'; bar.style.width = '0%'; }, 350);
-            }, 200);
+                const wrap = document.getElementById('global-loading-wrap');
+                if (wrap) wrap.classList.remove('active');
+                document.body.classList.remove('gl-locked'); // क्लिक/स्क्रोल फेरि खुला गर्ने
+                setTimeout(() => _glSetWidth(0, false), 280);
+            }, 320);
         }
-        // सबै बटन क्लिकमा तुरुन्तै loading bar देखाउने (generic feedback),
+        // सबै बटन क्लिकमा तुरुन्तै loading popup देखाउने (generic feedback),
         // तर एसिन्क डाटा लोड हुने फंक्सनहरूले showLoadingBar/hideLoadingBar लाई सही समयमा नियन्त्रण गर्छन्
         document.addEventListener('click', (e) => {
             const btn = e.target.closest('button');
@@ -1997,7 +2028,7 @@
             if (!supabaseClient) return;
             showLoadingBar();
             try {
-                let empQuery = supabaseClient.from('employees').select('*').order('id', { ascending: true });
+                let empQuery = supabaseClient.from('employees').select('*').order('id', { ascending: true }).limit(2000);
                 // भूमिका अनुसार employees डाटा सीमित गर्ने
                 if (currentRole === 'sub-admin') {
                     empQuery = empQuery.eq('office', currentOffice || '__none__');
@@ -2676,7 +2707,7 @@
 
             if(!supabaseClient) { hideLoadingBar(); return; }
             try {
-                let q = supabaseClient.from('fieldbook_reports').select('*').order('created_at', { ascending: false });
+                let q = supabaseClient.from('fieldbook_reports').select('*').order('created_at', { ascending: false }).limit(500);
                 const scopedCodes = getScopedEmpCodes();
                 if (scopedCodes !== null) q = q.in('emp_code', scopedCodes.length ? scopedCodes : ['__none__']);
                 const { data, error } = await q;
@@ -2899,6 +2930,7 @@
                         .from('fieldbook_reports')
                         .select('*')
                         .eq('emp_code', empCode)
+                        .limit(200)
                         .order('created_at', { ascending: false });
 
                     if (!error && data && data.length > 0) {
@@ -3390,7 +3422,7 @@
             showLoadingBar();
 
             try {
-                const { data, error } = await supabaseClient.from('notices').select('*').order('created_at', { ascending: false });
+                const { data, error } = await supabaseClient.from('notices').select('*').order('created_at', { ascending: false }).limit(200);
                 if (error || !data || data.length === 0) {
                     globalNotices = [];
                     listEl.innerHTML = `<p class="text-sm text-gray-400 italic p-4 text-center">कुनै पनि सूचना प्रकाशित भएको छैन।</p>`;
@@ -3820,25 +3852,18 @@
     let reportData = null;
     let departureTime = null; // कार्यालय छाडेको समय
 
-    // ── GLOBAL LOADING OVERLAY HELPERS ──
-    let glLockCount = 0;
+    // ── GLOBAL LOADING POPUP HELPERS (मेरो फिल्ड कार्य ट्याब) ──
+    // यी अब छुट्टै overlay बनाउँदैनन् — बरु सम्पूर्ण interface भरि साझा गरिने
+    // उही Golf-थिम popup (showLoadingBar/hideLoadingBar) प्रयोग गर्छन्, ताकि जहाँसुकै
+    // loading भए पनि एउटै popup देखियोस् र पछाडि क्लिक गर्न नमिलोस्।
     function showLoading(message) {
-        glLockCount++;
-        const overlay = document.getElementById('global-loading-overlay');
-        const textEl = document.getElementById('gl-text');
-        if (textEl) textEl.textContent = message || 'प्रोसेस हुँदैछ...';
-        overlay.classList.add('active');
-        document.getElementById('fieldwork-app-root').classList.add('gl-locked');
+        showLoadingBar(message || 'प्रोसेस हुँदैछ...');
     }
     function hideLoading() {
-        glLockCount = Math.max(0, glLockCount - 1);
-        if (glLockCount === 0) {
-            document.getElementById('global-loading-overlay').classList.remove('active');
-            document.getElementById('fieldwork-app-root').classList.remove('gl-locked');
-        }
+        hideLoadingBar();
     }
-    // Wraps an async action: shows the loading bar, blocks further clicks,
-    // runs the action, then always hides the loading bar again.
+    // Wraps an async action: shows the loading popup, blocks further clicks,
+    // runs the action, then always hides the loading popup again.
     async function withLoading(actionFn, message) {
         showLoading(message);
         try {
