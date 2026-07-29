@@ -1667,6 +1667,7 @@
 
         let dashboardFeatureGroup = null;
         let globalEmployees = [];
+        let globalLocationsMap = {}; // emp_code -> latest location row (in-memory cache, DB बाट फेरि नतान्नको लागि)
         let rawFieldbooks = [];
         let currentFilteredFieldbooks = [];
         let supabaseClient = null;
@@ -2049,9 +2050,13 @@
                 }
                 const { data: locations } = await locQuery;
                 if (locations) {
-                    locations.forEach(loc => updateBothMaps(loc));
-                    calculateStats(locations);
-                    updateLiveDutyStaffList(locations);
+                    globalLocationsMap = {};
+                    locations.forEach(loc => {
+                        globalLocationsMap[loc.emp_code] = loc;
+                        updateBothMaps(loc);
+                    });
+                    calculateStats(Object.values(globalLocationsMap));
+                    updateLiveDutyStaffList(Object.values(globalLocationsMap));
                     setTimeout(() => autoZoomAllStaff(), 400);
                 }
 
@@ -2071,10 +2076,18 @@
                         // भूमिका अनुसार सीमित नभएको कर्मचारीको लाइभ अपडेट देखाउने
                         const scopedCodes = getScopedEmpCodes();
                         if (scopedCodes !== null && !scopedCodes.includes(record.emp_code)) return;
+
+                        // पूरै table फेरि नतानी, यही एउटा record मात्र in-memory cache मा patch गर्ने
+                        globalLocationsMap[record.emp_code] = record;
+
                         updateBothMaps(record);
                         logActivity(record);
                         addNotification(record); // Push Notification
-                        refreshStatsAndList();
+
+                        // पूरा list रिबिल्ड नगरी, स्ट्याट्स हल्का हुनाले पूरै recalc र
+                        // यही एउटा employee को row मात्र list मा patch गर्ने
+                        calculateStats(Object.values(globalLocationsMap));
+                        patchLiveDutyStaffItem(record);
                     }
                 })
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notices' }, payload => {
@@ -2378,6 +2391,36 @@
             }
         }
 
+        // एउटा location record बाट staff-list item (DOM element) बनाउने — दुवै full-render र single-patch ले प्रयोग गर्ने
+        function buildLiveStaffItem(loc) {
+            const empInfo = globalEmployees.find(e => e.emp_code === loc.emp_code) || { name: loc.emp_code };
+            const currentReason = loc.reason1 ? loc.reason1 : "कारण नखुलेको";
+            const bat = loc.battery_level !== undefined ? loc.battery_level : '100';
+            const item = document.createElement('div');
+            item.className = "live-staff-item p-3 hover:bg-slate-50 border border-gray-200 rounded-lg flex flex-col cursor-pointer transition text-slate-800 bg-white shadow-xs";
+            item.id = `staff-item-${loc.emp_code}`;
+            item.setAttribute('data-search', `${empInfo.name} ${loc.emp_code}`.toLowerCase());
+
+            item.onclick = () => {
+                if(liveMarkers[loc.emp_code]) {
+                    liveMap.setView([loc.latitude, loc.longitude], 16);
+                    liveMarkers[loc.emp_code].openPopup();
+                }
+            };
+            item.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <span class="text-sm font-semibold text-slate-800">${escapeHtml(empInfo.name)}</span>
+                    <span class="text-[10px] font-mono bg-slate-100 px-1.5 py-0.5 rounded text-slate-600">${escapeHtml(loc.emp_code)}</span>
+                </div>
+                <span class="text-xs text-amber-600 font-medium mt-1 truncate max-w-full"><i class="fa-solid fa-file-pen text-[10px]"></i> ${escapeHtml(currentReason)}</span>
+                <div class="flex justify-between text-[10px] text-gray-500 mt-1">
+                    <span>Battery: ${np(escapeHtml(bat))}%</span>
+                    <span class="text-emerald-600 font-medium">${np(new Date(loc.updated_at).toLocaleTimeString())}</span>
+                </div>
+            `;
+            return item;
+        }
+
         function updateLiveDutyStaffList(locations) {
             const container = document.getElementById('map-employee-list');
             if(!container) return;
@@ -2386,33 +2429,26 @@
                 return;
             }
             container.innerHTML = '';
-            locations.forEach(loc => {
-                const empInfo = globalEmployees.find(e => e.emp_code === loc.emp_code) || { name: loc.emp_code };
-                const currentReason = loc.reason1 ? loc.reason1 : "कारण नखुलेको"; 
-                const bat = loc.battery_level !== undefined ? loc.battery_level : '100';
-                const item = document.createElement('div');
-                item.className = "live-staff-item p-3 hover:bg-slate-50 border border-gray-200 rounded-lg flex flex-col cursor-pointer transition text-slate-800 bg-white shadow-xs";
-                item.setAttribute('data-search', `${empInfo.name} ${loc.emp_code}`.toLowerCase());
-                
-                item.onclick = () => {
-                    if(liveMarkers[loc.emp_code]) {
-                        liveMap.setView([loc.latitude, loc.longitude], 16);
-                        liveMarkers[loc.emp_code].openPopup();
-                    }
-                };
-                item.innerHTML = `
-                    <div class="flex justify-between items-start">
-                        <span class="text-sm font-semibold text-slate-800">${escapeHtml(empInfo.name)}</span>
-                        <span class="text-[10px] font-mono bg-slate-100 px-1.5 py-0.5 rounded text-slate-600">${escapeHtml(loc.emp_code)}</span>
-                    </div>
-                    <span class="text-xs text-amber-600 font-medium mt-1 truncate max-w-full"><i class="fa-solid fa-file-pen text-[10px]"></i> ${escapeHtml(currentReason)}</span>
-                    <div class="flex justify-between text-[10px] text-gray-500 mt-1">
-                        <span>Battery: ${np(escapeHtml(bat))}%</span>
-                        <span class="text-emerald-600 font-medium">${np(new Date(loc.updated_at).toLocaleTimeString())}</span>
-                    </div>
-                `;
-                container.appendChild(item);
-            });
+            const frag = document.createDocumentFragment();
+            locations.forEach(loc => frag.appendChild(buildLiveStaffItem(loc)));
+            container.appendChild(frag);
+        }
+
+        // Realtime ले एउटा मात्र employee को ping ल्याउँदा, पूरै list नबनाई
+        // त्यो एउटा item मात्र replace/insert गर्ने (वा पहिलो पटक भए placeholder हटाउने)
+        function patchLiveDutyStaffItem(loc) {
+            const container = document.getElementById('map-employee-list');
+            if(!container) return;
+            const placeholder = container.querySelector('.italic');
+            if (placeholder) container.innerHTML = '';
+
+            const newItem = buildLiveStaffItem(loc);
+            const existing = document.getElementById(`staff-item-${loc.emp_code}`);
+            if (existing) {
+                existing.replaceWith(newItem);
+            } else {
+                container.appendChild(newItem);
+            }
         }
 
         function filterLiveStaffList() {
