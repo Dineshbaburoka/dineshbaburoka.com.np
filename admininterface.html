@@ -872,105 +872,191 @@
                     </button>
                 </div>
 
-                <!-- Form view -->
-                <div id="fieldbook-form-view" class="space-y-4">
-                    <div class="bg-slate-900/60 rounded-xl border border-slate-700/60 p-3 space-y-3">
-                        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-700 pb-2">
-                            <i class="fa-solid fa-file-lines mr-1 text-emerald-400"></i> कार्यालय छोड्दाको विवरण
-                        </p>
-
-                        <div class="grid grid-cols-2 gap-2">
-                            <div>
-                                <label class="fb-label">कर्मचारीको नाम</label>
-                                <input type="text" id="fb-emp-name" list="emp-names-list" class="fb-input" placeholder="छान्नुहोस् वा लेख्नुहोस्">
-                            </div>
-                            <div>
-                                <label class="fb-label">पद / श्रेणी</label>
-                                <input type="text" id="fb-emp-post" list="posts-list" class="fb-input" placeholder="छान्नुहोस् वा नयाँ टाइप गर्नुहोस्">
-                            </div>
+                <!-- Step Popup Trigger View (प्रतिवेदन tab खुल्दा यही देखिन्छ) -->
+                <div id="fieldbook-form-view" class="flex flex-col items-center justify-center py-8 space-y-4">
+                    <div class="bg-slate-800/80 rounded-2xl border border-slate-700 p-6 text-center w-full">
+                        <i class="fa-solid fa-file-pen text-4xl text-emerald-400 mb-3"></i>
+                        <p class="text-white font-bold text-base mb-1">प्रतिवेदन भर्नुहोस्</p>
+                        <p class="text-slate-400 text-xs mb-5">४ वटा सजिलो चरणमा विवरण भर्नुहोस्</p>
+                        <div class="flex justify-center gap-2 mb-5">
+                            <span class="w-7 h-7 rounded-full bg-emerald-600 text-white text-[11px] font-bold flex items-center justify-center">१</span>
+                            <span class="w-7 h-7 rounded-full bg-slate-600 text-slate-300 text-[11px] font-bold flex items-center justify-center">२</span>
+                            <span class="w-7 h-7 rounded-full bg-slate-600 text-slate-300 text-[11px] font-bold flex items-center justify-center">३</span>
+                            <span class="w-7 h-7 rounded-full bg-slate-600 text-slate-300 text-[11px] font-bold flex items-center justify-center">४</span>
                         </div>
-                        <div>
-                            <label class="fb-label">शाखा / कार्यालय</label>
-                            <input type="text" id="fb-office" class="fb-input" placeholder="शाखाको नाम">
-                        </div>
-                        <div class="grid grid-cols-2 gap-2">
-                            <div>
-                                <label class="fb-label">भ्रमण अवधि (देखि)</label>
-                                <input type="text" id="fb-date-from" class="fb-input date-format-input" placeholder="YYYY/MM/DD" maxlength="10" oninput="formatDateInput(this)">
-                            </div>
-                            <div>
-                                <label class="fb-label">भ्रमण अवधि (सम्म)</label>
-                                <input type="text" id="fb-date-to" class="fb-input date-format-input" placeholder="YYYY/MM/DD" maxlength="10" oninput="formatDateInput(this)">
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-2 gap-2">
-                            <div>
-                                <label class="fb-label">आर्थिक वर्ष</label>
-                                <select id="fb-fiscal-year" name="fiscal_year" class="fb-input">
-                                  <option value="2083/084">२०८३/०८४</option>
-                                  <option value="2084/085">२०८४/०८५</option>
-                                  <option value="2085/086">२०८५/०८६</option>
-                                  <option value="2086/087">२०८६/०८७</option>
-                                  <option value="2087/088">२०८७/०८८</option>
-                                  <option value="2088/089">२०८८/०८९</option>
-                                  <option value="2089/090">२०८९/०९०</option>
-                                </select>
-                            </div>
-                        </div>
+                        <button onclick="startFieldbookSteps()" class="w-full bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-sm cursor-pointer transition-all">
+                            <i class="fa-solid fa-play text-xs"></i> विवरण भर्न शुरु गर्नुहोस्
+                        </button>
                     </div>
 
-                    <!-- Entries with Photo Upload -->
-                    <div>
-                        <div class="flex justify-between items-center mb-2">
-                            <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                                <i class="fa-solid fa-list-check mr-1 text-emerald-400"></i> दैनिक कार्य विवरण
-                            </p>
-                            <button onclick="addEntry()" class="bg-emerald-600/20 text-emerald-400 border border-emerald-700/40 text-[11px] font-bold px-3 py-1 rounded-lg cursor-pointer hover:bg-emerald-600/30 transition-all">
-                                <i class="fa-solid fa-plus mr-1"></i> थप्ने
-                            </button>
-                        </div>
-                        <div id="entries-container">
-                            <!-- Dynamic Entry cards -->
-                        </div>
+                    <!-- Hidden fields (database को लागि — popup बाट भरिन्छ) -->
+                    <div style="display:none;">
+                        <input type="text" id="fb-emp-name" list="emp-names-list">
+                        <input type="text" id="fb-emp-post" list="posts-list">
+                        <input type="text" id="fb-office">
+                        <input type="text" id="fb-date-from" class="date-format-input">
+                        <input type="text" id="fb-date-to" class="date-format-input">
+                        <select id="fb-fiscal-year">
+                            <option value="2083/084">२०८३/०८४</option>
+                            <option value="2084/085">२०८४/०८५</option>
+                            <option value="2085/086">२०८५/०८६</option>
+                            <option value="2086/087">२०८६/०८७</option>
+                            <option value="2087/088">२०८७/०८८</option>
+                            <option value="2088/089">२०८८/०८९</option>
+                            <option value="2089/090">२०८९/०९०</option>
+                        </select>
+                        <input type="text" id="fb-sig-name" list="emp-names-list">
+                        <input type="text" id="fb-sig-post" list="posts-list">
+                        <input type="text" id="fb-sig-date" class="date-format-input">
+                        <div id="entries-container"></div>
                     </div>
 
-                    <!-- Signature -->
-                    <div class="bg-slate-900/60 rounded-xl border border-slate-700/60 p-3 space-y-2">
-                        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-700 pb-2">
-                            <i class="fa-solid fa-pen-nib mr-1 text-emerald-400"></i> पेश गर्ने कर्मचारीको विवरण
-                        </p>
-                        <div class="grid grid-cols-2 gap-2">
-                            <div>
-                                <label class="fb-label">नाम</label>
-                                <input type="text" id="fb-sig-name" list="emp-names-list" class="fb-input" placeholder="पूरा नाम">
-                            </div>
-                            <div>
-                                <label class="fb-label">पद</label>
-                                <input type="text" id="fb-sig-post" list="posts-list" class="fb-input" placeholder="पद">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="fb-label">मिति</label>
-                            <input type="text" id="fb-sig-date" class="fb-input date-format-input" placeholder="YYYY/MM/DD" maxlength="10" oninput="formatDateInput(this)">
-                        </div>
-                    </div>
-
-                    <div id="fb-error" class="hidden bg-rose-500/10 border border-rose-500/30 rounded-xl p-3 text-center">
+                    <div id="fb-error" class="hidden bg-rose-500/10 border border-rose-500/30 rounded-xl p-3 text-center w-full">
                         <p class="text-xs text-rose-400 font-medium" id="fb-error-text"></p>
                     </div>
+                </div>
 
-                    <button onclick="withLoading(submitFieldbook, 'प्रतिवेदन बुझाउँदै...')" class="w-full bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 text-sm cursor-pointer transition-all shadow-lg shadow-emerald-900/30">
-                        <i class="fa-solid fa-paper-plane text-sm"></i> प्रतिवेदन बुझाउने र फर्किन अनलक गर्ने
-                    </button>
+                <!-- ── STEP POPUPS OVERLAY ── -->
+                <div id="fb-step-overlay" class="hidden fixed inset-0 z-[99998] flex items-end justify-center" style="background:rgba(2,6,23,0.80);backdrop-filter:blur(4px);">
+                    <div id="fb-step-card" class="w-full max-w-sm bg-slate-800 rounded-t-3xl border-t border-slate-700 shadow-2xl px-5 pt-5 pb-8" style="transform:translateY(100%);transition:transform 0.32s cubic-bezier(.2,.8,.2,1);">
+
+                        <!-- Progress dots -->
+                        <div class="flex justify-center gap-2 mb-4" id="fb-step-dots">
+                            <span class="step-dot w-2 h-2 rounded-full bg-slate-600" data-step="1"></span>
+                            <span class="step-dot w-2 h-2 rounded-full bg-slate-600" data-step="2"></span>
+                            <span class="step-dot w-2 h-2 rounded-full bg-slate-600" data-step="3"></span>
+                            <span class="step-dot w-2 h-2 rounded-full bg-slate-600" data-step="4"></span>
+                        </div>
+
+                        <!-- Step 1: जानु पर्ने स्थान -->
+                        <div id="fb-step-1" class="fb-step-panel">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="w-6 h-6 rounded-full bg-emerald-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0">१</span>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">चरण १ / ४</p>
+                            </div>
+                            <h3 class="text-white font-bold text-lg mb-1">जानु पर्ने स्थान</h3>
+                            <p class="text-slate-400 text-xs mb-4">कहाँ जाने हो? ठाउँको नाम लेख्नुहोस्।</p>
+                            <div class="relative mb-4">
+                                <span class="absolute inset-y-0 left-3 flex items-center text-slate-400"><i class="fa-solid fa-location-dot text-emerald-400"></i></span>
+                                <input type="text" id="popup-place" class="fb-input pl-10 text-base" placeholder="ठाउँको नाम (अनिवार्य)" autocomplete="off">
+                            </div>
+                            <div id="popup-place-err" class="hidden text-xs text-rose-400 mb-3 text-center">⚠ स्थान अनिवार्य रूपमा भर्नुहोस्।</div>
+                            <button onclick="fbStepNext(1)" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl text-sm cursor-pointer transition-all">
+                                अर्को <i class="fa-solid fa-arrow-right ml-1"></i>
+                            </button>
+                        </div>
+
+                        <!-- Step 2: कार्यालय छाड्नुपर्ने कारण -->
+                        <div id="fb-step-2" class="fb-step-panel hidden">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="w-6 h-6 rounded-full bg-emerald-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0">२</span>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">चरण २ / ४</p>
+                            </div>
+                            <h3 class="text-white font-bold text-lg mb-1">कार्यालय छाड्नुपर्ने कारण</h3>
+                            <p class="text-slate-400 text-xs mb-4">किन कार्यालय छाड्नु परेको हो? संक्षिप्त विवरण लेख्नुहोस्।</p>
+                            <textarea id="popup-reason" class="fb-textarea text-base" placeholder="कारण / कामको विवरण (अनिवार्य)" rows="4"></textarea>
+                            <div id="popup-reason-err" class="hidden text-xs text-rose-400 mb-2 mt-1 text-center">⚠ कारण अनिवार्य रूपमा भर्नुहोस्।</div>
+                            <div class="flex gap-2 mt-4">
+                                <button onclick="fbStepBack(2)" class="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold py-3 rounded-xl text-sm cursor-pointer transition-all">
+                                    <i class="fa-solid fa-arrow-left mr-1"></i> पछाडि
+                                </button>
+                                <button onclick="fbStepNext(2)" class="flex-[2] bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl text-sm cursor-pointer transition-all">
+                                    अर्को <i class="fa-solid fa-arrow-right ml-1"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: पुन फर्किने अनुमानित समय -->
+                        <div id="fb-step-3" class="fb-step-panel hidden">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="w-6 h-6 rounded-full bg-emerald-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0">३</span>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">चरण ३ / ४</p>
+                            </div>
+                            <h3 class="text-white font-bold text-lg mb-1">पुन फर्किने अनुमानित समय</h3>
+                            <p class="text-slate-400 text-xs mb-1">कति बजे फर्किने अनुमान छ?</p>
+                            <p class="text-amber-400 text-[10px] mb-4"><i class="fa-solid fa-circle-info mr-1"></i>PM भए +12 गर्नुस् (जस्तै ४:३० PM = १६:३०)</p>
+                            <div class="relative mb-4">
+                                <span class="absolute inset-y-0 left-3 flex items-center text-slate-400"><i class="fa-solid fa-clock text-emerald-400"></i></span>
+                                <input type="text" id="popup-return-time" class="fb-input pl-10 text-base" placeholder="HH:MM (अनिवार्य)" maxlength="8" oninput="formatTimeInput(this)">
+                            </div>
+                            <div id="popup-time-err" class="hidden text-xs text-rose-400 mb-3 text-center">⚠ अनुमानित समय अनिवार्य रूपमा भर्नुहोस्।</div>
+                            <div class="flex gap-2">
+                                <button onclick="fbStepBack(3)" class="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold py-3 rounded-xl text-sm cursor-pointer transition-all">
+                                    <i class="fa-solid fa-arrow-left mr-1"></i> पछाडि
+                                </button>
+                                <button onclick="fbStepNext(3)" class="flex-[2] bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl text-sm cursor-pointer transition-all">
+                                    अर्को <i class="fa-solid fa-arrow-right ml-1"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Step 4: फोटो -->
+                        <div id="fb-step-4" class="fb-step-panel hidden">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="w-6 h-6 rounded-full bg-emerald-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0">४</span>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">चरण ४ / ४</p>
+                            </div>
+                            <h3 class="text-white font-bold text-lg mb-1">फोटो संलग्न गर्नुहोस्</h3>
+                            <p class="text-slate-400 text-xs mb-4">फिल्ड कार्यको प्रमाणस्वरूप फोटो खिच्नुस् वा गैलरीबाट छान्नुस्। <span class="text-rose-400 font-bold">(अनिवार्य)</span></p>
+
+                            <!-- Photo upload area -->
+                            <div id="popup-photo-area" class="mb-3">
+                                <div class="border-2 border-dashed border-slate-600 rounded-2xl p-5 text-center mb-3">
+                                    <i class="fa-solid fa-image text-3xl text-slate-500 mb-2"></i>
+                                    <p class="text-slate-400 text-sm mb-3">फोटो कसरी थप्ने?</p>
+                                    <div class="flex gap-2">
+                                        <button type="button" onclick="document.getElementById('popup-photo-camera').click()" class="flex-1 bg-emerald-700/40 hover:bg-emerald-700/60 border border-emerald-700 text-emerald-300 text-xs font-bold py-2.5 px-2 rounded-xl cursor-pointer transition-all flex flex-col items-center gap-1">
+                                            <i class="fa-solid fa-camera text-lg"></i>
+                                            <span>क्यामेरा</span>
+                                        </button>
+                                        <button type="button" onclick="document.getElementById('popup-photo-gallery').click()" class="flex-1 bg-sky-700/40 hover:bg-sky-700/60 border border-sky-700 text-sky-300 text-xs font-bold py-2.5 px-2 rounded-xl cursor-pointer transition-all flex flex-col items-center gap-1">
+                                            <i class="fa-solid fa-images text-lg"></i>
+                                            <span>Gallery</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="file" id="popup-photo-camera" accept="image/*" capture="environment" class="hidden" onchange="handlePopupPhoto(this)">
+                            <input type="file" id="popup-photo-gallery" accept="image/*" class="hidden" onchange="handlePopupPhoto(this)">
+
+                            <!-- Preview -->
+                            <div id="popup-photo-preview-wrap" class="hidden mb-3 relative">
+                                <img id="popup-photo-preview" src="" alt="preview" class="w-full max-h-40 object-cover rounded-xl border border-emerald-600">
+                                <button onclick="clearPopupPhoto()" class="absolute top-2 right-2 bg-rose-600 text-white rounded-full w-7 h-7 flex items-center justify-center text-xs cursor-pointer border-2 border-slate-800">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                                <p id="popup-photo-name" class="text-[10px] text-emerald-400 mt-1 text-center truncate"></p>
+                            </div>
+
+                            <div id="popup-photo-err" class="hidden text-xs text-rose-400 mb-3 text-center">⚠ फोटो अनिवार्य रूपमा संलग्न गर्नुहोस्।</div>
+
+                            <div class="flex gap-2">
+                                <button onclick="fbStepBack(4)" class="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold py-3 rounded-xl text-sm cursor-pointer transition-all">
+                                    <i class="fa-solid fa-arrow-left mr-1"></i> पछाडि
+                                </button>
+                                <button onclick="fbStepSubmit()" class="flex-[2] bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl text-sm cursor-pointer transition-all">
+                                    <i class="fa-solid fa-paper-plane mr-1"></i> प्रतिवेदन बुझाउने
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
             </div>
 
         </div>
 
         <!-- Offline alert -->
-        <div id="offline-buffer-alert" class="hidden bg-amber-500/10 border-t border-amber-500/30 p-3 text-center animate-pulse flex-shrink-0">
-            <p class="text-xs text-amber-400 font-medium">
-                <i class="fa-solid fa-cloud-arrow-up mr-1 text-sm"></i> Connection weak. Saving logs locally...
+        <!-- Offline alert -->
+        <div id="offline-buffer-alert" class="hidden bg-amber-500/10 border-t border-amber-500/30 p-3 text-center flex-shrink-0">
+            <p class="text-xs text-amber-400 font-medium animate-pulse" id="offline-alert-gps">
+                <i class="fa-solid fa-cloud-arrow-up mr-1 text-sm"></i> GPS logs — internet पर्खँदै...
+            </p>
+            <p class="text-xs text-sky-400 font-medium mt-1 hidden" id="offline-alert-fieldbook">
+                <i class="fa-solid fa-file-arrow-up mr-1 text-sm"></i> प्रतिवेदन pending — internet आएपछि auto-sync हुन्छ
+            </p>
+            <p class="text-xs text-emerald-400 font-medium mt-1 hidden" id="offline-alert-syncing">
+                <i class="fa-solid fa-rotate mr-1 text-sm animate-spin"></i> Syncing to database...
             </p>
         </div>
 
@@ -4101,15 +4187,12 @@
         window.addEventListener('online', () => {
             updateNetworkStatus(true);
             syncOfflineData();
+            syncOfflineFieldbooks();
             fetchDropdownOptions();
         });
         window.addEventListener('offline', () => updateNetworkStatus(false));
 
-        const todayStr = getFormattedDate();
-        document.getElementById('fb-sig-date').value = todayStr;
-        document.getElementById('fb-date-from').value = todayStr;
-        document.getElementById('fb-date-to').value = todayStr;
-        addEntry();
+        // date fields र entries popup ले fill गर्छ
     }
     window.initFieldworkApp = initFieldworkApp;
 
@@ -4286,6 +4369,154 @@
         return String(n).split('').map(d => digits[parseInt(d)] || d).join('');
     }
 
+    // ── STEP POPUP SYSTEM ──
+    let popupPhotoBase64 = null;
+
+    function startFieldbookSteps() {
+        // Reset popup fields
+        document.getElementById('popup-place').value = '';
+        document.getElementById('popup-reason').value = '';
+        document.getElementById('popup-return-time').value = '';
+        clearPopupPhoto();
+        ['popup-place-err','popup-reason-err','popup-time-err','popup-photo-err'].forEach(id => document.getElementById(id).classList.add('hidden'));
+
+        // Show overlay + animate card in
+        const overlay = document.getElementById('fb-step-overlay');
+        const card = document.getElementById('fb-step-card');
+        overlay.style.display = '';           // safety reset
+        overlay.classList.remove('hidden');
+        card.style.transform = 'translateY(100%)'; // reset position
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => { card.style.transform = 'translateY(0)'; });
+        });
+
+        // Show step 1
+        _fbShowStep(1);
+    }
+
+    function _fbShowStep(n) {
+        document.querySelectorAll('.fb-step-panel').forEach(p => p.classList.add('hidden'));
+        document.getElementById('fb-step-' + n).classList.remove('hidden');
+        // Update dots
+        document.querySelectorAll('.step-dot').forEach(dot => {
+            const s = parseInt(dot.dataset.step);
+            dot.className = 'step-dot w-2 h-2 rounded-full ' + (s === n ? 'bg-emerald-500' : (s < n ? 'bg-emerald-800' : 'bg-slate-600'));
+        });
+        // Focus first input
+        const inp = document.querySelector('#fb-step-' + n + ' input, #fb-step-' + n + ' textarea');
+        if (inp) setTimeout(() => inp.focus(), 320);
+    }
+
+    function fbStepNext(step) {
+        if (step === 1) {
+            const val = document.getElementById('popup-place').value.trim();
+            if (!val) { document.getElementById('popup-place-err').classList.remove('hidden'); return; }
+            document.getElementById('popup-place-err').classList.add('hidden');
+            _fbShowStep(2);
+        } else if (step === 2) {
+            const val = document.getElementById('popup-reason').value.trim();
+            if (!val) { document.getElementById('popup-reason-err').classList.remove('hidden'); return; }
+            document.getElementById('popup-reason-err').classList.add('hidden');
+            _fbShowStep(3);
+        } else if (step === 3) {
+            const val = document.getElementById('popup-return-time').value.trim();
+            if (!val) { document.getElementById('popup-time-err').classList.remove('hidden'); return; }
+            document.getElementById('popup-time-err').classList.add('hidden');
+            _fbShowStep(4);
+        }
+    }
+
+    function fbStepBack(step) {
+        _fbShowStep(step - 1);
+    }
+
+    function handlePopupPhoto(input) {
+        const file = input.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            popupPhotoBase64 = e.target.result;
+            document.getElementById('popup-photo-preview').src = popupPhotoBase64;
+            document.getElementById('popup-photo-name').textContent = file.name;
+            document.getElementById('popup-photo-preview-wrap').classList.remove('hidden');
+            document.getElementById('popup-photo-area').classList.add('hidden');
+            document.getElementById('popup-photo-err').classList.add('hidden');
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function clearPopupPhoto() {
+        popupPhotoBase64 = null;
+        const cam = document.getElementById('popup-photo-camera');
+        const gal = document.getElementById('popup-photo-gallery');
+        if (cam) cam.value = '';
+        if (gal) gal.value = '';
+        document.getElementById('popup-photo-preview-wrap').classList.add('hidden');
+        document.getElementById('popup-photo-area').classList.remove('hidden');
+    }
+
+    async function fbStepSubmit() {
+        if (!popupPhotoBase64) {
+            document.getElementById('popup-photo-err').classList.remove('hidden');
+            return;
+        }
+        document.getElementById('popup-photo-err').classList.add('hidden');
+
+        // Popup values capture गर्ने (DOM reference close हुनुअघि)
+        const placeVal  = document.getElementById('popup-place').value.trim().toUpperCase();
+        const reasonVal = document.getElementById('popup-reason').value.trim().toUpperCase();
+        const timeVal   = document.getElementById('popup-return-time').value.trim();
+        const photoSnap = popupPhotoBase64;
+
+        // Hidden fields date set
+        const todayStr = getFormattedDate();
+        document.getElementById('fb-date-from').value = todayStr;
+        document.getElementById('fb-date-to').value    = todayStr;
+        document.getElementById('fb-sig-date').value   = todayStr;
+
+        // Entry container build
+        const container = document.getElementById('entries-container');
+        container.innerHTML = '';
+        entryCount = 0;
+        entryCount++;
+        const num     = entryCount;
+        const entryId = 'entry-' + num;
+        photoData[entryId] = photoSnap;
+
+        const div = document.createElement('div');
+        div.className = 'entry-card';
+        div.id = entryId;
+        div.innerHTML = `
+            <input type="hidden" id="entry-date-${num}"         value="${todayStr}">
+            <input type="hidden" id="entry-place-${num}"        value="${placeVal}">
+            <textarea            id="entry-work-${num}"  class="hidden">${reasonVal}</textarea>
+            <input type="hidden" id="entry-client-name-${num}"  value="${departureTime || localStorage.getItem('departure_time') || ''}">
+            <input type="hidden" id="entry-client-phone-${num}" value="${timeVal}">
+            <input type="hidden" id="entry-return-${num}"       value="">
+        `;
+        container.appendChild(div);
+
+        // Popup पूरै बन्द गर्ने — overlay हट्नुपर्छ नत्र tracking tab देखिँदैन
+        const card    = document.getElementById('fb-step-card');
+        const overlay = document.getElementById('fb-step-overlay');
+        card.style.transform = 'translateY(100%)';
+        await new Promise(r => setTimeout(r, 360)); // animation सकिन्छ
+        overlay.classList.add('hidden');
+        overlay.style.display = 'none';             // extra safety
+
+        // Submit (loading bar overlay माथि आउँछ, ठीकै छ)
+        await withLoading(submitFieldbook, 'प्रतिवेदन बुझाउँदै...');
+
+        // Submit सकिएपछि overlay reset गर्ने (अर्कोपल्ट प्रयोगको लागि)
+        overlay.style.display = '';
+    }
+
+    function closeFbStepOverlay() {
+        const card = document.getElementById('fb-step-card');
+        card.style.transform = 'translateY(100%)';
+        setTimeout(() => document.getElementById('fb-step-overlay').classList.add('hidden'), 340);
+    }
+
     // ── SUBMIT FIELDBOOK ──
     async function submitFieldbook() {
         const errorDiv = document.getElementById('fb-error');
@@ -4293,77 +4524,46 @@
         const showError = (msg) => {
             errorText.textContent = msg;
             errorDiv.classList.remove('hidden');
-            errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
         };
         errorDiv.classList.add('hidden');
 
-        const empPost = document.getElementById('fb-emp-post').value.trim();
-        const fiscalYear = document.getElementById('fb-fiscal-year') ? document.getElementById('fb-fiscal-year').value.trim() : '';
-        const empName = document.getElementById('fb-emp-name').value.trim();
-
-        if (!empName) return showError('कर्मचारीको नाम अनिवार्य छ।');
-        if (!empPost) return showError('पद / श्रेणी अनिवार्य छ।');
-        if (!document.getElementById('fb-office').value.trim()) return showError('शाखा / कार्यालय अनिवार्य छ।');
-        if (!document.getElementById('fb-date-from').value) return showError('भ्रमण अवधि (देखि) अनिवार्य छ।');
-        if (!document.getElementById('fb-date-to').value) return showError('भ्रमण अवधि (सम्म) अनिवार्य छ।');
-
-        const cards = document.querySelectorAll('#entries-container .entry-card');
-        if (cards.length === 0) return showError('कम्तीमा एउटा कार्य विवरण भर्नुहोस्।');
-
-        let hasFilledEntry = false;
-        for (const card of cards) {
-            const id = card.id.replace('entry-', '');
-            const place = document.getElementById('entry-place-' + id)?.value.trim();
-            const work = document.getElementById('entry-work-' + id)?.value.trim();
-            if (place && work) { hasFilledEntry = true; break; }
-        }
-        if (!hasFilledEntry) return showError('कम्तीमा एउटा कार्य विवरण (स्थान र काम) अनिवार्य रूपमा भर्नुहोस्।');
-
-        if (!document.getElementById('fb-sig-name').value.trim()) return showError('पेश गर्ने कर्मचारीको नाम अनिवार्य छ।');
-        if (!document.getElementById('fb-sig-date').value) return showError('मिति अनिवार्य छ।');
+        // popup बाट data आइसकेको हुन्छ — direct proceed
 
         reportData = collectFieldbookData();
         reportData.photos = photoData;
 
         localStorage.setItem('fieldbook_report', JSON.stringify(reportData));
 
+        // ── Offline-safe fieldbook submit ──
+        const fbPayload = {
+            emp_code: employeeCode || localStorage.getItem('active_emp_code') || '',
+            emp_name: reportData.empName,
+            post: reportData.post,
+            office: reportData.office,
+            date_from: reportData.dateFrom,
+            date_to: reportData.dateTo,
+            fiscal_year: reportData.fiscalYear,
+            order_no: reportData.orderNo,
+            sig_name: reportData.sigName,
+            sig_post: reportData.sigPost,
+            sig_date: reportData.sigDate,
+            entries: reportData.entries,
+            departure_time: departureTime || localStorage.getItem('departure_time') || null,
+            departure_time_at: null
+        };
+
         if (navigator.onLine && supabaseClient) {
-            try {
-                const payload = {
-                    emp_code: employeeCode || localStorage.getItem('active_emp_code') || '',
-                    emp_name: reportData.empName,
-                    post: reportData.post,
-                    office: reportData.office,
-                    date_from: reportData.dateFrom,
-                    date_to: reportData.dateTo,
-                    fiscal_year: reportData.fiscalYear,
-                    order_no: reportData.orderNo,
-                    sig_name: reportData.sigName,
-                    sig_post: reportData.sigPost,
-                    sig_date: reportData.sigDate,
-                    entries: reportData.entries,
-                    departure_time: departureTime || localStorage.getItem('departure_time') || null,
-                    departure_time_at: null // फर्केको समय हो; फर्किँदा मात्र यहाँ अपडेट हुन्छ, बुझाउँदा खाली नै राख्ने
-                };
-
-                const { data, error } = await supabaseClient
-                    .from('fieldbook_reports')
-                    .insert([payload]);
-
-                if (error) {
-                    console.error("Supabase Save Error:", error);
-                    alert("रिपोर्ट सेभ गर्दा समस्या आयो: " + error.message);
-                } else {
-                    console.log("Fieldbook Report successfully saved!");
-                }
-            } catch (err) {
-                console.error("Unexpected Error:", err);
+            const sent = await _pushFieldbookToSupabase(fbPayload);
+            if (!sent) {
+                // push fail — offline queue मा राख्ने
+                _queueOfflineFieldbook(fbPayload);
             }
         } else {
-            alert("इन्टरनेट नभएकाले प्रतिवेदन लोकलमा मात्र सेभ भयो।");
+            // Internet छैन — queue मा राख्ने, online हुँदा auto-sync
+            _queueOfflineFieldbook(fbPayload);
         }
 
-        await autoSaveNewOptions(empPost, fiscalYear);
+        await autoSaveNewOptions(reportData.post || '', reportData.fiscalYear || '');
 
         isReportSubmitted = true;
         localStorage.setItem('report_submitted', '1');
@@ -4606,9 +4806,25 @@
         }
         const savedQueue = localStorage.getItem('offline_gps_logs');
         if (savedQueue) { 
-            offlineQueue = JSON.parse(savedQueue);
-            if (offlineQueue.length > 0) document.getElementById('offline-buffer-alert').classList.remove('hidden'); 
+            try { offlineQueue = JSON.parse(savedQueue); } catch(e) { offlineQueue = []; }
+            if (offlineQueue.length > 0) {
+                document.getElementById('offline-buffer-alert').classList.remove('hidden');
+                const gpsEl = document.getElementById('offline-alert-gps');
+                if (gpsEl) gpsEl.classList.remove('hidden');
+            }
         }
+        // Pending offline fieldbook reports check
+        try {
+            const pendingFb = localStorage.getItem('offline_fieldbook_queue');
+            const pendingArr = pendingFb ? JSON.parse(pendingFb) : [];
+            if (pendingArr.length > 0) {
+                document.getElementById('offline-buffer-alert').classList.remove('hidden');
+                const fbEl = document.getElementById('offline-alert-fieldbook');
+                if (fbEl) fbEl.classList.remove('hidden');
+                // Online छ भने तुरुन्तै sync गर्ने
+                if (navigator.onLine) setTimeout(syncOfflineFieldbooks, 2000);
+            }
+        } catch(e) { console.warn("Pending fieldbook check error:", e); }
         if (localStorage.getItem('report_submitted') === '1') {
             isReportSubmitted = true;
             const savedReport = localStorage.getItem('fieldbook_report');
@@ -4845,6 +5061,72 @@
             }, { onConflict: 'emp_code' });
             return true;
         } catch (e) { console.error("Supabase Push Error:", e); return false; }
+    }
+
+    // ── OFFLINE FIELDBOOK QUEUE ──
+    let offlineFieldbookQueue = [];
+
+    function _queueOfflineFieldbook(payload) {
+        try {
+            const raw = localStorage.getItem('offline_fieldbook_queue');
+            offlineFieldbookQueue = raw ? JSON.parse(raw) : [];
+        } catch(e) { offlineFieldbookQueue = []; }
+        offlineFieldbookQueue.push(payload);
+        localStorage.setItem('offline_fieldbook_queue', JSON.stringify(offlineFieldbookQueue));
+        // Alert देखाउने
+        const alertEl = document.getElementById('offline-buffer-alert');
+        const fbAlert = document.getElementById('offline-alert-fieldbook');
+        if (alertEl) alertEl.classList.remove('hidden');
+        if (fbAlert) fbAlert.classList.remove('hidden');
+        console.log("Fieldbook queued offline. Queue length:", offlineFieldbookQueue.length);
+    }
+
+    async function _pushFieldbookToSupabase(payload) {
+        if (!supabaseClient) return false;
+        try {
+            const { error } = await supabaseClient.from('fieldbook_reports').insert([payload]);
+            if (error) { console.error("Fieldbook push error:", error); return false; }
+            console.log("Fieldbook pushed to Supabase OK");
+            return true;
+        } catch(e) { console.error("Fieldbook push exception:", e); return false; }
+    }
+
+    async function syncOfflineFieldbooks() {
+        if (!navigator.onLine || !supabaseClient) return;
+        try {
+            const raw = localStorage.getItem('offline_fieldbook_queue');
+            offlineFieldbookQueue = raw ? JSON.parse(raw) : [];
+        } catch(e) { offlineFieldbookQueue = []; }
+        if (offlineFieldbookQueue.length === 0) return;
+
+        const syncEl = document.getElementById('offline-alert-syncing');
+        const fbAlert = document.getElementById('offline-alert-fieldbook');
+        if (syncEl) syncEl.classList.remove('hidden');
+
+        let remaining = [...offlineFieldbookQueue];
+        for (let i = 0; i < remaining.length; i++) {
+            const ok = await _pushFieldbookToSupabase(remaining[i]);
+            if (ok) {
+                remaining.splice(i, 1);
+                i--;
+                localStorage.setItem('offline_fieldbook_queue', JSON.stringify(remaining));
+            }
+        }
+        offlineFieldbookQueue = remaining;
+
+        if (syncEl) syncEl.classList.add('hidden');
+        if (remaining.length === 0) {
+            if (fbAlert) fbAlert.classList.add('hidden');
+            // GPS queue पनि खाली छ भने पूरै alert लुकाउने
+            const gpsEmpty = (offlineQueue.length === 0);
+            if (gpsEmpty) {
+                const alertEl = document.getElementById('offline-buffer-alert');
+                if (alertEl) alertEl.classList.add('hidden');
+            }
+            console.log("All offline fieldbooks synced!");
+        } else {
+            console.warn("Some fieldbooks still pending:", remaining.length);
+        }
     }
 
     async function syncOfflineData() {
