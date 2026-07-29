@@ -1646,16 +1646,8 @@
                 setTimeout(() => _glSetWidth(0, false), 280);
             }, 320);
         }
-        // सबै बटन क्लिकमा तुरुन्तै loading popup देखाउने (generic feedback),
-        // तर एसिन्क डाटा लोड हुने फंक्सनहरूले showLoadingBar/hideLoadingBar लाई सही समयमा नियन्त्रण गर्छन्
-        document.addEventListener('click', (e) => {
-            const btn = e.target.closest('button');
-            if (!btn || btn.disabled) return;
-            showLoadingBar();
-            if (!btn.hasAttribute('data-async-managed')) {
-                setTimeout(() => hideLoadingBar(), 450);
-            }
-        }, true);
+        // Loading bar सिर्फ real async operations (showLoadingBar/hideLoadingBar) मा मात्र चल्छ।
+        // Generic button-click fake loading हटाइएको छ — bar अब actual server response time मात्र देखाउँछ।
         
         let dashboardMap = null;
         let liveMap = null;
