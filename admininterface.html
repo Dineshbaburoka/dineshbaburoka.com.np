@@ -4872,7 +4872,14 @@
         reportData = collectFieldbookData();
         reportData.photos = photoData;
 
-        localStorage.setItem('fieldbook_report', JSON.stringify(reportData));
+        try {
+            localStorage.setItem('fieldbook_report', JSON.stringify(reportData));
+        } catch (e) {
+            // Storage भरिएको वा अन्य कारणले save फेल भए पनि, नीचको submit/unlock
+            // प्रक्रिया रोकिनु हुँदैन — user लाई देखिने चेतावनी मात्र देखाउने
+            console.error("localStorage save error:", e);
+            showError('रिपोर्ट लोकल स्टोरेजमा सेभ हुन सकेन (स्पेस भरिएको हुन सक्छ), तर पठाउने प्रक्रिया जारी छ।');
+        }
 
         // ── Offline-safe fieldbook submit ──
         const fbPayload = {
@@ -4892,18 +4899,24 @@
             departure_time_at: null
         };
 
-        if (navigator.onLine && supabaseClient) {
-            const sent = await _pushFieldbookToSupabase(fbPayload);
-            if (!sent) {
-                // push fail — offline queue मा राख्ने
+        try {
+            if (navigator.onLine && supabaseClient) {
+                const sent = await _pushFieldbookToSupabase(fbPayload);
+                if (!sent) {
+                    // push fail — offline queue मा राख्ने
+                    _queueOfflineFieldbook(fbPayload);
+                }
+            } else {
+                // Internet छैन — queue मा राख्ने, online हुँदा auto-sync
                 _queueOfflineFieldbook(fbPayload);
             }
-        } else {
-            // Internet छैन — queue मा राख्ने, online हुँदा auto-sync
-            _queueOfflineFieldbook(fbPayload);
-        }
 
-        await autoSaveNewOptions(reportData.post || '', reportData.fiscalYear || '');
+            await autoSaveNewOptions(reportData.post || '', reportData.fiscalYear || '');
+        } catch (e) {
+            // यहाँ कतै अनपेक्षित error आए पनि, तल्लो unlock/UI update प्रक्रिया
+            // अवरुद्ध हुनु हुँदैन — रिपोर्ट local मा त सुरक्षित भइसकेको छ
+            console.error("Fieldbook sync/save error:", e);
+        }
 
         isReportSubmitted = true;
         localStorage.setItem('report_submitted', '1');
