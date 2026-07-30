@@ -1320,8 +1320,8 @@
                                 <button onclick="downloadExcelReport()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded font-medium text-sm transition flex items-center gap-2 cursor-pointer">
                                     <i class="fa-solid fa-file-excel"></i> Export as CSV
                                 </button>
-                                <button id="btn-delete-filtered-history" onclick="deleteFilteredLocationHistory()" class="hidden bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded font-medium text-sm transition flex items-center gap-2 cursor-pointer">
-                                    <i class="fa-regular fa-trash-can"></i> देखाइएको History हटाउनुहोस्
+                                <button id="btn-delete-filtered-history" onclick="deleteSelectedLocationLogs()" class="hidden bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded font-medium text-sm transition flex items-center gap-2 cursor-pointer">
+                                    <i class="fa-regular fa-trash-can"></i> छानिएका रेकर्ड हटाउनुहोस् (<span id="report-selected-count">0</span>)
                                 </button>
                             </div>
                         </div>
@@ -1368,6 +1368,7 @@
                             <table class="w-full text-left border-collapse text-sm text-gray-600">
                                 <thead>
                                     <tr class="bg-slate-100 border-b border-gray-200 text-slate-700 font-semibold uppercase">
+                                        <th class="p-3 text-center" id="report-checkall-col-header"><input type="checkbox" id="report-select-all" onchange="toggleSelectAllLocationLogs(this)" class="hidden"></th>
                                         <th class="p-3">Timestamp</th>
                                         <th class="p-3">Emp Code</th>
                                         <th class="p-3">Reason / उद्देश्य</th>
@@ -1380,7 +1381,7 @@
                                 </thead>
                                 <tbody id="report-table-body" class="divide-y divide-gray-100">
                                     <tr>
-                                        <td colspan="8" class="p-4 text-center italic text-gray-400">Click Apply Filter to fetch data</td>
+                                        <td colspan="9" class="p-4 text-center italic text-gray-400">Click Apply Filter to fetch data</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -3859,7 +3860,7 @@
             if (!tbody) return;
             const timeStr = savedAt ? new Date(savedAt).toLocaleString() : '';
             const banner = document.createElement('tr');
-            banner.innerHTML = `<td colspan="8" class="p-2 text-center text-[11px] font-semibold text-amber-700 bg-amber-50 border-b border-amber-200">
+            banner.innerHTML = `<td colspan="9" class="p-2 text-center text-[11px] font-semibold text-amber-700 bg-amber-50 border-b border-amber-200">
                 <i class="fa-solid fa-wifi-slash mr-1"></i> Internet जडान छैन — पछिल्लोपटक (${np(escapeHtml(timeStr))}) सिंक भएको data देखाइँदैछ
             </td>`;
             tbody.prepend(banner);
@@ -3872,7 +3873,7 @@
             const dateTo = document.getElementById('report-filter-date-to').value;
             const tbody = document.getElementById('report-table-body');
 
-            tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center italic text-gray-400">Loading records...</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="9" class="p-4 text-center italic text-gray-400">Loading records...</td></tr>`;
             showLoadingBar();
 
             historyLayers.forEach(layer => historyMap.removeLayer(layer));
@@ -3932,8 +3933,8 @@
 
             if (!logs || logs.length === 0) {
                 tbody.innerHTML = usedCache
-                    ? `<tr><td colspan="8" class="p-4 text-center italic text-red-400">Internet जडान छैन र cache मा पनि कुनै record भेटिएन।</td></tr>`
-                    : `<tr><td colspan="8" class="p-4 text-center italic text-red-400">No records found.</td></tr>`;
+                    ? `<tr><td colspan="9" class="p-4 text-center italic text-red-400">Internet जडान छैन र cache मा पनि कुनै record भेटिएन।</td></tr>`
+                    : `<tr><td colspan="9" class="p-4 text-center italic text-red-400">No records found.</td></tr>`;
                 hideLoadingBar();
                 return;
             }
@@ -3947,6 +3948,9 @@
                 const empInfo = globalEmployees.find(e => e.emp_code === log.emp_code) || { name: log.emp_code };
                 tbody.innerHTML += `
                     <tr class="hover:bg-gray-50 text-xs">
+                        <td class="p-3 text-center">
+                            ${(currentRole === 'super-admin' && log.id) ? `<input type="checkbox" class="report-row-checkbox" value="${log.id}" onchange="updateSelectedLocationLogsCount()">` : ''}
+                        </td>
                         <td class="p-3 text-slate-500">${np(new Date(log.created_at).toLocaleString())}</td>
                         <td class="p-3 font-semibold text-slate-700">
                             <span class="block text-slate-800">${escapeHtml(empInfo.name)}</span>
@@ -3967,11 +3971,13 @@
                 `;
             });
 
-            const delFilteredBtn = document.getElementById('btn-delete-filtered-history');
-            if (delFilteredBtn) {
-                if (currentRole === 'super-admin') delFilteredBtn.classList.remove('hidden');
-                else delFilteredBtn.classList.add('hidden');
+            const selectAllBox = document.getElementById('report-select-all');
+            if (selectAllBox) {
+                selectAllBox.checked = false;
+                if (currentRole === 'super-admin') selectAllBox.classList.remove('hidden');
+                else selectAllBox.classList.add('hidden');
             }
+            updateSelectedLocationLogsCount();
             lastLoadedReportLogs = logs;
 
             if (usedCache) showReportOfflineBanner(cacheSavedAt);
@@ -4049,6 +4055,26 @@
             hideLoadingBar();
         }
 
+        // "सबै छान्नुहोस्" checkbox ले सबै row-checkbox टिक/अनटिक गर्ने
+        function toggleSelectAllLocationLogs(checkbox) {
+            document.querySelectorAll('#report-table-body .report-row-checkbox').forEach(cb => {
+                cb.checked = checkbox.checked;
+            });
+            updateSelectedLocationLogsCount();
+        }
+
+        // कति row छानिए भन्ने count अपडेट गर्ने र बटनको label/स्थिति मिलाउने
+        function updateSelectedLocationLogsCount() {
+            const checked = document.querySelectorAll('#report-table-body .report-row-checkbox:checked');
+            const countEl = document.getElementById('report-selected-count');
+            if (countEl) countEl.innerText = np(checked.length);
+            const delBtn = document.getElementById('btn-delete-filtered-history');
+            if (delBtn) {
+                if (currentRole === 'super-admin' && checked.length > 0) delBtn.classList.remove('hidden');
+                else delBtn.classList.add('hidden');
+            }
+        }
+
         // एउटा मात्र location log record हटाउने (super-admin मात्र)
         async function deleteLocationLogRow(logId) {
             if (currentRole !== 'super-admin') { alert("यो सुविधा Super-Admin लाई मात्र उपलब्ध छ।"); return; }
@@ -4069,25 +4095,29 @@
             }
         }
 
-        // हाल फिल्टर लगाएर देखाइएका सबै location history रेकर्ड एकैचोटि हटाउने (super-admin मात्र)
-        async function deleteFilteredLocationHistory() {
+        // Checkbox मार्फत छानिएका multiple location history रेकर्ड एकैचोटि हटाउने (super-admin मात्र)
+        async function deleteSelectedLocationLogs() {
             if (currentRole !== 'super-admin') { alert("यो सुविधा Super-Admin लाई मात्र उपलब्ध छ।"); return; }
             if (!supabaseClient) return;
-            if (!lastLoadedReportLogs || lastLoadedReportLogs.length === 0) {
-                alert("हटाउनको लागि कुनै रेकर्ड लोड भएको छैन। पहिले फिल्टर लगाएर Apply गर्नुहोस्।");
+
+            const checked = [...document.querySelectorAll('#report-table-body .report-row-checkbox:checked')];
+            const ids = checked.map(cb => cb.value).filter(Boolean);
+
+            if (ids.length === 0) {
+                alert("पहिले हटाउन चाहेको रेकर्डहरू छान्नुहोस् (checkbox मार्क गर्नुहोस्)।");
                 return;
             }
-            const ids = lastLoadedReportLogs.map(l => l.id).filter(Boolean);
-            if (ids.length === 0) { alert("हटाउनको लागि रेकर्ड ID भेटिएन।"); return; }
 
-            const confirmed = confirm(`के तपाईं हाल देखाइएका जम्मा ${ids.length} वटा GPS location रेकर्ड स्थायी रूपमा हटाउन चाहनुहुन्छ? यो कार्य फिर्ता गर्न सकिँदैन।`);
+            const confirmed = confirm(`के तपाईं छानिएका जम्मा ${ids.length} वटा GPS location रेकर्ड स्थायी रूपमा हटाउन चाहनुहुन्छ? यो कार्य फिर्ता गर्न सकिँदैन।`);
             if (!confirmed) return;
 
             showLoadingBar();
             try {
                 const { error } = await supabaseClient.from('location_logs').delete().in('id', ids);
                 if (error) throw error;
-                alert("छानिएका सबै location history रेकर्ड सफलतापूर्वक हटाइयो।");
+                alert(`छानिएका ${ids.length} वटा location history रेकर्ड सफलतापूर्वक हटाइयो।`);
+                const selectAllBox = document.getElementById('report-select-all');
+                if (selectAllBox) selectAllBox.checked = false;
                 await loadReportLogs();
             } catch (err) {
                 console.error(err);
