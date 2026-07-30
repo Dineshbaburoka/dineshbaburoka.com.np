@@ -1795,8 +1795,111 @@
         }
 
         // NOTIFICATIONS STORAGE
+        // अब notification history Supabase को 'notifications' + 'notification_reads'
+        // table मा राखिन्छ (localStorage होइन) — त्यसैले एउटा device मा login गरेर
+        // notification आयो भने, अर्को device/ब्राउजरबाट login गर्दा पनि उही history र
+        // उही read/unread स्थिति (प्रयोगकर्ता अनुसार) देखिन्छ। localStorage चाहिँ
+        // internet नभएको बेला अघिल्लोपटकको स्थिति तुरुन्तै देखाउन (offline cache) मात्र
+        // प्रयोग हुन्छ, स्रोत (source of truth) होइन।
+        // आवश्यक Supabase SQL (एकपटक मात्र, SQL Editor मा चलाउनुहोस्):
+        //   notifications table + notification_reads table + दुई trigger
+        //   (यो च्याटमा SQL अलग्गै दिइएको छ)।
         let notificationsList = [];
         let unreadCount = 0;
+        const NOTIF_STORAGE_KEY = 'app_notifications_cache_v2';
+        const NOTIF_MAX_KEEP = 100; // एकपटकमा ल्याउने/राख्ने अधिकतम सङ्ख्या
+
+        function saveNotificationsToStorage() {
+            try {
+                const trimmed = notificationsList.slice(0, NOTIF_MAX_KEEP);
+                localStorage.setItem(NOTIF_STORAGE_KEY, JSON.stringify({
+                    list: trimmed,
+                    unread: unreadCount
+                }));
+            } catch (e) { console.warn("Notification cache save गर्न सकिएन:", e); }
+        }
+
+        // Internet नभएको बेला मात्र प्रयोग हुने offline fallback — अनलाइन हुनासाथ
+        // loadNotificationsFromServer() ले साँच्चैको (server) स्थिति ओभरराइट गर्छ।
+        function loadNotificationsFromStorage() {
+            try {
+                const raw = localStorage.getItem(NOTIF_STORAGE_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    notificationsList = Array.isArray(parsed.list) ? parsed.list : [];
+                    unreadCount = notificationsList.filter(n => !n.read).length;
+                } else {
+                    notificationsList = [];
+                    unreadCount = 0;
+                }
+            } catch (e) {
+                console.warn("Notification cache load गर्न सकिएन:", e);
+                notificationsList = [];
+                unreadCount = 0;
+            }
+            updateNotifBadge();
+            renderNotifDropdown();
+        }
+
+        // DB को 'notifications' row लाई UI ले चिन्ने notifItem आकारमा बदल्ने
+        function dbRowToNotifItem(row, isRead) {
+            const timeStr = row.created_at ? new Date(row.created_at).toLocaleTimeString() : new Date().toLocaleTimeString();
+            if (row.type === 'notice') {
+                return {
+                    id: row.id,
+                    type: 'notice',
+                    title: row.title || "नयाँ सूचना",
+                    content: row.content || "",
+                    time: timeStr,
+                    read: !!isRead
+                };
+            }
+            return {
+                id: row.id,
+                type: 'location',
+                emp_name: row.emp_name || row.emp_code,
+                emp_code: row.emp_code,
+                reason: row.reason || "फिल्ड कार्य",
+                time: timeStr,
+                lat: row.lat,
+                lng: row.lng,
+                device: row.device || "मोबाइल उपकरण",
+                battery: row.battery || "100",
+                read: !!isRead
+            };
+        }
+
+        // Login हुनासाथ (र profile/currentUserId तयार भएपछि) Supabase बाट
+        // साझा notification history + यही प्रयोगकर्ताको read-status तान्ने
+        async function loadNotificationsFromServer() {
+            if (!supabaseClient || !currentUserId) { loadNotificationsFromStorage(); return; }
+            try {
+                const { data: notifRows, error: notifErr } = await supabaseClient
+                    .from('notifications')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    .limit(NOTIF_MAX_KEEP);
+                if (notifErr) throw notifErr;
+
+                const { data: readRows, error: readErr } = await supabaseClient
+                    .from('notification_reads')
+                    .select('notification_id')
+                    .eq('user_id', currentUserId);
+                if (readErr) throw readErr;
+
+                const readIds = new Set((readRows || []).map(r => r.notification_id));
+                notificationsList = (notifRows || []).map(row => dbRowToNotifItem(row, readIds.has(row.id)));
+                unreadCount = notificationsList.filter(n => !n.read).length;
+                saveNotificationsToStorage(); // offline बेलाको लागि ताजा cache राख्ने
+            } catch (e) {
+                console.warn("Server बाट notification ल्याउन सकिएन, cache प्रयोग गरियो:", e);
+                loadNotificationsFromStorage();
+                return;
+            }
+            updateNotifBadge();
+            renderNotifDropdown();
+        }
+
 
         let inactivityTimer;
         const INACTIVITY_LIMIT = 5 * 60 * 1000;
@@ -1960,8 +2063,14 @@
             document.getElementById("app-container").classList.remove("hidden");
             document.getElementById("user-display").innerText = user.email;
 
+            // पहिले जे cache छ (localStorage) तुरुन्तै देखाउने ताकि UI खाली नदेखियोस्,
+            // त्यसपछि currentUserId तयार भएपछि Supabase बाट साझा (server) history
+            // ल्याएर overwrite गर्ने — यसैले अर्को device/browser बाट login गर्दा पनि
+            // उही notification history र read/unread स्थिति देखिन्छ।
+            loadNotificationsFromStorage();
             loadUserProfile(user).then(() => {
                 applyRolePermissions();
+                loadNotificationsFromServer();
                 if (!dashboardMap) {
                     initMaps();
                     fetchInitialData();
@@ -2182,7 +2291,9 @@
 
                         updateBothMaps(record);
                         logActivity(record);
-                        addNotification(record); // Push Notification
+                        // नोट: bell-notification अब यहाँबाट होइन, Supabase को 'notifications'
+                        // table (DB trigger ले भर्ने) बाट तल छुट्टै subscription मार्फत आउँछ —
+                        // ताकि सबै device/login मा उही notification history देखियोस्।
 
                         // पूरा list रिबिल्ड नगरी, स्ट्याट्स हल्का हुनाले पूरै recalc र
                         // यही एउटा employee को row मात्र list मा patch गर्ने
@@ -2194,9 +2305,15 @@
                     const record = payload.new;
                     // सूचना (Notice) सबै भूमिकाका प्रयोगकर्ताले हेर्न पाउने भएकाले शाखा अनुसार सीमित नगर्ने
                     if (record) {
-                        addNoticeNotification(record);
                         if (typeof loadNotices === 'function') loadNotices();
                     }
+                })
+                // साझा (shared) notifications table: DB trigger ले हरेक location-ping/notice
+                // मा एकपटक मात्र row थप्छ, र यही एउटै row सबै login भएका device हरूमा
+                // realtime बाट पुग्छ — त्यसैले जुनसुकै device/account बाट login गरे पनि
+                // उही notification history (र उही read/unread स्थिति) देखिन्छ।
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications' }, payload => {
+                    if (payload.new) handleIncomingNotificationRow(payload.new);
                 })
                 .subscribe();
         }
@@ -2254,6 +2371,7 @@
             unreadCount++;
             updateNotifBadge();
             renderNotifDropdown();
+            saveNotificationsToStorage();
             playNotificationSound();
         }
 
@@ -2275,6 +2393,20 @@
             unreadCount++;
             updateNotifBadge();
             renderNotifDropdown();
+            saveNotificationsToStorage();
+            playNotificationSound();
+        }
+
+        // Realtime मार्फत 'notifications' table मा नयाँ row insert हुनासाथ यो चल्छ
+        // (सबै login भएका device/account मा उही row पुग्छ, त्यसैले सबैतिर एकैसाथ देखिन्छ)
+        function handleIncomingNotificationRow(row) {
+            if (notificationsList.some(n => n.id === row.id)) return; // duplicate रोक्ने
+            const notifItem = dbRowToNotifItem(row, false); // आफैंले पठाएको भए पनि नयाँको लागि unread
+            notificationsList.unshift(notifItem);
+            unreadCount++;
+            updateNotifBadge();
+            renderNotifDropdown();
+            saveNotificationsToStorage();
             playNotificationSound();
         }
 
@@ -2306,6 +2438,7 @@
             unreadCount = 0;
             updateNotifBadge();
             renderNotifDropdown();
+            saveNotificationsToStorage();
         }
 
         function renderNotifDropdown() {
@@ -2371,6 +2504,7 @@
                 if (unreadCount > 0) unreadCount--;
                 updateNotifBadge();
                 renderNotifDropdown();
+                saveNotificationsToStorage();
             }
 
             const modalContent = document.getElementById('notif-modal-content');
@@ -2447,6 +2581,7 @@
             unreadCount = 0;
             updateNotifBadge();
             renderNotifDropdown();
+            saveNotificationsToStorage();
         }
 
         // Dropdown बन्द गर्न बाहिर क्लिक गर्दा
