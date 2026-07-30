@@ -570,20 +570,32 @@
                 <div class="flex items-center gap-2 md:gap-6 flex-shrink-0">
                     <!-- NOTIFICATION BUTTON & DROPDOWN CONTAINER -->
                     <div class="relative">
-                        <button onclick="toggleNotificationDropdown()" class="relative p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-full transition cursor-pointer focus:outline-none">
-                            <i class="fa-solid fa-bell text-lg"></i>
-                            <span id="notif-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold h-5 w-5 rounded-full flex items-center justify-center hidden border-2 border-white">0</span>
+                        <button onclick="toggleNotificationDropdown()" class="relative p-2.5 bg-slate-100 hover:bg-slate-800 hover:text-white hover:shadow-md text-slate-700 rounded-full transition-all duration-150 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">
+                            <i class="fa-solid fa-bell text-2xl"></i>
+                            <span id="notif-badge" class="absolute -top-1 -right-1 h-5 w-5 hidden">
+                                <span class="absolute inset-0 rounded-full bg-red-400 opacity-75 animate-ping"></span>
+                                <span id="notif-badge-count" class="relative h-5 w-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white">0</span>
+                            </span>
                         </button>
 
-                        <!-- DROPDOWN PANEL -->
-                        <div id="notif-dropdown" class="fixed md:absolute left-2 right-2 md:left-auto md:right-0 top-16 md:top-auto mt-0 md:mt-3 w-auto md:w-80 max-w-full bg-white rounded-2xl shadow-2xl border border-gray-100 hidden z-50 overflow-hidden">
-                            <div class="p-3.5 bg-slate-800 text-white flex justify-between items-center">
-                                <span class="font-bold text-xs uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-bell text-amber-400"></i> प्रणाली सूचनाहरू (Notifications)</span>
-                                <button onclick="clearNotifications()" class="text-[11px] text-slate-300 hover:text-white underline cursor-pointer">Clear All</button>
-                            </div>
+<!-- DROPDOWN PANEL -->
+<div id="notif-dropdown" class="absolute right-2 md:right-20 top-16 md:top-auto mt-2 md:mt-3 w-80 md:w-[26rem] max-w-[calc(100vw-1rem)] bg-white rounded-2xl shadow-2xl border border-gray-100 hidden z-50 overflow-hidden">
+    <div class="px-3.5 py-2.5 bg-slate-800 text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+        <span class="font-bold text-xs uppercase tracking-wider flex items-center gap-2 truncate">
+            <i class="fa-solid fa-bell text-amber-400"></i> प्रणाली सूचनाहरू (Notifications)
+        </span>
+        <div class="flex items-center gap-2 flex-wrap">
+            <button onclick="markAllNotificationsRead()" class="flex items-center gap-1 text-[10px] font-semibold text-slate-200 hover:text-white bg-white/10 hover:bg-white/20 rounded-full px-2.5 py-1 cursor-pointer transition">
+                <i class="fa-solid fa-check-double"></i> सबै पढियो
+            </button>
+            <button onclick="clearNotifications()" class="flex items-center gap-1 text-[10px] font-semibold text-slate-200 hover:text-white bg-white/10 hover:bg-white/20 rounded-full px-2.5 py-1 cursor-pointer transition">
+                <i class="fa-solid fa-trash"></i> सबै हटाउ
+            </button>
+        </div>
+    </div>
                             
                             <div id="notif-list" class="max-h-80 overflow-y-auto divide-y divide-gray-100">
-                                <p class="text-xs text-gray-400 italic p-4 text-center">कुनै नयाँ सूचना छैन।</p>
+                                <p class="text-xs text-gray-400 italic px-4 py-6 text-center leading-relaxed">कुनै नयाँ सूचना छैन।</p>
                             </div>
                         </div>
                     </div>
@@ -1724,13 +1736,17 @@
             clearInterval(loadingBarTrickleTimer);
             _glSetWidth(100, true); // ball होलमा पुग्छ
 
+            // नोट: पहिले यहाँ 320ms + 280ms जति थप fixed delay थपिएको थियो,
+            // जसले वास्तविक response आइसकेपछि पनि popup अनावश्यक ढिलो देखिन्थ्यो।
+            // अब overlay लाई call/response फर्किएकोबित्तिकै (छोटो animation-मात्र समयमा) हटाइन्छ,
+            // तर call चलिरहेको बेला भने UI पूर्ण रूपमा लक नै रहन्छ — ताकि उही बटन दोहोरो click नहोस्।
             clearTimeout(loadingBarHideTimer);
             loadingBarHideTimer = setTimeout(() => {
                 const wrap = document.getElementById('global-loading-wrap');
                 if (wrap) wrap.classList.remove('active');
                 document.body.classList.remove('gl-locked'); // क्लिक/स्क्रोल फेरि खुला गर्ने
-                setTimeout(() => _glSetWidth(0, false), 280);
-            }, 320);
+                setTimeout(() => _glSetWidth(0, false), 120);
+            }, 120);
         }
         // Loading bar सिर्फ real async operations (showLoadingBar/hideLoadingBar) मा मात्र चल्छ।
         // Generic button-click fake loading हटाइएको छ — bar अब actual server response time मात्र देखाउँछ।
@@ -2224,7 +2240,8 @@
                 lat: record.latitude,
                 lng: record.longitude,
                 device: record.device_name || "मोबाइल उपकरण",
-                battery: record.battery_level || "100"
+                battery: record.battery_level || "100",
+                read: false
             };
 
             notificationsList.unshift(notifItem);
@@ -2244,7 +2261,8 @@
                 type: 'notice',
                 title: record.title || "नयाँ सूचना",
                 content: record.content || "",
-                time: timeStr
+                time: timeStr,
+                read: false
             };
 
             notificationsList.unshift(notifItem);
@@ -2256,8 +2274,9 @@
 
         function updateNotifBadge() {
             const badge = document.getElementById('notif-badge');
+            const countEl = document.getElementById('notif-badge-count');
             if (unreadCount > 0) {
-                badge.innerText = np(unreadCount);
+                if (countEl) countEl.innerText = np(unreadCount > 9 ? '9+' : unreadCount);
                 badge.classList.remove('hidden');
             } else {
                 badge.classList.add('hidden');
@@ -2267,30 +2286,48 @@
         function toggleNotificationDropdown() {
             const dropdown = document.getElementById('notif-dropdown');
             dropdown.classList.toggle('hidden');
+            // नोट: dropdown खोल्दैमा notification "read" मानिँदैन।
+            // कुनै एउटा notification बाट click गरी विवरण नहेरेसम्म (openNotifDetail),
+            // वा "सबै पढियो" थिचेसम्म, unread badge/highlight यथावत् देखिन्छ।
             if (!dropdown.classList.contains('hidden')) {
-                unreadCount = 0;
-                updateNotifBadge();
+                renderNotifDropdown();
             }
+        }
+
+        // सबै सूचनालाई एकैचोटि "पढियो" चिन्ह लगाउने
+        function markAllNotificationsRead() {
+            notificationsList.forEach(n => n.read = true);
+            unreadCount = 0;
+            updateNotifBadge();
+            renderNotifDropdown();
         }
 
         function renderNotifDropdown() {
             const container = document.getElementById('notif-list');
             if (notificationsList.length === 0) {
-                container.innerHTML = `<p class="text-xs text-gray-400 italic p-4 text-center">कुनै नयाँ सूचना छैन।</p>`;
+                container.innerHTML = `<p class="text-xs text-gray-400 italic px-4 py-6 text-center leading-relaxed">कुनै नयाँ सूचना छैन।</p>`;
                 return;
             }
 
             container.innerHTML = notificationsList.map(n => {
+                const unread = !n.read;
+                const rowBg = unread ? 'bg-indigo-50/60 hover:bg-indigo-50' : 'hover:bg-slate-50';
+                const dot = unread
+                    ? `<span class="absolute left-1.5 top-1/2 -translate-y-1/2 h-2 w-2 rounded-full bg-indigo-500"></span>`
+                    : '';
+                const titleWeight = unread ? 'font-bold text-slate-900' : 'font-medium text-slate-500';
+
                 if (n.type === 'notice') {
                     return `
-                    <div onclick="openNotifDetail(${n.id})" class="p-3 hover:bg-slate-50 transition cursor-pointer flex items-start gap-3">
+                    <div onclick="openNotifDetail(${n.id})" class="relative p-3 pl-4 ${rowBg} transition cursor-pointer flex items-start gap-3">
+                        ${dot}
                         <div class="h-8 w-8 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center shrink-0 text-xs">
                             <i class="fa-solid fa-bullhorn"></i>
                         </div>
                         <div class="flex-1 min-w-0">
-                            <div class="flex justify-between items-center">
-                                <h4 class="text-xs font-bold text-slate-800 truncate">${escapeHtml(n.title)}</h4>
-                                <span class="text-[10px] text-gray-400">${np(escapeHtml(n.time))}</span>
+                            <div class="flex justify-between items-center gap-2">
+                                <h4 class="text-xs ${titleWeight} truncate">${escapeHtml(n.title)}</h4>
+                                <span class="text-[10px] text-gray-400 shrink-0">${np(escapeHtml(n.time))}</span>
                             </div>
                             <p class="text-xs text-slate-500 truncate mt-0.5"><i class="fa-solid fa-circle-info text-[10px]"></i> ${escapeHtml(n.content)}</p>
                             <p class="text-[10px] text-indigo-600 font-semibold mt-1">विवरण हेर्नुहोस् &rarr;</p>
@@ -2299,14 +2336,15 @@
                 `;
                 }
                 return `
-                <div onclick="openNotifDetail(${n.id})" class="p-3 hover:bg-slate-50 transition cursor-pointer flex items-start gap-3">
+                <div onclick="openNotifDetail(${n.id})" class="relative p-3 pl-4 ${rowBg} transition cursor-pointer flex items-start gap-3">
+                    ${dot}
                     <div class="h-8 w-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 text-xs">
                         <i class="fa-solid fa-location-dot"></i>
                     </div>
                     <div class="flex-1 min-w-0">
-                        <div class="flex justify-between items-center">
-                            <h4 class="text-xs font-bold text-slate-800 truncate">${escapeHtml(n.emp_name)} (${escapeHtml(n.emp_code)})</h4>
-                            <span class="text-[10px] text-gray-400">${np(escapeHtml(n.time))}</span>
+                        <div class="flex justify-between items-center gap-2">
+                            <h4 class="text-xs ${titleWeight} truncate">${escapeHtml(n.emp_name)} (${escapeHtml(n.emp_code)})</h4>
+                            <span class="text-[10px] text-gray-400 shrink-0">${np(escapeHtml(n.time))}</span>
                         </div>
                         <p class="text-xs text-amber-600 font-medium truncate mt-0.5"><i class="fa-solid fa-bullseye text-[10px]"></i> ${escapeHtml(n.reason)}</p>
                         <p class="text-[10px] text-indigo-600 font-semibold mt-1">विवरण हेर्नुहोस् &rarr;</p>
@@ -2319,6 +2357,15 @@
         function openNotifDetail(notifId) {
             const item = notificationsList.find(n => n.id === notifId);
             if (!item) return;
+
+            // यो particular notification अब पढियो — केवल यसैलाई मात्र "read" चिन्ह लगाउने
+            // (dropdown खोल्दैमा होइन, विवरण साँच्चै हेरेपछि मात्र)
+            if (!item.read) {
+                item.read = true;
+                if (unreadCount > 0) unreadCount--;
+                updateNotifBadge();
+                renderNotifDropdown();
+            }
 
             const modalContent = document.getElementById('notif-modal-content');
 
