@@ -569,7 +569,7 @@
 
                 <div class="flex items-center gap-2 md:gap-6 flex-shrink-0">
                     <!-- NOTIFICATION BUTTON & DROPDOWN CONTAINER -->
-                    <div class="relative">
+                    <div id="notif-btn-wrap" class="relative">
                         <button onclick="toggleNotificationDropdown()" class="relative p-2.5 bg-slate-100 hover:bg-slate-800 hover:text-white hover:shadow-md text-slate-700 rounded-full transition-all duration-150 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400">
                             <i class="fa-solid fa-bell text-2xl"></i>
                             <span id="notif-badge" class="absolute -top-1 -right-1 h-5 w-5 hidden">
@@ -1938,6 +1938,14 @@
             // सूचना थप्ने फारम: admin र super-admin मात्र
             const noticeAddPanel = document.getElementById('notice-add-panel');
             if (noticeAddPanel) noticeAddPanel.style.display = isFullAccess() ? '' : 'none';
+
+            // Bell notification बटन: admin र super-admin लाई मात्र देखिने
+            const notifBtnWrap = document.getElementById('notif-btn-wrap');
+            if (notifBtnWrap) notifBtnWrap.style.display = isFullAccess() ? '' : 'none';
+            if (!isFullAccess()) {
+                const dropdown = document.getElementById('notif-dropdown');
+                if (dropdown) dropdown.classList.add('hidden');
+            }
 
             // यदि हालको खुला ट्याब अनुमति नभएको हो भने dashboard मा फर्काउने
             const activeSection = document.querySelector('.tab-content:not(.hidden)');
