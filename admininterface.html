@@ -1762,6 +1762,7 @@
         let globalLocationsMap = {}; // emp_code -> latest location row (in-memory cache, DB बाट फेरि नतान्नको लागि)
         let rawFieldbooks = [];
         let currentFilteredFieldbooks = [];
+        let currentViewedFieldbookReport = null; // super-admin delete/photo-upload को लागि
         let supabaseClient = null;
 
         // ================= ROLE-BASED ACCESS CONTROL =================
