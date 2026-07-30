@@ -1316,9 +1316,14 @@
                                 <h3 class="text-lg font-semibold text-gray-800">Location Log History</h3>
                                 <p class="text-xs text-gray-500">View complete GPS trails with reasons</p>
                             </div>
-                            <button onclick="downloadExcelReport()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded font-medium text-sm transition flex items-center gap-2 cursor-pointer">
-                                <i class="fa-solid fa-file-excel"></i> Export as CSV
-                            </button>
+                            <div class="flex gap-2">
+                                <button onclick="downloadExcelReport()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded font-medium text-sm transition flex items-center gap-2 cursor-pointer">
+                                    <i class="fa-solid fa-file-excel"></i> Export as CSV
+                                </button>
+                                <button id="btn-delete-filtered-history" onclick="deleteFilteredLocationHistory()" class="hidden bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded font-medium text-sm transition flex items-center gap-2 cursor-pointer">
+                                    <i class="fa-regular fa-trash-can"></i> देखाइएको History हटाउनुहोस्
+                                </button>
+                            </div>
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 bg-slate-50 p-4 rounded-lg border border-gray-200">
@@ -1370,11 +1375,12 @@
                                         <th class="p-3">Latitude</th>
                                         <th class="p-3">Longitude</th>
                                         <th class="p-3">Battery</th>
+                                        <th class="p-3 text-center" id="report-action-col-header">कार्य</th>
                                     </tr>
                                 </thead>
                                 <tbody id="report-table-body" class="divide-y divide-gray-100">
                                     <tr>
-                                        <td colspan="7" class="p-4 text-center italic text-gray-400">Click Apply Filter to fetch data</td>
+                                        <td colspan="8" class="p-4 text-center italic text-gray-400">Click Apply Filter to fetch data</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -1617,6 +1623,9 @@
             <div class="flex justify-between items-center border-b pb-3 no-print">
                 <h3 class="text-lg font-bold text-slate-800"><i class="fa-solid fa-file-invoice text-indigo-600 mr-2"></i>कर्मचारी फिल्डबुक प्रतिवेदन (फोटो सहित)</h3>
                 <div class="flex gap-2">
+                    <button id="fieldbook-modal-delete-btn" onclick="deleteCurrentViewedFieldbookReport()" class="hidden bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 shadow cursor-pointer">
+                        <i class="fa-regular fa-trash-can"></i> प्रतिवेदन हटाउनुहोस्
+                    </button>
                     <button onclick="printAdminFieldbook()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 shadow cursor-pointer">
                         <i class="fa-solid fa-print"></i> Print / PDF
                     </button>
@@ -1756,6 +1765,7 @@
         let dashboardMarkers = {}; 
         let liveMarkers = {}; 
         let historyLayers = []; 
+        let lastLoadedReportLogs = []; // Reports tab मा हाल देखिइरहेको (filtered) location_logs — super-admin bulk delete को लागि
 
         let dashboardFeatureGroup = null;
         let globalEmployees = [];
@@ -1851,6 +1861,18 @@
                     type: 'notice',
                     title: row.title || "नयाँ सूचना",
                     content: row.content || "",
+                    time: timeStr,
+                    read: !!isRead
+                };
+            }
+            if (row.type === 'report') {
+                return {
+                    id: row.id,
+                    type: 'report',
+                    emp_name: row.emp_name || row.emp_code,
+                    emp_code: row.emp_code,
+                    reason: row.reason || "फिल्डबुक प्रतिवेदन",
+                    ref_id: row.ref_id || null,
                     time: timeStr,
                     read: !!isRead
                 };
@@ -2350,6 +2372,34 @@
             }
         }
 
+        // App खुला नभए/ब्याकग्राउन्डमा भए पनि bell बज्ने/देखिने बनाउन — Capacitor को
+        // LocalNotifications plugin (native app मा उपलब्ध) मार्फत वास्तविक OS-level
+        // notification पठाउने। नोट: यसले app process ब्याकग्राउन्डमा जीवित रहेसम्म काम गर्छ;
+        // app पूर्णतया बन्द/kill भएको बेला पनि आउनको लागि server-side push (FCM) टेवा चाहिन्छ,
+        // जुन यो client-side फाइलमा मात्र सेटअप गर्न मिल्दैन।
+        let _nativeNotifIdSeq = 500000;
+        async function fireNativeBellNotification(title, body) {
+            try {
+                const LocalNotifications = (typeof getLocalNotificationsPlugin === 'function') ? getLocalNotificationsPlugin() : null;
+                if (!LocalNotifications) return;
+                const permStatus = await LocalNotifications.checkPermissions();
+                if (permStatus.display !== 'granted') {
+                    await LocalNotifications.requestPermissions();
+                }
+                await LocalNotifications.schedule({
+                    notifications: [{
+                        id: _nativeNotifIdSeq++,
+                        title: title,
+                        body: body,
+                        schedule: { at: new Date(Date.now() + 300) },
+                        sound: undefined
+                    }]
+                });
+            } catch (err) {
+                console.warn("Native bell notification पठाउन सकिएन:", err);
+            }
+        }
+
         function addNotification(record) {
             const empInfo = globalEmployees.find(e => e.emp_code === record.emp_code) || { name: record.emp_code };
             const timeStr = new Date().toLocaleTimeString();
@@ -2409,6 +2459,21 @@
             renderNotifDropdown();
             saveNotificationsToStorage();
             playNotificationSound();
+
+            // App ब्याकग्राउन्डमा भए पनि bell बज्ने/देखिने — native OS notification
+            let bellTitle = "नयाँ सूचना";
+            let bellBody = "";
+            if (notifItem.type === 'notice') {
+                bellTitle = "📢 " + (notifItem.title || "नयाँ सूचना");
+                bellBody = notifItem.content || "";
+            } else if (notifItem.type === 'report') {
+                bellTitle = "📄 नयाँ फिल्डबुक प्रतिवेदन";
+                bellBody = `${notifItem.emp_name} (${notifItem.emp_code}) ले प्रतिवेदन पेश गर्नुभयो`;
+            } else {
+                bellTitle = "📍 " + (notifItem.emp_name || "कर्मचारी");
+                bellBody = notifItem.reason || "फिल्ड कार्य अपडेट";
+            }
+            fireNativeBellNotification(bellTitle, bellBody);
         }
 
         function updateNotifBadge() {
@@ -2493,6 +2558,24 @@
                     </div>
                 `;
                 }
+                if (n.type === 'report') {
+                    return `
+                    <div onclick="openNotifDetail(${n.id})" class="relative p-3 pl-4 ${rowBg} transition cursor-pointer flex items-start gap-3">
+                        ${dot}
+                        <div class="h-8 w-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0 text-xs">
+                            <i class="fa-solid fa-file-invoice"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between items-center gap-2">
+                                <h4 class="text-xs ${titleWeight} truncate">${escapeHtml(n.emp_name)} (${escapeHtml(n.emp_code)})</h4>
+                                <span class="text-[10px] text-gray-400 shrink-0">${np(escapeHtml(n.time))}</span>
+                            </div>
+                            <p class="text-xs text-indigo-600 font-medium truncate mt-0.5"><i class="fa-solid fa-paper-plane text-[10px]"></i> नयाँ फिल्डबुक प्रतिवेदन पेश गरियो</p>
+                            <p class="text-[10px] text-indigo-600 font-semibold mt-1">प्रतिवेदन हेर्नुहोस् &rarr;</p>
+                        </div>
+                    </div>
+                `;
+                }
                 return `
                 <div onclick="openNotifDetail(${n.id})" class="relative p-3 pl-4 ${rowBg} transition cursor-pointer flex items-start gap-3">
                     ${dot}
@@ -2525,6 +2608,17 @@
                 renderNotifDropdown();
                 saveNotificationsToStorage();
                 persistNotificationReads([item.id]);
+            }
+
+            if (item.type === 'report') {
+                document.getElementById('notif-dropdown').classList.add('hidden');
+                if (item.ref_id) {
+                    switchTab('fieldbooks');
+                    viewSingleFieldbookReport(item.ref_id);
+                } else {
+                    alert("यो प्रतिवेदनको विवरण भेटिएन (हुनसक्छ हटाइसकिएको छ)।");
+                }
+                return;
             }
 
             const modalContent = document.getElementById('notif-modal-content');
@@ -3132,12 +3226,95 @@
                     <td class="p-3 text-center">${combinedReturn}</td>
                     <td class="p-3 text-center">${timeStatus}</td>
                     <td class="p-3 text-center">
-                        <button onclick="viewSingleFieldbookReport('${fb.id}')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded text-xs font-semibold cursor-pointer flex items-center gap-1 mx-auto shadow-xs">
-                            <i class="fa-solid fa-eye"></i> हेर्नुहोस्
-                        </button>
+                        <div class="flex items-center justify-center gap-2">
+                            <button onclick="viewSingleFieldbookReport('${fb.id}')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded text-xs font-semibold cursor-pointer flex items-center gap-1 shadow-xs">
+                                <i class="fa-solid fa-eye"></i> हेर्नुहोस्
+                            </button>
+                            ${currentRole === 'super-admin' ? `
+                            <button onclick="deleteFieldbookReport('${fb.id}')" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-2 py-1 rounded text-xs font-semibold cursor-pointer">
+                                <i class="fa-regular fa-trash-can"></i>
+                            </button>` : ''}
+                        </div>
                     </td>
                 </tr>`;
             }).join('');
+        }
+
+        // प्रतिवेदन (fieldbook_reports row) पूर्ण रूपमा हटाउने — Super-Admin लाई मात्र उपलब्ध
+        async function deleteFieldbookReport(reportId) {
+            if (currentRole !== 'super-admin') { alert("यो सुविधा Super-Admin लाई मात्र उपलब्ध छ।"); return; }
+            if (!supabaseClient) return;
+            const confirmed = confirm("के तपाईं यो फिल्डबुक प्रतिवेदन स्थायी रूपमा हटाउन चाहनुहुन्छ? यो कार्य फिर्ता गर्न सकिँदैन।");
+            if (!confirmed) return;
+
+            showLoadingBar();
+            try {
+                const { error } = await supabaseClient.from('fieldbook_reports').delete().eq('id', reportId);
+                if (error) throw error;
+                alert("प्रतिवेदन सफलतापूर्वक हटाइयो।");
+                document.getElementById('fieldbook-modal').classList.add('hidden');
+                await loadFieldbookList();
+            } catch (err) {
+                console.error(err);
+                alert("प्रतिवेदन हटाउँदा त्रुटि भयो: " + (err.message || err));
+            } finally {
+                hideLoadingBar();
+            }
+        }
+
+        // हाल fieldbook-modal मा खुलेको एकल प्रतिवेदन हटाउने (super-admin मात्र)
+        async function deleteCurrentViewedFieldbookReport() {
+            if (!currentViewedFieldbookReport || !currentViewedFieldbookReport.id) return;
+            await deleteFieldbookReport(currentViewedFieldbookReport.id);
+        }
+
+        // प्रतिवेदनमा फोटो नआएको entry मा super-admin ले फोटो upload गर्ने
+        function triggerAdminPhotoUpload(entryIdx) {
+            if (currentRole !== 'super-admin') { alert("यो सुविधा Super-Admin लाई मात्र उपलब्ध छ।"); return; }
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.className = 'hidden-input';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = async function(ev) {
+                        let base64 = ev.target.result;
+                        try {
+                            if (typeof compressImage === 'function') base64 = await compressImage(base64, 1);
+                        } catch (cErr) { console.warn("Photo compress गर्न सकिएन:", cErr); }
+                        await saveAdminUploadedPhoto(entryIdx, base64);
+                    };
+                    reader.readAsDataURL(file);
+                }
+                input.remove();
+            };
+            document.body.appendChild(input);
+            input.click();
+        }
+
+        async function saveAdminUploadedPhoto(entryIdx, base64) {
+            if (!currentViewedFieldbookReport || !supabaseClient) return;
+            const report = currentViewedFieldbookReport;
+            const entries = Array.isArray(report.entries) ? [...report.entries] : [];
+            if (!entries[entryIdx]) return;
+
+            showLoadingBar();
+            try {
+                entries[entryIdx] = { ...entries[entryIdx], photo: base64 };
+                const { error } = await supabaseClient
+                    .from('fieldbook_reports')
+                    .update({ entries: entries })
+                    .eq('id', report.id);
+                if (error) throw error;
+                await viewSingleFieldbookReport(report.id);
+            } catch (err) {
+                console.error(err);
+                alert("फोटो अपलोड गर्दा त्रुटि भयो: " + (err.message || err));
+            } finally {
+                hideLoadingBar();
+            }
         }
 
         function clearFieldbookFilters() {
@@ -3165,6 +3342,13 @@
                 container.innerHTML = `<div class="p-8 text-center text-red-500 font-bold">विवरण भेटिएन!</div>`;
                 hideLoadingBar();
                 return;
+            }
+
+            currentViewedFieldbookReport = report;
+            const delBtn = document.getElementById('fieldbook-modal-delete-btn');
+            if (delBtn) {
+                if (currentRole === 'super-admin') delBtn.classList.remove('hidden');
+                else delBtn.classList.add('hidden');
             }
 
             const deptTimeReport = formatTimeOnly(report.departure_time) || '-';
@@ -3197,13 +3381,21 @@
                     </td>
                     <td class="p-2 border whitespace-nowrap">${returnCell}</td>
                     <td class="p-2 border text-center">${timeStatus}</td>
-                    <td class="p-2 border text-center">
+                    <td class="p-2 border text-center" id="admin-photo-cell-${idx}">
                         ${(e.photo && /^data:image\//.test(e.photo)) ? `
                             <div class="flex flex-col items-center gap-1">
                                 <img src="${e.photo}" onclick="zoomPhoto('${e.photo}')" class="h-16 w-20 object-cover rounded border border-gray-300 shadow-sm cursor-pointer hover:opacity-80 transition" title="ठूलो पारेर हेर्न क्लिक गर्नुहोस्" />
                                 <span class="text-[10px] text-indigo-600 cursor-pointer font-semibold" onclick="zoomPhoto('${e.photo}')"><i class="fa-solid fa-magnifying-glass-plus"></i> Zoom</span>
                             </div>
-                        ` : '<span class="text-slate-400 text-[11px] italic">फोटो छैन</span>'}
+                        ` : `
+                            <div class="flex flex-col items-center gap-1">
+                                <span class="text-slate-400 text-[11px] italic">फोटो छैन</span>
+                                ${currentRole === 'super-admin' ? `
+                                <button onclick="triggerAdminPhotoUpload(${idx})" class="mt-1 photo-upload-btn text-[10px] !text-indigo-600 !border-indigo-300">
+                                    <i class="fa-solid fa-upload"></i> Upload
+                                </button>` : ''}
+                            </div>
+                        `}
                     </td>
                 </tr>`;
             }).join('');
@@ -3265,6 +3457,9 @@
             const container = document.getElementById('admin-fieldbook-content');
             container.innerHTML = `<div class="p-8 text-center text-slate-500"><i class="fa-solid fa-spinner animate-spin text-2xl mb-2"></i><br>कर्मचारीको हालसम्मका सबै फिल्ड कार्यहरू लोड हुँदैछ...</div>`;
             document.getElementById('fieldbook-modal').classList.remove('hidden');
+            currentViewedFieldbookReport = null;
+            const delBtnAgg = document.getElementById('fieldbook-modal-delete-btn');
+            if (delBtnAgg) delBtnAgg.classList.add('hidden');
             showLoadingBar();
 
             let reports = [];
@@ -3509,6 +3704,9 @@
 
         function closeFieldbookModal() {
             document.getElementById('fieldbook-modal').classList.add('hidden');
+            currentViewedFieldbookReport = null;
+            const delBtn = document.getElementById('fieldbook-modal-delete-btn');
+            if (delBtn) delBtn.classList.add('hidden');
         }
 
         function printAdminFieldbook() {
@@ -3661,7 +3859,7 @@
             if (!tbody) return;
             const timeStr = savedAt ? new Date(savedAt).toLocaleString() : '';
             const banner = document.createElement('tr');
-            banner.innerHTML = `<td colspan="7" class="p-2 text-center text-[11px] font-semibold text-amber-700 bg-amber-50 border-b border-amber-200">
+            banner.innerHTML = `<td colspan="8" class="p-2 text-center text-[11px] font-semibold text-amber-700 bg-amber-50 border-b border-amber-200">
                 <i class="fa-solid fa-wifi-slash mr-1"></i> Internet जडान छैन — पछिल्लोपटक (${np(escapeHtml(timeStr))}) सिंक भएको data देखाइँदैछ
             </td>`;
             tbody.prepend(banner);
@@ -3674,7 +3872,7 @@
             const dateTo = document.getElementById('report-filter-date-to').value;
             const tbody = document.getElementById('report-table-body');
 
-            tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center italic text-gray-400">Loading records...</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center italic text-gray-400">Loading records...</td></tr>`;
             showLoadingBar();
 
             historyLayers.forEach(layer => historyMap.removeLayer(layer));
@@ -3734,8 +3932,8 @@
 
             if (!logs || logs.length === 0) {
                 tbody.innerHTML = usedCache
-                    ? `<tr><td colspan="7" class="p-4 text-center italic text-red-400">Internet जडान छैन र cache मा पनि कुनै record भेटिएन।</td></tr>`
-                    : `<tr><td colspan="7" class="p-4 text-center italic text-red-400">No records found.</td></tr>`;
+                    ? `<tr><td colspan="8" class="p-4 text-center italic text-red-400">Internet जडान छैन र cache मा पनि कुनै record भेटिएन।</td></tr>`
+                    : `<tr><td colspan="8" class="p-4 text-center italic text-red-400">No records found.</td></tr>`;
                 hideLoadingBar();
                 return;
             }
@@ -3759,9 +3957,22 @@
                         <td class="p-3">${np(escapeHtml(log.latitude))}</td>
                         <td class="p-3">${np(escapeHtml(log.longitude))}</td>
                         <td class="p-3 font-semibold">${np(escapeHtml(bat))}%</td>
+                        <td class="p-3 text-center">
+                            ${(currentRole === 'super-admin' && log.id) ? `
+                            <button onclick="deleteLocationLogRow('${log.id}')" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-2 py-1 rounded text-xs font-semibold cursor-pointer">
+                                <i class="fa-regular fa-trash-can"></i>
+                            </button>` : '<span class="text-slate-300 text-[11px]">-</span>'}
+                        </td>
                     </tr>
                 `;
             });
+
+            const delFilteredBtn = document.getElementById('btn-delete-filtered-history');
+            if (delFilteredBtn) {
+                if (currentRole === 'super-admin') delFilteredBtn.classList.remove('hidden');
+                else delFilteredBtn.classList.add('hidden');
+            }
+            lastLoadedReportLogs = logs;
 
             if (usedCache) showReportOfflineBanner(cacheSavedAt);
 
@@ -3836,6 +4047,54 @@
                 historyMap.fitBounds(bounds, { padding: [50, 50] });
             }
             hideLoadingBar();
+        }
+
+        // एउटा मात्र location log record हटाउने (super-admin मात्र)
+        async function deleteLocationLogRow(logId) {
+            if (currentRole !== 'super-admin') { alert("यो सुविधा Super-Admin लाई मात्र उपलब्ध छ।"); return; }
+            if (!supabaseClient) return;
+            const confirmed = confirm("के तपाईं यो GPS location रेकर्ड हटाउन चाहनुहुन्छ?");
+            if (!confirmed) return;
+
+            showLoadingBar();
+            try {
+                const { error } = await supabaseClient.from('location_logs').delete().eq('id', logId);
+                if (error) throw error;
+                await loadReportLogs();
+            } catch (err) {
+                console.error(err);
+                alert("रेकर्ड हटाउँदा त्रुटि भयो: " + (err.message || err));
+            } finally {
+                hideLoadingBar();
+            }
+        }
+
+        // हाल फिल्टर लगाएर देखाइएका सबै location history रेकर्ड एकैचोटि हटाउने (super-admin मात्र)
+        async function deleteFilteredLocationHistory() {
+            if (currentRole !== 'super-admin') { alert("यो सुविधा Super-Admin लाई मात्र उपलब्ध छ।"); return; }
+            if (!supabaseClient) return;
+            if (!lastLoadedReportLogs || lastLoadedReportLogs.length === 0) {
+                alert("हटाउनको लागि कुनै रेकर्ड लोड भएको छैन। पहिले फिल्टर लगाएर Apply गर्नुहोस्।");
+                return;
+            }
+            const ids = lastLoadedReportLogs.map(l => l.id).filter(Boolean);
+            if (ids.length === 0) { alert("हटाउनको लागि रेकर्ड ID भेटिएन।"); return; }
+
+            const confirmed = confirm(`के तपाईं हाल देखाइएका जम्मा ${ids.length} वटा GPS location रेकर्ड स्थायी रूपमा हटाउन चाहनुहुन्छ? यो कार्य फिर्ता गर्न सकिँदैन।`);
+            if (!confirmed) return;
+
+            showLoadingBar();
+            try {
+                const { error } = await supabaseClient.from('location_logs').delete().in('id', ids);
+                if (error) throw error;
+                alert("छानिएका सबै location history रेकर्ड सफलतापूर्वक हटाइयो।");
+                await loadReportLogs();
+            } catch (err) {
+                console.error(err);
+                alert("रेकर्ड हटाउँदा त्रुटि भयो: " + (err.message || err));
+            } finally {
+                hideLoadingBar();
+            }
         }
 
         function downloadExcelReport() {
@@ -5441,9 +5700,19 @@
     async function _pushFieldbookToSupabase(payload) {
         if (!supabaseClient) return false;
         try {
-            const { error } = await supabaseClient.from('fieldbook_reports').insert([payload]);
+            const { data, error } = await supabaseClient.from('fieldbook_reports').insert([payload]).select('id').single();
             if (error) { console.error("Fieldbook push error:", error); return false; }
             console.log("Fieldbook pushed to Supabase OK");
+            // Admin/super-admin लाई bell मा "नयाँ प्रतिवेदन आयो" भन्ने notification पठाउने
+            try {
+                await supabaseClient.from('notifications').insert([{
+                    type: 'report',
+                    emp_code: payload.emp_code,
+                    emp_name: payload.emp_name,
+                    reason: 'फिल्डबुक प्रतिवेदन पेश गरियो',
+                    ref_id: data ? data.id : null
+                }]);
+            } catch (notifErr) { console.warn("Report notification insert गर्न सकिएन:", notifErr); }
             return true;
         } catch(e) { console.error("Fieldbook push exception:", e); return false; }
     }
