@@ -2432,13 +2432,31 @@
             }
         }
 
-        // सबै सूचनालाई एकैचोटि "पढियो" चिन्ह लगाउने
+        // सबै सूचनालाई एकैचोटि "पढियो" चिन्ह लगाउने — DB मा पनि सधैंको लागि लेखिन्छ,
+        // ताकि reload / अर्को device मा फेरि "unread" भएर नदेखियोस्।
         function markAllNotificationsRead() {
+            const newlyReadIds = notificationsList.filter(n => !n.read).map(n => n.id);
             notificationsList.forEach(n => n.read = true);
             unreadCount = 0;
             updateNotifBadge();
             renderNotifDropdown();
             saveNotificationsToStorage();
+            persistNotificationReads(newlyReadIds);
+        }
+
+        // notification_reads table मा (user_id, notification_id) row upsert गर्ने —
+        // यसपछि यो notification यही प्रयोगकर्तालाई जहिल्यै "पढेको" नै देखिन्छ (server-side स्थायी)।
+        async function persistNotificationReads(notifIds) {
+            if (!supabaseClient || !currentUserId || !notifIds || notifIds.length === 0) return;
+            try {
+                const rows = notifIds.map(id => ({ user_id: currentUserId, notification_id: id }));
+                const { error } = await supabaseClient
+                    .from('notification_reads')
+                    .upsert(rows, { onConflict: 'user_id,notification_id', ignoreDuplicates: true });
+                if (error) throw error;
+            } catch (e) {
+                console.warn("Notification read status DB मा लेख्न सकिएन:", e);
+            }
         }
 
         function renderNotifDropdown() {
@@ -2505,6 +2523,7 @@
                 updateNotifBadge();
                 renderNotifDropdown();
                 saveNotificationsToStorage();
+                persistNotificationReads([item.id]);
             }
 
             const modalContent = document.getElementById('notif-modal-content');
@@ -3001,25 +3020,48 @@
             return `<span class="inline-flex items-center gap-1 bg-slate-100 text-slate-600 border border-slate-200 px-2 py-0.5 rounded-full text-[10px] font-semibold whitespace-nowrap"><i class="fa-solid fa-check text-[9px]"></i> ठिक समयमा</span>`;
         }
 
+        const FIELDBOOK_LIST_CACHE_KEY = 'cached_fieldbook_list_v1';
+
         async function loadFieldbookList() {
             const tbody = document.getElementById('fieldbook-list-tbody');
             if(!tbody) return;
             tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-gray-400 italic">फिल्डबुक प्रतिवेदन लोड हुँदैछ...</td></tr>`;
             showLoadingBar();
 
-            if(!supabaseClient) { hideLoadingBar(); return; }
-            try {
-                let q = supabaseClient.from('fieldbook_reports').select('*').order('created_at', { ascending: false }).limit(500);
-                const scopedCodes = getScopedEmpCodes();
-                if (scopedCodes !== null) q = q.in('emp_code', scopedCodes.length ? scopedCodes : ['__none__']);
-                const { data, error } = await q;
-                if(error || !data || data.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-red-400 font-medium">कुनै पनि फिल्डबुक प्रतिवेदन प्राप्त भएको छैन।</td></tr>`;
+            if (supabaseClient && navigator.onLine) {
+                try {
+                    let q = supabaseClient.from('fieldbook_reports').select('*').order('created_at', { ascending: false }).limit(500);
+                    const scopedCodes = getScopedEmpCodes();
+                    if (scopedCodes !== null) q = q.in('emp_code', scopedCodes.length ? scopedCodes : ['__none__']);
+                    const { data, error } = await q;
+                    if (error) throw error;
+                    if (!data || data.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-red-400 font-medium">कुनै पनि फिल्डबुक प्रतिवेदन प्राप्त भएको छैन।</td></tr>`;
+                        hideLoadingBar();
+                        return;
+                    }
+                    rawFieldbooks = data;
+                    try { localStorage.setItem(FIELDBOOK_LIST_CACHE_KEY, JSON.stringify({ list: data, savedAt: Date.now() })); } catch(e) {}
+                    filterFieldbookList();
+                    hideLoadingBar();
                     return;
+                } catch(err) {
+                    console.warn("Server बाट फिल्डबुक प्रतिवेदन ल्याउन सकिएन, cache प्रयोग गरिँदैछ:", err);
                 }
+            }
 
-                rawFieldbooks = data;
-                filterFieldbookList();
+            // Offline वा server त्रुटि भएमा — पछिल्लोपटक cache गरिएको data देखाउने
+            try {
+                const raw = localStorage.getItem(FIELDBOOK_LIST_CACHE_KEY);
+                const cached = raw ? JSON.parse(raw) : null;
+                if (cached && cached.list && cached.list.length > 0) {
+                    rawFieldbooks = cached.list;
+                    filterFieldbookList();
+                    const timeStr = new Date(cached.savedAt).toLocaleString();
+                    tbody.insertAdjacentHTML('afterbegin', `<tr><td colspan="8" class="p-2 text-center text-[11px] font-semibold text-amber-700 bg-amber-50 border-b border-amber-200"><i class="fa-solid fa-wifi-slash mr-1"></i> Internet जडान छैन — पछिल्लोपटक (${np(escapeHtml(timeStr))}) सिंक भएको data देखाइँदैछ</td></tr>`);
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-red-400 font-medium">Internet जडान छैन र cache मा पनि कुनै प्रतिवेदन भेटिएन।</td></tr>`;
+                }
             } catch(err) {
                 tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-red-500">त्रुटि भयो: ${err.message}</td></tr>`;
             } finally {
@@ -3566,39 +3608,133 @@
             document.getElementById('report-filter-date-to').value = '';
         }
 
+        // ── OFFLINE CACHE (Reports tab / location_logs) ──
+        // Internet नभएको बेला अघिल्लोपटक सफलतापूर्वक तानिएको report data नै
+        // देखाउनको लागि — नत्र offline हुँदा "Reports" tab पूरै खाली/त्रुटि देखिन्थ्यो।
+        const REPORT_LOGS_CACHE_KEY = 'cached_report_logs_v1';
+
+        function saveReportLogsToCache(logs) {
+            try {
+                localStorage.setItem(REPORT_LOGS_CACHE_KEY, JSON.stringify({ logs, savedAt: Date.now() }));
+            } catch (e) { console.warn("Report logs cache गर्न सकिएन:", e); }
+        }
+
+        function loadReportLogsFromCache() {
+            try {
+                const raw = localStorage.getItem(REPORT_LOGS_CACHE_KEY);
+                if (!raw) return null;
+                return JSON.parse(raw);
+            } catch (e) { return null; }
+        }
+
+        // Server बाट ल्याइएकै तरिकाले cache गरिएको raw logs माथि emp/reason/date filter लगाउने
+        function filterCachedReportLogs(allLogs, empFilter, reasonFilter, dateFrom, dateTo) {
+            let filtered = allLogs;
+            if (empFilter !== 'all') {
+                filtered = filtered.filter(l => l.emp_code === empFilter);
+            } else {
+                const scopedCodes = getScopedEmpCodes();
+                if (scopedCodes !== null) {
+                    const allowed = new Set(scopedCodes);
+                    filtered = filtered.filter(l => allowed.has(l.emp_code));
+                }
+            }
+            if (reasonFilter !== 'all') {
+                filtered = filtered.filter(l => (l.reason1 || '').trim() === reasonFilter);
+            }
+            if (dateFrom) {
+                const fromTime = new Date(dateFrom).getTime();
+                filtered = filtered.filter(l => new Date(l.created_at).getTime() >= fromTime);
+            }
+            if (dateTo) {
+                const toEnd = new Date(dateTo);
+                toEnd.setHours(23, 59, 59, 999);
+                const toTime = toEnd.getTime();
+                filtered = filtered.filter(l => new Date(l.created_at).getTime() <= toTime);
+            }
+            return filtered.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+        }
+
+        function showReportOfflineBanner(savedAt) {
+            const tbody = document.getElementById('report-table-body');
+            if (!tbody) return;
+            const timeStr = savedAt ? new Date(savedAt).toLocaleString() : '';
+            const banner = document.createElement('tr');
+            banner.innerHTML = `<td colspan="7" class="p-2 text-center text-[11px] font-semibold text-amber-700 bg-amber-50 border-b border-amber-200">
+                <i class="fa-solid fa-wifi-slash mr-1"></i> Internet जडान छैन — पछिल्लोपटक (${np(escapeHtml(timeStr))}) सिंक भएको data देखाइँदैछ
+            </td>`;
+            tbody.prepend(banner);
+        }
+
         async function loadReportLogs() {
-            if(!supabaseClient) return;
             const empFilter = document.getElementById('report-filter-emp').value;
             const reasonFilter = document.getElementById('report-filter-reason').value;
             const dateFrom = document.getElementById('report-filter-date-from').value;
             const dateTo = document.getElementById('report-filter-date-to').value;
             const tbody = document.getElementById('report-table-body');
-            
+
             tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center italic text-gray-400">Loading records...</td></tr>`;
             showLoadingBar();
 
             historyLayers.forEach(layer => historyMap.removeLayer(layer));
             historyLayers = [];
 
-            let query = supabaseClient.from('location_logs').select('*').order('created_at', { ascending: true }).limit(500);
-            
-            if(empFilter !== 'all') {
-                query = query.eq('emp_code', empFilter);
-            } else {
-                const scopedCodes = getScopedEmpCodes();
-                if (scopedCodes !== null) query = query.in('emp_code', scopedCodes.length ? scopedCodes : ['__none__']);
-            }
-            if(reasonFilter !== 'all') query = query.eq('reason1', reasonFilter);
-            if(dateFrom) query = query.gte('created_at', new Date(dateFrom).toISOString());
-            if(dateTo) {
-                const toEnd = new Date(dateTo);
-                toEnd.setHours(23, 59, 59, 999);
-                query = query.lte('created_at', toEnd.toISOString());
+            let logs = null;
+            let usedCache = false;
+            let cacheSavedAt = null;
+
+            if (supabaseClient && navigator.onLine) {
+                try {
+                    let query = supabaseClient.from('location_logs').select('*').order('created_at', { ascending: true }).limit(500);
+
+                    if(empFilter !== 'all') {
+                        query = query.eq('emp_code', empFilter);
+                    } else {
+                        const scopedCodes = getScopedEmpCodes();
+                        if (scopedCodes !== null) query = query.in('emp_code', scopedCodes.length ? scopedCodes : ['__none__']);
+                    }
+                    if(reasonFilter !== 'all') query = query.eq('reason1', reasonFilter);
+                    if(dateFrom) query = query.gte('created_at', new Date(dateFrom).toISOString());
+                    if(dateTo) {
+                        const toEnd = new Date(dateTo);
+                        toEnd.setHours(23, 59, 59, 999);
+                        query = query.lte('created_at', toEnd.toISOString());
+                    }
+
+                    const { data, error } = await query;
+                    if (error) throw error;
+                    logs = data || [];
+
+                    // सफल भएमा unfiltered (सबै scoped emp, बिना reason/date filter) copy पनि
+                    // cache गर्ने ताकि पछि offline हुँदा जुनसुकै filter लगाउन मिलोस्।
+                    try {
+                        let cacheQuery = supabaseClient.from('location_logs').select('*').order('created_at', { ascending: true }).limit(500);
+                        const scopedCodes = getScopedEmpCodes();
+                        if (scopedCodes !== null) cacheQuery = cacheQuery.in('emp_code', scopedCodes.length ? scopedCodes : ['__none__']);
+                        const { data: cacheData } = await cacheQuery;
+                        if (cacheData) saveReportLogsToCache(cacheData);
+                    } catch (cacheErr) { /* cache best-effort मात्र हो */ }
+                } catch (err) {
+                    console.warn("Server बाट report logs ल्याउन सकिएन, cache प्रयोग गरिँदैछ:", err);
+                    logs = null;
+                }
             }
 
-            const { data: logs } = await query;
+            if (logs === null) {
+                const cached = loadReportLogsFromCache();
+                if (cached && cached.logs) {
+                    logs = filterCachedReportLogs(cached.logs, empFilter, reasonFilter, dateFrom, dateTo);
+                    usedCache = true;
+                    cacheSavedAt = cached.savedAt;
+                } else {
+                    logs = [];
+                }
+            }
+
             if (!logs || logs.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center italic text-red-400">No records found.</td></tr>`;
+                tbody.innerHTML = usedCache
+                    ? `<tr><td colspan="7" class="p-4 text-center italic text-red-400">Internet जडान छैन र cache मा पनि कुनै record भेटिएन।</td></tr>`
+                    : `<tr><td colspan="7" class="p-4 text-center italic text-red-400">No records found.</td></tr>`;
                 hideLoadingBar();
                 return;
             }
@@ -3625,6 +3761,8 @@
                     </tr>
                 `;
             });
+
+            if (usedCache) showReportOfflineBanner(cacheSavedAt);
 
             let routesByGroup = {};
             logs.forEach(log => {
@@ -4380,6 +4518,20 @@
         });
         window.addEventListener('offline', () => updateNetworkStatus(false));
 
+        // ── FALLBACK PERIODIC SYNC ──
+        // Android WebView/Capacitor मा कहिलेकाहीं 'online' event भरपर्दो हुँदैन
+        // (जस्तै: wifi/mobile data बीच स्विच हुँदा वा app background बाट फर्किँदा
+        // event नै नआउन सक्छ)। त्यसैले हरेक ३० सेकेन्डमा pending queue जाँचेर
+        // internet भएको खण्डमा auto-sync गर्ने।
+        setInterval(() => {
+            if (!navigator.onLine) return;
+            if (offlineQueue.length > 0) syncOfflineData();
+            try {
+                const pendingFb = JSON.parse(localStorage.getItem('offline_fieldbook_queue') || '[]');
+                if (pendingFb.length > 0) syncOfflineFieldbooks();
+            } catch(e) {}
+        }, 30000);
+
         // date fields र entries popup ले fill गर्छ
     }
     window.initFieldworkApp = initFieldworkApp;
@@ -4999,6 +5151,9 @@
                 document.getElementById('offline-buffer-alert').classList.remove('hidden');
                 const gpsEl = document.getElementById('offline-alert-gps');
                 if (gpsEl) gpsEl.classList.remove('hidden');
+                // Online छ भने तुरुन्तै sync गर्ने (पहिले यहाँ sync कहिल्यै triggered हुँदैनथ्यो,
+                // 'online' event फेरि नआएसम्म queue पर्खिरहन्थ्यो)
+                if (navigator.onLine) setTimeout(syncOfflineData, 2000);
             }
         }
         // Pending offline fieldbook reports check
