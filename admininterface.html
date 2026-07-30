@@ -946,11 +946,10 @@
                                 <span class="w-6 h-6 rounded-full bg-emerald-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0">१</span>
                                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">चरण १ / ४</p>
                             </div>
-                            <h3 class="text-white font-bold text-lg mb-1">जानु पर्ने स्थान</h3>
+                            <h3 class="text-white font-bold text-lg mb-1"><i class="fa-solid fa-location-dot text-emerald-400 mr-1"></i> जानु पर्ने स्थान</h3>
                             <p class="text-slate-400 text-xs mb-4">कहाँ जाने हो? ठाउँको नाम लेख्नुहोस्।</p>
                             <div class="relative mb-4">
-                                <span class="absolute inset-y-0 left-3 flex items-center text-slate-400"><i class="fa-solid fa-location-dot text-emerald-400"></i></span>
-                                <input type="text" id="popup-place" class="fb-input pl-10 text-base" placeholder="ठाउँको नाम (अनिवार्य)" autocomplete="off">
+                                <input type="text" id="popup-place" class="fb-input text-base" placeholder="ठाउँको नाम (अनिवार्य)" autocomplete="off">
                             </div>
                             <div id="popup-place-err" class="hidden text-xs text-rose-400 mb-3 text-center">⚠ स्थान अनिवार्य रूपमा भर्नुहोस्।</div>
                             <button onclick="fbStepNext(1)" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl text-sm cursor-pointer transition-all">
@@ -984,12 +983,11 @@
                                 <span class="w-6 h-6 rounded-full bg-emerald-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0">३</span>
                                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">चरण ३ / ४</p>
                             </div>
-                            <h3 class="text-white font-bold text-lg mb-1">पुन फर्किने अनुमानित समय</h3>
+                            <h3 class="text-white font-bold text-lg mb-1"><i class="fa-solid fa-clock text-emerald-400 mr-1"></i> पुन फर्किने अनुमानित समय</h3>
                             <p class="text-slate-400 text-xs mb-1">कति बजे फर्किने अनुमान छ?</p>
                             <p class="text-amber-400 text-[10px] mb-4"><i class="fa-solid fa-circle-info mr-1"></i>PM भए +12 गर्नुस् (जस्तै ४:३० PM = १६:३०)</p>
                             <div class="relative mb-4">
-                                <span class="absolute inset-y-0 left-3 flex items-center text-slate-400"><i class="fa-solid fa-clock text-emerald-400"></i></span>
-                                <input type="text" id="popup-return-time" class="fb-input pl-10 text-base" placeholder="HH:MM (अनिवार्य)" maxlength="8" oninput="formatTimeInput(this)">
+                                <input type="text" id="popup-return-time" class="fb-input text-base" placeholder="HH:MM (अनिवार्य)" maxlength="8" oninput="formatTimeInput(this)">
                             </div>
                             <div id="popup-time-err" class="hidden text-xs text-rose-400 mb-3 text-center">⚠ अनुमानित समय अनिवार्य रूपमा भर्नुहोस्।</div>
                             <div class="flex gap-2">
