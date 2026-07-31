@@ -727,7 +727,7 @@
         
         if (vContent.offsetHeight > vViewport.offsetHeight) {
             let currentY = 0;
-            const scrollSpeed = 1.3;
+            const scrollSpeed = 0.9;
 
             function stepVerticalScroll() {
                 currentY -= scrollSpeed;
@@ -768,7 +768,7 @@
         
         if (tContainer && tViewport) {
             let currentX = tViewport.offsetWidth; // दायाँ कुनाबाट सुरु हुने
-            const tickerSpeed = 3.3; // गति
+            const tickerSpeed = 1.3; // गति
 
             function stepHorizontalTicker() {
                 currentX -= tickerSpeed;
@@ -792,7 +792,7 @@
 
         if (cnt.offsetHeight > vp.offsetHeight) {
             let currentY = 0;
-            const speed = 2.4;
+            const speed = 1.4;
 
             function scrollSide() {
                 currentY -= speed;
