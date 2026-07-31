@@ -332,6 +332,7 @@
     <button class="nav-btn" onclick="switchTab('employee')"><i class="fa-solid fa-user-tie"></i> कर्मचारी विवरण</button>
     <button class="nav-btn" onclick="switchTab('representative')"><i class="fa-solid fa-user-shield"></i> जनप्रतिनिधि विवरण</button>
     <button class="nav-btn" onclick="switchTab('break')"><i class="fa-solid fa-mug-hot"></i> खाजा / विशेष समय</button>
+    <button class="nav-btn" onclick="switchTab('notice')"><i class="fa-solid fa-bullhorn"></i> विशेष सूचना</button>
 </div>
 
 <div class="admin-layout" id="admin-dashboard">
@@ -498,6 +499,36 @@
                 </form>
             </div>
         </div>
+
+        <div id="notice-form-panel" class="tab-content">
+            <div class="container" style="border-top-color: #7c3aed;">
+                <div class="header">
+                    <i class="fa-solid fa-bullhorn" style="color: #7c3aed;"></i>
+                    <h2 style="color: #7c3aed;">विशेष सूचना (Popup) थप्नुहोस्</h2>
+                    <p class="subtitle">तस्बिर र विवरण सहित नयाँ सूचना सूचीमा सुरक्षित गर्नुहोस्। पछि दायाँको सूचीबाट "Play" बटन थिचेपछि मात्र यो डिस्प्ले टिभीमा पप-अप हुनेछ।</p>
+                </div>
+                <form id="notice-form">
+                    <input type="hidden" id="notice_existing_image_url">
+                    <div class="form-group">
+                        <label for="notice_comment">विवरण / Comment</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-comment-dots" style="top:15px;"></i>
+                            <textarea id="notice_comment" placeholder="जस्तै: भोलि साउन १ गते सार्वजनिक बिदाको कारण कार्यालय बन्द रहनेछ।" style="min-height:120px;" required></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="notice_image_file">तस्बिर (JPG/PNG) - वैकल्पिक</label>
+                        <div class="input-wrapper"><i class="fa-solid fa-image"></i><input type="file" id="notice_image_file" accept="image/jpeg, image/png"></div>
+                    </div>
+                    <div class="form-group" id="notice-preview-wrapper" style="display:none;">
+                        <label>तस्बिर Preview</label>
+                        <img id="notice-preview-img" src="" style="width:100%; max-height:220px; object-fit:cover; border-radius:10px; border:1.5px solid var(--border-color);">
+                    </div>
+                    <button type="submit" id="notice-submit-btn" style="background: #7c3aed;"><i class="fa-solid fa-cloud-arrow-up"></i> सूचीमा सुरक्षित गर्नुहोस्</button>
+                    <button type="button" class="clear-btn" onclick="stopLiveNotice()"><i class="fa-solid fa-stop"></i> हाल चलिरहेको पप-अप रोक्नुहोस्</button>
+                </form>
+            </div>
+        </div>
     </div>
 
     <div class="preview-container">
@@ -564,6 +595,28 @@
                 <i class="fa-solid fa-circle-info" style="font-size: 2.5rem; color: var(--secondary-color); margin-bottom: 10px;"></i>
                 <p style="font-size: 1.1rem; font-weight: 600;">खाजा समय र फुटर सन्देश व्यवस्थापन बायाँ फारमहरूबाट सिधै कन्ट्रोल हुन्छ।</p>
             </div>
+
+            <div id="notice-table-view" class="tab-content">
+                <div id="notice-live-banner" style="display:none; background:#ecfdf5; border:1.5px solid #10b981; color:#065f46; padding:12px 16px; border-radius:10px; margin-bottom:15px; font-weight:600; display:flex; align-items:center; justify-content:space-between; gap:10px;">
+                    <span><i class="fa-solid fa-tower-broadcast"></i> <span id="notice-live-text">हाल टिभीमा एउटा सूचना प्रसारण भइरहेको छ</span></span>
+                    <button type="button" class="clear-btn" style="padding:6px 14px; font-size:0.85rem;" onclick="stopLiveNotice()"><i class="fa-solid fa-stop"></i> रोक्नुहोस्</button>
+                </div>
+                <div class="table-responsive">
+                    <table id="notice-list-table">
+                        <thead>
+                            <tr>
+                                <th style="width:90px;">तस्बिर</th>
+                                <th>विवरण</th>
+                                <th style="width:160px;">मिति</th>
+                                <th style="width:150px;">कार्य (Actions)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="notice-data-list">
+                            <tr><td colspan="4" style="text-align: center; color: #64748b;">डाटा लोड हुँदैछ...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -613,7 +666,8 @@
             'charter': { t: 'बडापत्र डाटा सूची', s: 'सुरक्षित गरिएका बडापत्र सूची व्यवस्थापन गर्नुहोस्' },
             'employee': { t: 'कर्मचारी डाटा सूची', s: 'कर्मचारीहरूको अनुक्रम (Rank) र विवरण व्यवस्थापन गर्नुहोस्' },
             'representative': { t: 'जनप्रतिनिधि डाटा सूची', s: 'जनप्रतिनिधिहरूको अनुक्रम (Rank) र विवरण व्यवस्थापन गर्नुहोस्' },
-            'break': { t: 'विशेष मोड व्यवस्थापन', s: 'खाजा समय र फुटर सूचना कन्ट्रोल' }
+            'break': { t: 'विशेष मोड व्यवस्थापन', s: 'खाजा समय र फुटर सूचना कन्ट्रोल' },
+            'notice': { t: 'विशेष सूचना (Popup) व्यवस्थापन', s: 'तस्बिर र विवरण सहितको पप-अप सूचना कन्ट्रोल' }
         };
 
         document.getElementById('list-container-title').innerHTML = `<i class="fa-solid fa-list-check" style="color: var(--secondary-color);"></i> ` + titleMap[moduleName].t;
@@ -627,6 +681,7 @@
         else if (activeModule === 'employee') fetchEmployeeData();
         else if (activeModule === 'representative') fetchRepresentativeData();
         else if (activeModule === 'break') fetchFooterText();
+        else if (activeModule === 'notice') fetchNoticeList();
     }
 
     async function fetchFooterText() {
@@ -925,6 +980,132 @@
         if (error) alert("फुटर सन्देश सेट गर्दा त्रुटि: " + error.message);
         else alert("सन्देश स्क्रिनको फुटरमा म्याप भयो !");
     });
+
+    // ================= विशेष सूचना (Popup) व्यवस्थापन =================
+    // यी सूचनाहरू 'special_notices' table मा list को रूपमा राखिन्छन्।
+    // 'break_settings' को id=3 row भने "अहिले टिभीमा के प्रसारण भइरहेको छ" भन्ने पोइन्टर हो,
+    // जुन Play बटन थिचेपछि मात्र अपडेट हुन्छ।
+    let currentLiveNoticeSignature = null;
+
+    async function fetchLiveNoticeStatus() {
+        const { data } = await supabaseClient.from('break_settings').select('*').eq('id', 3).maybeSingle();
+        const banner = document.getElementById('notice-live-banner');
+        if (data && data.is_active && (data.reason || data.image_url)) {
+            currentLiveNoticeSignature = JSON.stringify([data.reason, data.image_url]);
+            banner.style.display = 'flex';
+        } else {
+            currentLiveNoticeSignature = null;
+            banner.style.display = 'none';
+        }
+    }
+
+    async function fetchNoticeList() {
+        const listContainer = document.getElementById('notice-data-list');
+        listContainer.innerHTML = `<tr><td colspan="4" style="text-align: center;">लोड हुँदैछ...</td></tr>`;
+
+        await fetchLiveNoticeStatus();
+
+        const { data, error } = await supabaseClient.from('special_notices').select('*').order('created_at', { ascending: false });
+        if (error) { listContainer.innerHTML = `<tr><td colspan="4" style="color:red;">त्रुटि: ${error.message}</td></tr>`; return; }
+        if (!data || data.length === 0) { listContainer.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#64748b;">अहिलेसम्म कुनै सूचना सुरक्षित गरिएको छैन।</td></tr>`; return; }
+
+        listContainer.innerHTML = '';
+        data.forEach(item => {
+            const tr = document.createElement('tr');
+            const dateStr = item.created_at ? new Date(item.created_at).toLocaleString('ne-NP', { dateStyle: 'medium', timeStyle: 'short' }) : '-';
+            const isLive = currentLiveNoticeSignature === JSON.stringify([item.comment, item.image_url]);
+            const thumb = item.image_url
+                ? `<img src="${item.image_url}" style="width:70px;height:50px;object-fit:cover;border-radius:6px;border:1px solid var(--border-color);">`
+                : `<span style="color:#94a3b8;"><i class="fa-solid fa-image-slash"></i></span>`;
+            tr.innerHTML = `
+                <td>${thumb}</td>
+                <td>${(item.comment || '').replace(/</g, '&lt;')} ${isLive ? '<span class="badge" style="background:#10b981;color:#fff;margin-left:6px;">Live</span>' : ''}</td>
+                <td>${dateStr}</td>
+                <td class="actions">
+                    <button class="action-btn" style="background:#ecfdf5;color:#059669;" title="Play (टिभीमा देखाउनुहोस्)" onclick="playNotice(${JSON.stringify(item).replace(/"/g, '&quot;')})"><i class="fa-solid fa-play"></i></button>
+                    <button class="action-btn delete-btn" title="मेटाउनुहोस्" onclick="deleteNoticeItem(${item.id})"><i class="fa-solid fa-trash"></i></button>
+                </td>
+            `;
+            listContainer.appendChild(tr);
+        });
+    }
+
+    // तस्बिर छान्नेबित्तिकै तत्काल Preview देखाउने
+    document.getElementById('notice_image_file').addEventListener('change', function (e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function (evt) {
+            document.getElementById('notice-preview-img').src = evt.target.result;
+            document.getElementById('notice-preview-wrapper').style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    });
+
+    // नयाँ सूचना सूचीमा थप्ने (यसले टिभीमा तुरुन्तै देखाउँदैन — Play बटन थिचेपछि मात्र देखिन्छ)
+    document.getElementById('notice-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const submitBtn = document.getElementById('notice-submit-btn');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> सुरक्षित हुँदैछ...`;
+
+        try {
+            const uploadedUrl = await uploadImageToStorage('notice_image_file', 'notices');
+
+            const formData = {
+                comment: document.getElementById('notice_comment').value,
+                image_url: uploadedUrl || null
+            };
+
+            const { error } = await supabaseClient.from('special_notices').insert([formData]);
+            if (error) throw error;
+
+            document.getElementById('notice-form').reset();
+            document.getElementById('notice_existing_image_url').value = '';
+            document.getElementById('notice-preview-wrapper').style.display = 'none';
+            showSuccessAlert();
+            fetchNoticeList();
+        } catch (err) {
+            alert("विशेष सूचना सेभ गर्दा समस्या: " + err.message);
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> सूचीमा सुरक्षित गर्नुहोस्`;
+        }
+    });
+
+    // सूचीबाट "Play" बटन थिचेपछि यो सूचना अहिले नै टिभीमा पप-अप हुन्छ
+    async function playNotice(item) {
+        const { error } = await supabaseClient.from('break_settings').upsert([{
+            id: 3,
+            is_active: true,
+            reason: item.comment,
+            image_url: item.image_url
+        }]);
+        if (error) {
+            alert("टिभीमा पठाउँदा त्रुटि: " + error.message);
+        } else {
+            fetchNoticeList();
+        }
+    }
+
+    // हाल टिभीमा चलिरहेको पप-अप रोक्ने (सूचीबाट कुनै पनि सूचना मेटिँदैन)
+    async function stopLiveNotice() {
+        const { error } = await supabaseClient.from('break_settings').upsert([{ id: 3, is_active: false, reason: '', image_url: null }]);
+        if (error) {
+            alert("रोक्न त्रुटि: " + error.message);
+        } else {
+            fetchNoticeList();
+        }
+    }
+
+    // सूचीबाट कुनै सूचना स्थायी रूपमा मेटाउने
+    async function deleteNoticeItem(id) {
+        if (confirm("के तपाईं यो सूचना सूचीबाट स्थायी रूपमा मेटाउन चाहनुहुन्छ?")) {
+            const { error } = await supabaseClient.from('special_notices').delete().eq('id', id);
+            if (error) alert("मेटाउन सकिएन: " + error.message);
+            else { showSuccessAlert(); fetchNoticeList(); }
+        }
+    }
 
     // ================= साझा कार्यहरू (Delete, Reset) =================
     async function deleteItem(tableName, id) {

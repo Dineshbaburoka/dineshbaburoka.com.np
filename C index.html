@@ -4,8 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>गलकोट नगरपालिका - नागरिक बडापत्र</title>
-    <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="dns-prefetch" href="https://recupgxqzdylfsofocoh.supabase.co">
+    <!-- 3G मा छिटो लोड होस् भनेर आवश्यक पर्ने font weight मात्र (400,700) राखियो -->
+    <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- धेरै पुरानो TV browser (Promise/fetch नभएको) को लागि polyfill; नयाँ browser मा यो स्वतः skip हुन्छ -->
+    <script>
+        (function () {
+            if (!window.fetch || !window.Promise || !window.Symbol) {
+                document.write('<script src="https://polyfill.io/v3/polyfill.min.js?features=Promise%2Cfetch%2CArray.prototype.includes%2CObject.assign%2CSymbol"><\/script>');
+            }
+        })();
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
@@ -32,7 +45,7 @@
             color: var(--text-dark);
             overflow: hidden;
             height: 100vh;
-            display: flex;
+            display: -webkit-box; display: -webkit-flex; display: flex;
             flex-direction: column;
         }
 
@@ -41,7 +54,7 @@
             background: linear-gradient(135deg, var(--primary-blue), #1e40af);
             color: white;
             padding: 12px 24px;
-            display: flex;
+            display: -webkit-box; display: -webkit-flex; display: flex;
             align-items: center;
             justify-content: space-between;
             box-shadow: 0 4px 20px rgba(0,0,0,0.15);
@@ -49,7 +62,7 @@
             border-bottom: 4px solid var(--gold);
         }
 
-        .header-left { display: flex; align-items: center; gap: 20px; }
+        .header-left { display: -webkit-box; display: -webkit-flex; display: flex; align-items: center; gap: 20px; }
         .gov-logo { width: 85px; height: 85px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); }
         .header-title h1 { font-size: 1.9rem; font-weight: 800; letter-spacing: 0.5px; line-height: 1.2; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); }
         .header-title p { font-size: 1.1rem; color: #93c5fd; font-weight: 600; }
@@ -66,19 +79,26 @@
 
         /* मुख्य लेआउट संरचना */
         .main-layout {
-            display: grid;
-            grid-template-columns: 1fr 420px; 
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-flex-direction: row;
+            flex-direction: row;
+            -webkit-box-flex: 1;
+            -webkit-flex: 1;
             flex: 1;
-            height: calc(100vh - 150px); 
+            height: calc(100vh - 150px);
             background: #f8fafc;
         }
+        .charter-section { -webkit-box-flex: 1; -webkit-flex: 1 1 auto; flex: 1 1 auto; min-width: 0; }
+        .sidebar-section { -webkit-flex: 0 0 420px; flex: 0 0 420px; width: 420px; }
 
         /* बायाँ भाग: बडापत्र तालिका स्क्रोलर */
         .charter-section {
             padding: 15px;
             overflow: hidden;
             position: relative;
-            display: flex;
+            display: -webkit-box; display: -webkit-flex; display: flex;
             flex-direction: column;
             border-right: 2px solid #e2e8f0;
         }
@@ -90,15 +110,16 @@
             font-size: 1.35rem;
             font-weight: 700;
             border-radius: 8px 8px 0 0;
-            display: flex;
+            display: -webkit-box; display: -webkit-flex; display: flex;
             align-items: center;
             gap: 10px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
 
         .table-header-row {
-            display: grid;
-            grid-template-columns: 50px 1fr 2.4fr 0.85fr 80px 80px 1fr;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
             background: var(--table-header-color);
             color: white;
             font-weight: 700;
@@ -110,13 +131,27 @@
 
         .table-header-row > div {
             padding: 0 10px;
+            display: -webkit-box;
+            display: -webkit-flex;
             display: flex;
+            -webkit-align-items: center;
             align-items: center;
+            -webkit-box-pack: start;
+            -webkit-justify-content: flex-start;
             justify-content: flex-start;
             border-right: 1px solid rgba(255,255,255,0.35);
         }
         .table-header-row > div:last-child { border-right: none; }
         .table-header-row > .center-ch, .charter-row > .center-ch { justify-content: center; text-align: center; }
+
+        /* पुरानो browser मा grid-template-columns काम नगर्ने भएकोले flex-basis प्रयोग गरियो */
+        .table-header-row > div:nth-child(1), .charter-row > div:nth-child(1) { -webkit-flex: 0 0 50px; flex: 0 0 50px; }
+        .table-header-row > div:nth-child(2), .charter-row > div:nth-child(2) { -webkit-flex: 1 1 0; flex: 1 1 0; }
+        .table-header-row > div:nth-child(3), .charter-row > div:nth-child(3) { -webkit-flex: 2.4 1 0; flex: 2.4 1 0; }
+        .table-header-row > div:nth-child(4), .charter-row > div:nth-child(4) { -webkit-flex: 0.85 1 0; flex: 0.85 1 0; }
+        .table-header-row > div:nth-child(5), .charter-row > div:nth-child(5) { -webkit-flex: 0 0 80px; flex: 0 0 80px; }
+        .table-header-row > div:nth-child(6), .charter-row > div:nth-child(6) { -webkit-flex: 0 0 80px; flex: 0 0 80px; }
+        .table-header-row > div:nth-child(7), .charter-row > div:nth-child(7) { -webkit-flex: 1 1 0; flex: 1 1 0; }
 
         .scroller-viewport {
             flex: 1;
@@ -135,12 +170,14 @@
             top: 0;
             left: 0;
             will-change: transform;
+            -webkit-backface-visibility: hidden;
             backface-visibility: hidden;
         }
 
         .charter-row {
-            display: grid;
-            grid-template-columns: 50px 1fr 2.4fr 0.85fr 80px 80px 1fr;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
             border-bottom: 1px solid var(--border-red);
             background: #ffffff;
             font-size: 1.05rem;
@@ -150,7 +187,10 @@
 
         .charter-row > div {
             padding: 12px 10px;
+            display: -webkit-box;
+            display: -webkit-flex;
             display: flex;
+            -webkit-align-items: center;
             align-items: center;
             color: var(--text-dark);
             line-height: 1.4;
@@ -169,7 +209,7 @@
         /* दायाँ भाग: साइडबार */
         .sidebar-section {
             background: #ffffff;
-            display: flex;
+            display: -webkit-box; display: -webkit-flex; display: flex;
             flex-direction: column;
             overflow: hidden;
             border-left: 1px solid #e2e8f0;
@@ -178,7 +218,7 @@
 
         .sidebar-panel {
             flex: 1;
-            display: flex;
+            display: -webkit-box; display: -webkit-flex; display: flex;
             flex-direction: column;
             overflow: hidden;
             position: relative;
@@ -191,7 +231,7 @@
             font-size: 1.2rem;
             font-weight: 700;
             text-align: center;
-            display: flex;
+            display: -webkit-box; display: -webkit-flex; display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
@@ -212,10 +252,11 @@
             position: absolute;
             width: calc(100% - 20px);
             top: 0;
-            display: flex;
+            display: -webkit-box; display: -webkit-flex; display: flex;
             flex-direction: column;
             gap: 10px;
             will-change: transform;
+            -webkit-backface-visibility: hidden;
             backface-visibility: hidden;
         }
 
@@ -224,14 +265,17 @@
             background: white;
             border-radius: 12px;
             padding: 10px 15px;
-            display: grid;
-            grid-template-columns: 85px 1fr;
-            gap: 12px;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-align-items: center;
             align-items: center;
             box-shadow: 0 4px 6px rgba(0,0,0,0.04);
             border: 1px solid #e2e8f0;
             border-left: 5px solid var(--primary-blue);
         }
+        .info-card .display-profile-img { -webkit-flex: 0 0 85px; flex: 0 0 85px; margin-right: 12px; }
+        .info-card .card-details { -webkit-flex: 1 1 auto; flex: 1 1 auto; min-width: 0; }
 
         .info-card.rep-card { border-left-color: var(--accent-red); }
 
@@ -248,7 +292,7 @@
         .card-details h3 { font-size: 1.15rem; color: #0f172a; font-weight: 700; margin-bottom: 2px; }
         .card-details .designation { font-size: 0.95rem; color: var(--accent-red); font-weight: 700; margin-bottom: 3px; }
         .info-card.rep-card .card-details .designation { color: var(--primary-blue); }
-        .card-details .meta-info { font-size: 0.9rem; color: var(--text-muted); font-weight: 600; display: flex; align-items: center; gap: 5px; }
+        .card-details .meta-info { font-size: 0.9rem; color: var(--text-muted); font-weight: 600; display: -webkit-box; display: -webkit-flex; display: flex; align-items: center; gap: 5px; }
         .card-details .meta-info i { color: #94a3b8; width: 14px; }
 
         /* तलको स्क्रोलिङ टिकर सूचना पट्टी */
@@ -256,7 +300,7 @@
             background: #0f172a;
             color: #ffffff;
             height: 55px;
-            display: flex;
+            display: -webkit-box; display: -webkit-flex; display: flex;
             align-items: center;
             overflow: hidden;
             border-top: 4px solid var(--gold);
@@ -267,7 +311,7 @@
             background: var(--accent-red);
             padding: 0 24px;
             height: 100%;
-            display: flex;
+            display: -webkit-box; display: -webkit-flex; display: flex;
             align-items: center;
             font-weight: 800;
             font-size: 1.2rem;
@@ -277,13 +321,14 @@
             position: relative;
         }
 
-        .ticker-viewport { flex: 1; overflow: hidden; position: relative; height: 100%; display: flex; align-items: center; }
+        .ticker-viewport { flex: 1; overflow: hidden; position: relative; height: 100%; display: -webkit-box; display: -webkit-flex; display: flex; align-items: center; }
         
         .ticker-wrap {
             display: inline-block;
             white-space: nowrap;
             position: absolute;
             will-change: transform;
+            -webkit-backface-visibility: hidden;
             backface-visibility: hidden;
             font-size: 1.25rem;
             font-weight: 600;
@@ -321,6 +366,62 @@
             100% { transform: scale(1); opacity: 1; }
         }
 
+        /* विशेष सूचना (Popup) - Comment + Image */
+        .special-notice-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.96);
+            z-index: 1100;
+            color: white;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .notice-box {
+            background: rgba(255, 255, 255, 0.06);
+            padding: 35px 50px;
+            border-radius: 24px;
+            border: 2px solid #7c3aed;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            max-width: 850px;
+            width: 90%;
+        }
+
+        .notice-box .notice-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: #7c3aed;
+            color: white;
+            font-size: 1.3rem;
+            font-weight: 800;
+            padding: 8px 22px;
+            border-radius: 30px;
+            margin-bottom: 22px;
+        }
+
+        #notice-overlay-img {
+            display: block;
+            max-width: 100%;
+            max-height: 320px;
+            border-radius: 14px;
+            margin: 0 auto 22px auto;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+            object-fit: cover;
+            text-align: center;
+        }
+
+        .notice-box .notice-comment {
+            font-size: 1.7rem;
+            font-weight: 700;
+            color: #f8fafc;
+            line-height: 1.5;
+            text-align: center;
+        }
+
         /* फुलस्क्रिन बटन */
         .fs-toggle-btn {
             position: fixed; top: 12px; right: 325px; z-index: 100;
@@ -348,9 +449,17 @@
     </div>
 </div>
 
+<div id="special-notice-overlay" class="special-notice-overlay">
+    <div class="notice-box">
+        <div class="notice-label"><i class="fa-solid fa-bullhorn"></i> विशेष सूचना</div>
+        <img id="notice-overlay-img" src="" alt="सूचना तस्बिर" style="display:none;">
+        <p class="notice-comment" id="notice-overlay-text"></p>
+    </div>
+</div>
+
 <header class="main-header">
     <div class="header-left">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/2/23/Emblem_of_Nepal.svg" alt="Nepal Gov Logo" class="gov-logo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/2/23/Emblem_of_Nepal.svg" alt="Nepal Gov Logo" class="gov-logo" decoding="async">
         <div class="header-title">
             <h1>गलकोट नगरपालिका</h1>
             <p>नगर कार्यपालिकाको कार्यालय, गण्डकी प्रदेश, नेपाल</p>
@@ -413,6 +522,12 @@
     const supabaseUrl = 'https://recupgxqzdylfsofocoh.supabase.co';
     const supabaseKey = 'sb_publishable_vMKzojpH_65z61V_cV1Hqw_izgIlXBD';
     const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+    // पुरानो Sony TV को WebKit browser ले unprefixed transform नबुझ्न सक्ने भएकोले दुबै सेट गरिन्छ
+    function setTransform(el, value) {
+        el.style.webkitTransform = value;
+        el.style.transform = value;
+    }
 
     function convertToNepaliNumerals(numStr) {
         if (numStr === null || numStr === undefined) return '';
@@ -505,7 +620,7 @@
             card.className = 'info-card';
             const img = item.photo_url ? item.photo_url : 'https://via.placeholder.com/180';
             card.innerHTML = `
-                <img src="${img}" class="display-profile-img">
+                <img src="${img}" class="display-profile-img" loading="lazy" decoding="async">
                 <div class="card-details">
                     <h3>${item.name}</h3>
                     <p class="designation">${item.designation}</p>
@@ -528,7 +643,7 @@
             card.className = 'info-card rep-card';
             const img = item.photo_url ? item.photo_url : 'https://via.placeholder.com/180';
             card.innerHTML = `
-                <img src="${img}" class="display-profile-img">
+                <img src="${img}" class="display-profile-img" loading="lazy" decoding="async">
                 <div class="card-details">
                     <h3>${item.name}</h3>
                     <p class="designation">${item.designation}</p>
@@ -549,6 +664,61 @@
         animationTimers = [];
     }
 
+    // ================= विशेष सूचना (Popup) - Comment + Image =================
+    // Admin ले "Play" बटन थिचेर सक्रिय गरेको सूचना live हुन्छ र त्यसपछि यो पप-अप
+    // हरेक ३ पटक (charter/data) पूरा दोहोरिने चक्र (cycle) पछि फेरि-फेरि (repeat)
+    // देखिन्छ — जबसम्म Admin ले "रोक्नुहोस्/Clear" गर्दैन (is_active=false नहुन्जेल)।
+    let specialNoticeConfig = null;
+    let noticeShowing = false;
+    let cycleCount = 0; // डाटा कति पटक पूरा दोहोरियो भनेर गन्ती
+    const CYCLES_BEFORE_NOTICE = 3; // यति पटक चक्र पूरा भएपछि सूचना देखाउने
+    const NOTICE_DISPLAY_MS = 30000; // सूचना ३० सेकेन्डसम्म देखिने
+
+    // डाटाको एक पूरा दोहोरिने चक्र (scroll cycle) सकिँदा यो कल हुन्छ।
+    // सूचना active नभएसम्म गन्ती गर्दैन; active भएपछि हरेक ३ चक्रमा एक पटक पप-अप देखाउँछ।
+    function registerCycleComplete() {
+        if (!specialNoticeConfig || !specialNoticeConfig.is_active) {
+            cycleCount = 0;
+            return;
+        }
+        if (noticeShowing) return; // सूचना अहिले नै देखिरहेको छ भने गन्ती नगर्ने
+        cycleCount++;
+        if (cycleCount >= CYCLES_BEFORE_NOTICE) {
+            cycleCount = 0;
+            showSpecialNoticeIfActive();
+        }
+    }
+
+    function showSpecialNoticeIfActive() {
+        if (!specialNoticeConfig || !specialNoticeConfig.is_active) return;
+        if (!specialNoticeConfig.reason && !specialNoticeConfig.image_url) return;
+        if (noticeShowing) return; // पहिले नै देखाइरहेको बेला दोहोर्याउने छैन
+
+        noticeShowing = true;
+        cycleCount = 0;
+        const overlay = document.getElementById('special-notice-overlay');
+        const img = document.getElementById('notice-overlay-img');
+        const txt = document.getElementById('notice-overlay-text');
+
+        txt.innerText = specialNoticeConfig.reason || '';
+        if (specialNoticeConfig.image_url) {
+            // तस्बिर भएको खण्डमा तस्बिर बीचमा (center) देखाउने
+            img.src = specialNoticeConfig.image_url;
+            img.style.display = 'block';
+            txt.style.display = specialNoticeConfig.reason ? 'block' : 'none';
+        } else {
+            // तस्बिर नभएको खण्डमा क्याप्शन/text बीचमा (center) देखाउने
+            img.style.display = 'none';
+            txt.style.display = 'block';
+        }
+
+        overlay.style.display = 'flex';
+        setTimeout(() => {
+            overlay.style.display = 'none';
+            noticeShowing = false;
+        }, NOTICE_DISPLAY_MS);
+    }
+
     function coreAutomationEngine() {
         clearAllTimers();
 
@@ -563,7 +733,8 @@
                 currentY -= scrollSpeed;
                 if (Math.abs(currentY) >= (vContent.offsetHeight - vViewport.offsetHeight + 40)) {
                     currentY = 0;
-                    vContent.style.transform = `translateY(${currentY}px)`;
+                    setTransform(vContent, "translateY(" + currentY + "px)");
+                    registerCycleComplete(); // एक पूरा दोहोरिने चक्र (cycle) सकियो
                     let tId = setTimeout(() => {
                         let rId = requestAnimationFrame(stepVerticalScroll);
                         animationTimers.push({ id: rId, type: 'raf' });
@@ -571,7 +742,7 @@
                     animationTimers.push({ id: tId, type: 'timeout' });
                     return;
                 }
-                vContent.style.transform = `translateY(${currentY}px)`;
+                setTransform(vContent, "translateY(" + currentY + "px)");
                 let rId = requestAnimationFrame(stepVerticalScroll);
                 animationTimers.push({ id: rId, type: 'raf' });
             }
@@ -581,6 +752,11 @@
                 animationTimers.push({ id: rId, type: 'raf' });
             }, 2000);
             animationTimers.push({ id: initialT, type: 'timeout' });
+        } else {
+            // डाटा एउटै स्क्रिनमा अटेर स्क्रोल आवश्यक नपरेको अवस्थामा पनि
+            // समय-आधारित चक्र (cycle) गन्तिको लागि ब्याकअप टाइमर
+            let fallbackInterval = setInterval(registerCycleComplete, 20000);
+            animationTimers.push({ id: fallbackInterval, type: 'interval' });
         }
 
         setupSidebarAutoScroll('rep-viewport', 'rep-grid');
@@ -600,7 +776,7 @@
                 if (currentX <= -tContainer.offsetWidth) {
                     currentX = tViewport.offsetWidth;
                 }
-                tContainer.style.transform = `translateX(${currentX}px)`;
+                setTransform(tContainer, "translateX(" + currentX + "px)");
                 let rId = requestAnimationFrame(stepHorizontalTicker);
                 animationTimers.push({ id: rId, type: 'raf' });
             }
@@ -622,7 +798,7 @@
                 currentY -= speed;
                 if (Math.abs(currentY) >= (cnt.offsetHeight - vp.offsetHeight + 20)) {
                     currentY = 0;
-                    cnt.style.transform = `translateY(${currentY}px)`;
+                    setTransform(cnt, "translateY(" + currentY + "px)");
                     let tId = setTimeout(() => {
                         let rId = requestAnimationFrame(scrollSide);
                         animationTimers.push({ id: rId, type: 'raf' });
@@ -630,7 +806,7 @@
                     animationTimers.push({ id: tId, type: 'timeout' });
                     return;
                 }
-                cnt.style.transform = `translateY(${currentY}px)`;
+                setTransform(cnt, "translateY(" + currentY + "px)");
                 let rId = requestAnimationFrame(scrollSide);
                 animationTimers.push({ id: rId, type: 'raf' });
             }
@@ -661,6 +837,19 @@
                     tickerContainer.appendChild(span);
                 }
             });
+        }
+
+        const wasActive = !!(specialNoticeConfig && specialNoticeConfig.is_active);
+        specialNoticeConfig = data.find(x => x.id === 3) || null;
+        const isNowActive = !!(specialNoticeConfig && specialNoticeConfig.is_active);
+
+        // सूचना नयाँ-नयाँ सक्रिय (Play) भएको बेला मात्र चक्र-गन्ती शून्यबाट सुरु गर्ने,
+        // ताकि Play थिचेपछिको ३ चक्र सफा तरिकाले गनिन्छ।
+        if (isNowActive && !wasActive) {
+            cycleCount = 0;
+        }
+        if (!isNowActive) {
+            cycleCount = 0;
         }
 
         const breakConfig = data.find(x => x.id === 1);
@@ -704,10 +893,37 @@
     supabaseClient.channel('realtime-charter').on('postgres_changes', { event: '*', schema: 'public', table: 'citizen_charter' }, () => loadCharterData().then(() => coreAutomationEngine())).subscribe();
     supabaseClient.channel('realtime-employees').on('postgres_changes', { event: '*', schema: 'public', table: 'employees' }, () => loadStaffData().then(() => coreAutomationEngine())).subscribe();
     supabaseClient.channel('realtime-reps').on('postgres_changes', { event: '*', schema: 'public', table: 'representatives' }, () => loadRepData().then(() => coreAutomationEngine())).subscribe();
-    supabaseClient.channel('realtime-break').on('postgres_changes', { event: '*', schema: 'public', table: 'break_settings' }, () => checkBreakAndConfigStatus()).subscribe();
+    supabaseClient.channel('realtime-break').on('postgres_changes', { event: '*', schema: 'public', table: 'break_settings' }, (payload) => {
+        checkBreakAndConfigStatus().then(() => {
+            // यदि परिवर्तन भएको row विशेष सूचना (id = 3) को हो भने,
+            // Admin ले भर्खरै "सुरक्षित गर्नुहोस्" बटन थिचेको मानेर पप-अप देखाउने
+            const changedId = (payload && payload.new && payload.new.id) || (payload && payload.old && payload.old.id);
+            if (changedId === 3) {
+                // Admin ले "Play" थिचेको बित्तिकै तुरुन्तै पप-अप देखाउने (चक्र नकुरी)
+                showSpecialNoticeIfActive();
+            }
+        });
+    }).subscribe();
 
     Promise.all([loadCharterData(), loadStaffData(), loadRepData()]).then(async () => {
         await checkBreakAndConfigStatus();
+    });
+
+    // कमजोर/अस्थिर 3G नेटवर्कमा realtime websocket बीचमा टुट्न सक्ने भएकोले
+    // सुरक्षाको लागि हरेक ५ मिनेटमा डाटा पुनः लोड गरिन्छ (backup polling)
+    setInterval(function () {
+        Promise.all([loadCharterData(), loadStaffData(), loadRepData()]).then(function () {
+            coreAutomationEngine();
+        });
+        checkBreakAndConfigStatus();
+    }, 5 * 60 * 1000);
+
+    // नेटवर्क फेरि जोडिएपछि तुरुन्तै डाटा ताजा गर्ने
+    window.addEventListener('online', function () {
+        Promise.all([loadCharterData(), loadStaffData(), loadRepData()]).then(function () {
+            coreAutomationEngine();
+        });
+        checkBreakAndConfigStatus();
     });
 </script>
 </body>
