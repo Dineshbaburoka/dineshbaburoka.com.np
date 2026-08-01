@@ -11,15 +11,19 @@
     <!-- 3G मा छिटो लोड होस् भनेर आवश्यक पर्ने font weight मात्र (400,700) राखियो -->
     <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- धेरै पुरानो TV browser (Promise/fetch नभएको) को लागि polyfill; नयाँ browser मा यो स्वतः skip हुन्छ -->
+    <!-- नोट: polyfill.io सेवा बन्द भई सुरक्षा जोखिमका कारण हटाइयो (2024 मा compromise भएको थियो)।
+         @supabase/supabase-js लाइब्रेरी पनि हटाइयो किनभने त्यो आधुनिक JS bundle भएकोले धेरै पुरानो
+         Sony TV browser मा नै parse हुन नसकेर पूरै <script> block फेल हुँदै थियो — डाटा नआउनुको
+         मुख्य कारण यही थियो। बदलामा तलको स्क्रिप्टले plain XMLHttpRequest मार्फत सिधै Supabase
+         REST API कल गर्छ, र सम्पूर्ण कोड ES5 (धेरै पुरानो browser-compatible) मा compile गरिएको छ। -->
+    <!-- धेरै पुरानो TV मा native Promise नहुन सक्ने भएकोले भरपर्दो cdnjs बाट मात्र polyfill लोड गरिन्छ -->
     <script>
         (function () {
-            if (!window.fetch || !window.Promise || !window.Symbol) {
-                document.write('<script src="https://polyfill.io/v3/polyfill.min.js?features=Promise%2Cfetch%2CArray.prototype.includes%2CObject.assign%2CSymbol"><\/script>');
+            if (!window.Promise) {
+                document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/es6-promise/4.2.8/es6-promise.auto.min.js"><\/script>');
             }
         })();
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
         :root {
@@ -519,412 +523,575 @@
 </footer>
 
 <script>
-    const supabaseUrl = 'https://recupgxqzdylfsofocoh.supabase.co';
-    const supabaseKey = 'sb_publishable_vMKzojpH_65z61V_cV1Hqw_izgIlXBD';
-    const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-    // पुरानो Sony TV को WebKit browser ले unprefixed transform नबुझ्न सक्ने भएकोले दुबै सेट गरिन्छ
-    function setTransform(el, value) {
-        el.style.webkitTransform = value;
-        el.style.transform = value;
-    }
+function _regenerator() { /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/babel/babel/blob/main/packages/babel-helpers/LICENSE */ var e, t, r = "function" == typeof Symbol ? Symbol : {}, n = r.iterator || "@@iterator", o = r.toStringTag || "@@toStringTag"; function i(r, n, o, i) { var c = n && n.prototype instanceof Generator ? n : Generator, u = Object.create(c.prototype); return _regeneratorDefine2(u, "_invoke", function (r, n, o) { var i, c, u, f = 0, p = o || [], y = !1, G = { p: 0, n: 0, v: e, a: d, f: d.bind(e, 4), d: function d(t, r) { return i = t, c = 0, u = e, G.n = r, a; } }; function d(r, n) { for (c = r, u = n, t = 0; !y && f && !o && t < p.length; t++) { var o, i = p[t], d = G.p, l = i[2]; r > 3 ? (o = l === n) && (u = i[(c = i[4]) ? 5 : (c = 3, 3)], i[4] = i[5] = e) : i[0] <= d && ((o = r < 2 && d < i[1]) ? (c = 0, G.v = n, G.n = i[1]) : d < l && (o = r < 3 || i[0] > n || n > l) && (i[4] = r, i[5] = n, G.n = l, c = 0)); } if (o || r > 1) return a; throw y = !0, n; } return function (o, p, l) { if (f > 1) throw TypeError("Generator is already running"); for (y && 1 === p && d(p, l), c = p, u = l; (t = c < 2 ? e : u) || !y;) { i || (c ? c < 3 ? (c > 1 && (G.n = -1), d(c, u)) : G.n = u : G.v = u); try { if (f = 2, i) { if (c || (o = "next"), t = i[o]) { if (!(t = t.call(i, u))) throw TypeError("iterator result is not an object"); if (!t.done) return t; u = t.value, c < 2 && (c = 0); } else 1 === c && (t = i.return) && t.call(i), c < 2 && (u = TypeError("The iterator does not provide a '" + o + "' method"), c = 1); i = e; } else if ((t = (y = G.n < 0) ? u : r.call(n, G)) !== a) break; } catch (t) { i = e, c = 1, u = t; } finally { f = 1; } } return { value: t, done: y }; }; }(r, o, i), !0), u; } var a = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} t = Object.getPrototypeOf; var c = [][n] ? t(t([][n]())) : (_regeneratorDefine2(t = {}, n, function () { return this; }), t), u = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(c); function f(e) { return Object.setPrototypeOf ? Object.setPrototypeOf(e, GeneratorFunctionPrototype) : (e.__proto__ = GeneratorFunctionPrototype, _regeneratorDefine2(e, o, "GeneratorFunction")), e.prototype = Object.create(u), e; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, _regeneratorDefine2(u, "constructor", GeneratorFunctionPrototype), _regeneratorDefine2(GeneratorFunctionPrototype, "constructor", GeneratorFunction), GeneratorFunction.displayName = "GeneratorFunction", _regeneratorDefine2(GeneratorFunctionPrototype, o, "GeneratorFunction"), _regeneratorDefine2(u), _regeneratorDefine2(u, o, "Generator"), _regeneratorDefine2(u, n, function () { return this; }), _regeneratorDefine2(u, "toString", function () { return "[object Generator]"; }), (_regenerator = function _regenerator() { return { w: i, m: f }; })(); }
+function _regeneratorDefine2(e, r, n, t) { var i = Object.defineProperty; try { i({}, "", {}); } catch (e) { i = 0; } _regeneratorDefine2 = function _regeneratorDefine(e, r, n, t) { function o(r, n) { _regeneratorDefine2(e, r, function (e) { return this._invoke(r, n, e); }); } r ? i ? i(e, r, { value: n, enumerable: !t, configurable: !t, writable: !t }) : e[r] = n : (o("next", 0), o("throw", 1), o("return", 2)); }, _regeneratorDefine2(e, r, n, t); }
+function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
+function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
+var supabaseUrl = 'https://recupgxqzdylfsofocoh.supabase.co';
+var supabaseKey = 'sb_publishable_vMKzojpH_65z61V_cV1Hqw_izgIlXBD';
 
-    function convertToNepaliNumerals(numStr) {
-        if (numStr === null || numStr === undefined) return '';
-        const nepaliDigits = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
-        return numStr.toString().replace(/[0-9]/g, match => nepaliDigits[parseInt(match)]);
-    }
-
-    function updateLiveClock() {
-        const now = new Date();
-        let hours = now.getHours();
-        let minutes = now.getMinutes();
-        let seconds = now.getSeconds();
-        
-        let timePeriodLabel = "";
-        if (hours >= 0 && hours < 4) timePeriodLabel = "राति";
-        else if (hours >= 4 && hours < 12) timePeriodLabel = "बिहान";
-        else if (hours >= 12 && hours < 16) timePeriodLabel = "दिउँसो";
-        else if (hours >= 16 && hours < 20) timePeriodLabel = "अपराह्न";
-        else timePeriodLabel = "राति";
-        
-        let displayHours = hours % 12;
-        displayHours = displayHours ? displayHours : 12;
-        
-        let formattedHours = displayHours < 10 ? '0' + displayHours : displayHours;
-        let formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
-        let formattedSeconds = seconds < 10 ? '0' + seconds : seconds;
-        
-        document.getElementById('live-time').innerText = convertToNepaliNumerals(`${timePeriodLabel} ${formattedHours}:${formattedMinutes}:${formattedSeconds} बजे`);
-    }
-    
-    setInterval(updateLiveClock, 1000);
-    updateLiveClock();
-
-    document.addEventListener('fullscreenchange', () => {
-        const fsBtn = document.getElementById('fullscreen-btn');
-        if (document.fullscreenElement) {
-            fsBtn.style.display = 'none'; 
-        } else {
-            fsBtn.style.display = 'block'; 
-        }
-    });
-
-    function toggleFullScreen() {
-        if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen().catch(err => alert(err.message));
-        } else {
-            document.exitFullscreen();
-        }
-    }
-
-    // परिमार्जन गरिएको loadCharterData फङ्सन (Rank को आधारमा Sort हुने गरि)
-    async function loadCharterData() {
-        const { data, error } = await supabaseClient.from('citizen_charter').select('*').order('rank', { ascending: true });
-        if (error || !data) return;
-
-        const container = document.getElementById('charter-table-body');
-        container.innerHTML = '';
-
-        data.forEach((item, index) => {
-            let formattedDocs = '-';
-            if (item.documents) {
-                let docArray = item.documents.split(',');
-                let numberedDocs = docArray.map((doc, i) => `${i + 1}. ${doc.trim()}`).join('<br>');
-                formattedDocs = convertToNepaliNumerals(numberedDocs);
-            }
-
-            const row = document.createElement('div');
-            row.className = 'charter-row';
-            row.innerHTML = `
-                <div class="sn-cell center-ch">${convertToNepaliNumerals(index + 1)}</div>
-                <div class="service-cell">${item.service_name}</div>
-                <div class="doc-cell">${formattedDocs}</div>
-                <div class="dept-cell">${item.department}</div>
-                <div class="time-cell center-ch">${convertToNepaliNumerals(item.duration)}</div>
-                <div class="cost-cell center-ch">${convertToNepaliNumerals(item.cost)}</div>
-                <div class="grievance-cell">${item.grievance_redressal_officer ? item.grievance_redressal_officer : '-'}</div>
-            `;
-            container.appendChild(row);
-        });
-    }
-
-    async function loadStaffData() {
-        const { data, error } = await supabaseClient.from('employees').select('*').order('rank', { ascending: true });
-        if (error || !data) return;
-
-        const grid = document.getElementById('staff-grid');
-        grid.innerHTML = '';
-        data.forEach(item => {
-            const card = document.createElement('div');
-            card.className = 'info-card';
-            const img = item.photo_url ? item.photo_url : 'https://via.placeholder.com/180';
-            card.innerHTML = `
-                <img src="${img}" class="display-profile-img" loading="lazy" decoding="async">
-                <div class="card-details">
-                    <h3>${item.name}</h3>
-                    <p class="designation">${item.designation}</p>
-                    <p class="meta-info"><i class="fa-solid fa-door-open"></i> शाखा/कोठा नं: ${convertToNepaliNumerals(item.room_no)}</p>
-                    ${item.phone ? `<p class="meta-info"><i class="fa-solid fa-phone"></i> ${convertToNepaliNumerals(item.phone)}</p>` : ''}
-                </div>
-            `;
-            grid.appendChild(card);
-        });
-    }
-
-    async function loadRepData() {
-        const { data, error } = await supabaseClient.from('representatives').select('*').order('rank', { ascending: true });
-        if (error || !data) return;
-
-        const grid = document.getElementById('rep-grid');
-        grid.innerHTML = '';
-        data.forEach(item => {
-            const card = document.createElement('div');
-            card.className = 'info-card rep-card';
-            const img = item.photo_url ? item.photo_url : 'https://via.placeholder.com/180';
-            card.innerHTML = `
-                <img src="${img}" class="display-profile-img" loading="lazy" decoding="async">
-                <div class="card-details">
-                    <h3>${item.name}</h3>
-                    <p class="designation">${item.designation}</p>
-                    ${item.contact ? `<p class="meta-info"><i class="fa-solid fa-phone"></i> ${convertToNepaliNumerals(item.contact)}</p>` : ''}
-                </div>
-            `;
-            grid.appendChild(card);
-        });
-    }
-
-    let animationTimers = [];
-    function clearAllTimers() {
-        animationTimers.forEach(t => {
-            if (t.type === 'interval') clearInterval(t.id);
-            if (t.type === 'timeout') clearTimeout(t.id);
-            if (t.type === 'raf') cancelAnimationFrame(t.id);
-        });
-        animationTimers = [];
-    }
-
-    // ================= विशेष सूचना (Popup) - Comment + Image =================
-    // Admin ले "Play" बटन थिचेर सक्रिय गरेको सूचना live हुन्छ र त्यसपछि यो पप-अप
-    // हरेक ३ पटक (charter/data) पूरा दोहोरिने चक्र (cycle) पछि फेरि-फेरि (repeat)
-    // देखिन्छ — जबसम्म Admin ले "रोक्नुहोस्/Clear" गर्दैन (is_active=false नहुन्जेल)।
-    let specialNoticeConfig = null;
-    let noticeShowing = false;
-    let cycleCount = 0; // डाटा कति पटक पूरा दोहोरियो भनेर गन्ती
-    const CYCLES_BEFORE_NOTICE = 1; // यति पटक चक्र पूरा भएपछि सूचना देखाउने
-    const NOTICE_DISPLAY_MS = 30000; // सूचना ३० सेकेन्डसम्म देखिने
-
-    // डाटाको एक पूरा दोहोरिने चक्र (scroll cycle) सकिँदा यो कल हुन्छ।
-    // सूचना active नभएसम्म गन्ती गर्दैन; active भएपछि हरेक ३ चक्रमा एक पटक पप-अप देखाउँछ।
-    function registerCycleComplete() {
-        if (!specialNoticeConfig || !specialNoticeConfig.is_active) {
-            cycleCount = 0;
-            return;
-        }
-        if (noticeShowing) return; // सूचना अहिले नै देखिरहेको छ भने गन्ती नगर्ने
-        cycleCount++;
-        if (cycleCount >= CYCLES_BEFORE_NOTICE) {
-            cycleCount = 0;
-            showSpecialNoticeIfActive();
-        }
-    }
-
-    function showSpecialNoticeIfActive() {
-        if (!specialNoticeConfig || !specialNoticeConfig.is_active) return;
-        if (!specialNoticeConfig.reason && !specialNoticeConfig.image_url) return;
-        if (noticeShowing) return; // पहिले नै देखाइरहेको बेला दोहोर्याउने छैन
-
-        noticeShowing = true;
-        cycleCount = 0;
-        const overlay = document.getElementById('special-notice-overlay');
-        const img = document.getElementById('notice-overlay-img');
-        const txt = document.getElementById('notice-overlay-text');
-
-        txt.innerText = specialNoticeConfig.reason || '';
-        if (specialNoticeConfig.image_url) {
-            // तस्बिर भएको खण्डमा तस्बिर बीचमा (center) देखाउने
-            img.src = specialNoticeConfig.image_url;
-            img.style.display = 'block';
-            txt.style.display = specialNoticeConfig.reason ? 'block' : 'none';
-        } else {
-            // तस्बिर नभएको खण्डमा क्याप्शन/text बीचमा (center) देखाउने
-            img.style.display = 'none';
-            txt.style.display = 'block';
-        }
-
-        overlay.style.display = 'flex';
-        setTimeout(() => {
-            overlay.style.display = 'none';
-            noticeShowing = false;
-        }, NOTICE_DISPLAY_MS);
-    }
-
-    function coreAutomationEngine() {
-        clearAllTimers();
-
-        const vViewport = document.getElementById('charter-viewport');
-        const vContent = document.getElementById('charter-table-body');
-        
-        if (vContent.offsetHeight > vViewport.offsetHeight) {
-            let currentY = 0;
-            const scrollSpeed = 0.9;
-
-            function stepVerticalScroll() {
-                currentY -= scrollSpeed;
-                if (Math.abs(currentY) >= (vContent.offsetHeight - vViewport.offsetHeight + 40)) {
-                    currentY = 0;
-                    setTransform(vContent, "translateY(" + currentY + "px)");
-                    registerCycleComplete(); // एक पूरा दोहोरिने चक्र (cycle) सकियो
-                    let tId = setTimeout(() => {
-                        let rId = requestAnimationFrame(stepVerticalScroll);
-                        animationTimers.push({ id: rId, type: 'raf' });
-                    }, 3000);
-                    animationTimers.push({ id: tId, type: 'timeout' });
-                    return;
-                }
-                setTransform(vContent, "translateY(" + currentY + "px)");
-                let rId = requestAnimationFrame(stepVerticalScroll);
-                animationTimers.push({ id: rId, type: 'raf' });
-            }
-            
-            let initialT = setTimeout(() => {
-                let rId = requestAnimationFrame(stepVerticalScroll);
-                animationTimers.push({ id: rId, type: 'raf' });
-            }, 2000);
-            animationTimers.push({ id: initialT, type: 'timeout' });
-        } else {
-            // डाटा एउटै स्क्रिनमा अटेर स्क्रोल आवश्यक नपरेको अवस्थामा पनि
-            // समय-आधारित चक्र (cycle) गन्तिको लागि ब्याकअप टाइमर
-            let fallbackInterval = setInterval(registerCycleComplete, 20000);
-            animationTimers.push({ id: fallbackInterval, type: 'interval' });
-        }
-
-        setupSidebarAutoScroll('rep-viewport', 'rep-grid');
-        setupSidebarAutoScroll('staff-viewport', 'staff-grid');
-
-        // ================= फिक्स गरिएको फुटर टिकर स्क्रोलिङ इन्जिन (Right to Left) =================
-        const tViewport = document.getElementById('ticker-viewport');
-        const tContainer = document.getElementById('ticker-container');
-        
-        if (tContainer && tViewport) {
-            let currentX = tViewport.offsetWidth; // दायाँ कुनाबाट सुरु हुने
-            const tickerSpeed = 1.3; // गति
-
-            function stepHorizontalTicker() {
-                currentX -= tickerSpeed;
-                // जब सम्पूर्ण अक्षर बायाँ पट्टी पुरै स्क्रिन बाहिर जान्छ तब पुनः दायाँबाट सुरु हुन्छ
-                if (currentX <= -tContainer.offsetWidth) {
-                    currentX = tViewport.offsetWidth;
-                }
-                setTransform(tContainer, "translateX(" + currentX + "px)");
-                let rId = requestAnimationFrame(stepHorizontalTicker);
-                animationTimers.push({ id: rId, type: 'raf' });
-            }
-            let rId = requestAnimationFrame(stepHorizontalTicker);
-            animationTimers.push({ id: rId, type: 'raf' });
-        }
-    }
-
-    function setupSidebarAutoScroll(viewportId, contentId) {
-        const vp = document.getElementById(viewportId);
-        const cnt = document.getElementById(contentId);
-        if (!vp || !cnt) return;
-
-        if (cnt.offsetHeight > vp.offsetHeight) {
-            let currentY = 0;
-            const speed = 1.4;
-
-            function scrollSide() {
-                currentY -= speed;
-                if (Math.abs(currentY) >= (cnt.offsetHeight - vp.offsetHeight + 20)) {
-                    currentY = 0;
-                    setTransform(cnt, "translateY(" + currentY + "px)");
-                    let tId = setTimeout(() => {
-                        let rId = requestAnimationFrame(scrollSide);
-                        animationTimers.push({ id: rId, type: 'raf' });
-                    }, 4000);
-                    animationTimers.push({ id: tId, type: 'timeout' });
-                    return;
-                }
-                setTransform(cnt, "translateY(" + currentY + "px)");
-                let rId = requestAnimationFrame(scrollSide);
-                animationTimers.push({ id: rId, type: 'raf' });
-            }
-            let tId = setTimeout(() => {
-                let rId = requestAnimationFrame(scrollSide);
-                animationTimers.push({ id: rId, type: 'raf' });
-            }, 2500);
-            animationTimers.push({ id: tId, type: 'timeout' });
-        }
-    }
-
-    let countdownInterval = null;
-
-    async function checkBreakAndConfigStatus() {
-        const { data, error } = await supabaseClient.from('break_settings').select('*');
-        if (error || !data) return;
-
-        const footerData = data.find(x => x.id === 2);
-        if (footerData && footerData.reason) {
-            const tickerContainer = document.getElementById('ticker-container');
-            tickerContainer.innerHTML = '';
-            const items = footerData.reason.split(',');
-            items.forEach(txt => {
-                if (txt.trim()) {
-                    const span = document.createElement('span');
-                    span.className = 'ticker-item';
-                    span.innerText = txt.trim();
-                    tickerContainer.appendChild(span);
-                }
+// ==================================================================================
+// धेरै पुरानो Sony TV browser (WebKit) मा @supabase/supabase-js लाइब्रेरी (जुन आधुनिक
+// JS bundle हो) लोड/parse नै नहुन सक्ने भएकोले, त्यो लाइब्रेरी प्रयोग नगरी XMLHttpRequest
+// (सबैभन्दा पुरानो TV मा समेत भरपर्दो) मार्फत सिधै Supabase को REST API लाई कल गरिन्छ।
+// ==================================================================================
+function sbRequest(path) {
+  return new Promise(function (resolve) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', supabaseUrl + '/rest/v1/' + path, true);
+    xhr.setRequestHeader('apikey', supabaseKey);
+    xhr.setRequestHeader('Authorization', 'Bearer ' + supabaseKey);
+    xhr.setRequestHeader('Accept', 'application/json');
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4) {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          var parsed = null;
+          try {
+            parsed = JSON.parse(xhr.responseText);
+          } catch (e) {
+            parsed = null;
+          }
+          if (parsed === null) {
+            resolve({
+              data: null,
+              error: 'parse-error'
             });
+          } else {
+            resolve({
+              data: parsed,
+              error: null
+            });
+          }
+        } else {
+          resolve({
+            data: null,
+            error: 'http-' + xhr.status
+          });
         }
+      }
+    };
+    xhr.onerror = function () {
+      resolve({
+        data: null,
+        error: 'network-error'
+      });
+    };
+    xhr.send();
+  });
+}
+var supabaseClient = {
+  from: function from(table) {
+    return {
+      select: function select() {
+        return {
+          order: function order(col, opts) {
+            var dir = opts && opts.ascending === false ? 'desc' : 'asc';
+            return sbRequest(table + '?select=*&order=' + col + '.' + dir);
+          },
+          then: function then(resolveFn, rejectFn) {
+            return sbRequest(table + '?select=*').then(resolveFn, rejectFn);
+          }
+        };
+      }
+    };
+  },
+  channel: function channel() {
+    // धेरै पुरानो TV browser मा websocket-आधारित realtime भरपर्दो नहुने भएकोले
+    // यसलाई निष्क्रिय (no-op) राखिएको छ; तल रहेको ५ मिनेटको backup polling र
+    // 'online' event ले नै डाटा ताजा राख्छ।
+    return {
+      on: function on() {
+        return this;
+      },
+      subscribe: function subscribe() {
+        return this;
+      }
+    };
+  }
+};
 
-        const wasActive = !!(specialNoticeConfig && specialNoticeConfig.is_active);
-        specialNoticeConfig = data.find(x => x.id === 3) || null;
-        const isNowActive = !!(specialNoticeConfig && specialNoticeConfig.is_active);
+// पुरानो Sony TV को WebKit browser ले unprefixed transform नबुझ्न सक्ने भएकोले दुबै सेट गरिन्छ
+function setTransform(el, value) {
+  el.style.webkitTransform = value;
+  el.style.transform = value;
+}
+function convertToNepaliNumerals(numStr) {
+  if (numStr === null || numStr === undefined) return '';
+  var nepaliDigits = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
+  return numStr.toString().replace(/[0-9]/g, function (match) {
+    return nepaliDigits[parseInt(match)];
+  });
+}
+function updateLiveClock() {
+  var now = new Date();
+  var hours = now.getHours();
+  var minutes = now.getMinutes();
+  var seconds = now.getSeconds();
+  var timePeriodLabel = "";
+  if (hours >= 0 && hours < 4) timePeriodLabel = "राति";else if (hours >= 4 && hours < 12) timePeriodLabel = "बिहान";else if (hours >= 12 && hours < 16) timePeriodLabel = "दिउँसो";else if (hours >= 16 && hours < 20) timePeriodLabel = "अपराह्न";else timePeriodLabel = "राति";
+  var displayHours = hours % 12;
+  displayHours = displayHours ? displayHours : 12;
+  var formattedHours = displayHours < 10 ? '0' + displayHours : displayHours;
+  var formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
+  var formattedSeconds = seconds < 10 ? '0' + seconds : seconds;
+  document.getElementById('live-time').innerText = convertToNepaliNumerals("".concat(timePeriodLabel, " ").concat(formattedHours, ":").concat(formattedMinutes, ":").concat(formattedSeconds, " \u092C\u091C\u0947"));
+}
+setInterval(updateLiveClock, 1000);
+updateLiveClock();
+document.addEventListener('fullscreenchange', function () {
+  var fsBtn = document.getElementById('fullscreen-btn');
+  if (document.fullscreenElement) {
+    fsBtn.style.display = 'none';
+  } else {
+    fsBtn.style.display = 'block';
+  }
+});
+function toggleFullScreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(function (err) {
+      return alert(err.message);
+    });
+  } else {
+    document.exitFullscreen();
+  }
+}
 
-        // सूचना नयाँ-नयाँ सक्रिय (Play) भएको बेला मात्र चक्र-गन्ती शून्यबाट सुरु गर्ने,
-        // ताकि Play थिचेपछिको ३ चक्र सफा तरिकाले गनिन्छ।
-        if (isNowActive && !wasActive) {
+// परिमार्जन गरिएको loadCharterData फङ्सन (Rank को आधारमा Sort हुने गरि)
+function loadCharterData() {
+  return _loadCharterData.apply(this, arguments);
+}
+function _loadCharterData() {
+  _loadCharterData = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2() {
+    var _yield$supabaseClient, data, error, container;
+    return _regenerator().w(function (_context2) {
+      while (1) switch (_context2.n) {
+        case 0:
+          _context2.n = 1;
+          return supabaseClient.from('citizen_charter').select('*').order('rank', {
+            ascending: true
+          });
+        case 1:
+          _yield$supabaseClient = _context2.v;
+          data = _yield$supabaseClient.data;
+          error = _yield$supabaseClient.error;
+          if (!(error || !data)) {
+            _context2.n = 2;
+            break;
+          }
+          return _context2.a(2);
+        case 2:
+          container = document.getElementById('charter-table-body');
+          container.innerHTML = '';
+          data.forEach(function (item, index) {
+            var formattedDocs = '-';
+            if (item.documents) {
+              var docArray = item.documents.split(',');
+              var numberedDocs = docArray.map(function (doc, i) {
+                return "".concat(i + 1, ". ").concat(doc.trim());
+              }).join('<br>');
+              formattedDocs = convertToNepaliNumerals(numberedDocs);
+            }
+            var row = document.createElement('div');
+            row.className = 'charter-row';
+            row.innerHTML = "\n                <div class=\"sn-cell center-ch\">".concat(convertToNepaliNumerals(index + 1), "</div>\n                <div class=\"service-cell\">").concat(item.service_name, "</div>\n                <div class=\"doc-cell\">").concat(formattedDocs, "</div>\n                <div class=\"dept-cell\">").concat(item.department, "</div>\n                <div class=\"time-cell center-ch\">").concat(convertToNepaliNumerals(item.duration), "</div>\n                <div class=\"cost-cell center-ch\">").concat(convertToNepaliNumerals(item.cost), "</div>\n                <div class=\"grievance-cell\">").concat(item.grievance_redressal_officer ? item.grievance_redressal_officer : '-', "</div>\n            ");
+            container.appendChild(row);
+          });
+        case 3:
+          return _context2.a(2);
+      }
+    }, _callee2);
+  }));
+  return _loadCharterData.apply(this, arguments);
+}
+function loadStaffData() {
+  return _loadStaffData.apply(this, arguments);
+}
+function _loadStaffData() {
+  _loadStaffData = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee3() {
+    var _yield$supabaseClient2, data, error, grid;
+    return _regenerator().w(function (_context3) {
+      while (1) switch (_context3.n) {
+        case 0:
+          _context3.n = 1;
+          return supabaseClient.from('employees').select('*').order('rank', {
+            ascending: true
+          });
+        case 1:
+          _yield$supabaseClient2 = _context3.v;
+          data = _yield$supabaseClient2.data;
+          error = _yield$supabaseClient2.error;
+          if (!(error || !data)) {
+            _context3.n = 2;
+            break;
+          }
+          return _context3.a(2);
+        case 2:
+          grid = document.getElementById('staff-grid');
+          grid.innerHTML = '';
+          data.forEach(function (item) {
+            var card = document.createElement('div');
+            card.className = 'info-card';
+            var img = item.photo_url ? item.photo_url : 'https://via.placeholder.com/180';
+            card.innerHTML = "\n                <img src=\"".concat(img, "\" class=\"display-profile-img\" loading=\"lazy\" decoding=\"async\">\n                <div class=\"card-details\">\n                    <h3>").concat(item.name, "</h3>\n                    <p class=\"designation\">").concat(item.designation, "</p>\n                    <p class=\"meta-info\"><i class=\"fa-solid fa-door-open\"></i> \u0936\u093E\u0916\u093E/\u0915\u094B\u0920\u093E \u0928\u0902: ").concat(convertToNepaliNumerals(item.room_no), "</p>\n                    ").concat(item.phone ? "<p class=\"meta-info\"><i class=\"fa-solid fa-phone\"></i> ".concat(convertToNepaliNumerals(item.phone), "</p>") : '', "\n                </div>\n            ");
+            grid.appendChild(card);
+          });
+        case 3:
+          return _context3.a(2);
+      }
+    }, _callee3);
+  }));
+  return _loadStaffData.apply(this, arguments);
+}
+function loadRepData() {
+  return _loadRepData.apply(this, arguments);
+}
+function _loadRepData() {
+  _loadRepData = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee4() {
+    var _yield$supabaseClient3, data, error, grid;
+    return _regenerator().w(function (_context4) {
+      while (1) switch (_context4.n) {
+        case 0:
+          _context4.n = 1;
+          return supabaseClient.from('representatives').select('*').order('rank', {
+            ascending: true
+          });
+        case 1:
+          _yield$supabaseClient3 = _context4.v;
+          data = _yield$supabaseClient3.data;
+          error = _yield$supabaseClient3.error;
+          if (!(error || !data)) {
+            _context4.n = 2;
+            break;
+          }
+          return _context4.a(2);
+        case 2:
+          grid = document.getElementById('rep-grid');
+          grid.innerHTML = '';
+          data.forEach(function (item) {
+            var card = document.createElement('div');
+            card.className = 'info-card rep-card';
+            var img = item.photo_url ? item.photo_url : 'https://via.placeholder.com/180';
+            card.innerHTML = "\n                <img src=\"".concat(img, "\" class=\"display-profile-img\" loading=\"lazy\" decoding=\"async\">\n                <div class=\"card-details\">\n                    <h3>").concat(item.name, "</h3>\n                    <p class=\"designation\">").concat(item.designation, "</p>\n                    ").concat(item.contact ? "<p class=\"meta-info\"><i class=\"fa-solid fa-phone\"></i> ".concat(convertToNepaliNumerals(item.contact), "</p>") : '', "\n                </div>\n            ");
+            grid.appendChild(card);
+          });
+        case 3:
+          return _context4.a(2);
+      }
+    }, _callee4);
+  }));
+  return _loadRepData.apply(this, arguments);
+}
+var animationTimers = [];
+function clearAllTimers() {
+  animationTimers.forEach(function (t) {
+    if (t.type === 'interval') clearInterval(t.id);
+    if (t.type === 'timeout') clearTimeout(t.id);
+    if (t.type === 'raf') cancelAnimationFrame(t.id);
+  });
+  animationTimers = [];
+}
+
+// ================= विशेष सूचना (Popup) - Comment + Image =================
+// Admin ले "Play" बटन थिचेर सक्रिय गरेको सूचना live हुन्छ र त्यसपछि यो पप-अप
+// हरेक ३ पटक (charter/data) पूरा दोहोरिने चक्र (cycle) पछि फेरि-फेरि (repeat)
+// देखिन्छ — जबसम्म Admin ले "रोक्नुहोस्/Clear" गर्दैन (is_active=false नहुन्जेल)।
+var specialNoticeConfig = null;
+var noticeShowing = false;
+var cycleCount = 0; // डाटा कति पटक पूरा दोहोरियो भनेर गन्ती
+var CYCLES_BEFORE_NOTICE = 1; // यति पटक चक्र पूरा भएपछि सूचना देखाउने
+var NOTICE_DISPLAY_MS = 30000; // सूचना ३० सेकेन्डसम्म देखिने
+
+// डाटाको एक पूरा दोहोरिने चक्र (scroll cycle) सकिँदा यो कल हुन्छ।
+// सूचना active नभएसम्म गन्ती गर्दैन; active भएपछि हरेक ३ चक्रमा एक पटक पप-अप देखाउँछ।
+function registerCycleComplete() {
+  if (!specialNoticeConfig || !specialNoticeConfig.is_active) {
+    cycleCount = 0;
+    return;
+  }
+  if (noticeShowing) return; // सूचना अहिले नै देखिरहेको छ भने गन्ती नगर्ने
+  cycleCount++;
+  if (cycleCount >= CYCLES_BEFORE_NOTICE) {
+    cycleCount = 0;
+    showSpecialNoticeIfActive();
+  }
+}
+function showSpecialNoticeIfActive() {
+  if (!specialNoticeConfig || !specialNoticeConfig.is_active) return;
+  if (!specialNoticeConfig.reason && !specialNoticeConfig.image_url) return;
+  if (noticeShowing) return; // पहिले नै देखाइरहेको बेला दोहोर्याउने छैन
+
+  noticeShowing = true;
+  cycleCount = 0;
+  var overlay = document.getElementById('special-notice-overlay');
+  var img = document.getElementById('notice-overlay-img');
+  var txt = document.getElementById('notice-overlay-text');
+  txt.innerText = specialNoticeConfig.reason || '';
+  if (specialNoticeConfig.image_url) {
+    // तस्बिर भएको खण्डमा तस्बिर बीचमा (center) देखाउने
+    img.src = specialNoticeConfig.image_url;
+    img.style.display = 'block';
+    txt.style.display = specialNoticeConfig.reason ? 'block' : 'none';
+  } else {
+    // तस्बिर नभएको खण्डमा क्याप्शन/text बीचमा (center) देखाउने
+    img.style.display = 'none';
+    txt.style.display = 'block';
+  }
+  overlay.style.display = 'flex';
+  setTimeout(function () {
+    overlay.style.display = 'none';
+    noticeShowing = false;
+  }, NOTICE_DISPLAY_MS);
+}
+function coreAutomationEngine() {
+  clearAllTimers();
+  var vViewport = document.getElementById('charter-viewport');
+  var vContent = document.getElementById('charter-table-body');
+  if (vContent.offsetHeight > vViewport.offsetHeight) {
+    var _stepVerticalScroll = function stepVerticalScroll() {
+      currentY -= scrollSpeed;
+      if (Math.abs(currentY) >= vContent.offsetHeight - vViewport.offsetHeight + 40) {
+        currentY = 0;
+        setTransform(vContent, "translateY(" + currentY + "px)");
+        registerCycleComplete(); // एक पूरा दोहोरिने चक्र (cycle) सकियो
+        var tId = setTimeout(function () {
+          var rId = requestAnimationFrame(_stepVerticalScroll);
+          animationTimers.push({
+            id: rId,
+            type: 'raf'
+          });
+        }, 3000);
+        animationTimers.push({
+          id: tId,
+          type: 'timeout'
+        });
+        return;
+      }
+      setTransform(vContent, "translateY(" + currentY + "px)");
+      var rId = requestAnimationFrame(_stepVerticalScroll);
+      animationTimers.push({
+        id: rId,
+        type: 'raf'
+      });
+    };
+    var currentY = 0;
+    var scrollSpeed = 0.9;
+    var initialT = setTimeout(function () {
+      var rId = requestAnimationFrame(_stepVerticalScroll);
+      animationTimers.push({
+        id: rId,
+        type: 'raf'
+      });
+    }, 2000);
+    animationTimers.push({
+      id: initialT,
+      type: 'timeout'
+    });
+  } else {
+    // डाटा एउटै स्क्रिनमा अटेर स्क्रोल आवश्यक नपरेको अवस्थामा पनि
+    // समय-आधारित चक्र (cycle) गन्तिको लागि ब्याकअप टाइमर
+    var fallbackInterval = setInterval(registerCycleComplete, 20000);
+    animationTimers.push({
+      id: fallbackInterval,
+      type: 'interval'
+    });
+  }
+  setupSidebarAutoScroll('rep-viewport', 'rep-grid');
+  setupSidebarAutoScroll('staff-viewport', 'staff-grid');
+
+  // ================= फिक्स गरिएको फुटर टिकर स्क्रोलिङ इन्जिन (Right to Left) =================
+  var tViewport = document.getElementById('ticker-viewport');
+  var tContainer = document.getElementById('ticker-container');
+  if (tContainer && tViewport) {
+    // गति
+    var _stepHorizontalTicker = function stepHorizontalTicker() {
+      currentX -= tickerSpeed;
+      // जब सम्पूर्ण अक्षर बायाँ पट्टी पुरै स्क्रिन बाहिर जान्छ तब पुनः दायाँबाट सुरु हुन्छ
+      if (currentX <= -tContainer.offsetWidth) {
+        currentX = tViewport.offsetWidth;
+      }
+      setTransform(tContainer, "translateX(" + currentX + "px)");
+      var rId = requestAnimationFrame(_stepHorizontalTicker);
+      animationTimers.push({
+        id: rId,
+        type: 'raf'
+      });
+    };
+    var currentX = tViewport.offsetWidth; // दायाँ कुनाबाट सुरु हुने
+    var tickerSpeed = 1.3;
+    var rId = requestAnimationFrame(_stepHorizontalTicker);
+    animationTimers.push({
+      id: rId,
+      type: 'raf'
+    });
+  }
+}
+function setupSidebarAutoScroll(viewportId, contentId) {
+  var vp = document.getElementById(viewportId);
+  var cnt = document.getElementById(contentId);
+  if (!vp || !cnt) return;
+  if (cnt.offsetHeight > vp.offsetHeight) {
+    var _scrollSide = function scrollSide() {
+      currentY -= speed;
+      if (Math.abs(currentY) >= cnt.offsetHeight - vp.offsetHeight + 20) {
+        currentY = 0;
+        setTransform(cnt, "translateY(" + currentY + "px)");
+        var _tId = setTimeout(function () {
+          var rId = requestAnimationFrame(_scrollSide);
+          animationTimers.push({
+            id: rId,
+            type: 'raf'
+          });
+        }, 4000);
+        animationTimers.push({
+          id: _tId,
+          type: 'timeout'
+        });
+        return;
+      }
+      setTransform(cnt, "translateY(" + currentY + "px)");
+      var rId = requestAnimationFrame(_scrollSide);
+      animationTimers.push({
+        id: rId,
+        type: 'raf'
+      });
+    };
+    var currentY = 0;
+    var speed = 1.4;
+    var tId = setTimeout(function () {
+      var rId = requestAnimationFrame(_scrollSide);
+      animationTimers.push({
+        id: rId,
+        type: 'raf'
+      });
+    }, 2500);
+    animationTimers.push({
+      id: tId,
+      type: 'timeout'
+    });
+  }
+}
+var countdownInterval = null;
+function checkBreakAndConfigStatus() {
+  return _checkBreakAndConfigStatus.apply(this, arguments);
+}
+function _checkBreakAndConfigStatus() {
+  _checkBreakAndConfigStatus = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee5() {
+    var _yield$supabaseClient4, data, error, footerData, tickerContainer, items, wasActive, isNowActive, breakConfig, overlay, updateCountdown, endTime;
+    return _regenerator().w(function (_context5) {
+      while (1) switch (_context5.n) {
+        case 0:
+          _context5.n = 1;
+          return supabaseClient.from('break_settings').select('*');
+        case 1:
+          _yield$supabaseClient4 = _context5.v;
+          data = _yield$supabaseClient4.data;
+          error = _yield$supabaseClient4.error;
+          if (!(error || !data)) {
+            _context5.n = 2;
+            break;
+          }
+          return _context5.a(2);
+        case 2:
+          footerData = data.find(function (x) {
+            return x.id === 2;
+          });
+          if (footerData && footerData.reason) {
+            tickerContainer = document.getElementById('ticker-container');
+            tickerContainer.innerHTML = '';
+            items = footerData.reason.split(',');
+            items.forEach(function (txt) {
+              if (txt.trim()) {
+                var span = document.createElement('span');
+                span.className = 'ticker-item';
+                span.innerText = txt.trim();
+                tickerContainer.appendChild(span);
+              }
+            });
+          }
+          wasActive = !!(specialNoticeConfig && specialNoticeConfig.is_active);
+          specialNoticeConfig = data.find(function (x) {
+            return x.id === 3;
+          }) || null;
+          isNowActive = !!(specialNoticeConfig && specialNoticeConfig.is_active); // सूचना नयाँ-नयाँ सक्रिय (Play) भएको बेला मात्र चक्र-गन्ती शून्यबाट सुरु गर्ने,
+          // ताकि Play थिचेपछिको ३ चक्र सफा तरिकाले गनिन्छ।
+          if (isNowActive && !wasActive) {
             cycleCount = 0;
-        }
-        if (!isNowActive) {
+          }
+          if (!isNowActive) {
             cycleCount = 0;
-        }
-
-        const breakConfig = data.find(x => x.id === 1);
-        const overlay = document.getElementById('break-overlay');
-
-        if (countdownInterval) clearInterval(countdownInterval);
-
-        if (breakConfig && breakConfig.is_active && breakConfig.end_time) {
-            const endTime = new Date(breakConfig.end_time).getTime();
-            
+          }
+          breakConfig = data.find(function (x) {
+            return x.id === 1;
+          });
+          overlay = document.getElementById('break-overlay');
+          if (countdownInterval) clearInterval(countdownInterval);
+          if (breakConfig && breakConfig.is_active && breakConfig.end_time) {
+            updateCountdown = function updateCountdown() {
+              var remainder = endTime - Date.now();
+              if (remainder <= 0) {
+                clearInterval(countdownInterval);
+                overlay.style.display = 'none';
+                coreAutomationEngine();
+              } else {
+                var totalSecs = Math.floor(remainder / 1000);
+                var mins = Math.floor(totalSecs / 60);
+                var secs = totalSecs % 60;
+                var mStr = mins < 10 ? '0' + mins : mins;
+                var sStr = secs < 10 ? '0' + secs : secs;
+                document.getElementById('countdown-display').innerText = convertToNepaliNumerals("".concat(mStr, ":").concat(sStr));
+              }
+            };
+            endTime = new Date(breakConfig.end_time).getTime();
             document.getElementById('overlay-title').innerText = "कार्यालयको विशेष सूचना";
             document.getElementById('overlay-reason').innerText = breakConfig.reason || "विशेष कारणवश सेवा केही समयको लागि स्थगित गरिएको छ।";
             overlay.style.display = 'flex';
-
-            function updateCountdown() {
-                const remainder = endTime - Date.now();
-                if (remainder <= 0) {
-                    clearInterval(countdownInterval);
-                    overlay.style.display = 'none';
-                    coreAutomationEngine();
-                } else {
-                    const totalSecs = Math.floor(remainder / 1000);
-                    const mins = Math.floor(totalSecs / 60);
-                    const secs = totalSecs % 60;
-                    const mStr = mins < 10 ? '0' + mins : mins;
-                    const sStr = secs < 10 ? '0' + secs : secs;
-                    document.getElementById('countdown-display').innerText = convertToNepaliNumerals(`${mStr}:${sStr}`);
-                }
-            }
             updateCountdown();
             countdownInterval = setInterval(updateCountdown, 1000);
-        } else {
+          } else {
             overlay.style.display = 'none';
-        }
-        
-        coreAutomationEngine(); 
+          }
+          coreAutomationEngine();
+        case 3:
+          return _context5.a(2);
+      }
+    }, _callee5);
+  }));
+  return _checkBreakAndConfigStatus.apply(this, arguments);
+}
+window.addEventListener('resize', function () {
+  coreAutomationEngine();
+});
+
+// पुरानो Sony TV browser मा websocket-आधारित realtime (postgres_changes) भरपर्दो
+// नहुने भएकोले त्यो हटाइयो; बदलामा तलको छोटो-अन्तरालको polling ले नै डाटा ताजा राख्छ।
+Promise.all([loadCharterData(), loadStaffData(), loadRepData()]).then(/*#__PURE__*/_asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee() {
+  return _regenerator().w(function (_context) {
+    while (1) switch (_context.n) {
+      case 0:
+        _context.n = 1;
+        return checkBreakAndConfigStatus();
+      case 1:
+        return _context.a(2);
     }
+  }, _callee);
+})));
 
-    window.addEventListener('resize', () => { coreAutomationEngine(); });
+// Realtime नभएकोले, डाटा/सूचना समयमै देखियोस् भनेर हरेक ३० सेकेन्डमा पुनः लोड गरिन्छ (polling)
+setInterval(function () {
+  Promise.all([loadCharterData(), loadStaffData(), loadRepData()]).then(function () {
+    coreAutomationEngine();
+  });
+  checkBreakAndConfigStatus();
+}, 30 * 1000);
 
-    supabaseClient.channel('realtime-charter').on('postgres_changes', { event: '*', schema: 'public', table: 'citizen_charter' }, () => loadCharterData().then(() => coreAutomationEngine())).subscribe();
-    supabaseClient.channel('realtime-employees').on('postgres_changes', { event: '*', schema: 'public', table: 'employees' }, () => loadStaffData().then(() => coreAutomationEngine())).subscribe();
-    supabaseClient.channel('realtime-reps').on('postgres_changes', { event: '*', schema: 'public', table: 'representatives' }, () => loadRepData().then(() => coreAutomationEngine())).subscribe();
-    supabaseClient.channel('realtime-break').on('postgres_changes', { event: '*', schema: 'public', table: 'break_settings' }, (payload) => {
-        checkBreakAndConfigStatus().then(() => {
-            // यदि परिवर्तन भएको row विशेष सूचना (id = 3) को हो भने,
-            // Admin ले भर्खरै "सुरक्षित गर्नुहोस्" बटन थिचेको मानेर पप-अप देखाउने
-            const changedId = (payload && payload.new && payload.new.id) || (payload && payload.old && payload.old.id);
-            if (changedId === 3) {
-                // Admin ले "Play" थिचेको बित्तिकै तुरुन्तै पप-अप देखाउने (चक्र नकुरी)
-                showSpecialNoticeIfActive();
-            }
-        });
-    }).subscribe();
-
-    Promise.all([loadCharterData(), loadStaffData(), loadRepData()]).then(async () => {
-        await checkBreakAndConfigStatus();
-    });
-
-    // कमजोर/अस्थिर 3G नेटवर्कमा realtime websocket बीचमा टुट्न सक्ने भएकोले
-    // सुरक्षाको लागि हरेक ५ मिनेटमा डाटा पुनः लोड गरिन्छ (backup polling)
-    setInterval(function () {
-        Promise.all([loadCharterData(), loadStaffData(), loadRepData()]).then(function () {
-            coreAutomationEngine();
-        });
-        checkBreakAndConfigStatus();
-    }, 5 * 60 * 1000);
-
-    // नेटवर्क फेरि जोडिएपछि तुरुन्तै डाटा ताजा गर्ने
-    window.addEventListener('online', function () {
-        Promise.all([loadCharterData(), loadStaffData(), loadRepData()]).then(function () {
-            coreAutomationEngine();
-        });
-        checkBreakAndConfigStatus();
-    });
+// नेटवर्क फेरि जोडिएपछि तुरुन्तै डाटा ताजा गर्ने
+window.addEventListener('online', function () {
+  Promise.all([loadCharterData(), loadStaffData(), loadRepData()]).then(function () {
+    coreAutomationEngine();
+  });
+  checkBreakAndConfigStatus();
+});
 </script>
 </body>
 </html>
