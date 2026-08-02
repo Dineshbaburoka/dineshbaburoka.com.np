@@ -8,432 +8,339 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
     <link rel="dns-prefetch" href="https://recupgxqzdylfsofocoh.supabase.co">
-    <!-- 3G मा छिटो लोड होस् भनेर आवश्यक पर्ने font weight मात्र (400,700) राखियो -->
-    <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;700&display=swap" rel="stylesheet">
+    <!-- 3G मा छिटो लोड होस् भनेर आवश्यक पर्ने font weight मात्र राखियो -->
+    <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- नोट: polyfill.io सेवा बन्द भई सुरक्षा जोखिमका कारण हटाइयो (2024 मा compromise भएको थियो)।
-         @supabase/supabase-js लाइब्रेरी पनि हटाइयो किनभने त्यो आधुनिक JS bundle भएकोले धेरै पुरानो
-         Sony TV browser मा नै parse हुन नसकेर पूरै <script> block फेल हुँदै थियो — डाटा नआउनुको
-         मुख्य कारण यही थियो। बदलामा तलको स्क्रिप्टले plain XMLHttpRequest मार्फत सिधै Supabase
-         REST API कल गर्छ, र सम्पूर्ण कोड ES5 (धेरै पुरानो browser-compatible) मा compile गरिएको छ। -->
-    <!-- धेरै पुरानो TV मा native Promise नहुन सक्ने भएकोले भरपर्दो cdnjs बाट मात्र polyfill लोड गरिन्छ -->
+    <!-- धेरै पुरानो TV browser (Promise/fetch नभएको) को लागि polyfill; नयाँ browser मा यो स्वतः skip हुन्छ -->
     <script>
         (function () {
-            if (!window.Promise) {
-                document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/es6-promise/4.2.8/es6-promise.auto.min.js"><\/script>');
+            if (!window.fetch || !window.Promise || !window.Symbol) {
+                document.write('<script src="https://polyfill.io/v3/polyfill.min.js?features=Promise%2Cfetch%2CArray.prototype.includes%2CObject.assign%2CSymbol"><\/script>');
             }
         })();
     </script>
-    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
+        /* ============ डिजाइन टोकनहरू — "राजपत्र" (official ledger) अवधारणा ============ */
         :root {
-            --primary-blue: #1e3a8a;
-            --accent-red: #dc2626;
-            --bg-dark: #ffffff; 
-            --text-dark: #000000;
-            --text-muted: #475569;
-            --gold: #f59e0b;
-            --table-header-color: #dc2626; 
-            --border-red: #dc2626;
+            --ink: #241c14;
+            --paper: #f7f2e7;
+            --paper-panel: #fffdf8;
+            --crimson: #9c1f2e;
+            --crimson-deep: #7a1622;
+            --indigo: #1c2b4a;
+            --indigo-deep: #12203a;
+            --gold: #b98a2e;
+            --gold-light: #d9ad55;
+            --line: #ddceac;
+            --muted: #6b5f4c;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Mukta', sans-serif;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Mukta', sans-serif; }
 
         body {
-            background-color: var(--bg-dark);
-            color: var(--text-dark);
+            background: var(--indigo-deep);
+            color: var(--ink);
             overflow: hidden;
             height: 100vh;
-            display: -webkit-box; display: -webkit-flex; display: flex;
+            display: flex;
             flex-direction: column;
         }
 
-        /* माथिल्लो हेडर */
+        /* ============ हेडर — दराजपत्र शीर्षक पट्टी, हिमश्रृंखलाको आकृति सहित ============ */
         .main-header {
-            background: linear-gradient(135deg, var(--primary-blue), #1e40af);
-            color: white;
-            padding: 12px 24px;
-            display: -webkit-box; display: -webkit-flex; display: flex;
+            position: relative;
+            background: linear-gradient(120deg, var(--indigo), var(--indigo-deep) 70%);
+            color: #f5efe0;
+            padding: 14px 26px 26px 26px;
+            display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
             z-index: 10;
-            border-bottom: 4px solid var(--gold);
         }
 
-        .header-left { display: -webkit-box; display: -webkit-flex; display: flex; align-items: center; gap: 20px; }
-        .gov-logo { width: 85px; height: 85px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); }
-        .header-title h1 { font-size: 1.9rem; font-weight: 800; letter-spacing: 0.5px; line-height: 1.2; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); }
-        .header-title p { font-size: 1.1rem; color: #93c5fd; font-weight: 600; }
-
-        .header-right { 
-            text-align: center; 
-            background: rgba(255,255,255,0.1); 
-            padding: 12px 20px; 
-            border-radius: 12px; 
-            border: 1px solid rgba(255,255,255,0.2); 
-            width: 310px; 
+        /* हस्ताक्षर तत्व: हिमाल-श्रृंखलाको सिल्हुएट — गण्डकी प्रदेशको भूगोललाई सम्झना */
+        .ridge {
+            position: absolute;
+            left: 0; right: 0; bottom: -1px;
+            height: 22px;
+            background: var(--paper);
+            clip-path: polygon(
+                0% 100%, 0% 55%, 4% 40%, 8% 58%, 13% 22%, 18% 50%, 24% 15%, 30% 46%,
+                36% 5%, 42% 42%, 48% 20%, 54% 48%, 60% 12%, 66% 44%, 72% 8%, 78% 40%,
+                84% 18%, 90% 46%, 95% 25%, 100% 50%, 100% 100%
+            );
         }
-        .time-box { font-size: 1.75rem; font-weight: 800; color: #ffffff; font-variant-numeric: tabular-nums; letter-spacing: 0.5px; }
+        .ridge::after {
+            content: "";
+            position: absolute; left: 0; right: 0; bottom: -3px; height: 6px;
+            background: linear-gradient(90deg, var(--crimson), var(--gold) 50%, var(--crimson));
+        }
 
-        /* मुख्य लेआउट संरचना */
+        .header-left { display: flex; align-items: center; gap: 18px; }
+        .gov-logo { width: 68px; height: 68px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.35)); }
+        .header-eyebrow { font-size: 0.85rem; letter-spacing: 1.5px; color: var(--gold-light); font-weight: 700; text-transform: uppercase; margin-bottom: 2px; }
+        .header-title h1 { font-size: 1.85rem; font-weight: 800; line-height: 1.15; }
+        .header-title p { font-size: 1.02rem; color: #c9bfa2; font-weight: 600; margin-top: 2px; }
+
+        /* घडी — औपचारिक मोहर/ब्याजको स्वरूपमा */
+        .time-seal {
+            display: flex; align-items: center; gap: 12px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(217,173,85,0.45);
+            border-radius: 999px;
+            padding: 8px 22px 8px 12px;
+        }
+        .time-seal .seal-dot {
+            width: 34px; height: 34px; border-radius: 50%;
+            border: 2px dashed var(--gold-light);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--gold-light); font-size: 1rem; flex: 0 0 auto;
+        }
+        .time-box { font-size: 1.5rem; font-weight: 800; color: #fffdf8; font-variant-numeric: tabular-nums; letter-spacing: 0.4px; }
+
+        /* ============ मुख्य लेआउट ============ */
         .main-layout {
-            display: -webkit-box;
-            display: -webkit-flex;
-            display: flex;
-            -webkit-flex-direction: row;
-            flex-direction: row;
-            -webkit-box-flex: 1;
-            -webkit-flex: 1;
-            flex: 1;
-            height: calc(100vh - 150px);
-            background: #f8fafc;
+            display: flex; flex-direction: row; flex: 1;
+            height: calc(100vh - 172px);
+            background: var(--paper);
+            padding: 16px 16px 8px 16px;
+            gap: 16px;
         }
-        .charter-section { -webkit-box-flex: 1; -webkit-flex: 1 1 auto; flex: 1 1 auto; min-width: 0; }
-        .sidebar-section { -webkit-flex: 0 0 420px; flex: 0 0 420px; width: 420px; }
+        .charter-section { flex: 1 1 auto; min-width: 0; }
+        .sidebar-section { flex: 0 0 400px; width: 400px; }
 
-        /* बायाँ भाग: बडापत्र तालिका स्क्रोलर */
+        /* बायाँ भाग: बडापत्र तालिका */
         .charter-section {
-            padding: 15px;
             overflow: hidden;
             position: relative;
-            display: -webkit-box; display: -webkit-flex; display: flex;
+            display: flex;
             flex-direction: column;
-            border-right: 2px solid #e2e8f0;
+            background: var(--paper-panel);
+            border-radius: 10px;
+            box-shadow: 0 2px 14px rgba(28,32,58,0.08);
+            border: 1px solid var(--line);
         }
 
         .section-header {
-            background: var(--primary-blue);
-            color: white;
-            padding: 10px 20px;
-            font-size: 1.35rem;
+            background: var(--crimson);
+            color: #fff8ec;
+            padding: 12px 20px;
+            font-size: 1.28rem;
             font-weight: 700;
-            border-radius: 8px 8px 0 0;
-            display: -webkit-box; display: -webkit-flex; display: flex;
+            display: flex;
             align-items: center;
             gap: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-radius: 10px 10px 0 0;
+            letter-spacing: 0.2px;
         }
+        .section-header i { color: var(--gold-light); }
 
         .table-header-row {
-            display: -webkit-box;
-            display: -webkit-flex;
             display: flex;
-            background: var(--table-header-color);
-            color: white;
+            background: var(--indigo);
+            color: #f3ead4;
             font-weight: 700;
-            font-size: 1.05rem;
-            padding: 12px 0;
-            border: 2px solid var(--border-red);
-            border-bottom: none;
+            font-size: 1rem;
+            padding: 11px 0;
+            border-bottom: 3px solid var(--gold);
         }
-
         .table-header-row > div {
             padding: 0 10px;
-            display: -webkit-box;
-            display: -webkit-flex;
-            display: flex;
-            -webkit-align-items: center;
-            align-items: center;
-            -webkit-box-pack: start;
-            -webkit-justify-content: flex-start;
-            justify-content: flex-start;
-            border-right: 1px solid rgba(255,255,255,0.35);
+            display: flex; align-items: center; justify-content: flex-start;
+            border-right: 1px solid rgba(255,255,255,0.14);
         }
         .table-header-row > div:last-child { border-right: none; }
         .table-header-row > .center-ch, .charter-row > .center-ch { justify-content: center; text-align: center; }
 
-        /* पुरानो browser मा grid-template-columns काम नगर्ने भएकोले flex-basis प्रयोग गरियो */
-        .table-header-row > div:nth-child(1), .charter-row > div:nth-child(1) { -webkit-flex: 0 0 50px; flex: 0 0 50px; }
-        .table-header-row > div:nth-child(2), .charter-row > div:nth-child(2) { -webkit-flex: 1 1 0; flex: 1 1 0; }
-        .table-header-row > div:nth-child(3), .charter-row > div:nth-child(3) { -webkit-flex: 2.4 1 0; flex: 2.4 1 0; }
-        .table-header-row > div:nth-child(4), .charter-row > div:nth-child(4) { -webkit-flex: 0.85 1 0; flex: 0.85 1 0; }
-        .table-header-row > div:nth-child(5), .charter-row > div:nth-child(5) { -webkit-flex: 0 0 80px; flex: 0 0 80px; }
-        .table-header-row > div:nth-child(6), .charter-row > div:nth-child(6) { -webkit-flex: 0 0 80px; flex: 0 0 80px; }
-        .table-header-row > div:nth-child(7), .charter-row > div:nth-child(7) { -webkit-flex: 1 1 0; flex: 1 1 0; }
+        .table-header-row > div:nth-child(1), .charter-row > div:nth-child(1) { flex: 0 0 54px; }
+        .table-header-row > div:nth-child(2), .charter-row > div:nth-child(2) { flex: 1 1 0; }
+        .table-header-row > div:nth-child(3), .charter-row > div:nth-child(3) { flex: 2.4 1 0; }
+        .table-header-row > div:nth-child(4), .charter-row > div:nth-child(4) { flex: 0.85 1 0; }
+        .table-header-row > div:nth-child(5), .charter-row > div:nth-child(5) { flex: 0 0 78px; }
+        .table-header-row > div:nth-child(6), .charter-row > div:nth-child(6) { flex: 0 0 78px; }
+        .table-header-row > div:nth-child(7), .charter-row > div:nth-child(7) { flex: 1 1 0; }
 
-        .scroller-viewport {
-            flex: 1;
-            overflow: hidden;
-            position: relative;
-            background: #ffffff;
-            border-radius: 0 0 8px 8px;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-            border: 2px solid var(--border-red);
-            border-top: none;
-        }
-
-        .scroller-content {
-            position: absolute;
-            width: 100%;
-            top: 0;
-            left: 0;
-            will-change: transform;
-            -webkit-backface-visibility: hidden;
-            backface-visibility: hidden;
-        }
+        .scroller-viewport { flex: 1; overflow: hidden; position: relative; background: var(--paper-panel); }
+        .scroller-content { position: absolute; width: 100%; top: 0; left: 0; will-change: transform; -webkit-backface-visibility: hidden; backface-visibility: hidden; }
 
         .charter-row {
-            display: -webkit-box;
-            display: -webkit-flex;
             display: flex;
-            border-bottom: 1px solid var(--border-red);
-            background: #ffffff;
-            font-size: 1.05rem;
-            min-height: 80px; 
+            border-bottom: 1px solid var(--line);
+            background: var(--paper-panel);
+            font-size: 1.02rem;
+            min-height: 78px;
         }
+        .charter-row:nth-child(even) { background: #fbf6ea; }
         .charter-row:last-child { border-bottom: none; }
 
         .charter-row > div {
             padding: 12px 10px;
-            display: -webkit-box;
-            display: -webkit-flex;
-            display: flex;
-            -webkit-align-items: center;
-            align-items: center;
-            color: var(--text-dark);
+            display: flex; align-items: center;
+            color: var(--ink);
             line-height: 1.4;
-            border-right: 1px solid #f3c9c9;
+            border-right: 1px dashed var(--line);
         }
         .charter-row > div:last-child { border-right: none; }
 
-        .sn-cell { font-weight: 700; color: var(--accent-red); font-size: 1.1rem; }
-        .service-cell { font-weight: 700; font-size: 1.1rem; color: #0f172a; }
-        .doc-cell { font-size: 1rem; color: #334155; white-space: pre-line; text-align: left; align-items: flex-start !important; padding-top: 12px; }
-        .dept-cell { font-weight: 700; color: var(--primary-blue) !important; font-size: 1.05rem; }
-        .time-cell { font-weight: 700; color: #b45309; font-size: 1rem; }
-        .cost-cell { font-weight: 700; color: #047857; font-size: 1rem; }
-        .grievance-cell { font-weight: 600; color: #7c2d12; font-size: 0.98rem; text-align: left; align-items: flex-start !important; padding-top: 12px; }
-
-        /* दायाँ भाग: साइडबार */
-        .sidebar-section {
-            background: #ffffff;
-            display: -webkit-box; display: -webkit-flex; display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            border-left: 1px solid #e2e8f0;
-            box-shadow: -4px 0 15px rgba(0,0,0,0.02);
+        .sn-cell {
+            display: flex; align-items: center; justify-content: center;
         }
+        .sn-cell::before {
+            content: attr(data-n);
+        }
+        .sn-cell {
+            font-weight: 800; font-size: 1rem; color: var(--crimson);
+            position: relative;
+        }
+        .sn-cell {
+            width: 34px; height: 34px; border-radius: 50%;
+            border: 1.5px solid var(--crimson);
+            margin: 0 auto;
+        }
+        .service-cell { font-weight: 700; font-size: 1.08rem; color: var(--indigo); }
+        .doc-cell { font-size: 0.98rem; color: var(--muted); white-space: pre-line; text-align: left; align-items: flex-start !important; padding-top: 12px; }
+        .dept-cell { font-weight: 700; color: var(--crimson-deep) !important; font-size: 1rem; }
+        .time-cell { font-weight: 700; color: var(--gold); font-size: 0.98rem; }
+        .cost-cell { font-weight: 700; color: #2f6b4f; font-size: 0.98rem; }
+        .grievance-cell { font-weight: 600; color: var(--muted); font-size: 0.95rem; text-align: left; align-items: flex-start !important; padding-top: 12px; }
+
+        /* दायाँ भाग: साइडबार — परिचयपत्र (ID-card) शैली */
+        .sidebar-section { display: flex; flex-direction: column; gap: 16px; overflow: hidden; }
 
         .sidebar-panel {
             flex: 1;
-            display: -webkit-box; display: -webkit-flex; display: flex;
-            flex-direction: column;
+            display: flex; flex-direction: column;
             overflow: hidden;
             position: relative;
+            background: var(--paper-panel);
+            border-radius: 10px;
+            border: 1px solid var(--line);
+            box-shadow: 0 2px 14px rgba(28,32,58,0.08);
         }
 
         .panel-title {
-            background: var(--primary-blue);
-            color: white;
+            background: var(--indigo);
+            color: #f3ead4;
             padding: 10px 15px;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 700;
             text-align: center;
-            display: -webkit-box; display: -webkit-flex; display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            border-radius: 10px 10px 0 0;
             border-bottom: 3px solid var(--gold);
         }
+        .panel-title.rep-title { background: var(--crimson); border-bottom-color: var(--gold-light); }
 
-        .panel-title.rep-title { background: #dc2626; }
-
-        .sidebar-viewport {
-            flex: 1;
-            overflow: hidden;
-            position: relative;
-            padding: 10px;
-            background: #fafafa;
-        }
+        .sidebar-viewport { flex: 1; overflow: hidden; position: relative; padding: 10px; background: var(--paper); }
 
         .sidebar-content {
-            position: absolute;
-            width: calc(100% - 20px);
-            top: 0;
-            display: -webkit-box; display: -webkit-flex; display: flex;
-            flex-direction: column;
-            gap: 10px;
-            will-change: transform;
-            -webkit-backface-visibility: hidden;
-            backface-visibility: hidden;
+            position: absolute; width: calc(100% - 20px); top: 0;
+            display: flex; flex-direction: column; gap: 10px;
+            will-change: transform; -webkit-backface-visibility: hidden; backface-visibility: hidden;
         }
 
-        /* इन्फो कार्ड स्टाइलिङ */
         .info-card {
-            background: white;
-            border-radius: 12px;
-            padding: 10px 15px;
-            display: -webkit-box;
-            display: -webkit-flex;
-            display: flex;
-            -webkit-align-items: center;
-            align-items: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.04);
-            border: 1px solid #e2e8f0;
-            border-left: 5px solid var(--primary-blue);
-        }
-        .info-card .display-profile-img { -webkit-flex: 0 0 85px; flex: 0 0 85px; margin-right: 12px; }
-        .info-card .card-details { -webkit-flex: 1 1 auto; flex: 1 1 auto; min-width: 0; }
-
-        .info-card.rep-card { border-left-color: var(--accent-red); }
-
-        .display-profile-img {
-            width: 85px;
-            height: 85px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid #f1f5f9;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            background-color: #e2e8f0;
-        }
-
-        .card-details h3 { font-size: 1.15rem; color: #0f172a; font-weight: 700; margin-bottom: 2px; }
-        .card-details .designation { font-size: 0.95rem; color: var(--accent-red); font-weight: 700; margin-bottom: 3px; }
-        .info-card.rep-card .card-details .designation { color: var(--primary-blue); }
-        .card-details .meta-info { font-size: 0.9rem; color: var(--text-muted); font-weight: 600; display: -webkit-box; display: -webkit-flex; display: flex; align-items: center; gap: 5px; }
-        .card-details .meta-info i { color: #94a3b8; width: 14px; }
-
-        /* तलको स्क्रोलिङ टिकर सूचना पट्टी */
-        .ticker-section {
-            background: #0f172a;
-            color: #ffffff;
-            height: 55px;
-            display: -webkit-box; display: -webkit-flex; display: flex;
-            align-items: center;
-            overflow: hidden;
-            border-top: 4px solid var(--gold);
-            z-index: 10;
-        }
-
-        .ticker-label {
-            background: var(--accent-red);
-            padding: 0 24px;
-            height: 100%;
-            display: -webkit-box; display: -webkit-flex; display: flex;
-            align-items: center;
-            font-weight: 800;
-            font-size: 1.2rem;
-            white-space: nowrap;
-            box-shadow: 4px 0 10px rgba(0,0,0,0.3);
-            z-index: 2;
+            background: var(--paper-panel);
+            border-radius: 8px;
+            padding: 10px 14px;
+            display: flex; align-items: center;
+            box-shadow: 0 2px 6px rgba(28,32,58,0.06);
+            border: 1px solid var(--line);
+            border-left: 4px solid var(--indigo);
             position: relative;
         }
+        .info-card.rep-card { border-left-color: var(--crimson); }
 
-        .ticker-viewport { flex: 1; overflow: hidden; position: relative; height: 100%; display: -webkit-box; display: -webkit-flex; display: flex; align-items: center; }
-        
-        .ticker-wrap {
-            display: inline-block;
-            white-space: nowrap;
-            position: absolute;
-            will-change: transform;
-            -webkit-backface-visibility: hidden;
-            backface-visibility: hidden;
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: #f8fafc;
-        }
-        
-        .ticker-item { display: inline-block; padding: 0 40px; }
-        .ticker-item::after { content: "•"; color: var(--gold); margin-left: 40px; font-size: 1.6rem; vertical-align: middle; }
+        .info-card .display-profile-img { flex: 0 0 74px; margin-right: 12px; }
+        .info-card .card-details { flex: 1 1 auto; min-width: 0; }
 
-        /* ओभरले विन्डो (सेवा स्थगन) */
-        .break-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.98);
-            z-index: 1000;
-            color: white;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-        }
-
-        .break-box { background: rgba(255, 255, 255, 0.05); padding: 40px 60px; border-radius: 24px; border: 2px solid rgba(255,255,255,0.1); box-shadow: 0 20px 50px rgba(0,0,0,0.5); max-width: 800px; width: 90%; }
-        .break-box i { font-size: 5rem; color: var(--gold); margin-bottom: 20px; animation: pulse 2s infinite; }
-        .break-box h2 { font-size: 2.8rem; font-weight: 800; color: #ffffff; margin-bottom: 15px; }
-        .break-box p.reason { font-size: 1.6rem; color: #cbd5e1; margin-bottom: 20px; font-weight: 600; line-height: 1.5; }
-        .break-box p.apology { font-size: 1.4rem; color: #f87171; margin-bottom: 30px; font-weight: 600; }
-        .countdown-timer { font-size: 4rem; font-weight: 800; color: var(--accent-red); background: #ffffff; padding: 10px 40px; border-radius: 16px; display: inline-block; font-variant-numeric: tabular-nums; box-shadow: inset 0 2px 10px rgba(0,0,0,0.2); }
-        .break-footer { margin-top: 40px; font-size: 1.2rem; color: #94a3b8; font-weight: 600; }
-
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.1); opacity: 0.8; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        /* विशेष सूचना (Popup) - Comment + Image */
-        .special-notice-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.96);
-            z-index: 1100;
-            color: white;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-        }
-
-        .notice-box {
-            background: rgba(255, 255, 255, 0.06);
-            padding: 35px 50px;
-            border-radius: 24px;
-            border: 2px solid #7c3aed;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            max-width: 850px;
-            width: 90%;
-        }
-
-        .notice-box .notice-label {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            background: #7c3aed;
-            color: white;
-            font-size: 1.3rem;
-            font-weight: 800;
-            padding: 8px 22px;
-            border-radius: 30px;
-            margin-bottom: 22px;
-        }
-
-        #notice-overlay-img {
-            display: block;
-            max-width: 100%;
-            max-height: 320px;
-            border-radius: 14px;
-            margin: 0 auto 22px auto;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+        .display-profile-img {
+            width: 74px; height: 74px; border-radius: 50%;
             object-fit: cover;
-            text-align: center;
+            border: 3px solid var(--gold-light);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.12);
+            background-color: #e9e0c9;
         }
 
-        .notice-box .notice-comment {
-            font-size: 1.7rem;
-            font-weight: 700;
-            color: #f8fafc;
-            line-height: 1.5;
-            text-align: center;
+        .card-details h3 { font-size: 1.08rem; color: var(--indigo); font-weight: 700; margin-bottom: 2px; }
+        .card-details .designation { font-size: 0.9rem; color: var(--crimson); font-weight: 700; margin-bottom: 3px; }
+        .info-card.rep-card .card-details .designation { color: var(--indigo); }
+        .card-details .meta-info { font-size: 0.86rem; color: var(--muted); font-weight: 600; display: flex; align-items: center; gap: 5px; }
+        .card-details .meta-info i { color: var(--gold); width: 14px; }
+
+        /* ============ फुटर टिकर — पित्तलको पट्टिका (brass plaque) शैली ============ */
+        .ticker-section {
+            background: var(--indigo-deep);
+            color: #f3ead4;
+            height: 52px;
+            display: flex; align-items: center;
+            overflow: hidden;
+            border-top: 3px solid var(--gold);
         }
+        .ticker-label {
+            background: var(--crimson);
+            padding: 0 22px;
+            height: 100%;
+            display: flex; align-items: center;
+            font-weight: 800; font-size: 1.12rem;
+            white-space: nowrap;
+            position: relative; z-index: 2;
+        }
+        .ticker-viewport { flex: 1; overflow: hidden; position: relative; height: 100%; display: flex; align-items: center; }
+        .ticker-wrap {
+            display: inline-block; white-space: nowrap; position: absolute;
+            will-change: transform; -webkit-backface-visibility: hidden; backface-visibility: hidden;
+            font-size: 1.16rem; font-weight: 600; color: #f3ead4;
+        }
+        .ticker-item { display: inline-block; padding: 0 38px; }
+        .ticker-item::after { content: "◆"; color: var(--gold-light); margin-left: 38px; font-size: 0.9rem; vertical-align: middle; }
+
+        /* ============ ओभरले (सेवा स्थगन) ============ */
+        .break-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(18, 32, 58, 0.97); z-index: 1000; color: #f7f2e7;
+            flex-direction: column; align-items: center; justify-content: center; text-align: center;
+        }
+        .break-box {
+            background: rgba(255,255,255,0.04); padding: 40px 60px; border-radius: 18px;
+            border: 2px solid var(--gold); max-width: 800px; width: 90%;
+        }
+        .break-box i { font-size: 4.5rem; color: var(--gold-light); margin-bottom: 20px; animation: pulse 2s infinite; }
+        .break-box h2 { font-size: 2.6rem; font-weight: 800; margin-bottom: 15px; }
+        .break-box p.reason { font-size: 1.5rem; color: #d9cfb4; margin-bottom: 20px; font-weight: 600; line-height: 1.5; }
+        .break-box p.apology { font-size: 1.3rem; color: #e08a8a; margin-bottom: 30px; font-weight: 600; }
+        .countdown-timer { font-size: 3.6rem; font-weight: 800; color: var(--crimson); background: #fffdf8; padding: 10px 40px; border-radius: 12px; display: inline-block; font-variant-numeric: tabular-nums; }
+        .break-footer { margin-top: 36px; font-size: 1.1rem; color: #a99f86; font-weight: 600; }
+
+        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.8; } 100% { transform: scale(1); opacity: 1; } }
+
+        /* विशेष सूचना (Popup) */
+        .special-notice-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(18, 32, 58, 0.95); z-index: 1100; color: #f7f2e7;
+            flex-direction: column; align-items: center; justify-content: center; text-align: center;
+        }
+        .notice-box {
+            background: rgba(255,255,255,0.05); padding: 34px 48px; border-radius: 18px;
+            border: 2px solid var(--gold-light); max-width: 850px; width: 90%;
+        }
+        .notice-box .notice-label {
+            display: inline-flex; align-items: center; gap: 10px;
+            background: var(--crimson); color: #fff8ec; font-size: 1.22rem; font-weight: 800;
+            padding: 8px 20px; border-radius: 30px; margin-bottom: 20px;
+        }
+        #notice-overlay-img { display: block; max-width: 100%; max-height: 320px; border-radius: 12px; margin: 0 auto 20px auto; object-fit: cover; }
+        .notice-box .notice-comment { font-size: 1.6rem; font-weight: 700; color: #fffdf8; line-height: 1.5; text-align: center; }
 
         /* फुलस्क्रिन बटन */
         .fs-toggle-btn {
-            position: fixed; top: 12px; right: 325px; z-index: 100;
-            background: rgba(255,255,255,0.2); color: white; border: none;
+            position: fixed; top: 12px; right: 305px; z-index: 100;
+            background: rgba(255,255,255,0.14); color: #f3ead4; border: 1px solid rgba(217,173,85,0.4);
             padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 0.85rem;
-            transition: opacity 0.3s ease;
         }
-        .fs-toggle-btn:hover { background: rgba(255,255,255,0.3); }
+        .fs-toggle-btn:hover { background: rgba(255,255,255,0.24); }
     </style>
 </head>
 <body>
@@ -446,9 +353,7 @@
         <h2 id="overlay-title">सेवा स्थगनको सूचना</h2>
         <p class="reason" id="overlay-reason">विशेष कारणवश सेवा केही समयको लागि स्थगित गरिएको छ।</p>
         <p class="apology"><i class="fa-solid fa-hand-holding-heart"></i> सेवाग्राहीमा पर्न गएको असुविधाप्रति हामी क्षमाप्रार्थी छौँ।</p>
-        <div>
-            <div class="countdown-timer" id="countdown-display">००:००</div>
-        </div>
+        <div><div class="countdown-timer" id="countdown-display">००:००</div></div>
         <div class="break-footer">गलकोट नगरपालिका, नगर कार्यपालिकाको कार्यालय</div>
     </div>
 </div>
@@ -465,22 +370,24 @@
     <div class="header-left">
         <img src="https://upload.wikimedia.org/wikipedia/commons/2/23/Emblem_of_Nepal.svg" alt="Nepal Gov Logo" class="gov-logo" decoding="async">
         <div class="header-title">
-            <h1>गलकोट नगरपालिका</h1>
-            <p>नगर कार्यपालिकाको कार्यालय, गण्डकी प्रदेश, नेपाल</p>
+            <div class="header-eyebrow">गलकोट नगरपालिका</div>
+            <h1>नगर कार्यपालिकाको कार्यालय</h1>
+            <p>गलकोट, बागलुङ</p>
         </div>
     </div>
-    <div class="header-right">
+    <div class="time-seal">
+        <div class="seal-dot"><i class="fa-regular fa-clock"></i></div>
         <div class="time-box" id="live-time">००:००:०० लोड हुँदै...</div>
     </div>
+    <div class="ridge"></div>
 </header>
 
 <main class="main-layout">
-    
     <section class="charter-section">
         <div class="section-header">
             <i class="fa-solid fa-file-invoice"></i> डिजिटल नागरिक बडापत्र (Citizen Charter)
         </div>
-        
+
         <div class="table-header-row">
             <div class="center-ch">क्र.स.</div>
             <div>सेवा/सुविधाको नाम</div>
@@ -497,8 +404,7 @@
     </section>
 
     <section class="sidebar-section">
-        
-        <div class="sidebar-panel" style="border-bottom: 2px solid #e2e8f0;">
+        <div class="sidebar-panel">
             <div class="panel-title rep-title"><i class="fa-solid fa-user-shield"></i> जनप्रतिनिधि विवरण</div>
             <div class="sidebar-viewport" id="rep-viewport">
                 <div class="sidebar-content" id="rep-grid"></div>
@@ -511,7 +417,6 @@
                 <div class="sidebar-content" id="staff-grid"></div>
             </div>
         </div>
-
     </section>
 </main>
 
@@ -523,575 +428,388 @@
 </footer>
 
 <script>
+    const supabaseUrl = 'https://recupgxqzdylfsofocoh.supabase.co';
+    const supabaseKey = 'sb_publishable_vMKzojpH_65z61V_cV1Hqw_izgIlXBD';
+    const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-function _regenerator() { /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/babel/babel/blob/main/packages/babel-helpers/LICENSE */ var e, t, r = "function" == typeof Symbol ? Symbol : {}, n = r.iterator || "@@iterator", o = r.toStringTag || "@@toStringTag"; function i(r, n, o, i) { var c = n && n.prototype instanceof Generator ? n : Generator, u = Object.create(c.prototype); return _regeneratorDefine2(u, "_invoke", function (r, n, o) { var i, c, u, f = 0, p = o || [], y = !1, G = { p: 0, n: 0, v: e, a: d, f: d.bind(e, 4), d: function d(t, r) { return i = t, c = 0, u = e, G.n = r, a; } }; function d(r, n) { for (c = r, u = n, t = 0; !y && f && !o && t < p.length; t++) { var o, i = p[t], d = G.p, l = i[2]; r > 3 ? (o = l === n) && (u = i[(c = i[4]) ? 5 : (c = 3, 3)], i[4] = i[5] = e) : i[0] <= d && ((o = r < 2 && d < i[1]) ? (c = 0, G.v = n, G.n = i[1]) : d < l && (o = r < 3 || i[0] > n || n > l) && (i[4] = r, i[5] = n, G.n = l, c = 0)); } if (o || r > 1) return a; throw y = !0, n; } return function (o, p, l) { if (f > 1) throw TypeError("Generator is already running"); for (y && 1 === p && d(p, l), c = p, u = l; (t = c < 2 ? e : u) || !y;) { i || (c ? c < 3 ? (c > 1 && (G.n = -1), d(c, u)) : G.n = u : G.v = u); try { if (f = 2, i) { if (c || (o = "next"), t = i[o]) { if (!(t = t.call(i, u))) throw TypeError("iterator result is not an object"); if (!t.done) return t; u = t.value, c < 2 && (c = 0); } else 1 === c && (t = i.return) && t.call(i), c < 2 && (u = TypeError("The iterator does not provide a '" + o + "' method"), c = 1); i = e; } else if ((t = (y = G.n < 0) ? u : r.call(n, G)) !== a) break; } catch (t) { i = e, c = 1, u = t; } finally { f = 1; } } return { value: t, done: y }; }; }(r, o, i), !0), u; } var a = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} t = Object.getPrototypeOf; var c = [][n] ? t(t([][n]())) : (_regeneratorDefine2(t = {}, n, function () { return this; }), t), u = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(c); function f(e) { return Object.setPrototypeOf ? Object.setPrototypeOf(e, GeneratorFunctionPrototype) : (e.__proto__ = GeneratorFunctionPrototype, _regeneratorDefine2(e, o, "GeneratorFunction")), e.prototype = Object.create(u), e; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, _regeneratorDefine2(u, "constructor", GeneratorFunctionPrototype), _regeneratorDefine2(GeneratorFunctionPrototype, "constructor", GeneratorFunction), GeneratorFunction.displayName = "GeneratorFunction", _regeneratorDefine2(GeneratorFunctionPrototype, o, "GeneratorFunction"), _regeneratorDefine2(u), _regeneratorDefine2(u, o, "Generator"), _regeneratorDefine2(u, n, function () { return this; }), _regeneratorDefine2(u, "toString", function () { return "[object Generator]"; }), (_regenerator = function _regenerator() { return { w: i, m: f }; })(); }
-function _regeneratorDefine2(e, r, n, t) { var i = Object.defineProperty; try { i({}, "", {}); } catch (e) { i = 0; } _regeneratorDefine2 = function _regeneratorDefine(e, r, n, t) { function o(r, n) { _regeneratorDefine2(e, r, function (e) { return this._invoke(r, n, e); }); } r ? i ? i(e, r, { value: n, enumerable: !t, configurable: !t, writable: !t }) : e[r] = n : (o("next", 0), o("throw", 1), o("return", 2)); }, _regeneratorDefine2(e, r, n, t); }
-function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
-function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
-var supabaseUrl = 'https://recupgxqzdylfsofocoh.supabase.co';
-var supabaseKey = 'sb_publishable_vMKzojpH_65z61V_cV1Hqw_izgIlXBD';
+    // पुरानो Sony TV को WebKit browser ले unprefixed transform नबुझ्न सक्ने भएकोले दुबै सेट गरिन्छ
+    function setTransform(el, value) {
+        el.style.webkitTransform = value;
+        el.style.transform = value;
+    }
 
-// ==================================================================================
-// धेरै पुरानो Sony TV browser (WebKit) मा @supabase/supabase-js लाइब्रेरी (जुन आधुनिक
-// JS bundle हो) लोड/parse नै नहुन सक्ने भएकोले, त्यो लाइब्रेरी प्रयोग नगरी XMLHttpRequest
-// (सबैभन्दा पुरानो TV मा समेत भरपर्दो) मार्फत सिधै Supabase को REST API लाई कल गरिन्छ।
-// ==================================================================================
-function sbRequest(path) {
-  return new Promise(function (resolve) {
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', supabaseUrl + '/rest/v1/' + path, true);
-    xhr.setRequestHeader('apikey', supabaseKey);
-    xhr.setRequestHeader('Authorization', 'Bearer ' + supabaseKey);
-    xhr.setRequestHeader('Accept', 'application/json');
-    xhr.onreadystatechange = function () {
-      if (xhr.readyState === 4) {
-        if (xhr.status >= 200 && xhr.status < 300) {
-          var parsed = null;
-          try {
-            parsed = JSON.parse(xhr.responseText);
-          } catch (e) {
-            parsed = null;
-          }
-          if (parsed === null) {
-            resolve({
-              data: null,
-              error: 'parse-error'
-            });
-          } else {
-            resolve({
-              data: parsed,
-              error: null
-            });
-          }
+    function convertToNepaliNumerals(numStr) {
+        if (numStr === null || numStr === undefined) return '';
+        const nepaliDigits = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
+        return numStr.toString().replace(/[0-9]/g, match => nepaliDigits[parseInt(match)]);
+    }
+
+    function updateLiveClock() {
+        const now = new Date();
+        let hours = now.getHours();
+        let minutes = now.getMinutes();
+        let seconds = now.getSeconds();
+
+        let timePeriodLabel = "";
+        if (hours >= 0 && hours < 4) timePeriodLabel = "राति";
+        else if (hours >= 4 && hours < 12) timePeriodLabel = "बिहान";
+        else if (hours >= 12 && hours < 16) timePeriodLabel = "दिउँसो";
+        else if (hours >= 16 && hours < 20) timePeriodLabel = "अपराह्न";
+        else timePeriodLabel = "राति";
+
+        let displayHours = hours % 12;
+        displayHours = displayHours ? displayHours : 12;
+
+        let formattedHours = displayHours < 10 ? '0' + displayHours : displayHours;
+        let formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
+        let formattedSeconds = seconds < 10 ? '0' + seconds : seconds;
+
+        document.getElementById('live-time').innerText = convertToNepaliNumerals(`${timePeriodLabel} ${formattedHours}:${formattedMinutes}:${formattedSeconds} बजे`);
+    }
+
+    setInterval(updateLiveClock, 1000);
+    updateLiveClock();
+
+    document.addEventListener('fullscreenchange', () => {
+        const fsBtn = document.getElementById('fullscreen-btn');
+        fsBtn.style.display = document.fullscreenElement ? 'none' : 'block';
+    });
+
+    function toggleFullScreen() {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(err => alert(err.message));
         } else {
-          resolve({
-            data: null,
-            error: 'http-' + xhr.status
-          });
+            document.exitFullscreen();
         }
-      }
-    };
-    xhr.onerror = function () {
-      resolve({
-        data: null,
-        error: 'network-error'
-      });
-    };
-    xhr.send();
-  });
-}
-var supabaseClient = {
-  from: function from(table) {
-    return {
-      select: function select() {
-        return {
-          order: function order(col, opts) {
-            var dir = opts && opts.ascending === false ? 'desc' : 'asc';
-            return sbRequest(table + '?select=*&order=' + col + '.' + dir);
-          },
-          then: function then(resolveFn, rejectFn) {
-            return sbRequest(table + '?select=*').then(resolveFn, rejectFn);
-          }
-        };
-      }
-    };
-  },
-  channel: function channel() {
-    // धेरै पुरानो TV browser मा websocket-आधारित realtime भरपर्दो नहुने भएकोले
-    // यसलाई निष्क्रिय (no-op) राखिएको छ; तल रहेको ५ मिनेटको backup polling र
-    // 'online' event ले नै डाटा ताजा राख्छ।
-    return {
-      on: function on() {
-        return this;
-      },
-      subscribe: function subscribe() {
-        return this;
-      }
-    };
-  }
-};
+    }
 
-// पुरानो Sony TV को WebKit browser ले unprefixed transform नबुझ्न सक्ने भएकोले दुबै सेट गरिन्छ
-function setTransform(el, value) {
-  el.style.webkitTransform = value;
-  el.style.transform = value;
-}
-function convertToNepaliNumerals(numStr) {
-  if (numStr === null || numStr === undefined) return '';
-  var nepaliDigits = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
-  return numStr.toString().replace(/[0-9]/g, function (match) {
-    return nepaliDigits[parseInt(match)];
-  });
-}
-function updateLiveClock() {
-  var now = new Date();
-  var hours = now.getHours();
-  var minutes = now.getMinutes();
-  var seconds = now.getSeconds();
-  var timePeriodLabel = "";
-  if (hours >= 0 && hours < 4) timePeriodLabel = "राति";else if (hours >= 4 && hours < 12) timePeriodLabel = "बिहान";else if (hours >= 12 && hours < 16) timePeriodLabel = "दिउँसो";else if (hours >= 16 && hours < 20) timePeriodLabel = "अपराह्न";else timePeriodLabel = "राति";
-  var displayHours = hours % 12;
-  displayHours = displayHours ? displayHours : 12;
-  var formattedHours = displayHours < 10 ? '0' + displayHours : displayHours;
-  var formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
-  var formattedSeconds = seconds < 10 ? '0' + seconds : seconds;
-  document.getElementById('live-time').innerText = convertToNepaliNumerals("".concat(timePeriodLabel, " ").concat(formattedHours, ":").concat(formattedMinutes, ":").concat(formattedSeconds, " \u092C\u091C\u0947"));
-}
-setInterval(updateLiveClock, 1000);
-updateLiveClock();
-document.addEventListener('fullscreenchange', function () {
-  var fsBtn = document.getElementById('fullscreen-btn');
-  if (document.fullscreenElement) {
-    fsBtn.style.display = 'none';
-  } else {
-    fsBtn.style.display = 'block';
-  }
-});
-function toggleFullScreen() {
-  if (!document.fullscreenElement) {
-    document.documentElement.requestFullscreen().catch(function (err) {
-      return alert(err.message);
-    });
-  } else {
-    document.exitFullscreen();
-  }
-}
+    async function loadCharterData() {
+        const { data, error } = await supabaseClient.from('citizen_charter').select('*').order('rank', { ascending: true });
+        if (error || !data) return;
 
-// परिमार्जन गरिएको loadCharterData फङ्सन (Rank को आधारमा Sort हुने गरि)
-function loadCharterData() {
-  return _loadCharterData.apply(this, arguments);
-}
-function _loadCharterData() {
-  _loadCharterData = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2() {
-    var _yield$supabaseClient, data, error, container;
-    return _regenerator().w(function (_context2) {
-      while (1) switch (_context2.n) {
-        case 0:
-          _context2.n = 1;
-          return supabaseClient.from('citizen_charter').select('*').order('rank', {
-            ascending: true
-          });
-        case 1:
-          _yield$supabaseClient = _context2.v;
-          data = _yield$supabaseClient.data;
-          error = _yield$supabaseClient.error;
-          if (!(error || !data)) {
-            _context2.n = 2;
-            break;
-          }
-          return _context2.a(2);
-        case 2:
-          container = document.getElementById('charter-table-body');
-          container.innerHTML = '';
-          data.forEach(function (item, index) {
-            var formattedDocs = '-';
+        const container = document.getElementById('charter-table-body');
+        container.innerHTML = '';
+
+        data.forEach((item, index) => {
+            let formattedDocs = '-';
             if (item.documents) {
-              var docArray = item.documents.split(',');
-              var numberedDocs = docArray.map(function (doc, i) {
-                return "".concat(i + 1, ". ").concat(doc.trim());
-              }).join('<br>');
-              formattedDocs = convertToNepaliNumerals(numberedDocs);
+                let docArray = item.documents.split(',');
+                let numberedDocs = docArray.map((doc, i) => `${i + 1}. ${doc.trim()}`).join('<br>');
+                formattedDocs = convertToNepaliNumerals(numberedDocs);
             }
-            var row = document.createElement('div');
+
+            const row = document.createElement('div');
             row.className = 'charter-row';
-            row.innerHTML = "\n                <div class=\"sn-cell center-ch\">".concat(convertToNepaliNumerals(index + 1), "</div>\n                <div class=\"service-cell\">").concat(item.service_name, "</div>\n                <div class=\"doc-cell\">").concat(formattedDocs, "</div>\n                <div class=\"dept-cell\">").concat(item.department, "</div>\n                <div class=\"time-cell center-ch\">").concat(convertToNepaliNumerals(item.duration), "</div>\n                <div class=\"cost-cell center-ch\">").concat(convertToNepaliNumerals(item.cost), "</div>\n                <div class=\"grievance-cell\">").concat(item.grievance_redressal_officer ? item.grievance_redressal_officer : '-', "</div>\n            ");
+            row.innerHTML = `
+                <div class="sn-cell center-ch" data-n="${convertToNepaliNumerals(index + 1)}"></div>
+                <div class="service-cell">${item.service_name}</div>
+                <div class="doc-cell">${formattedDocs}</div>
+                <div class="dept-cell">${item.department}</div>
+                <div class="time-cell center-ch">${convertToNepaliNumerals(item.duration)}</div>
+                <div class="cost-cell center-ch">${convertToNepaliNumerals(item.cost)}</div>
+                <div class="grievance-cell">${item.grievance_redressal_officer ? item.grievance_redressal_officer : '-'}</div>
+            `;
             container.appendChild(row);
-          });
-        case 3:
-          return _context2.a(2);
-      }
-    }, _callee2);
-  }));
-  return _loadCharterData.apply(this, arguments);
-}
-function loadStaffData() {
-  return _loadStaffData.apply(this, arguments);
-}
-function _loadStaffData() {
-  _loadStaffData = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee3() {
-    var _yield$supabaseClient2, data, error, grid;
-    return _regenerator().w(function (_context3) {
-      while (1) switch (_context3.n) {
-        case 0:
-          _context3.n = 1;
-          return supabaseClient.from('employees').select('*').order('rank', {
-            ascending: true
-          });
-        case 1:
-          _yield$supabaseClient2 = _context3.v;
-          data = _yield$supabaseClient2.data;
-          error = _yield$supabaseClient2.error;
-          if (!(error || !data)) {
-            _context3.n = 2;
-            break;
-          }
-          return _context3.a(2);
-        case 2:
-          grid = document.getElementById('staff-grid');
-          grid.innerHTML = '';
-          data.forEach(function (item) {
-            var card = document.createElement('div');
+        });
+    }
+
+    async function loadStaffData() {
+        const { data, error } = await supabaseClient.from('employees').select('*').order('rank', { ascending: true });
+        if (error || !data) return;
+
+        const grid = document.getElementById('staff-grid');
+        grid.innerHTML = '';
+        data.forEach(item => {
+            const card = document.createElement('div');
             card.className = 'info-card';
-            var img = item.photo_url ? item.photo_url : 'https://via.placeholder.com/180';
-            card.innerHTML = "\n                <img src=\"".concat(img, "\" class=\"display-profile-img\" loading=\"lazy\" decoding=\"async\">\n                <div class=\"card-details\">\n                    <h3>").concat(item.name, "</h3>\n                    <p class=\"designation\">").concat(item.designation, "</p>\n                    <p class=\"meta-info\"><i class=\"fa-solid fa-door-open\"></i> \u0936\u093E\u0916\u093E/\u0915\u094B\u0920\u093E \u0928\u0902: ").concat(convertToNepaliNumerals(item.room_no), "</p>\n                    ").concat(item.phone ? "<p class=\"meta-info\"><i class=\"fa-solid fa-phone\"></i> ".concat(convertToNepaliNumerals(item.phone), "</p>") : '', "\n                </div>\n            ");
+            const img = item.photo_url ? item.photo_url : 'https://via.placeholder.com/180';
+            card.innerHTML = `
+                <img src="${img}" class="display-profile-img" loading="lazy" decoding="async">
+                <div class="card-details">
+                    <h3>${item.name}</h3>
+                    <p class="designation">${item.designation}</p>
+                    <p class="meta-info"><i class="fa-solid fa-door-open"></i> शाखा/कोठा नं: ${convertToNepaliNumerals(item.room_no)}</p>
+                    ${item.phone ? `<p class="meta-info"><i class="fa-solid fa-phone"></i> ${convertToNepaliNumerals(item.phone)}</p>` : ''}
+                </div>
+            `;
             grid.appendChild(card);
-          });
-        case 3:
-          return _context3.a(2);
-      }
-    }, _callee3);
-  }));
-  return _loadStaffData.apply(this, arguments);
-}
-function loadRepData() {
-  return _loadRepData.apply(this, arguments);
-}
-function _loadRepData() {
-  _loadRepData = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee4() {
-    var _yield$supabaseClient3, data, error, grid;
-    return _regenerator().w(function (_context4) {
-      while (1) switch (_context4.n) {
-        case 0:
-          _context4.n = 1;
-          return supabaseClient.from('representatives').select('*').order('rank', {
-            ascending: true
-          });
-        case 1:
-          _yield$supabaseClient3 = _context4.v;
-          data = _yield$supabaseClient3.data;
-          error = _yield$supabaseClient3.error;
-          if (!(error || !data)) {
-            _context4.n = 2;
-            break;
-          }
-          return _context4.a(2);
-        case 2:
-          grid = document.getElementById('rep-grid');
-          grid.innerHTML = '';
-          data.forEach(function (item) {
-            var card = document.createElement('div');
+        });
+    }
+
+    async function loadRepData() {
+        const { data, error } = await supabaseClient.from('representatives').select('*').order('rank', { ascending: true });
+        if (error || !data) return;
+
+        const grid = document.getElementById('rep-grid');
+        grid.innerHTML = '';
+        data.forEach(item => {
+            const card = document.createElement('div');
             card.className = 'info-card rep-card';
-            var img = item.photo_url ? item.photo_url : 'https://via.placeholder.com/180';
-            card.innerHTML = "\n                <img src=\"".concat(img, "\" class=\"display-profile-img\" loading=\"lazy\" decoding=\"async\">\n                <div class=\"card-details\">\n                    <h3>").concat(item.name, "</h3>\n                    <p class=\"designation\">").concat(item.designation, "</p>\n                    ").concat(item.contact ? "<p class=\"meta-info\"><i class=\"fa-solid fa-phone\"></i> ".concat(convertToNepaliNumerals(item.contact), "</p>") : '', "\n                </div>\n            ");
+            const img = item.photo_url ? item.photo_url : 'https://via.placeholder.com/180';
+            card.innerHTML = `
+                <img src="${img}" class="display-profile-img" loading="lazy" decoding="async">
+                <div class="card-details">
+                    <h3>${item.name}</h3>
+                    <p class="designation">${item.designation}</p>
+                    ${item.contact ? `<p class="meta-info"><i class="fa-solid fa-phone"></i> ${convertToNepaliNumerals(item.contact)}</p>` : ''}
+                </div>
+            `;
             grid.appendChild(card);
-          });
-        case 3:
-          return _context4.a(2);
-      }
-    }, _callee4);
-  }));
-  return _loadRepData.apply(this, arguments);
-}
-var animationTimers = [];
-function clearAllTimers() {
-  animationTimers.forEach(function (t) {
-    if (t.type === 'interval') clearInterval(t.id);
-    if (t.type === 'timeout') clearTimeout(t.id);
-    if (t.type === 'raf') cancelAnimationFrame(t.id);
-  });
-  animationTimers = [];
-}
-
-// ================= विशेष सूचना (Popup) - Comment + Image =================
-// Admin ले "Play" बटन थिचेर सक्रिय गरेको सूचना live हुन्छ र त्यसपछि यो पप-अप
-// हरेक ३ पटक (charter/data) पूरा दोहोरिने चक्र (cycle) पछि फेरि-फेरि (repeat)
-// देखिन्छ — जबसम्म Admin ले "रोक्नुहोस्/Clear" गर्दैन (is_active=false नहुन्जेल)।
-var specialNoticeConfig = null;
-var noticeShowing = false;
-var cycleCount = 0; // डाटा कति पटक पूरा दोहोरियो भनेर गन्ती
-var CYCLES_BEFORE_NOTICE = 1; // यति पटक चक्र पूरा भएपछि सूचना देखाउने
-var NOTICE_DISPLAY_MS = 30000; // सूचना ३० सेकेन्डसम्म देखिने
-
-// डाटाको एक पूरा दोहोरिने चक्र (scroll cycle) सकिँदा यो कल हुन्छ।
-// सूचना active नभएसम्म गन्ती गर्दैन; active भएपछि हरेक ३ चक्रमा एक पटक पप-अप देखाउँछ।
-function registerCycleComplete() {
-  if (!specialNoticeConfig || !specialNoticeConfig.is_active) {
-    cycleCount = 0;
-    return;
-  }
-  if (noticeShowing) return; // सूचना अहिले नै देखिरहेको छ भने गन्ती नगर्ने
-  cycleCount++;
-  if (cycleCount >= CYCLES_BEFORE_NOTICE) {
-    cycleCount = 0;
-    showSpecialNoticeIfActive();
-  }
-}
-function showSpecialNoticeIfActive() {
-  if (!specialNoticeConfig || !specialNoticeConfig.is_active) return;
-  if (!specialNoticeConfig.reason && !specialNoticeConfig.image_url) return;
-  if (noticeShowing) return; // पहिले नै देखाइरहेको बेला दोहोर्याउने छैन
-
-  noticeShowing = true;
-  cycleCount = 0;
-  var overlay = document.getElementById('special-notice-overlay');
-  var img = document.getElementById('notice-overlay-img');
-  var txt = document.getElementById('notice-overlay-text');
-  txt.innerText = specialNoticeConfig.reason || '';
-  if (specialNoticeConfig.image_url) {
-    // तस्बिर भएको खण्डमा तस्बिर बीचमा (center) देखाउने
-    img.src = specialNoticeConfig.image_url;
-    img.style.display = 'block';
-    txt.style.display = specialNoticeConfig.reason ? 'block' : 'none';
-  } else {
-    // तस्बिर नभएको खण्डमा क्याप्शन/text बीचमा (center) देखाउने
-    img.style.display = 'none';
-    txt.style.display = 'block';
-  }
-  overlay.style.display = 'flex';
-  setTimeout(function () {
-    overlay.style.display = 'none';
-    noticeShowing = false;
-  }, NOTICE_DISPLAY_MS);
-}
-function coreAutomationEngine() {
-  clearAllTimers();
-  var vViewport = document.getElementById('charter-viewport');
-  var vContent = document.getElementById('charter-table-body');
-  if (vContent.offsetHeight > vViewport.offsetHeight) {
-    var _stepVerticalScroll = function stepVerticalScroll() {
-      currentY -= scrollSpeed;
-      if (Math.abs(currentY) >= vContent.offsetHeight - vViewport.offsetHeight + 40) {
-        currentY = 0;
-        setTransform(vContent, "translateY(" + currentY + "px)");
-        registerCycleComplete(); // एक पूरा दोहोरिने चक्र (cycle) सकियो
-        var tId = setTimeout(function () {
-          var rId = requestAnimationFrame(_stepVerticalScroll);
-          animationTimers.push({
-            id: rId,
-            type: 'raf'
-          });
-        }, 3000);
-        animationTimers.push({
-          id: tId,
-          type: 'timeout'
         });
-        return;
-      }
-      setTransform(vContent, "translateY(" + currentY + "px)");
-      var rId = requestAnimationFrame(_stepVerticalScroll);
-      animationTimers.push({
-        id: rId,
-        type: 'raf'
-      });
-    };
-    var currentY = 0;
-    var scrollSpeed = 0.9;
-    var initialT = setTimeout(function () {
-      var rId = requestAnimationFrame(_stepVerticalScroll);
-      animationTimers.push({
-        id: rId,
-        type: 'raf'
-      });
-    }, 2000);
-    animationTimers.push({
-      id: initialT,
-      type: 'timeout'
-    });
-  } else {
-    // डाटा एउटै स्क्रिनमा अटेर स्क्रोल आवश्यक नपरेको अवस्थामा पनि
-    // समय-आधारित चक्र (cycle) गन्तिको लागि ब्याकअप टाइमर
-    var fallbackInterval = setInterval(registerCycleComplete, 20000);
-    animationTimers.push({
-      id: fallbackInterval,
-      type: 'interval'
-    });
-  }
-  setupSidebarAutoScroll('rep-viewport', 'rep-grid');
-  setupSidebarAutoScroll('staff-viewport', 'staff-grid');
+    }
 
-  // ================= फिक्स गरिएको फुटर टिकर स्क्रोलिङ इन्जिन (Right to Left) =================
-  var tViewport = document.getElementById('ticker-viewport');
-  var tContainer = document.getElementById('ticker-container');
-  if (tContainer && tViewport) {
-    // गति
-    var _stepHorizontalTicker = function stepHorizontalTicker() {
-      currentX -= tickerSpeed;
-      // जब सम्पूर्ण अक्षर बायाँ पट्टी पुरै स्क्रिन बाहिर जान्छ तब पुनः दायाँबाट सुरु हुन्छ
-      if (currentX <= -tContainer.offsetWidth) {
-        currentX = tViewport.offsetWidth;
-      }
-      setTransform(tContainer, "translateX(" + currentX + "px)");
-      var rId = requestAnimationFrame(_stepHorizontalTicker);
-      animationTimers.push({
-        id: rId,
-        type: 'raf'
-      });
-    };
-    var currentX = tViewport.offsetWidth; // दायाँ कुनाबाट सुरु हुने
-    var tickerSpeed = 1.3;
-    var rId = requestAnimationFrame(_stepHorizontalTicker);
-    animationTimers.push({
-      id: rId,
-      type: 'raf'
-    });
-  }
-}
-function setupSidebarAutoScroll(viewportId, contentId) {
-  var vp = document.getElementById(viewportId);
-  var cnt = document.getElementById(contentId);
-  if (!vp || !cnt) return;
-  if (cnt.offsetHeight > vp.offsetHeight) {
-    var _scrollSide = function scrollSide() {
-      currentY -= speed;
-      if (Math.abs(currentY) >= cnt.offsetHeight - vp.offsetHeight + 20) {
-        currentY = 0;
-        setTransform(cnt, "translateY(" + currentY + "px)");
-        var _tId = setTimeout(function () {
-          var rId = requestAnimationFrame(_scrollSide);
-          animationTimers.push({
-            id: rId,
-            type: 'raf'
-          });
-        }, 4000);
-        animationTimers.push({
-          id: _tId,
-          type: 'timeout'
+    let animationTimers = [];
+    function clearAllTimers() {
+        animationTimers.forEach(t => {
+            if (t.type === 'interval') clearInterval(t.id);
+            if (t.type === 'timeout') clearTimeout(t.id);
+            if (t.type === 'raf') cancelAnimationFrame(t.id);
         });
-        return;
-      }
-      setTransform(cnt, "translateY(" + currentY + "px)");
-      var rId = requestAnimationFrame(_scrollSide);
-      animationTimers.push({
-        id: rId,
-        type: 'raf'
-      });
-    };
-    var currentY = 0;
-    var speed = 1.4;
-    var tId = setTimeout(function () {
-      var rId = requestAnimationFrame(_scrollSide);
-      animationTimers.push({
-        id: rId,
-        type: 'raf'
-      });
-    }, 2500);
-    animationTimers.push({
-      id: tId,
-      type: 'timeout'
-    });
-  }
-}
-var countdownInterval = null;
-function checkBreakAndConfigStatus() {
-  return _checkBreakAndConfigStatus.apply(this, arguments);
-}
-function _checkBreakAndConfigStatus() {
-  _checkBreakAndConfigStatus = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee5() {
-    var _yield$supabaseClient4, data, error, footerData, tickerContainer, items, wasActive, isNowActive, breakConfig, overlay, updateCountdown, endTime;
-    return _regenerator().w(function (_context5) {
-      while (1) switch (_context5.n) {
-        case 0:
-          _context5.n = 1;
-          return supabaseClient.from('break_settings').select('*');
-        case 1:
-          _yield$supabaseClient4 = _context5.v;
-          data = _yield$supabaseClient4.data;
-          error = _yield$supabaseClient4.error;
-          if (!(error || !data)) {
-            _context5.n = 2;
-            break;
-          }
-          return _context5.a(2);
-        case 2:
-          footerData = data.find(function (x) {
-            return x.id === 2;
-          });
-          if (footerData && footerData.reason) {
-            tickerContainer = document.getElementById('ticker-container');
+        animationTimers = [];
+    }
+
+    // ================= विशेष सूचना (Popup) - Comment + Image =================
+    let specialNoticeConfig = null;
+    let noticeShowing = false;
+    let cycleCount = 0;
+    const CYCLES_BEFORE_NOTICE = 1;
+    const NOTICE_DISPLAY_MS = 30000;
+
+    function registerCycleComplete() {
+        if (!specialNoticeConfig || !specialNoticeConfig.is_active) {
+            cycleCount = 0;
+            return;
+        }
+        if (noticeShowing) return;
+        cycleCount++;
+        if (cycleCount >= CYCLES_BEFORE_NOTICE) {
+            cycleCount = 0;
+            showSpecialNoticeIfActive();
+        }
+    }
+
+    function showSpecialNoticeIfActive() {
+        if (!specialNoticeConfig || !specialNoticeConfig.is_active) return;
+        if (!specialNoticeConfig.reason && !specialNoticeConfig.image_url) return;
+        if (noticeShowing) return;
+
+        noticeShowing = true;
+        cycleCount = 0;
+        const overlay = document.getElementById('special-notice-overlay');
+        const img = document.getElementById('notice-overlay-img');
+        const txt = document.getElementById('notice-overlay-text');
+
+        txt.innerText = specialNoticeConfig.reason || '';
+        if (specialNoticeConfig.image_url) {
+            img.src = specialNoticeConfig.image_url;
+            img.style.display = 'block';
+            txt.style.display = specialNoticeConfig.reason ? 'block' : 'none';
+        } else {
+            img.style.display = 'none';
+            txt.style.display = 'block';
+        }
+
+        overlay.style.display = 'flex';
+        setTimeout(() => {
+            overlay.style.display = 'none';
+            noticeShowing = false;
+        }, NOTICE_DISPLAY_MS);
+    }
+
+    function coreAutomationEngine() {
+        clearAllTimers();
+
+        const vViewport = document.getElementById('charter-viewport');
+        const vContent = document.getElementById('charter-table-body');
+
+        if (vContent.offsetHeight > vViewport.offsetHeight) {
+            let currentY = 0;
+            const scrollSpeed = 0.9;
+
+            function stepVerticalScroll() {
+                currentY -= scrollSpeed;
+                if (Math.abs(currentY) >= (vContent.offsetHeight - vViewport.offsetHeight + 40)) {
+                    currentY = 0;
+                    setTransform(vContent, "translateY(" + currentY + "px)");
+                    registerCycleComplete();
+                    let tId = setTimeout(() => {
+                        let rId = requestAnimationFrame(stepVerticalScroll);
+                        animationTimers.push({ id: rId, type: 'raf' });
+                    }, 3000);
+                    animationTimers.push({ id: tId, type: 'timeout' });
+                    return;
+                }
+                setTransform(vContent, "translateY(" + currentY + "px)");
+                let rId = requestAnimationFrame(stepVerticalScroll);
+                animationTimers.push({ id: rId, type: 'raf' });
+            }
+
+            let initialT = setTimeout(() => {
+                let rId = requestAnimationFrame(stepVerticalScroll);
+                animationTimers.push({ id: rId, type: 'raf' });
+            }, 2000);
+            animationTimers.push({ id: initialT, type: 'timeout' });
+        } else {
+            let fallbackInterval = setInterval(registerCycleComplete, 20000);
+            animationTimers.push({ id: fallbackInterval, type: 'interval' });
+        }
+
+        setupSidebarAutoScroll('rep-viewport', 'rep-grid');
+        setupSidebarAutoScroll('staff-viewport', 'staff-grid');
+
+        // ================= फुटर टिकर स्क्रोलिङ इन्जिन (Right to Left) =================
+        const tViewport = document.getElementById('ticker-viewport');
+        const tContainer = document.getElementById('ticker-container');
+
+        if (tContainer && tViewport) {
+            let currentX = tViewport.offsetWidth;
+            const tickerSpeed = 1.3;
+
+            function stepHorizontalTicker() {
+                currentX -= tickerSpeed;
+                if (currentX <= -tContainer.offsetWidth) {
+                    currentX = tViewport.offsetWidth;
+                }
+                setTransform(tContainer, "translateX(" + currentX + "px)");
+                let rId = requestAnimationFrame(stepHorizontalTicker);
+                animationTimers.push({ id: rId, type: 'raf' });
+            }
+            let rId = requestAnimationFrame(stepHorizontalTicker);
+            animationTimers.push({ id: rId, type: 'raf' });
+        }
+    }
+
+    function setupSidebarAutoScroll(viewportId, contentId) {
+        const vp = document.getElementById(viewportId);
+        const cnt = document.getElementById(contentId);
+        if (!vp || !cnt) return;
+
+        if (cnt.offsetHeight > vp.offsetHeight) {
+            let currentY = 0;
+            const speed = 1.4;
+
+            function scrollSide() {
+                currentY -= speed;
+                if (Math.abs(currentY) >= (cnt.offsetHeight - vp.offsetHeight + 20)) {
+                    currentY = 0;
+                    setTransform(cnt, "translateY(" + currentY + "px)");
+                    let tId = setTimeout(() => {
+                        let rId = requestAnimationFrame(scrollSide);
+                        animationTimers.push({ id: rId, type: 'raf' });
+                    }, 4000);
+                    animationTimers.push({ id: tId, type: 'timeout' });
+                    return;
+                }
+                setTransform(cnt, "translateY(" + currentY + "px)");
+                let rId = requestAnimationFrame(scrollSide);
+                animationTimers.push({ id: rId, type: 'raf' });
+            }
+            let tId = setTimeout(() => {
+                let rId = requestAnimationFrame(scrollSide);
+                animationTimers.push({ id: rId, type: 'raf' });
+            }, 2500);
+            animationTimers.push({ id: tId, type: 'timeout' });
+        }
+    }
+
+    let countdownInterval = null;
+
+    async function checkBreakAndConfigStatus() {
+        const { data, error } = await supabaseClient.from('break_settings').select('*');
+        if (error || !data) return;
+
+        const footerData = data.find(x => x.id === 2);
+        if (footerData && footerData.reason) {
+            const tickerContainer = document.getElementById('ticker-container');
             tickerContainer.innerHTML = '';
-            items = footerData.reason.split(',');
-            items.forEach(function (txt) {
-              if (txt.trim()) {
-                var span = document.createElement('span');
-                span.className = 'ticker-item';
-                span.innerText = txt.trim();
-                tickerContainer.appendChild(span);
-              }
+            const items = footerData.reason.split(',');
+            items.forEach(txt => {
+                if (txt.trim()) {
+                    const span = document.createElement('span');
+                    span.className = 'ticker-item';
+                    span.innerText = txt.trim();
+                    tickerContainer.appendChild(span);
+                }
             });
-          }
-          wasActive = !!(specialNoticeConfig && specialNoticeConfig.is_active);
-          specialNoticeConfig = data.find(function (x) {
-            return x.id === 3;
-          }) || null;
-          isNowActive = !!(specialNoticeConfig && specialNoticeConfig.is_active); // सूचना नयाँ-नयाँ सक्रिय (Play) भएको बेला मात्र चक्र-गन्ती शून्यबाट सुरु गर्ने,
-          // ताकि Play थिचेपछिको ३ चक्र सफा तरिकाले गनिन्छ।
-          if (isNowActive && !wasActive) {
-            cycleCount = 0;
-          }
-          if (!isNowActive) {
-            cycleCount = 0;
-          }
-          breakConfig = data.find(function (x) {
-            return x.id === 1;
-          });
-          overlay = document.getElementById('break-overlay');
-          if (countdownInterval) clearInterval(countdownInterval);
-          if (breakConfig && breakConfig.is_active && breakConfig.end_time) {
-            updateCountdown = function updateCountdown() {
-              var remainder = endTime - Date.now();
-              if (remainder <= 0) {
-                clearInterval(countdownInterval);
-                overlay.style.display = 'none';
-                coreAutomationEngine();
-              } else {
-                var totalSecs = Math.floor(remainder / 1000);
-                var mins = Math.floor(totalSecs / 60);
-                var secs = totalSecs % 60;
-                var mStr = mins < 10 ? '0' + mins : mins;
-                var sStr = secs < 10 ? '0' + secs : secs;
-                document.getElementById('countdown-display').innerText = convertToNepaliNumerals("".concat(mStr, ":").concat(sStr));
-              }
-            };
-            endTime = new Date(breakConfig.end_time).getTime();
+        }
+
+        const wasActive = !!(specialNoticeConfig && specialNoticeConfig.is_active);
+        specialNoticeConfig = data.find(x => x.id === 3) || null;
+        const isNowActive = !!(specialNoticeConfig && specialNoticeConfig.is_active);
+
+        if (isNowActive && !wasActive) { cycleCount = 0; }
+        if (!isNowActive) { cycleCount = 0; }
+
+        const breakConfig = data.find(x => x.id === 1);
+        const overlay = document.getElementById('break-overlay');
+
+        if (countdownInterval) clearInterval(countdownInterval);
+
+        if (breakConfig && breakConfig.is_active && breakConfig.end_time) {
+            const endTime = new Date(breakConfig.end_time).getTime();
+
             document.getElementById('overlay-title').innerText = "कार्यालयको विशेष सूचना";
             document.getElementById('overlay-reason').innerText = breakConfig.reason || "विशेष कारणवश सेवा केही समयको लागि स्थगित गरिएको छ।";
             overlay.style.display = 'flex';
+
+            function updateCountdown() {
+                const remainder = endTime - Date.now();
+                if (remainder <= 0) {
+                    clearInterval(countdownInterval);
+                    overlay.style.display = 'none';
+                    coreAutomationEngine();
+                } else {
+                    const totalSecs = Math.floor(remainder / 1000);
+                    const mins = Math.floor(totalSecs / 60);
+                    const secs = totalSecs % 60;
+                    const mStr = mins < 10 ? '0' + mins : mins;
+                    const sStr = secs < 10 ? '0' + secs : secs;
+                    document.getElementById('countdown-display').innerText = convertToNepaliNumerals(`${mStr}:${sStr}`);
+                }
+            }
             updateCountdown();
             countdownInterval = setInterval(updateCountdown, 1000);
-          } else {
+        } else {
             overlay.style.display = 'none';
-          }
-          coreAutomationEngine();
-        case 3:
-          return _context5.a(2);
-      }
-    }, _callee5);
-  }));
-  return _checkBreakAndConfigStatus.apply(this, arguments);
-}
-window.addEventListener('resize', function () {
-  coreAutomationEngine();
-});
+        }
 
-// पुरानो Sony TV browser मा websocket-आधारित realtime (postgres_changes) भरपर्दो
-// नहुने भएकोले त्यो हटाइयो; बदलामा तलको छोटो-अन्तरालको polling ले नै डाटा ताजा राख्छ।
-Promise.all([loadCharterData(), loadStaffData(), loadRepData()]).then(/*#__PURE__*/_asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee() {
-  return _regenerator().w(function (_context) {
-    while (1) switch (_context.n) {
-      case 0:
-        _context.n = 1;
-        return checkBreakAndConfigStatus();
-      case 1:
-        return _context.a(2);
+        coreAutomationEngine();
     }
-  }, _callee);
-})));
 
-// Realtime नभएकोले, डाटा/सूचना समयमै देखियोस् भनेर हरेक ३० सेकेन्डमा पुनः लोड गरिन्छ (polling)
-setInterval(function () {
-  Promise.all([loadCharterData(), loadStaffData(), loadRepData()]).then(function () {
-    coreAutomationEngine();
-  });
-  checkBreakAndConfigStatus();
-}, 30 * 1000);
+    window.addEventListener('resize', () => { coreAutomationEngine(); });
 
-// नेटवर्क फेरि जोडिएपछि तुरुन्तै डाटा ताजा गर्ने
-window.addEventListener('online', function () {
-  Promise.all([loadCharterData(), loadStaffData(), loadRepData()]).then(function () {
-    coreAutomationEngine();
-  });
-  checkBreakAndConfigStatus();
-});
+    supabaseClient.channel('realtime-charter').on('postgres_changes', { event: '*', schema: 'public', table: 'citizen_charter' }, () => loadCharterData().then(() => coreAutomationEngine())).subscribe();
+    supabaseClient.channel('realtime-employees').on('postgres_changes', { event: '*', schema: 'public', table: 'employees' }, () => loadStaffData().then(() => coreAutomationEngine())).subscribe();
+    supabaseClient.channel('realtime-reps').on('postgres_changes', { event: '*', schema: 'public', table: 'representatives' }, () => loadRepData().then(() => coreAutomationEngine())).subscribe();
+    supabaseClient.channel('realtime-break').on('postgres_changes', { event: '*', schema: 'public', table: 'break_settings' }, (payload) => {
+        checkBreakAndConfigStatus().then(() => {
+            const changedId = (payload && payload.new && payload.new.id) || (payload && payload.old && payload.old.id);
+            if (changedId === 3) {
+                showSpecialNoticeIfActive();
+            }
+        });
+    }).subscribe();
+
+    Promise.all([loadCharterData(), loadStaffData(), loadRepData()]).then(async () => {
+        await checkBreakAndConfigStatus();
+    });
+
+    // कमजोर/अस्थिर 3G नेटवर्कमा realtime websocket बीचमा टुट्न सक्ने भएकोले
+    // सुरक्षाको लागि हरेक ५ मिनेटमा डाटा पुनः लोड गरिन्छ (backup polling)
+    setInterval(function () {
+        Promise.all([loadCharterData(), loadStaffData(), loadRepData()]).then(function () {
+            coreAutomationEngine();
+        });
+        checkBreakAndConfigStatus();
+    }, 5 * 60 * 1000);
+
+    // नेटवर्क फेरि जोडिएपछि तुरुन्तै डाटा ताजा गर्ने
+    window.addEventListener('online', function () {
+        Promise.all([loadCharterData(), loadStaffData(), loadRepData()]).then(function () {
+            coreAutomationEngine();
+        });
+        checkBreakAndConfigStatus();
+    });
 </script>
 </body>
 </html>
