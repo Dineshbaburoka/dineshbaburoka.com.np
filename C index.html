@@ -142,8 +142,8 @@
             background: var(--indigo);
             color: #f3ead4;
             font-weight: 700;
-            font-size: 1rem;
-            padding: 11px 0;
+            font-size: 1.4rem;
+            padding: 18px 0;
             border-bottom: 3px solid var(--gold);
         }
         .table-header-row > div {
@@ -154,13 +154,13 @@
         .table-header-row > div:last-child { border-right: none; }
         .table-header-row > .center-ch, .charter-row > .center-ch { justify-content: center; text-align: center; }
 
-        .table-header-row > div:nth-child(1), .charter-row > div:nth-child(1) { flex: 0 0 54px; }
-        .table-header-row > div:nth-child(2), .charter-row > div:nth-child(2) { flex: 1 1 0; }
+        .table-header-row > div:nth-child(1), .charter-row > div:nth-child(1) { flex: 0 0 58px; }
+        .table-header-row > div:nth-child(2), .charter-row > div:nth-child(2) { flex: 0.75 1 0; }
         .table-header-row > div:nth-child(3), .charter-row > div:nth-child(3) { flex: 2.4 1 0; }
-        .table-header-row > div:nth-child(4), .charter-row > div:nth-child(4) { flex: 0.85 1 0; }
-        .table-header-row > div:nth-child(5), .charter-row > div:nth-child(5) { flex: 0 0 78px; }
-        .table-header-row > div:nth-child(6), .charter-row > div:nth-child(6) { flex: 0 0 78px; }
-        .table-header-row > div:nth-child(7), .charter-row > div:nth-child(7) { flex: 1 1 0; }
+        .table-header-row > div:nth-child(4), .charter-row > div:nth-child(4) { flex: 0.8 1 0; }
+        .table-header-row > div:nth-child(5), .charter-row > div:nth-child(5) { flex: 0 0 130px; }
+        .table-header-row > div:nth-child(6), .charter-row > div:nth-child(6) { flex: 0 0 140px; }
+        .table-header-row > div:nth-child(7), .charter-row > div:nth-child(7) { flex: 0.6 1 0; }
 
         .scroller-viewport { flex: 1; overflow: hidden; position: relative; background: var(--paper-panel); }
         .scroller-content { position: absolute; width: 100%; top: 0; left: 0; will-change: transform; -webkit-backface-visibility: hidden; backface-visibility: hidden; }
@@ -169,17 +169,17 @@
             display: flex;
             border-bottom: 1px solid var(--line);
             background: var(--paper-panel);
-            font-size: 1.02rem;
-            min-height: 78px;
+            font-size: 1.42rem;
+            min-height: 320px;
         }
         .charter-row:nth-child(even) { background: #fbf6ea; }
         .charter-row:last-child { border-bottom: none; }
 
         .charter-row > div {
-            padding: 12px 10px;
+            padding: 16px 12px;
             display: flex; align-items: center;
             color: var(--ink);
-            line-height: 1.4;
+            line-height: 1.5;
             border-right: 1px dashed var(--line);
         }
         .charter-row > div:last-child { border-right: none; }
@@ -191,20 +191,20 @@
             content: attr(data-n);
         }
         .sn-cell {
-            font-weight: 800; font-size: 1rem; color: var(--crimson);
+            font-weight: 800; font-size: 1.5rem; color: var(--crimson);
             position: relative;
         }
         .sn-cell {
-            width: 34px; height: 34px; border-radius: 50%;
-            border: 1.5px solid var(--crimson);
+            width: 56px; height: 56px; border-radius: 50%;
+            border: 2px solid var(--crimson);
             margin: 0 auto;
         }
-        .service-cell { font-weight: 700; font-size: 1.08rem; color: var(--indigo); }
-        .doc-cell { font-size: 0.98rem; color: var(--muted); white-space: pre-line; text-align: left; align-items: flex-start !important; padding-top: 12px; }
-        .dept-cell { font-weight: 700; color: var(--crimson-deep) !important; font-size: 1rem; }
-        .time-cell { font-weight: 700; color: var(--gold); font-size: 0.98rem; }
-        .cost-cell { font-weight: 700; color: #2f6b4f; font-size: 0.98rem; }
-        .grievance-cell { font-weight: 600; color: var(--muted); font-size: 0.95rem; text-align: left; align-items: flex-start !important; padding-top: 12px; }
+        .service-cell { font-weight: 700; font-size: 2.1rem; color: var(--indigo); }
+        .doc-cell { font-size: 1.6rem; color: var(--muted); white-space: pre-line; text-align: left; align-items: flex-start !important; padding-top: 16px; }
+        .dept-cell { font-weight: 700; color: var(--crimson-deep) !important; font-size: 1.7rem; }
+        .time-cell { font-weight: 700; color: var(--gold); font-size: 1.7rem; }
+        .cost-cell { font-weight: 700; color: #2f6b4f; font-size: 1.7rem; }
+        .grievance-cell { font-weight: 600; color: var(--muted); font-size: 1.3rem; text-align: left; align-items: flex-start !important; padding-top: 16px; }
 
         /* दायाँ भाग: साइडबार — परिचयपत्र (ID-card) शैली */
         .sidebar-section { display: flex; flex-direction: column; gap: 16px; overflow: hidden; }
@@ -334,6 +334,55 @@
         #notice-overlay-img { display: block; max-width: 100%; max-height: 320px; border-radius: 12px; margin: 0 auto 20px auto; object-fit: cover; }
         .notice-box .notice-comment { font-size: 1.6rem; font-weight: 700; color: #fffdf8; line-height: 1.5; text-align: center; }
 
+        /* ============ जनप्रतिनिधि Fullscreen प्रोफाइल (charter+staff+rep २ पटक loop भएपछि देखिने) ============ */
+        .rep-fullscreen-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(120deg, var(--indigo), var(--indigo-deep) 70%);
+            z-index: 900; color: #f7f2e7;
+            align-items: stretch; justify-content: center;
+        }
+        .rfs-inner {
+            display: flex; align-items: center; justify-content: center; gap: 60px;
+            width: 100%; max-width: 1300px; margin: 0 auto; padding: 0 60px;
+        }
+        .rfs-photo-wrap {
+            flex: 0 0 auto; position: relative;
+        }
+        .rfs-photo-wrap img {
+            width: 380px; height: 460px; object-fit: cover; border-radius: 18px;
+            border: 5px solid var(--gold-light);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.45);
+        }
+        .rfs-badge {
+            position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%);
+            background: var(--crimson); color: #fff8ec; font-weight: 800; font-size: 1rem;
+            padding: 8px 26px; border-radius: 999px; white-space: nowrap;
+            border: 2px solid var(--gold-light);
+        }
+        .rfs-info { flex: 1 1 480px; max-width: 620px; }
+        .rfs-eyebrow { color: var(--gold-light); font-weight: 700; letter-spacing: 2px; font-size: 1rem; margin-bottom: 10px; text-transform: uppercase; }
+        .rfs-name { font-size: 3rem; font-weight: 800; margin-bottom: 8px; color: #fffdf8; }
+        .rfs-designation { font-size: 1.5rem; font-weight: 700; color: var(--gold-light); margin-bottom: 14px; }
+        .rfs-contact { font-size: 1.2rem; font-weight: 600; color: #d9cfb4; display: flex; align-items: center; gap: 10px; margin-bottom: 30px; }
+        .rfs-duties-title {
+            background: var(--crimson); color: #fff8ec; font-weight: 700; font-size: 1.15rem;
+            padding: 10px 20px; border-radius: 8px; margin-bottom: 14px; display: inline-block;
+        }
+        .rfs-duties { list-style: none; }
+        .rfs-duties li {
+            background: rgba(255,255,255,0.06); border: 1px solid rgba(217,173,85,0.28);
+            border-radius: 8px; padding: 12px 18px; margin-bottom: 10px;
+            font-size: 1.08rem; font-weight: 600; color: #f3ead4; line-height: 1.5;
+        }
+        .rfs-progress {
+            position: absolute; bottom: 24px; left: 0; right: 0;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .rfs-progress span {
+            width: 9px; height: 9px; border-radius: 50%; background: rgba(255,255,255,0.25);
+        }
+        .rfs-progress span.active { background: var(--gold-light); }
+
         /* फुलस्क्रिन बटन */
         .fs-toggle-btn {
             position: fixed; top: 12px; right: 305px; z-index: 100;
@@ -366,13 +415,36 @@
     </div>
 </div>
 
+<div id="rep-fullscreen-overlay" class="rep-fullscreen-overlay">
+    <div class="rfs-inner">
+        <div class="rfs-photo-wrap">
+            <img id="rfs-photo" src="" alt="जनप्रतिनिधि तस्बिर">
+            <div class="rfs-badge" id="rfs-badge">जनप्रतिनिधि</div>
+        </div>
+        <div class="rfs-info">
+            <div class="rfs-eyebrow">गलकोट नगरपालिका · जनप्रतिनिधि परिचय</div>
+            <div class="rfs-name" id="rfs-name">-</div>
+            <div class="rfs-designation" id="rfs-designation">-</div>
+            <div class="rfs-contact" id="rfs-contact" style="display:none;"><i class="fa-solid fa-phone"></i> <span id="rfs-contact-text"></span></div>
+            <div class="rfs-duties-title"><i class="fa-solid fa-list-check"></i> हाम्रा कार्यहरु</div>
+            <ul class="rfs-duties">
+                <li>नगरपालिका क्षेत्रभित्रको समग्र विकास योजना तर्जुमा र कार्यान्वयन</li>
+                <li>सार्वजनिक सेवा प्रवाहलाई प्रभावकारी, चुस्त र जनमैत्री बनाउने</li>
+                <li>नागरिकका गुनासो र समस्याको सुनुवाई तथा समाधान</li>
+                <li>स्थानीय स्रोत-साधनको उचित परिचालन र पारदर्शी व्यवस्थापन</li>
+            </ul>
+        </div>
+        <div class="rfs-progress" id="rfs-progress"></div>
+    </div>
+</div>
+
 <header class="main-header">
     <div class="header-left">
         <img src="https://upload.wikimedia.org/wikipedia/commons/2/23/Emblem_of_Nepal.svg" alt="Nepal Gov Logo" class="gov-logo" decoding="async">
         <div class="header-title">
-            <div class="header-eyebrow">गलकोट नगरपालिका</div>
-            <h1>नगर कार्यपालिकाको कार्यालय</h1>
-            <p>गलकोट, बागलुङ</p>
+            <div class="header-eyebrow">नेपाल सरकार · गण्डकी प्रदेश</div>
+            <h1>गलकोट नगरपालिका</h1>
+            <p>नगर कार्यपालिकाको कार्यालय</p>
         </div>
     </div>
     <div class="time-seal">
@@ -536,9 +608,11 @@
         });
     }
 
+    let repsCache = [];
     async function loadRepData() {
         const { data, error } = await supabaseClient.from('representatives').select('*').order('rank', { ascending: true });
         if (error || !data) return;
+        repsCache = data;
 
         const grid = document.getElementById('rep-grid');
         grid.innerHTML = '';
@@ -576,16 +650,84 @@
     const NOTICE_DISPLAY_MS = 30000;
 
     function registerCycleComplete() {
-        if (!specialNoticeConfig || !specialNoticeConfig.is_active) {
+        if (specialNoticeConfig && specialNoticeConfig.is_active && !noticeShowing) {
+            cycleCount++;
+            if (cycleCount >= CYCLES_BEFORE_NOTICE) {
+                cycleCount = 0;
+                showSpecialNoticeIfActive();
+            }
+        } else {
             cycleCount = 0;
-            return;
         }
+
+        // सम्पूर्ण स्क्रिन (बडापत्र+कर्मचारी+जनप्रतिनिधि) २ पटक पूरा चक्र भएपछि
+        // जनप्रतिनिधिहरुको ठूलो fullscreen परिचय पालैपालो देखाउने
+        if (!repFullscreenShowing) {
+            repCycleCount++;
+            if (repCycleCount >= CYCLES_BEFORE_REP_FULLSCREEN) {
+                repCycleCount = 0;
+                showRepFullscreenSequence();
+            }
+        }
+    }
+
+    // ================= जनप्रतिनिधि Fullscreen परिचय क्रम =================
+    let repCycleCount = 0;
+    const CYCLES_BEFORE_REP_FULLSCREEN = 2; // यति पटक पूरा चक्र पछि देखाउने
+    let repFullscreenShowing = false;
+    const REP_FULLSCREEN_MS = 6000; // हरेक जनप्रतिनिधि यति समयसम्म देखिने
+
+    function renderRepFullscreen(item) {
+        document.getElementById('rfs-photo').src = item.photo_url ? item.photo_url : 'https://via.placeholder.com/380x460';
+        document.getElementById('rfs-name').innerText = item.name || '-';
+        document.getElementById('rfs-designation').innerText = item.designation || '-';
+        document.getElementById('rfs-badge').innerText = item.designation || 'जनप्रतिनिधि';
+        const contactEl = document.getElementById('rfs-contact');
+        const contactText = document.getElementById('rfs-contact-text');
+        if (item.contact) {
+            contactText.innerText = convertToNepaliNumerals(item.contact);
+            contactEl.style.display = 'flex';
+        } else {
+            contactEl.style.display = 'none';
+        }
+    }
+
+    function renderRfsProgress(total, activeIdx) {
+        const wrap = document.getElementById('rfs-progress');
+        wrap.innerHTML = '';
+        for (let i = 0; i < total; i++) {
+            const dot = document.createElement('span');
+            if (i === activeIdx) dot.className = 'active';
+            wrap.appendChild(dot);
+        }
+    }
+
+    function showRepFullscreenSequence() {
+        if (!repsCache || repsCache.length === 0) return;
+        // ब्रेक/विशेष सूचना पहिले नै देखिइरहेको बेला ट्कराउ नहोस्
+        if (document.getElementById('break-overlay').style.display === 'flex') return;
         if (noticeShowing) return;
-        cycleCount++;
-        if (cycleCount >= CYCLES_BEFORE_NOTICE) {
-            cycleCount = 0;
-            showSpecialNoticeIfActive();
+
+        repFullscreenShowing = true;
+        clearAllTimers();
+        const overlay = document.getElementById('rep-fullscreen-overlay');
+        overlay.style.display = 'flex';
+
+        let idx = 0;
+        function showNext() {
+            if (idx >= repsCache.length) {
+                overlay.style.display = 'none';
+                repFullscreenShowing = false;
+                coreAutomationEngine();
+                return;
+            }
+            renderRepFullscreen(repsCache[idx]);
+            renderRfsProgress(repsCache.length, idx);
+            idx++;
+            let tId = setTimeout(showNext, REP_FULLSCREEN_MS);
+            animationTimers.push({ id: tId, type: 'timeout' });
         }
+        showNext();
     }
 
     function showSpecialNoticeIfActive() {
@@ -617,6 +759,7 @@
     }
 
     function coreAutomationEngine() {
+        if (repFullscreenShowing) return; // fullscreen परिचय क्रम चलिरहेको बेला सामान्य स्क्रोल नरोकिने
         clearAllTimers();
 
         const vViewport = document.getElementById('charter-viewport');
@@ -624,7 +767,7 @@
 
         if (vContent.offsetHeight > vViewport.offsetHeight) {
             let currentY = 0;
-            const scrollSpeed = 0.8;
+            const scrollSpeed = 0.9;
 
             function stepVerticalScroll() {
                 currentY -= scrollSpeed;
@@ -663,7 +806,7 @@
 
         if (tContainer && tViewport) {
             let currentX = tViewport.offsetWidth;
-            const tickerSpeed = 1;
+            const tickerSpeed = 1.3;
 
             function stepHorizontalTicker() {
                 currentX -= tickerSpeed;
@@ -686,7 +829,7 @@
 
         if (cnt.offsetHeight > vp.offsetHeight) {
             let currentY = 0;
-            const speed = 1;
+            const speed = 1.4;
 
             function scrollSide() {
                 currentY -= speed;
@@ -748,6 +891,10 @@
         if (breakConfig && breakConfig.is_active && breakConfig.end_time) {
             const endTime = new Date(breakConfig.end_time).getTime();
 
+            if (repFullscreenShowing) {
+                repFullscreenShowing = false;
+                document.getElementById('rep-fullscreen-overlay').style.display = 'none';
+            }
             document.getElementById('overlay-title').innerText = "कार्यालयको विशेष सूचना";
             document.getElementById('overlay-reason').innerText = breakConfig.reason || "विशेष कारणवश सेवा केही समयको लागि स्थगित गरिएको छ।";
             overlay.style.display = 'flex';
