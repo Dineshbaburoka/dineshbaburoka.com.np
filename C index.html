@@ -897,6 +897,7 @@
             }
             document.getElementById('overlay-title').innerText = "कार्यालयको विशेष सूचना";
             document.getElementById('overlay-reason').innerText = breakConfig.reason || "विशेष कारणवश सेवा केही समयको लागि स्थगित गरिएको छ।";
+            overlay.dataset.source = 'db';
             overlay.style.display = 'flex';
 
             function updateCountdown() {
@@ -916,12 +917,58 @@
             }
             updateCountdown();
             countdownInterval = setInterval(updateCountdown, 1000);
-        } else {
+        } else if (overlay.dataset.source !== 'schedule') {
             overlay.style.display = 'none';
         }
 
         coreAutomationEngine();
     }
+
+    // ================= दिनको निश्चित खाजा समय (दिउँसो २:०० - २:३० बजे) =================
+    // यो पूर्णतया स्थानीय समयमा आधारित छ, database सँग सम्बन्ध छैन,
+    // र database ले manually अर्को break नदेखाइरहेको बेला मात्र सक्रिय हुन्छ।
+    const SNACK_HOUR = 14;      // 24-घण्टे ढाँचामा दिउँसो २:०० बजे
+    const SNACK_MINUTE = 0;
+    const SNACK_DURATION_MIN = 30; // आधा घण्टा
+
+    function snackScheduleTick() {
+        const overlay = document.getElementById('break-overlay');
+        if (!overlay) return;
+
+        // database बाट manually सक्रिय गरिएको break देखिइरहेको भए त्यसलाई प्राथमिकता दिने
+        if (overlay.style.display === 'flex' && overlay.dataset.source === 'db') return;
+
+        const now = new Date();
+        const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), SNACK_HOUR, SNACK_MINUTE, 0, 0);
+        const end = new Date(start.getTime() + SNACK_DURATION_MIN * 60000);
+
+        if (now >= start && now < end) {
+            if (overlay.dataset.source !== 'schedule') {
+                if (repFullscreenShowing) {
+                    repFullscreenShowing = false;
+                    document.getElementById('rep-fullscreen-overlay').style.display = 'none';
+                }
+                overlay.dataset.source = 'schedule';
+                document.getElementById('overlay-title').innerText = "खाजा समय";
+                document.getElementById('overlay-reason').innerText = "खाजा खाने समयको लागि सेवा केही समयको लागि स्थगित गरिएको छ।";
+                overlay.style.display = 'flex';
+            }
+            const remainder = end.getTime() - now.getTime();
+            const totalSecs = Math.floor(remainder / 1000);
+            const mins = Math.floor(totalSecs / 60);
+            const secs = totalSecs % 60;
+            const mStr = mins < 10 ? '0' + mins : mins;
+            const sStr = secs < 10 ? '0' + secs : secs;
+            document.getElementById('countdown-display').innerText = convertToNepaliNumerals(`${mStr}:${sStr}`);
+        } else if (overlay.dataset.source === 'schedule') {
+            overlay.dataset.source = '';
+            overlay.style.display = 'none';
+            coreAutomationEngine();
+        }
+    }
+
+    setInterval(snackScheduleTick, 1000);
+    snackScheduleTick();
 
     window.addEventListener('resize', () => { coreAutomationEngine(); });
 
