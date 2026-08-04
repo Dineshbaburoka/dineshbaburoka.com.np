@@ -1,0 +1,2613 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>काष्ठ व्यवस्थापन — Furniture Business ERP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
+<style>
+  :root{
+    --bg:#F7F2E9;
+    --panel:#FFFFFF;
+    --ink:#2B1B12;
+    --ink-soft:#6B5544;
+    --wood:#8B5E34;
+    --wood-dark:#5E3E22;
+    --forest:#3F5230;
+    --amber:#C97C3B;
+    --line:#E7DCC8;
+    --danger:#A8442E;
+    --ok:#3F5230;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:'Inter','Noto Sans Devanagari',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{font-family:'Fraunces','Noto Sans Devanagari',serif;}
+  #app{display:flex; min-height:100vh;}
+
+  /* Sidebar */
+  #sidebar{
+    width:230px; background:var(--wood-dark); color:#F2E8D9; flex-shrink:0;
+    display:flex; flex-direction:column; padding:20px 0;
+  }
+  #sidebar .brand{padding:0 20px 18px; border-bottom:1px solid rgba(255,255,255,0.12); margin-bottom:10px;}
+  #sidebar .brand .title{font-family:'Fraunces',serif; font-size:20px; font-weight:600; line-height:1.2;}
+  #sidebar .brand .sub{font-size:11px; opacity:.65; margin-top:4px; letter-spacing:.04em;}
+  .nav-item{
+    display:flex; align-items:center; gap:10px; padding:11px 20px; cursor:pointer;
+    font-size:14.5px; color:#EADFC9; opacity:.82; border-left:3px solid transparent;
+    transition:.15s;
+  }
+  .nav-item:hover{opacity:1; background:rgba(255,255,255,0.06);}
+  .nav-item.active{opacity:1; background:rgba(201,124,59,0.18); border-left-color:var(--amber); font-weight:600;}
+  .nav-emoji{width:18px; text-align:center;}
+
+  /* Main */
+  #main{flex:1; display:flex; flex-direction:column; min-width:0;}
+  #topbar{
+    height:60px; background:var(--panel); border-bottom:1px solid var(--line);
+    display:flex; align-items:center; justify-content:space-between; padding:0 24px;
+  }
+  #topbar .page-title{font-family:'Fraunces',serif; font-size:19px; font-weight:600;}
+  #topbar .user-chip{font-size:13px; color:var(--ink-soft);}
+  #content{padding:24px; overflow-y:auto; flex:1;}
+
+  /* Cards / tables */
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:18px;}
+  .grid{display:grid; gap:16px;}
+  .kpi{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:16px 18px; border-top:3px solid var(--wood);}
+  .kpi .label{font-size:12px; color:var(--ink-soft); letter-spacing:.03em;}
+  .kpi .value{font-family:'Fraunces',serif; font-size:26px; font-weight:600; margin-top:4px;}
+  table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  th{text-align:left; font-size:11.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-soft); padding:9px 10px; border-bottom:2px solid var(--line);}
+  td{padding:9px 10px; border-bottom:1px solid var(--line);}
+  tr:hover td{background:#FBF7EF;}
+  .btn{
+    display:inline-flex; align-items:center; gap:6px; padding:8px 14px; border-radius:7px; border:none;
+    font-size:13.5px; font-weight:600; cursor:pointer; transition:.15s;
+  }
+  .btn-primary{background:var(--wood); color:#fff;}
+  .btn-primary:hover{background:var(--wood-dark);}
+  .btn-outline{background:transparent; border:1px solid var(--line); color:var(--ink);}
+  .btn-outline:hover{background:#F1E9D8;}
+  .btn-danger{background:transparent; color:var(--danger); border:1px solid #E3C9C2;}
+  .btn-sm{padding:5px 10px; font-size:12px;}
+  input,select,textarea{
+    width:100%; padding:8px 10px; border:1px solid var(--line); border-radius:7px;
+    font-size:13.5px; font-family:inherit; background:#fff; color:var(--ink);
+  }
+  label{font-size:12.5px; color:var(--ink-soft); margin-bottom:4px; display:block; font-weight:600;}
+  .field{margin-bottom:12px;}
+  .row{display:flex; gap:12px; flex-wrap:wrap;}
+  .row > .field{flex:1; min-width:160px;}
+  .badge{padding:2px 9px; border-radius:20px; font-size:11.5px; font-weight:600;}
+  .badge-green{background:#E7EEDF; color:var(--forest);}
+  .badge-amber{background:#F7E7D3; color:var(--amber);}
+  .badge-red{background:#F3DEDA; color:var(--danger);}
+  .toolbar{display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px;}
+  .section-title{font-family:'Fraunces',serif; font-size:20px; font-weight:600; margin:0 0 16px;}
+
+  /* Modal */
+  .modal-backdrop{
+    position:fixed; inset:0; background:rgba(43,27,18,.45); display:flex; align-items:flex-start;
+    justify-content:center; padding:40px 16px; overflow-y:auto; z-index:50;
+  }
+  .modal{background:#fff; border-radius:12px; width:100%; max-width:560px; padding:22px; box-shadow:0 20px 50px rgba(0,0,0,.25);}
+  .modal h3{margin:0 0 16px; font-family:'Fraunces',serif;}
+  .modal-actions{display:flex; justify-content:flex-end; gap:10px; margin-top:18px;}
+
+  /* ID Card */
+  .idcard{
+    width:340px; border-radius:14px; overflow:hidden; border:1px solid var(--line);
+    box-shadow:0 8px 20px rgba(43,27,18,.12); font-family:'Inter',sans-serif;
+  }
+  .idcard-head{background:var(--wood-dark); color:#F7EFDF; padding:12px 16px;}
+  .idcard-head .co{font-family:'Fraunces',serif; font-weight:700; font-size:15px;}
+  .idcard-body{padding:14px 16px; display:flex; gap:12px;}
+  .idcard-photo{width:70px; height:80px; background:#EFE6D4; border-radius:6px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:24px;}
+  .idcard-foot{background:#F1E9D8; padding:8px 16px; font-size:11px; color:var(--ink-soft);}
+
+  .empty-state{text-align:center; padding:50px 20px; color:var(--ink-soft);}
+  .login-wrap{min-height:100vh; display:flex; align-items:center; justify-content:center; background:linear-gradient(160deg,#F7F2E9,#EFE1C8);}
+  .login-box{background:#fff; padding:36px; border-radius:14px; width:100%; max-width:380px; box-shadow:0 20px 50px rgba(43,27,18,.15); border-top:4px solid var(--wood);}
+  .msg{padding:9px 12px; border-radius:7px; font-size:13px; margin-bottom:12px;}
+  .msg-error{background:#F3DEDA; color:var(--danger);}
+  .msg-ok{background:#E7EEDF; color:var(--forest);}
+  ::-webkit-scrollbar{width:8px; height:8px;} ::-webkit-scrollbar-thumb{background:#D9C9A8; border-radius:4px;}
+  @media print{
+    #sidebar,#topbar,.no-print{display:none !important;}
+    #content{padding:0;}
+  }
+
+  /* Loading overlay */
+  #loading-overlay{
+    position:fixed; inset:0; background:rgba(247,242,233,.7); z-index:999;
+    display:none; align-items:center; justify-content:center; backdrop-filter:blur(1px);
+  }
+  #loading-overlay.show{display:flex;}
+  .spinner{
+    width:38px; height:38px; border:4px solid #E7DCC8; border-top-color:var(--wood);
+    border-radius:50%; animation:spin .7s linear infinite;
+  }
+
+  /* Toast notifications */
+  #toast-wrap{position:fixed; top:16px; right:16px; z-index:1000; display:flex; flex-direction:column; gap:8px; max-width:320px;}
+  .toast{
+    background:#2B1B12; color:#F7F2E9; padding:11px 14px; border-radius:8px; font-size:13px;
+    box-shadow:0 8px 20px rgba(0,0,0,.2); display:flex; align-items:flex-start; gap:8px;
+    animation:toast-in .2s ease-out;
+  }
+  .toast.ok{border-left:4px solid var(--forest);}
+  .toast.error{border-left:4px solid var(--danger);}
+  .toast.warning{border-left:4px solid var(--amber);}
+  @keyframes toast-in{from{opacity:0; transform:translateX(20px);} to{opacity:1; transform:translateX(0);}}
+
+  /* Notification bell */
+  .bell-wrap{position:relative; cursor:pointer;}
+  .bell-dot{
+    position:absolute; top:-3px; right:-3px; background:var(--danger); color:#fff;
+    font-size:10px; font-weight:700; border-radius:20px; min-width:16px; height:16px;
+    display:flex; align-items:center; justify-content:center; padding:0 3px;
+  }
+  .bell-panel{
+    position:absolute; top:36px; right:0; width:320px; max-height:400px; overflow-y:auto;
+    background:#fff; border:1px solid var(--line); border-radius:10px; box-shadow:0 12px 30px rgba(0,0,0,.18);
+    z-index:80; display:none;
+  }
+  .bell-panel.show{display:block;}
+  .bell-item{padding:11px 14px; border-bottom:1px solid var(--line); font-size:12.5px;}
+  .bell-item:last-child{border-bottom:none;}
+  .bell-item .t{font-weight:600; font-size:13px;}
+  .bell-item .m{color:var(--ink-soft); margin-top:2px;}
+  .bell-item.unread{background:#FBF3E4;}
+
+  /* Locked/disabled nav (no permission) */
+  .nav-item.locked{opacity:.35; cursor:not-allowed;}
+  .role-badge{
+    display:inline-block; padding:2px 8px; border-radius:20px; font-size:10.5px; font-weight:700;
+    background:rgba(201,124,59,.2); color:var(--amber); margin-left:6px; text-transform:uppercase;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .btn[disabled]{opacity:.55; cursor:not-allowed; pointer-events:none;}
+  .btn .btn-spinner{
+    width:13px; height:13px; border:2px solid rgba(255,255,255,.5); border-top-color:#fff;
+    border-radius:50%; animation:spin .6s linear infinite; display:inline-block; margin-right:2px;
+  }
+
+  /* Print invoice */
+  .print-bill{display:none;}
+  @media print{
+    body *{visibility:hidden;}
+    #print-area, #print-area *{visibility:visible;}
+    #print-area{position:absolute; top:0; left:0; width:100%; padding:20px;}
+  }
+  .bill-table{width:100%; border-collapse:collapse; margin-top:10px;}
+  .bill-table th,.bill-table td{border:1px solid #333; padding:6px 8px; font-size:13px;}
+  .bill-table th{background:#f2f2f2;}
+</style>
+</head>
+<body>
+
+<div id="root"></div>
+<div id="loading-overlay"><div class="spinner"></div></div>
+<div id="print-area"></div>
+<div id="toast-wrap"></div>
+
+<script>
+/* =====================================================================
+   CONFIG — यहाँ आफ्नो Supabase Project को URL र anon key राख्नुहोस्
+   Supabase Dashboard > Project Settings > API बाट पाइन्छ
+===================================================================== */
+const SUPABASE_URL = "https://tlztidqyjtcndymwqhds.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_O2oBMbR6PUBLqgwCves_8A_KlBNCj_h";
+
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const COMPANY = {
+  name: "फर्निचर उद्योग",
+  tagline: "Handcrafted Wood Furniture",
+  address: "पोखरा, गण्डकी प्रदेश",
+  phone: "9857626542",
+  pan_no: "121797638",   // यहाँ आफ्नो व्यवसायको PAN/VAT नं. राख्नुहोस्
+  bank_name: "नेपाल बैंक लि.",
+  bank_account: "0123456789012",
+  payment_qr_text: "9857626542", // eSewa/Khalti/Bank QR मा payload बनाउन प्रयोग हुने (फोन/खाता नं.)
+};
+// तलब कटौतीका दरहरू (आवश्यक अनुसार परिवर्तन गर्नुहोस्)
+const SALARY_RULES = {
+  pf_employee_percent: 10,   // प्रोभिडेन्ट फन्ड (कर्मचारी अंश)
+  pf_employer_percent: 10,   // प्रोभिडेन्ट फन्ड (संस्था अंश) — रिपोर्टमा मात्र देखिने, खुद तलबबाट नकट्ने
+  cit_percent: 8.33,         // Citizen Investment Trust (वैकल्पिक — प्रयोग नगरे 0 राख्नुहोस्)
+  tds_percent: 1,            // पारिश्रमिकमा अग्रिम आयकर (Tax Deduction at Source)
+};
+// Storage bucket नाम — Supabase Dashboard > Storage मा यही नामको public bucket बनाउनुहोस्
+const STORAGE_BUCKET = 'employee-files';
+
+/* सामान्य फाइल अपलोड helper — Supabase Storage मा राखी public URL फर्काउने */
+async function uploadToStorage(file, folder){
+  if (!file) return null;
+  const ext = file.name.split('.').pop();
+  const path = `${folder}/${Date.now()}_${Math.random().toString(36).slice(2,8)}.${ext}`;
+  const { error } = await sb.storage.from(STORAGE_BUCKET).upload(path, file);
+  if (error) throw error;
+  const { data } = sb.storage.from(STORAGE_BUCKET).getPublicUrl(path);
+  return data.publicUrl;
+}
+/* QR कोड (payment/ID card) बनाउने helper — canvas बाट data URL फर्काउने */
+async function makeQrDataUrl(text, size=140){
+  try{
+    const canvas = document.createElement('canvas');
+    await QRCode.toCanvas(canvas, text, { width:size, margin:1 });
+    return canvas.toDataURL('image/png');
+  }catch(e){ console.error('QR error', e); return null; }
+}
+
+let state = {
+  user: null, page: 'dashboard', employees: [], products: [],
+  profile: null,        // row from user_profiles
+  roleKey: null,        // e.g. 'super_admin'
+  roleLabel: '',
+  perms: {},            // { module_key: {can_view,can_create,can_edit,can_delete,can_export,can_print} }
+  notifications: [],
+  unreadCount: 0,
+};
+
+const root = document.getElementById('root');
+const NPR = n => 'रु. ' + Number(n||0).toLocaleString('en-IN', {maximumFractionDigits:2});
+const todayStr = () => new Date().toISOString().slice(0,10);
+
+/* ---------------------------------------------------------------------
+   TOAST NOTIFICATIONS — replaces raw alert() for a professional feel
+--------------------------------------------------------------------- */
+function toast(message, kind='ok', ms=4000){
+  const wrap = document.getElementById('toast-wrap');
+  if (!wrap) return;
+  const el = document.createElement('div');
+  el.className = `toast ${kind}`;
+  const icon = kind==='error' ? '⚠️' : kind==='warning' ? '🔔' : '✅';
+  el.innerHTML = `<span>${icon}</span><span>${message}</span>`;
+  wrap.appendChild(el);
+  setTimeout(()=>{ el.style.opacity='0'; el.style.transition='opacity .25s'; setTimeout(()=>el.remove(), 250); }, ms);
+}
+window.toast = toast;
+
+/* ---------------------------------------------------------------------
+   PERMISSIONS — loaded once per login, cached in state.perms
+--------------------------------------------------------------------- */
+async function loadRoleAndPermissions(){
+  if (!state.user){ state.profile=null; state.roleKey=null; state.perms={}; return; }
+  try{
+    const { data: profile, error: pErr } = await sb
+      .from('user_profiles').select('*, roles(key,label_en,label_ne)')
+      .eq('id', state.user.id).maybeSingle();
+    if (pErr) throw pErr;
+    state.profile = profile || null;
+    state.roleKey = profile?.roles?.key || null;
+    state.roleLabel = profile?.roles?.label_ne || profile?.roles?.label_en || '';
+    if (!profile){ state.perms = {}; return; }
+    const { data: perms, error: permErr } = await sb
+      .from('permissions').select('*').eq('role_id', profile.role_id);
+    if (permErr) throw permErr;
+    const map = {};
+    (perms||[]).forEach(p => { map[p.module_key] = p; });
+    state.perms = map;
+  }catch(e){
+    console.error('Permission load failed', e);
+    // Fail safe: if roles/permissions tables don't exist yet (Phase 1 SQL not run),
+    // fall back to full access so the app never gets locked out.
+    state.perms = null;
+  }
+}
+// canDo(module,'view'|'create'|'edit'|'delete'|'export'|'print')
+function canDo(moduleKey, action='view'){
+  if (state.perms === null) return true; // fallback mode (schema not migrated yet)
+  if (state.roleKey === 'super_admin') return true;
+  const p = state.perms[moduleKey];
+  if (!p) return false;
+  return !!p[`can_${action}`];
+}
+window.canDo = canDo;
+
+/* ---------------------------------------------------------------------
+   AUDIT LOG — call after any insert/update/delete/print/export/login
+--------------------------------------------------------------------- */
+async function logAudit(action, moduleKey, recordId=null, details=null){
+  try{
+    await sb.from('audit_log').insert({
+      user_id: state.user?.id || null,
+      user_email: state.user?.email || null,
+      action, module_key: moduleKey, record_id: recordId ? String(recordId) : null,
+      details: details ? details : null,
+    });
+  }catch(e){
+    // Audit logging must never break the main workflow — just log to console.
+    console.warn('Audit log failed (Phase 1 SQL may not be migrated yet):', e.message||e);
+  }
+}
+window.logAudit = logAudit;
+
+/* ---------------------------------------------------------------------
+   NOTIFICATIONS BELL
+--------------------------------------------------------------------- */
+async function refreshNotifications(){
+  try{
+    // best-effort: regenerate low-stock alerts (safe no-op if function/table missing)
+    await sb.rpc('generate_low_stock_notifications');
+  }catch(e){ /* ignore if not migrated yet */ }
+  try{
+    const { data, error } = await sb.from('notifications')
+      .select('*').order('created_at', { ascending:false }).limit(30);
+    if (error) throw error;
+    state.notifications = data || [];
+    state.unreadCount = (data||[]).filter(n=>!n.is_read).length;
+  }catch(e){
+    state.notifications = []; state.unreadCount = 0;
+  }
+  renderBell();
+}
+function renderBell(){
+  const dot = document.getElementById('bell-dot');
+  const panel = document.getElementById('bell-panel');
+  if (!dot || !panel) return;
+  dot.style.display = state.unreadCount > 0 ? 'flex' : 'none';
+  dot.innerText = state.unreadCount > 9 ? '9+' : String(state.unreadCount);
+  panel.innerHTML = state.notifications.length ? state.notifications.map(n => `
+    <div class="bell-item ${n.is_read?'':'unread'}">
+      <div class="t">${severityIcon(n.severity)} ${n.title}</div>
+      <div class="m">${n.message||''}</div>
+    </div>`).join('') : `<div class="bell-item">कुनै सूचना छैन</div>`;
+}
+function severityIcon(sev){ return sev==='critical' ? '🔴' : sev==='warning' ? '🟠' : '🔵'; }
+window.toggleBell = async ()=>{
+  const panel = document.getElementById('bell-panel');
+  if (!panel) return;
+  const opening = !panel.classList.contains('show');
+  panel.classList.toggle('show');
+  if (opening && state.unreadCount > 0){
+    try{
+      await sb.from('notifications').update({ is_read:true }).eq('is_read', false);
+      state.notifications = state.notifications.map(n=>({...n, is_read:true}));
+      state.unreadCount = 0;
+      renderBell();
+    }catch(e){}
+  }
+};
+
+/* ---------------------------------------------------------------------
+   LOADING HELPERS — overlay for page loads, button-lock for actions
+--------------------------------------------------------------------- */
+function showOverlay(){ document.getElementById('loading-overlay').classList.add('show'); }
+function hideOverlay(){ document.getElementById('loading-overlay').classList.remove('show'); }
+
+// बटनमा click हुँदा double-click रोक्ने + spinner देखाउने wrapper
+async function busy(btnEl, fn){
+  if (!btnEl || btnEl.disabled) return; // पहिल्यै चलिरहेको छ भने फेरि नचलाउने
+  const original = btnEl.innerHTML;
+  btnEl.disabled = true;
+  btnEl.innerHTML = `<span class="btn-spinner"></span> ...`;
+  try{
+    await fn();
+  }catch(e){
+    console.error(e);
+    toast('त्रुटि भयो: ' + (e.message||e), 'error', 6000);
+  }finally{
+    btnEl.disabled = false;
+    btnEl.innerHTML = original;
+  }
+}
+
+/* ---------------------------------------------------------------------
+   AUTH
+--------------------------------------------------------------------- */
+async function checkSession(){
+  const { data:{ session } } = await sb.auth.getSession();
+  state.user = session ? session.user : null;
+  if (state.user) await loadRoleAndPermissions();
+  render();
+  if (state.user) refreshNotifications();
+}
+
+async function login(email, pass){
+  const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+  if (error) return error.message;
+  await checkSession();
+  if (state.user){
+    try{ await sb.from('user_profiles').update({ last_login: new Date().toISOString() }).eq('id', state.user.id); }catch(e){}
+    logAudit('login', 'auth');
+    toast('स्वागत छ! (Welcome back)', 'ok');
+  }
+  return null;
+}
+async function signup(email, pass, fullName){
+  const { error } = await sb.auth.signUp({ email, password: pass, options:{ data:{ full_name: fullName } } });
+  if (error) return error.message;
+  return null;
+}
+async function logout(){
+  logAudit('logout', 'auth');
+  await sb.auth.signOut();
+  state.user=null; state.profile=null; state.roleKey=null; state.perms={};
+  render();
+}
+
+function renderLogin(){
+  root.innerHTML = `
+  <div class="login-wrap">
+    <div class="login-box">
+      <div style="text-align:center; margin-bottom:20px;">
+        <div class="display" style="font-size:24px; font-weight:700; color:var(--wood-dark);">${COMPANY.name}</div>
+        <div style="font-size:12.5px; color:var(--ink-soft); margin-top:2px;">व्यवसाय व्यवस्थापन प्रणाली</div>
+      </div>
+      <div id="login-msg"></div>
+      <div class="field"><label>इमेल</label><input id="li-email" type="email" placeholder="you@example.com"/></div>
+      <div class="field"><label>पासवर्ड</label><input id="li-pass" type="password" placeholder="••••••••"/></div>
+      <button class="btn btn-primary" style="width:100%; justify-content:center; padding:10px;" onclick="doLogin()">लगइन गर्नुहोस्</button>
+      <div style="text-align:center; margin-top:14px; font-size:12.5px; color:var(--ink-soft);">
+        पहिलो पटक हो? <a href="#" onclick="toggleSignup(event)" style="color:var(--wood); font-weight:600;">नयाँ खाता बनाउनुहोस्</a>
+      </div>
+      <div id="signup-block" style="display:none; margin-top:14px; border-top:1px solid var(--line); padding-top:14px;">
+        <div class="field"><label>पूरा नाम</label><input id="su-name" placeholder="तपाईंको नाम"/></div>
+        <button class="btn btn-outline" style="width:100%; justify-content:center;" onclick="doSignup()">खाता खोल्नुहोस्</button>
+      </div>
+    </div>
+  </div>`;
+}
+window.toggleSignup = (e)=>{ e.preventDefault(); const b=document.getElementById('signup-block'); b.style.display = b.style.display==='none'?'block':'none'; };
+window.doLogin = async ()=>{
+  const email = document.getElementById('li-email').value.trim();
+  const pass = document.getElementById('li-pass').value;
+  const msg = document.getElementById('login-msg');
+  if (!email || !pass){ msg.innerHTML = `<div class="msg msg-error">कृपया इमेल र पासवर्ड दुवै भर्नुहोस्।</div>`; return; }
+  const err = await login(email, pass);
+  if (err) msg.innerHTML = `<div class="msg msg-error">${err}</div>`;
+};
+window.doSignup = async ()=>{
+  const email = document.getElementById('li-email').value.trim();
+  const pass = document.getElementById('li-pass').value;
+  const name = document.getElementById('su-name').value.trim();
+  const msg = document.getElementById('login-msg');
+  if (!email || !pass){ msg.innerHTML = `<div class="msg msg-error">कृपया माथिको इमेल र पासवर्ड फिल्ड भर्नुहोस्, त्यसपछि "खाता खोल्नुहोस्" थिच्नुहोस्।</div>`; return; }
+  if (!name){ msg.innerHTML = `<div class="msg msg-error">कृपया पूरा नाम भर्नुहोस्।</div>`; return; }
+  if (pass.length < 6){ msg.innerHTML = `<div class="msg msg-error">पासवर्ड कम्तिमा ६ अक्षरको हुनुपर्छ।</div>`; return; }
+  const err = await signup(email, pass, name);
+  msg.innerHTML = err ? `<div class="msg msg-error">${err}</div>` : `<div class="msg msg-ok">खाता बन्यो! अब लगइन गर्नुहोस् (इमेल verify गर्नुपर्ने हुन सक्छ)।</div>`;
+};
+
+/* ---------------------------------------------------------------------
+   APP SHELL
+--------------------------------------------------------------------- */
+const NAV = [
+  { id:'dashboard', label:'ड्यासबोर्ड', emoji:'📊' },
+  { id:'employees', label:'कर्मचारी', emoji:'🧑‍🔧' },
+  { id:'attendance', label:'हाजिरी', emoji:'🗓️' },
+  { id:'salary', label:'तलब', emoji:'💰' },
+  { id:'suppliers', label:'आपूर्तिकर्ता', emoji:'🌲' },
+  { id:'wood', label:'काठ खरिद (Entry)', emoji:'🪵' },
+  { id:'inventory', label:'स्टक / मौज्दात', emoji:'📦' },
+  { id:'machinery', label:'मेसिनरी', emoji:'⚙️' },
+  { id:'customers', label:'ग्राहक', emoji:'👥' },
+  { id:'invoices', label:'बिल / बिजक', emoji:'🧾' },
+  { id:'income', label:'आम्दानी', emoji:'📈' },
+  { id:'expenses', label:'खर्च', emoji:'📉' },
+  { id:'reports', label:'प्रतिवेदन (Reports)', emoji:'📑' },
+  { id:'settings_roles', label:'प्रयोगकर्ता / भूमिका', emoji:'🔐' },
+  { id:'audit_log', label:'Audit Log', emoji:'🕵️' },
+];
+
+function renderShell(){
+  root.innerHTML = `
+  <div id="app">
+    <div id="sidebar">
+      <div class="brand">
+        <div class="title">${COMPANY.name}</div>
+        <div class="sub">${COMPANY.tagline}</div>
+      </div>
+      <div id="nav"></div>
+      <div style="margin-top:auto; padding:14px 20px 0;">
+        <div class="nav-item" onclick="doLogout()"><span class="nav-emoji">🚪</span> लगआउट</div>
+      </div>
+    </div>
+    <div id="main">
+      <div id="topbar">
+        <div class="page-title" id="page-title"></div>
+        <div style="display:flex; align-items:center; gap:16px;">
+          <div class="bell-wrap" onclick="toggleBell()">
+            <span style="font-size:19px;">🔔</span>
+            <div class="bell-dot" id="bell-dot" style="display:none;">0</div>
+            <div class="bell-panel" id="bell-panel"></div>
+          </div>
+          <div class="user-chip">${state.user?.email || ''}${state.roleLabel ? `<span class="role-badge">${state.roleLabel}</span>` : ''}</div>
+        </div>
+      </div>
+      <div id="content"></div>
+    </div>
+  </div>`;
+  const nav = document.getElementById('nav');
+  nav.innerHTML = NAV.map(n => {
+    const allowed = canDo(n.id, 'view');
+    if (!allowed) return `<div class="nav-item locked" title="अनुमति छैन (No permission)"><span class="nav-emoji">${n.emoji}</span> ${n.label}</div>`;
+    return `<div class="nav-item ${state.page===n.id?'active':''}" onclick="goPage('${n.id}')"><span class="nav-emoji">${n.emoji}</span> ${n.label}</div>`;
+  }).join('');
+  renderBell();
+}
+window.doLogout = logout;
+window.goPage = (id)=>{
+  if (!canDo(id, 'view')){ toast('यो पृष्ठ हेर्ने अनुमति छैन (No permission for this page)', 'error'); return; }
+  state.page = id; render();
+};
+document.addEventListener('click', (e)=>{
+  const bell = document.querySelector('.bell-wrap');
+  const panel = document.getElementById('bell-panel');
+  if (panel && panel.classList.contains('show') && bell && !bell.contains(e.target)) panel.classList.remove('show');
+});
+
+async function render(){
+  if (!state.user){ renderLogin(); return; }
+  if (!canDo(state.page, 'view')) state.page = 'dashboard';
+  renderShell();
+  document.getElementById('page-title').innerText = NAV.find(n=>n.id===state.page)?.label || '';
+  const c = document.getElementById('content');
+  c.innerHTML = `<div class="empty-state">लोड हुँदैछ...</div>`;
+  showOverlay();
+  try{
+    if (state.page==='dashboard') await pageDashboard(c);
+    else if (state.page==='employees') await pageEmployees(c);
+    else if (state.page==='attendance') await pageAttendance(c);
+    else if (state.page==='salary') await pageSalary(c);
+    else if (state.page==='suppliers') await pageSuppliers(c);
+    else if (state.page==='wood') await pageWood(c);
+    else if (state.page==='inventory') await pageInventory(c);
+    else if (state.page==='machinery') await pageMachinery(c);
+    else if (state.page==='customers') await pageCustomers(c);
+    else if (state.page==='invoices') await pageInvoices(c);
+    else if (state.page==='income') await pageIncome(c);
+    else if (state.page==='expenses') await pageExpenses(c);
+    else if (state.page==='reports') await pageReports(c);
+    else if (state.page==='settings_roles') await pageRolesUsers(c);
+    else if (state.page==='audit_log') await pageAuditLog(c);
+  }catch(e){
+    console.error(e);
+    c.innerHTML = `<div class="msg msg-error">त्रुटि: ${e.message || e}. कृपया SUPABASE_URL / ANON_KEY र schema.sql ठीकसँग सेटअप भएको जाँच गर्नुहोस्।</div>`;
+  }finally{
+    hideOverlay();
+  }
+}
+
+/* ---------------------------------------------------------------------
+   GENERIC MODAL HELPER
+--------------------------------------------------------------------- */
+function openModal(title, bodyHtml, onSave){
+  const wrap = document.createElement('div');
+  wrap.className = 'modal-backdrop';
+  wrap.id = 'modal-backdrop';
+  wrap.innerHTML = `<div class="modal"><h3>${title}</h3><div id="modal-body">${bodyHtml}</div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal()">रद्द</button>
+      <button class="btn btn-primary" id="modal-save">सुरक्षित गर्नुहोस्</button>
+    </div></div>`;
+  document.body.appendChild(wrap);
+  const saveBtn = document.getElementById('modal-save');
+  saveBtn.onclick = ()=> busy(saveBtn, onSave);
+}
+window.closeModal = ()=>{ const m=document.getElementById('modal-backdrop'); if(m) m.remove(); };
+
+/* ---------------------------------------------------------------------
+   DASHBOARD
+--------------------------------------------------------------------- */
+/* -------- साना chart helpers (कुनै बाह्य लाइब्रेरी बिना, शुद्ध SVG) -------- */
+function monthLabelsBack(n){
+  const out = [];
+  const now = new Date();
+  for (let i=n-1;i>=0;i--){
+    const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+    out.push({ key: d.toISOString().slice(0,7), label: d.toLocaleDateString('en-US',{month:'short'}) });
+  }
+  return out;
+}
+function svgBarChart(months, values, color){
+  const W = 560, H = 190, padL=44, padB=28, padT=14, padR=10;
+  const innerW = W-padL-padR, innerH = H-padT-padB;
+  const max = Math.max(1, ...values);
+  const bw = innerW/months.length;
+  const bars = months.map((m,idx)=>{
+    const v = values[idx]||0;
+    const h = max>0 ? (v/max)*innerH : 0;
+    const x = padL + idx*bw + bw*0.18;
+    const y = padT + innerH - h;
+    const w = bw*0.64;
+    return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" rx="3" fill="${color}"><title>${m.label}: ${NPR(v)}</title></rect>
+      <text x="${(x+w/2).toFixed(1)}" y="${H-8}" text-anchor="middle" font-size="10.5" fill="#6B5544">${m.label}</text>`;
+  }).join('');
+  const gridLines = [0,0.5,1].map(f=>{
+    const y = padT + innerH - f*innerH;
+    return `<line x1="${padL}" y1="${y.toFixed(1)}" x2="${W-padR}" y2="${y.toFixed(1)}" stroke="#E7DCC8" stroke-width="1"/>
+      <text x="${padL-6}" y="${(y+3).toFixed(1)}" text-anchor="end" font-size="9.5" fill="#6B5544">${Math.round(max*f).toLocaleString('en-IN')}</text>`;
+  }).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}">${gridLines}${bars}</svg>`;
+}
+function svgGroupedBarChart(months, seriesA, seriesB, colorA, colorB){
+  const W = 560, H = 190, padL=44, padB=28, padT=14, padR=10;
+  const innerW = W-padL-padR, innerH = H-padT-padB;
+  const max = Math.max(1, ...seriesA, ...seriesB);
+  const bw = innerW/months.length;
+  const bars = months.map((m,idx)=>{
+    const va = seriesA[idx]||0, vb = seriesB[idx]||0;
+    const ha = max>0 ? (va/max)*innerH : 0, hb = max>0 ? (vb/max)*innerH : 0;
+    const groupX = padL + idx*bw + bw*0.12;
+    const barW = bw*0.34;
+    const xa = groupX, xb = groupX+barW+3;
+    const ya = padT+innerH-ha, yb = padT+innerH-hb;
+    return `<rect x="${xa.toFixed(1)}" y="${ya.toFixed(1)}" width="${barW.toFixed(1)}" height="${ha.toFixed(1)}" rx="2" fill="${colorA}"><title>आम्दानी ${m.label}: ${NPR(va)}</title></rect>
+      <rect x="${xb.toFixed(1)}" y="${yb.toFixed(1)}" width="${barW.toFixed(1)}" height="${hb.toFixed(1)}" rx="2" fill="${colorB}"><title>खर्च ${m.label}: ${NPR(vb)}</title></rect>
+      <text x="${(groupX+barW+1.5).toFixed(1)}" y="${H-8}" text-anchor="middle" font-size="10.5" fill="#6B5544">${m.label}</text>`;
+  }).join('');
+  const gridLines = [0,0.5,1].map(f=>{
+    const y = padT + innerH - f*innerH;
+    return `<line x1="${padL}" y1="${y.toFixed(1)}" x2="${W-padR}" y2="${y.toFixed(1)}" stroke="#E7DCC8" stroke-width="1"/>
+      <text x="${padL-6}" y="${(y+3).toFixed(1)}" text-anchor="end" font-size="9.5" fill="#6B5544">${Math.round(max*f).toLocaleString('en-IN')}</text>`;
+  }).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}">${gridLines}${bars}</svg>`;
+}
+
+async function pageDashboard(c){
+  const todayD = todayStr();
+  const [{data:emp}, {data:inv}, {data:exp}, {data:inc}, {data:invStatus}, {data:items}, {data:attToday}] = await Promise.all([
+    sb.from('employees').select('id,status'),
+    sb.from('invoices').select('grand_total,invoice_date'),
+    sb.from('expenses').select('amount,expense_date'),
+    sb.from('income').select('amount,income_date'),
+    sb.from('invoices').select('id,invoice_date,grand_total,payment_status,customers(name)').neq('payment_status','paid').order('invoice_date',{ascending:false}),
+    sb.from('inventory_items').select('id,item_name,current_stock,reorder_level,unit'),
+    sb.from('attendance').select('employee_id,status').eq('work_date', todayD),
+  ]);
+  const activeEmp = (emp||[]).filter(e=>e.status==='active').length;
+  const monthKey = todayD.slice(0,7);
+  const salesThis = (inv||[]).filter(i=>i.invoice_date?.startsWith(monthKey)).reduce((s,i)=>s+Number(i.grand_total||0),0);
+  const expThis = (exp||[]).filter(i=>i.expense_date?.startsWith(monthKey)).reduce((s,i)=>s+Number(i.amount||0),0);
+  const incThis = (inc||[]).filter(i=>i.income_date?.startsWith(monthKey)).reduce((s,i)=>s+Number(i.amount||0),0);
+
+  // गत ६ महिनाको मासिक बिक्री
+  const months = monthLabelsBack(6);
+  const salesByMonth = months.map(m => (inv||[]).filter(i=>i.invoice_date?.startsWith(m.key)).reduce((s,i)=>s+Number(i.grand_total||0),0));
+  const incByMonth = months.map(m => (inc||[]).filter(i=>i.income_date?.startsWith(m.key)).reduce((s,i)=>s+Number(i.amount||0),0)
+    + (inv||[]).filter(i=>i.invoice_date?.startsWith(m.key)).reduce((s,i)=>s+Number(i.grand_total||0),0));
+  const expByMonth = months.map(m => (exp||[]).filter(i=>i.expense_date?.startsWith(m.key)).reduce((s,i)=>s+Number(i.amount||0),0));
+
+  // Low stock
+  const lowStock = (items||[]).filter(i=>Number(i.current_stock||0) <= Number(i.reorder_level||0));
+
+  // Outstanding payments
+  const outstandingTotal = (invStatus||[]).reduce((s,i)=>s+Number(i.grand_total||0),0);
+
+  // आज उपस्थित कर्मचारी
+  const presentToday = (attToday||[]).filter(a=>a.status==='present').length;
+
+  c.innerHTML = `
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); margin-bottom:20px;">
+      <div class="kpi"><div class="label">सक्रिय कर्मचारी</div><div class="value">${activeEmp}</div></div>
+      <div class="kpi" style="border-top-color:var(--forest);"><div class="label">यस महिनाको बिक्री</div><div class="value">${NPR(salesThis)}</div></div>
+      <div class="kpi" style="border-top-color:var(--amber);"><div class="label">यस महिनाको खर्च</div><div class="value">${NPR(expThis)}</div></div>
+      <div class="kpi" style="border-top-color:var(--forest);"><div class="label">अन्य आम्दानी</div><div class="value">${NPR(incThis)}</div></div>
+      <div class="kpi" style="border-top-color:var(--danger);"><div class="label">👷 आज उपस्थित</div><div class="value">${presentToday} / ${activeEmp}</div></div>
+      <div class="kpi" style="border-top-color:var(--danger);"><div class="label">⚠️ बाँकी भुक्तानी</div><div class="value">${NPR(outstandingTotal)}</div></div>
+    </div>
+
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); margin-bottom:20px;">
+      <div class="card">
+        <div class="section-title" style="font-size:15px;">📊 मासिक बिक्री (गत ६ महिना)</div>
+        ${svgBarChart(months, salesByMonth, 'var(--wood)')}
+      </div>
+      <div class="card">
+        <div class="section-title" style="font-size:15px;">📈 आम्दानी / खर्च तुलना</div>
+        ${svgGroupedBarChart(months, incByMonth, expByMonth, 'var(--forest)', 'var(--danger)')}
+        <div style="display:flex; gap:16px; font-size:12px; color:var(--ink-soft); margin-top:6px;">
+          <div><span style="display:inline-block;width:10px;height:10px;background:var(--forest);border-radius:2px;margin-right:5px;"></span>आम्दानी</div>
+          <div><span style="display:inline-block;width:10px;height:10px;background:var(--danger);border-radius:2px;margin-right:5px;"></span>खर्च</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr));">
+      <div class="card">
+        <div class="section-title" style="font-size:15px;">📦 कम स्टक चेतावनी</div>
+        ${lowStock.length ? `<table><thead><tr><th>सामान</th><th>मौज्दात</th><th>Reorder Level</th></tr></thead>
+          <tbody>${lowStock.map(i=>`<tr><td>${i.item_name}</td><td><b>${i.current_stock}</b> ${i.unit||''}</td><td>${i.reorder_level||0}</td></tr>`).join('')}</tbody></table>`
+          : `<div class="empty-state" style="padding:20px;">✅ सबै स्टक ठीक छ</div>`}
+      </div>
+      <div class="card">
+        <div class="section-title" style="font-size:15px;">⚠️ बाँकी भुक्तानी (Outstanding)</div>
+        ${(invStatus||[]).length ? `<table><thead><tr><th>मिति</th><th>ग्राहक</th><th>रकम</th><th>स्थिति</th></tr></thead>
+          <tbody>${(invStatus||[]).slice(0,8).map(i=>`<tr><td>${i.invoice_date}</td><td>${i.customers?.name||'-'}</td><td><b>${NPR(i.grand_total)}</b></td>
+            <td><span class="badge ${i.payment_status==='partial'?'badge-amber':'badge-red'}">${i.payment_status}</span></td></tr>`).join('')}</tbody></table>
+          ${(invStatus||[]).length>8?`<div style="font-size:12px;color:var(--ink-soft);margin-top:8px;">थप ${(invStatus||[]).length-8} वटा बाँकी बिल — बिजक पेजमा हेर्नुहोस्</div>`:''}`
+          : `<div class="empty-state" style="padding:20px;">✅ कुनै बाँकी भुक्तानी छैन</div>`}
+      </div>
+    </div>`;
+}
+
+/* ---------------------------------------------------------------------
+   EMPLOYEES + ID CARD
+--------------------------------------------------------------------- */
+async function pageEmployees(c){
+  const { data, error } = await sb.from('employees').select('*').order('created_at',{ascending:false});
+  if (error) throw error;
+  state.employees = data||[];
+  c.innerHTML = `
+   <div class="toolbar">
+     <div></div>
+     <button class="btn btn-primary" onclick="employeeForm()">+ नयाँ कर्मचारी</button>
+   </div>
+   <div class="card">
+     <table><thead><tr><th>ID</th><th>नाम</th><th>पद</th><th>प्रकार</th><th>तलब</th><th>स्थिति</th><th></th></tr></thead>
+     <tbody>
+     ${state.employees.map(e=>`
+       <tr>
+         <td>${e.employee_code}</td>
+         <td style="display:flex; align-items:center; gap:8px;">
+           ${e.photo_url?`<img src="${e.photo_url}" style="width:26px;height:26px;object-fit:cover;border-radius:50%;"/>`:''}
+           <a href="#" onclick="event.preventDefault(); openEmployeeCalendar('${e.id}')" style="color:var(--wood-dark); font-weight:600; text-decoration:underline; cursor:pointer;">${e.full_name}</a>
+         </td>
+         <td>${e.position}</td>
+         <td>${e.skill_type==='skilled'?'दक्ष':'अदक्ष'}</td>
+         <td>${NPR(e.salary_rate)} / ${e.salary_type==='daily'?'दिन':'महिना'}</td>
+         <td><span class="badge ${e.status==='active'?'badge-green':e.status==='on_leave'?'badge-amber':'badge-red'}">${({active:'Active',on_leave:'बिदामा',resigned:'राजिनामा',inactive:'Inactive',terminated:'Terminated'})[e.status]||e.status}${e.status==='on_leave' && e.status_date ? ' ('+e.status_date+' - '+(e.status_date_to||e.status_date)+')' : (e.status_date?' ('+e.status_date+')':'')}</span></td>
+         <td>
+           <button class="btn btn-outline btn-sm" onclick="showIdCard('${e.id}')">ID Card</button>
+           <button class="btn btn-outline btn-sm" onclick="employeeForm('${e.id}')">Edit</button>
+           <button class="btn btn-danger btn-sm" onclick="busy(this, ()=>deleteEmployee('${e.id}'))">मेट्नुहोस्</button>
+         </td>
+       </tr>`).join('') || `<tr><td colspan="7" class="empty-state">कुनै कर्मचारी थपिएको छैन</td></tr>`}
+     </tbody></table>
+   </div>`;
+}
+
+window.deleteEmployee = async (id)=>{
+  if (!confirm('यो कर्मचारी रेकर्ड मेट्ने हो? सम्बन्धित हाजिरी/तलब रेकर्ड पनि असर गर्न सक्छ। यो कारबाही फिर्ता हुँदैन।')) return;
+  const { error } = await sb.from('employees').delete().eq('id', id);
+  if (error){ alert(error.message + '\n\n(यो कर्मचारीसँग जोडिएको हाजिरी/तलब रेकर्ड भएकोले मेट्न नसकिएको हुन सक्छ — स्थिति "Inactive/Terminated" बनाउनु उत्तम हुन्छ।)'); return; }
+  render();
+};
+window.toggleStatusDate = ()=>{
+  const st = document.getElementById('f-status').value;
+  document.getElementById('f-statusdate-wrap').style.display = (st==='on_leave'||st==='resigned') ? '' : 'none';
+  document.getElementById('f-statusdateto-wrap').style.display = (st==='on_leave') ? '' : 'none';
+};
+window.employeeForm = (id)=>{
+  const e = id ? state.employees.find(x=>x.id===id) : {};
+  const body = `
+    <div class="row">
+      <div class="field"><label>पूरा नाम *</label><input id="f-name" value="${e.full_name||''}"/></div>
+      <div class="field"><label>पद *</label><input id="f-position" value="${e.position||''}" placeholder="जस्तै: Carpenter"/></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>सीप प्रकार</label>
+        <select id="f-skill"><option value="skilled" ${e.skill_type==='skilled'?'selected':''}>दक्ष (Skilled)</option><option value="unskilled" ${e.skill_type==='unskilled'?'selected':''}>अदक्ष (Unskilled)</option></select>
+      </div>
+      <div class="field"><label>तलब प्रकार</label>
+        <select id="f-salarytype"><option value="daily" ${e.salary_type==='daily'?'selected':''}>दैनिक</option><option value="monthly" ${e.salary_type==='monthly'?'selected':''}>मासिक</option></select>
+      </div>
+    </div>
+    <div class="row">
+      <div class="field"><label>तलब दर (रु)</label><input id="f-rate" type="number" value="${e.salary_rate||''}"/></div>
+      <div class="field"><label>फोन</label><input id="f-phone" value="${e.phone||''}"/></div>
+    </div>
+    <div class="field"><label>Biometric मेसिन ID / Enroll नं.</label><input id="f-biometric" value="${e.biometric_id||''}" placeholder="बायोमेट्रिक हाजिरी मेसिनमा भएको User ID"/></div>
+    <div class="field"><label>ठेगाना</label><input id="f-address" value="${e.address||''}"/></div>
+    <div class="row">
+      <div class="field"><label>नागरिकता नं.</label><input id="f-citizenship" value="${e.citizenship_no||''}"/></div>
+      <div class="field"><label>PAN नं.</label><input id="f-pan" value="${e.pan_no||''}"/></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>बैंकको नाम</label><input id="f-bankname" value="${e.bank_name||''}"/></div>
+      <div class="field"><label>खाता नं.</label><input id="f-bankacc" value="${e.bank_account||''}"/></div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>कर्मचारीको फोटो</label>
+        ${e.photo_url?`<img src="${e.photo_url}" style="width:56px;height:56px;object-fit:cover;border-radius:6px;margin-bottom:6px;display:block;"/>`:''}
+        <input id="f-photo" type="file" accept="image/*"/>
+      </div>
+      <div class="field">
+        <label>दस्तखत (Signature)</label>
+        ${e.signature_url?`<img src="${e.signature_url}" style="height:36px;margin-bottom:6px;display:block;"/>`:''}
+        <input id="f-signature" type="file" accept="image/*"/>
+      </div>
+    </div>
+    <div class="field">
+      <label>कागजात अपलोड (नागरिकता/PAN/अन्य — PDF वा Image, एकभन्दा बढी छान्न सकिन्छ)</label>
+      ${(e.documents&&e.documents.length)?`<div style="font-size:12px; margin-bottom:6px;">${e.documents.map(d=>`<a href="${d.url}" target="_blank" style="margin-right:10px;">📄 ${d.name}</a>`).join('')}</div>`:''}
+      <input id="f-documents" type="file" accept=".pdf,image/*" multiple/>
+    </div>
+    <div class="row">
+      <div class="field"><label>जन्म मिति</label><input id="f-dob" type="date" value="${e.dob||''}"/></div>
+      <div class="field"><label>कामथालेको मिति</label><input id="f-join" type="date" value="${e.join_date||todayStr()}"/></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>स्थिति</label>
+        <select id="f-status" onchange="toggleStatusDate()">
+          <option value="active" ${e.status==='active'?'selected':''}>Active</option>
+          <option value="on_leave" ${e.status==='on_leave'?'selected':''}>बिदामा (On Leave)</option>
+          <option value="resigned" ${e.status==='resigned'?'selected':''}>राजिनामा (Resigned)</option>
+          <option value="inactive" ${e.status==='inactive'?'selected':''}>Inactive</option>
+          <option value="terminated" ${e.status==='terminated'?'selected':''}>Terminated</option>
+        </select>
+      </div>
+      <div class="field" id="f-statusdate-wrap" style="${(e.status==='on_leave'||e.status==='resigned')?'':'display:none'}">
+        <label>${e.status==='on_leave' ? 'बिदा देखि (Leave From)' : 'स्थिति मिति (यो मितिदेखि लागू हुने)'}</label>
+        <input id="f-statusdate" type="date" value="${e.status_date||todayStr()}"/>
+      </div>
+      <div class="field" id="f-statusdateto-wrap" style="${e.status==='on_leave'?'':'display:none'}">
+        <label>बिदा सम्म (Leave To)</label>
+        <input id="f-statusdateto" type="date" value="${e.status_date_to||todayStr()}"/>
+      </div>
+    </div>
+    ${e.status==='on_leave' ? `<div class="msg" style="background:#F7E7D3; color:var(--amber);">⚠️ यो मिति-अवधिमा हाजिरी पानामा यो कर्मचारीको लागि टिक बटन देखिने छैन — स्वतः "अवकाश" गणना हुनेछ।</div>` : ''}`;
+  openModal(id ? 'कर्मचारी सम्पादन' : 'नयाँ कर्मचारी थप्नुहोस्', body, async ()=>{
+    const payload = {
+      full_name: document.getElementById('f-name').value.trim(),
+      position: document.getElementById('f-position').value.trim(),
+      skill_type: document.getElementById('f-skill').value,
+      salary_type: document.getElementById('f-salarytype').value,
+      salary_rate: Number(document.getElementById('f-rate').value||0),
+      phone: document.getElementById('f-phone').value.trim(),
+      biometric_id: document.getElementById('f-biometric').value.trim() || null,
+      address: document.getElementById('f-address').value.trim(),
+      citizenship_no: document.getElementById('f-citizenship').value.trim() || null,
+      pan_no: document.getElementById('f-pan').value.trim() || null,
+      bank_name: document.getElementById('f-bankname').value.trim() || null,
+      bank_account: document.getElementById('f-bankacc').value.trim() || null,
+      dob: document.getElementById('f-dob').value || null,
+      join_date: document.getElementById('f-join').value || todayStr(),
+      status: document.getElementById('f-status').value,
+      status_date: (document.getElementById('f-status').value==='on_leave' || document.getElementById('f-status').value==='resigned')
+        ? (document.getElementById('f-statusdate').value || todayStr()) : null,
+      status_date_to: (document.getElementById('f-status').value==='on_leave')
+        ? (document.getElementById('f-statusdateto').value || todayStr()) : null,
+    };
+    if (!payload.full_name || !payload.position){ alert('नाम र पद अनिवार्य छ'); return; }
+    // फोटो/दस्तखत/कागजात भए अपलोड गर्ने (Supabase Storage bucket: employee-files चाहिन्छ)
+    const photoFile = document.getElementById('f-photo').files[0];
+    const sigFile = document.getElementById('f-signature').files[0];
+    const docFiles = [...document.getElementById('f-documents').files];
+    if (photoFile) payload.photo_url = await uploadToStorage(photoFile, 'photos');
+    if (sigFile) payload.signature_url = await uploadToStorage(sigFile, 'signatures');
+    if (docFiles.length){
+      const existing = (id && e.documents) ? e.documents : [];
+      const uploaded = [];
+      for (const f of docFiles){ const url = await uploadToStorage(f, 'documents'); uploaded.push({ name:f.name, url }); }
+      payload.documents = [...existing, ...uploaded];
+    }
+    const { error } = id ? await sb.from('employees').update(payload).eq('id', id) : await sb.from('employees').insert(payload);
+    if (error){ alert(error.message + '\n\n(फाइल अपलोड गर्न "employee-files" नामको public Storage bucket Supabase मा बनाउनुपर्छ।)'); return; }
+    closeModal(); render();
+  });
+};
+
+/* ---------------------------------------------------------------------
+   EMPLOYEE ATTENDANCE CALENDAR (नाममा क्लिक गर्दा)
+--------------------------------------------------------------------- */
+window.openEmployeeCalendar = (empId)=>{
+  const now = new Date();
+  renderEmployeeCalendar(empId, now.getMonth()+1, now.getFullYear())
+    .catch(err=>{ console.error('openEmployeeCalendar error:', err); alert('क्यालेन्डर खोल्दा त्रुटि आयो: ' + (err.message||err)); });
+};
+
+window.renderEmployeeCalendar = async (empId, month, year)=>{
+  const e = (state.employees||[]).find(x=>x.id===empId);
+  if (!e){ alert('कर्मचारी फेला परेन। कृपया पेज पुनः लोड गरी फेरि प्रयास गर्नुहोस्।'); return; }
+  const daysInMonth = new Date(year, month, 0).getDate();
+  const from = `${year}-${String(month).padStart(2,'0')}-01`;
+  const to = `${year}-${String(month).padStart(2,'0')}-${String(daysInMonth).padStart(2,'0')}`;
+  const { data: att } = await sb.from('attendance').select('*').eq('employee_id', empId).gte('work_date', from).lte('work_date', to);
+  const attMap = {}; (att||[]).forEach(a=>attMap[a.work_date]=a);
+
+  const monthNames = ['जनवरी','फेब्रुअरी','मार्च','अप्रिल','मे','जुन','जुलाई','अगस्ट','सेप्टेम्बर','अक्टोबर','नोभेम्बर','डिसेम्बर'];
+  const firstWeekday = new Date(year, month-1, 1).getDay(); // 0=आइत
+  const statusColor = { present:'var(--forest)', absent:'var(--danger)', resigned:'var(--danger)', leave:'var(--amber)' };
+  const statusLabel = { present:'उ', absent:'अ', resigned:'रा', leave:'बि' };
+
+  let cells = '';
+  for (let i=0;i<firstWeekday;i++) cells += `<div></div>`;
+  for (let d=1; d<=daysInMonth; d++){
+    const ds = `${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const onLeaveNow = isOnLeaveRange(e, ds);
+    const a = attMap[ds];
+    const st = a ? a.status : (onLeaveNow ? 'leave' : null);
+    const bg = st ? statusColor[st] : 'transparent';
+    const clickable = onLeaveNow && !a; // बिदा-अवधिमा (नटिकिएको भए) स्वतः हो, चाहेमा पनि Override गर्न मिल्ने
+    cells += `<div onclick="selectCalDay('${empId}',${month},${year},'${ds}')" style="
+        aspect-ratio:1; border:1px solid var(--line); border-radius:6px; cursor:pointer;
+        display:flex; flex-direction:column; align-items:center; justify-content:center;
+        font-size:12px; background:${st?bg:'#fff'}; color:${st?'#fff':'var(--ink)'};
+        ${state._calSelectedDate===ds?'outline:2px solid var(--wood); outline-offset:1px;':''}">
+        <div style="font-weight:700;">${d}</div>
+        ${st ? `<div style="font-size:10px;">${statusLabel[st]}${onLeaveNow&&!a?'*':''}</div>` : ''}
+      </div>`;
+  }
+
+  const selected = state._calSelectedDate;
+  const selA = selected ? attMap[selected] : null;
+  const selOnLeave = selected ? isOnLeaveRange(e, selected) : false;
+
+  const body = `
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+      <button class="btn btn-outline btn-sm" onclick="calPrevMonth('${empId}',${month},${year})">←</button>
+      <div style="font-weight:700;">${monthNames[month-1]} ${year}</div>
+      <button class="btn btn-outline btn-sm" onclick="calNextMonth('${empId}',${month},${year})">→</button>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(7,1fr); gap:4px; font-size:11px; color:var(--ink-soft); text-align:center; margin-bottom:4px;">
+      <div>आइत</div><div>सोम</div><div>मंगल</div><div>बुध</div><div>बिही</div><div>शुक्र</div><div>शनि</div>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(7,1fr); gap:4px;">${cells}</div>
+    <div style="font-size:11px; color:var(--ink-soft); margin-top:8px;">उ=उपस्थित, अ=अनुपस्थित, रा=राजिनामा, बि=अवकाश (* = बिदा-अवधिबाट स्वतः)</div>
+    ${selected ? `
+    <div class="card" style="margin-top:14px;">
+      <div style="font-weight:600; margin-bottom:8px;">${selected} को स्थिति ${selOnLeave&&!selA?'(हाल स्वतः अवकाश — चाहेमा तलको बटनले Override गर्न सकिन्छ)':''}</div>
+      <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">
+        ${ATT_STATUSES.map(s=>`
+          <button type="button" class="btn btn-sm ${(selA&&selA.status===s.key)?'btn-primary':'btn-outline'}"
+            onclick="busy(this, ()=>tickCalAttendance('${empId}',${month},${year},'${selected}','${s.key}'))">${s.label}</button>
+        `).join('')}
+      </div>
+      <div class="field" style="max-width:160px; margin:0;">
+        <label>OT घण्टा</label>
+        <input type="number" value="${selA?.overtime_hours||0}" onchange="updateOTCal('${empId}',${month},${year},'${selected}',this.value)"/>
+      </div>
+    </div>` : `<div style="font-size:12px; color:var(--ink-soft); margin-top:10px;">कुनै मितिमा क्लिक गर्नुहोस् — उपस्थित/अनुपस्थित/राजिनामा/अवकाश एकचोटी क्लिकमा सुरक्षित हुन्छ।</div>`}
+  `;
+
+  let wrap = document.getElementById('modal-backdrop');
+  if (!wrap){
+    wrap = document.createElement('div');
+    wrap.className = 'modal-backdrop'; wrap.id = 'modal-backdrop';
+    document.body.appendChild(wrap);
+  }
+  wrap.innerHTML = `<div class="modal" style="max-width:420px;">
+    <h3>${e.full_name} — हाजिरी क्यालेन्डर</h3>
+    <div id="modal-body">${body}</div>
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closeEmployeeCalendar()">बन्द गर्नुहोस्</button></div>
+  </div>`;
+};
+window.closeEmployeeCalendar = ()=>{ state._calSelectedDate = null; closeModal(); };
+window.calPrevMonth = (empId,month,year)=>{
+  state._calSelectedDate = null;
+  month--; if (month<1){ month=12; year--; }
+  renderEmployeeCalendar(empId, month, year);
+};
+window.calNextMonth = (empId,month,year)=>{
+  state._calSelectedDate = null;
+  month++; if (month>12){ month=1; year++; }
+  renderEmployeeCalendar(empId, month, year);
+};
+window.selectCalDay = (empId,month,year,dateStr)=>{
+  state._calSelectedDate = dateStr;
+  renderEmployeeCalendar(empId, month, year);
+};
+window.tickCalAttendance = async (empId,month,year,dateStr,status)=>{
+  const { error } = await sb.from('attendance').upsert(
+    { employee_id: empId, work_date: dateStr, status },
+    { onConflict: 'employee_id,work_date' }
+  );
+  if (error){ alert(error.message); return; }
+  await renderEmployeeCalendar(empId, month, year);
+};
+window.updateOTCal = async (empId,month,year,dateStr,hours)=>{
+  const { error } = await sb.from('attendance').upsert(
+    { employee_id: empId, work_date: dateStr, overtime_hours: Number(hours||0) },
+    { onConflict: 'employee_id,work_date' }
+  );
+  if (error){ alert(error.message); return; }
+};
+
+window.showIdCard = async (id)=>{
+  const e = state.employees.find(x=>x.id===id);
+  const qrText = JSON.stringify({ id:e.employee_code, name:e.full_name, co:COMPANY.name, phone:e.phone||'' });
+  const qrUrl = await makeQrDataUrl(qrText, 90);
+  const body = `
+   <div class="idcard" style="margin:0 auto;">
+     <div class="idcard-head">
+       <div class="co">${COMPANY.name}</div>
+       <div style="font-size:11px; opacity:.8;">कर्मचारी परिचय पत्र</div>
+     </div>
+     <div class="idcard-body">
+       <div class="idcard-photo">${e.photo_url?`<img src="${e.photo_url}" style="width:100%;height:100%;object-fit:cover;border-radius:6px;"/>`:'🧑'}</div>
+       <div style="flex:1;">
+         <div style="font-weight:700; font-size:15px;">${e.full_name}</div>
+         <div style="font-size:12px; color:var(--ink-soft); margin-top:2px;">${e.position}</div>
+         <div style="font-size:11.5px; margin-top:6px;">ID: <b>${e.employee_code}</b></div>
+         <div style="font-size:11.5px;">फोन: ${e.phone||'-'}</div>
+       </div>
+       ${qrUrl?`<img src="${qrUrl}" style="width:64px;height:64px;"/>`:''}
+     </div>
+     <div class="idcard-foot">कामथालेको मिति: ${e.join_date} | ${e.skill_type==='skilled'?'दक्ष':'अदक्ष'} कामदार
+       ${e.signature_url?`<div style="margin-top:4px;">दस्तखत: <img src="${e.signature_url}" style="height:24px; vertical-align:middle;"/></div>`:''}
+     </div>
+   </div>
+   <div style="text-align:center; margin-top:16px;" class="no-print">
+     <button class="btn btn-outline" onclick="window.print()">🖨️ प्रिन्ट</button>
+     <button class="btn btn-outline" onclick="downloadIdCardPdf('${e.employee_code}')">⬇️ PDF डाउनलोड</button>
+   </div>`;
+  const wrap = document.createElement('div');
+  wrap.className = 'modal-backdrop'; wrap.id='modal-backdrop';
+  wrap.innerHTML = `<div class="modal"><h3 class="no-print">ID Card</h3><div id="idcard-capture">${body}</div><div class="modal-actions no-print"><button class="btn btn-outline" onclick="closeModal()">बन्द गर्नुहोस्</button></div></div>`;
+  document.body.appendChild(wrap);
+};
+window.downloadIdCardPdf = (code)=>{
+  const el = document.getElementById('idcard-capture');
+  html2pdf().set({ filename:`ID-Card-${code}.pdf`, margin:10 }).from(el).save();
+};
+
+/* ---------------------------------------------------------------------
+   ATTENDANCE
+--------------------------------------------------------------------- */
+const ATT_STATUSES = [
+  { key:'present',  label:'उपस्थित',  cls:'badge-green' },
+  { key:'absent',   label:'अनुपस्थित', cls:'badge-red' },
+  { key:'resigned', label:'राजिनामा', cls:'badge-red' },
+  { key:'leave',    label:'अवकाश',   cls:'badge-amber' },
+];
+
+// कर्मचारी on_leave स्थितिमा छ र दिइएको मिति उसको बिदा-अवधि (status_date देखि status_date_to सम्म) भित्र पर्छ भने true फर्काउने
+function isOnLeaveRange(emp, dateStr){
+  if (!emp || emp.status !== 'on_leave' || !emp.status_date) return false;
+  const to = emp.status_date_to || emp.status_date;
+  return dateStr >= emp.status_date && dateStr <= to;
+}
+
+async function pageAttendance(c){
+  const { data: emps } = await sb.from('employees').select('id,full_name,employee_code,status,status_date,status_date_to').in('status',['active','on_leave','resigned']);
+  const date = c.dataset.date || todayStr();
+  const { data: att } = await sb.from('attendance').select('*').eq('work_date', date);
+  const attMap = {}; (att||[]).forEach(a=>attMap[a.employee_id]=a);
+
+  c.innerHTML = `
+   <div class="toolbar">
+     <div class="field" style="max-width:200px; margin:0;"><input type="date" id="att-date" value="${date}" onchange="loadAttDate(this.value)"/></div>
+     <div>
+       <button class="btn btn-outline" onclick="openMonthlyAttendanceReport()">🖨️ मासिक प्रतिवेदन</button>
+     </div>
+   </div>
+   <div class="card" style="margin-bottom:14px; font-size:12.5px; color:var(--ink-soft);">
+     ℹ️ कर्मचारीको लाइनमा उचित स्थिति (उपस्थित/अनुपस्थित/राजिनामा/अवकाश) मा एकपटक क्लिक गर्नुहोस् — त्यसै बेला सुरक्षित हुन्छ, छुट्टै Save गर्नु पर्दैन।
+   </div>
+   <div class="card">
+    <table><thead><tr><th>ID</th><th>नाम</th><th>स्थिति (क्लिक गर्नुहोस्)</th><th>OT घण्टा</th></tr></thead>
+    <tbody>
+    ${(emps||[]).map(e=>{
+      const a = attMap[e.id] || {};
+      const current = a.status || null;
+      const onLeaveNow = isOnLeaveRange(e, date);
+      if (onLeaveNow){
+        return `<tr data-emp="${e.id}">
+          <td>${e.employee_code}</td><td>${e.full_name}</td>
+          <td><span class="badge badge-amber">अवकाश (${e.status_date} देखि ${e.status_date_to||e.status_date} सम्म) — स्वतः गणना</span></td>
+          <td>-</td>
+        </tr>`;
+      }
+      return `<tr data-emp="${e.id}">
+        <td>${e.employee_code}</td><td>${e.full_name}</td>
+        <td>
+          <div style="display:flex; gap:6px; flex-wrap:wrap;">
+          ${ATT_STATUSES.map(s=>`
+            <button type="button" class="btn btn-sm ${current===s.key?'btn-primary':'btn-outline'}"
+              onclick="busy(this, ()=>tickAttendance('${e.id}','${date}','${s.key}'))">${s.label}</button>
+          `).join('')}
+          </div>
+        </td>
+        <td><input type="number" class="att-ot" value="${a.overtime_hours||0}" style="width:70px" onchange="updateOT('${e.id}','${date}',this.value)"/></td>
+      </tr>`;
+    }).join('') || `<tr><td colspan="4" class="empty-state">कुनै सक्रिय कर्मचारी छैन</td></tr>`}
+    </tbody></table>
+   </div>`;
+}
+window.loadAttDate = (v)=>{ document.getElementById('content').dataset.date = v; render(); };
+
+window.tickAttendance = async (employeeId, date, status)=>{
+  const { error } = await sb.from('attendance').upsert(
+    { employee_id: employeeId, work_date: date, status },
+    { onConflict: 'employee_id,work_date' }
+  );
+  if (error){ alert(error.message); return; }
+  render();
+};
+window.updateOT = async (employeeId, date, hours)=>{
+  const { error } = await sb.from('attendance').upsert(
+    { employee_id: employeeId, work_date: date, overtime_hours: Number(hours||0) },
+    { onConflict: 'employee_id,work_date' }
+  );
+  if (error){ alert(error.message); return; }
+};
+
+/* -------- Monthly Attendance Report (day-wise count) -------- */
+window.openMonthlyAttendanceReport = ()=>{
+  const now = new Date();
+  const m = prompt('महिना (1-12):', now.getMonth()+1);
+  if (!m) return;
+  const y = prompt('वर्ष:', now.getFullYear());
+  if (!y) return;
+  printMonthlyAttendanceReport(Number(m), Number(y));
+};
+
+window.printMonthlyAttendanceReport = async (month, year)=>{
+  showOverlay();
+  try{
+    const { data: emps } = await sb.from('employees').select('*').in('status',['active','on_leave','resigned']).order('full_name');
+    const daysInMonth = new Date(year, month, 0).getDate();
+    const from = `${year}-${String(month).padStart(2,'0')}-01`;
+    const to = `${year}-${String(month).padStart(2,'0')}-${String(daysInMonth).padStart(2,'0')}`;
+    const { data: att } = await sb.from('attendance').select('*').gte('work_date',from).lte('work_date',to);
+    const map = {}; (att||[]).forEach(a=>{ map[a.employee_id+'|'+a.work_date] = a.status; });
+    const statusChar = { present:'P', absent:'A', resigned:'R', leave:'L', holiday:'—' };
+
+    const dayHeaders = Array.from({length:daysInMonth},(_,i)=>`<th>${i+1}</th>`).join('');
+    const rows = (emps||[]).map(e=>{
+      let presentCount = 0;
+      const cells = Array.from({length:daysInMonth},(_,i)=>{
+        const d = `${year}-${String(month).padStart(2,'0')}-${String(i+1).padStart(2,'0')}`;
+        let st = map[e.id+'|'+d];
+        if (!st && isOnLeaveRange(e, d)) st = 'leave';
+        if (st==='present') presentCount += 1;
+        return `<td style="text-align:center; padding:3px;">${st ? statusChar[st] : '-'}</td>`;
+      }).join('');
+      return `<tr><td style="white-space:nowrap;">${e.employee_code}<br><span style="font-size:11px;">${e.full_name}</span></td>${cells}<td style="text-align:center; font-weight:700;">${presentCount}</td></tr>`;
+    }).join('');
+
+    const monthNames = ['जनवरी','फेब्रुअरी','मार्च','अप्रिल','मे','जुन','जुलाई','अगस्ट','सेप्टेम्बर','अक्टोबर','नोभेम्बर','डिसेम्बर'];
+    document.getElementById('print-area').innerHTML = `
+      <div style="font-family:'Noto Sans Devanagari',sans-serif;">
+        <div style="text-align:center; margin-bottom:12px;">
+          <div style="font-size:18px; font-weight:700;">${COMPANY.name}</div>
+          <div style="font-size:14px; font-weight:700; margin-top:6px; text-decoration:underline;">मासिक हाजिरी प्रतिवेदन — ${monthNames[month-1]} ${year}</div>
+          <div style="font-size:11px; margin-top:2px;">P=उपस्थित, A=अनुपस्थित, R=राजिनामा, L=अवकाश</div>
+        </div>
+        <table class="bill-table" style="font-size:10.5px;">
+          <thead><tr><th>कर्मचारी</th>${dayHeaders}<th>जम्मा दिन</th></tr></thead>
+          <tbody>${rows || `<tr><td colspan="${daysInMonth+2}" style="text-align:center">रेकर्ड छैन</td></tr>`}</tbody>
+        </table>
+      </div>`;
+    window.print();
+  }finally{ hideOverlay(); }
+};
+
+/* ---------------------------------------------------------------------
+   SALARY
+--------------------------------------------------------------------- */
+async function pageSalary(c){
+  const now = new Date();
+  const month = c.dataset.month ? Number(c.dataset.month) : now.getMonth()+1;
+  const year = c.dataset.year ? Number(c.dataset.year) : now.getFullYear();
+
+  const { data: emps } = await sb.from('employees').select('*').in('status',['active','on_leave','resigned']);
+  const { data: pays } = await sb.from('salary_payments').select('*').eq('month',month).eq('year',year);
+  const payMap = {}; (pays||[]).forEach(p=>payMap[p.employee_id]=p);
+  state._salaryPays = pays||[];
+
+  c.innerHTML = `
+   <div class="toolbar">
+     <div class="row" style="margin:0;">
+       <select id="sal-month" style="width:130px" onchange="setSalPeriod()">
+        ${Array.from({length:12},(_,i)=>`<option value="${i+1}" ${i+1===month?'selected':''}>${['जन','फेब','मार्च','अप्रिल','मे','जुन','जुल','अग','सेप','अक्टो','नोभ','डिसे'][i]}</option>`).join('')}
+       </select>
+       <select id="sal-year" style="width:110px" onchange="setSalPeriod()">
+        ${[year-2,year-1,year,year+1].map(y=>`<option value="${y}" ${y===year?'selected':''}>${y}</option>`).join('')}
+       </select>
+     </div>
+     <div class="row" style="margin:0;">
+       <select id="sal-basis" style="width:220px">
+        <option value="fixed30" ${(c.dataset.basis||'fixed30')==='fixed30'?'selected':''}>महिना = ३० दिन मानी हिसाब</option>
+        <option value="actual" ${c.dataset.basis==='actual'?'selected':''}>महिनाको वास्तविक दिन (२८/२९/३०/३१) अनुसार</option>
+       </select>
+     </div>
+     <button class="btn btn-primary" onclick="busy(this, ()=>generateSalaries(${month},${year},document.getElementById('sal-basis').value))">हाजिरीबाट तलब गणना गर्नुहोस्</button>
+     <button class="btn btn-outline" onclick="printSalaryReport(${month},${year})">🖨️ प्रतिवेदन प्रिन्ट</button>
+     <button class="btn btn-outline" onclick="advanceSalaryForm()">💵 पेश्की (Advance) दिनुहोस्</button>
+     <button class="btn btn-outline" onclick="bankTransferReport(${month},${year})">🏦 बैंक Transfer Report</button>
+     <button class="btn btn-outline" onclick="exportSalaryExcel(${month},${year})">📊 Excel Export</button>
+   </div>
+   <div class="card" style="margin-bottom:14px; font-size:12px; color:var(--ink-soft);">
+     ℹ️ माथिबाट "३० दिन मानी" वा "महिनाको वास्तविक दिन अनुसार" — दुवैमध्ये एक छानेर तलब गणना गर्न सकिन्छ।
+   </div>
+   <div class="card">
+    <table><thead><tr><th>नाम</th><th>दर</th><th>उपस्थित दिन</th><th>कुल तलब</th><th>बोनस</th><th>PF</th><th>TDS</th><th>कटौती</th><th>खुद तलब</th><th>स्थिति</th><th></th></tr></thead>
+    <tbody>
+    ${(emps||[]).map(e=>{
+      const p = payMap[e.id];
+      return `<tr>
+        <td>${e.full_name}</td>
+        <td>${NPR(e.salary_rate)}</td>
+        <td>${p?p.present_days:'-'}</td>
+        <td>${p?NPR(p.gross_amount):'-'}</td>
+        <td>${p?NPR(p.bonus||0):'-'}</td>
+        <td>${p?NPR(p.pf_amount||0):'-'}</td>
+        <td>${p?NPR(p.tds_amount||0):'-'}</td>
+        <td>${p?NPR(Number(p.advance_deduction||0)+Number(p.other_deduction||0)+Number(p.pf_amount||0)+Number(p.cit_amount||0)+Number(p.tds_amount||0)):'-'}</td>
+        <td><b>${p?NPR(p.net_amount):'-'}</b></td>
+        <td>${p?`<span class="badge ${p.payment_status==='paid'?'badge-green':'badge-amber'}">${p.payment_status==='paid'?'paid':'unpaid'}</span>${p.payment_status==='paid'&&p.payment_method?` <span class="badge badge-amber" style="background:#EFE6D4; color:var(--wood-dark);">${paymentMethodLabel(p.payment_method)}</span>`:''}`:'-'}</td>
+        <td>
+          ${p ? `<button class="btn btn-outline btn-sm" onclick="salaryEditForm('${p.id}')">Edit</button>` : ''}
+          ${p ? `<button class="btn btn-outline btn-sm" onclick="printPayslip('${p.id}')">Payslip</button>` : ''}
+          ${p && p.payment_status!=='paid' ? `<button class="btn btn-sm btn-outline" onclick="markPaidForm('${p.id}')">भुक्तानी भयो</button>`:''}
+          ${p ? `<button class="btn btn-danger btn-sm" onclick="busy(this, ()=>deleteSalary('${p.id}'))">मेट्नुहोस्</button>` : ''}
+        </td>
+      </tr>`;
+    }).join('') || `<tr><td colspan="11" class="empty-state">कुनै सक्रिय कर्मचारी छैन</td></tr>`}
+    </tbody></table>
+   </div>`;
+}
+window.setSalPeriod = ()=>{
+  document.getElementById('content').dataset.month = document.getElementById('sal-month').value;
+  document.getElementById('content').dataset.year = document.getElementById('sal-year').value;
+  render();
+};
+window.generateSalaries = async (month, year, basis)=>{
+  basis = basis || 'fixed30';
+  document.getElementById('content').dataset.basis = basis;
+  const divisor = (dim)=> basis==='actual' ? dim : 30;
+  const { data: emps } = await sb.from('employees').select('*').in('status',['active','on_leave','resigned']);
+  const { data: atts } = await sb.from('attendance').select('*')
+    .gte('work_date', `${year}-${String(month).padStart(2,'0')}-01`)
+    .lte('work_date', `${year}-${String(month).padStart(2,'0')}-31`);
+  const { data: advances } = await sb.from('salary_advances').select('*').eq('settled', false);
+  const daysInMonth = new Date(year, month, 0).getDate();
+  const rows = (emps||[]).map(e=>{
+    const my = (atts||[]).filter(a=>a.employee_id===e.id);
+    const markedDates = new Set(my.map(a=>a.work_date));
+    const presentDays = my.reduce((s,a)=> s + (a.status==='present'?1:0), 0);
+    let unpaidDays = my.reduce((s,a)=> s + ((a.status==='absent'||a.status==='resigned'||a.status==='leave')?1:0), 0);
+    // बिदा-अवधि (status_date देखि status_date_to सम्म) मा टिक नगरिएका दिनहरू पनि स्वतः अवकाश मानी गणना गर्ने
+    for (let d=1; d<=daysInMonth; d++){
+      const ds = `${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      if (!markedDates.has(ds) && isOnLeaveRange(e, ds)) unpaidDays += 1;
+    }
+    const otHours = my.reduce((s,a)=> s + Number(a.overtime_hours||0), 0);
+    // मासिक तलब भएकालाई ३० दिन वा महिनाको वास्तविक दिन (छानिएको अनुसार) मानी day-wise दर निकाल्ने, अनुपस्थित/राजिनामा/अवकाशको दिन कटौती
+    // दैनिक तलब भएकालाई उपस्थित दिनको मात्र भुक्तानी
+    const dayRate = e.salary_rate / divisor(daysInMonth);
+    const gross = e.salary_type==='daily'
+      ? presentDays * e.salary_rate
+      : Math.max(0, e.salary_rate - dayRate * unpaidDays);
+    // PF/CIT/TDS स्वतः गणना (SALARY_RULES बाट)
+    const pfAmt = Math.round(gross * SALARY_RULES.pf_employee_percent/100 * 100)/100;
+    const citAmt = Math.round(gross * SALARY_RULES.cit_percent/100 * 100)/100;
+    const tdsAmt = Math.round(gross * SALARY_RULES.tds_percent/100 * 100)/100;
+    // बाँकी (unsettled) पेश्की भए यहीँ कटौती गर्ने
+    const myAdvances = (advances||[]).filter(a=>a.employee_id===e.id);
+    const advanceDue = myAdvances.reduce((s,a)=>s+Number(a.amount||0),0);
+    const net = Math.round((gross - pfAmt - citAmt - tdsAmt - advanceDue)*100)/100;
+    return {
+      employee_id: e.id, month, year,
+      present_days: presentDays, overtime_hours: otHours,
+      gross_amount: Math.round(gross*100)/100,
+      pf_amount: pfAmt, cit_amount: citAmt, tds_amount: tdsAmt,
+      advance_deduction: advanceDue, bonus: 0,
+      net_amount: net,
+      payment_status: 'unpaid',
+    };
+  });
+  if (!rows.length){ alert('सक्रिय कर्मचारी छैन'); return; }
+  const { data: inserted, error } = await sb.from('salary_payments').upsert(rows, { onConflict:'employee_id,month,year' }).select();
+  if (error){ alert(error.message + '\n\n(pf_amount/cit_amount/tds_amount/bonus columns थपिएको छ कि जाँच्नुहोस् — तलको SQL हेर्नुहोस्)'); return; }
+  // प्रयोग भएका पेश्की settled मार्क गर्ने
+  if ((advances||[]).length) await sb.from('salary_advances').update({ settled:true }).in('id', advances.map(a=>a.id));
+  alert('तलब गणना भयो ✅'); render();
+};
+
+/* -------- पेश्की (Advance Salary) -------- */
+window.advanceSalaryForm = ()=>{
+  const body = `
+   <div class="field"><label>कर्मचारी *</label>
+    <select id="adv-emp">${state.employees.map(e=>`<option value="${e.id}">${e.full_name}</option>`).join('')}</select>
+   </div>
+   <div class="row">
+    <div class="field"><label>रकम *</label><input id="adv-amount" type="number"/></div>
+    <div class="field"><label>मिति</label><input id="adv-date" type="date" value="${todayStr()}"/></div>
+   </div>
+   <div class="field"><label>कैफियत</label><input id="adv-note"/></div>
+   <div class="msg" style="background:#F7E7D3; color:var(--amber);">ℹ️ यो पेश्की अर्को पटक "हाजिरीबाट तलब गणना गर्नुहोस्" थिच्दा स्वतः खुद तलबबाट कट्नेछ।</div>`;
+  openModal('पेश्की (Advance) दिनुहोस्', body, async ()=>{
+    const employee_id = document.getElementById('adv-emp').value;
+    const amount = Number(document.getElementById('adv-amount').value||0);
+    if (!amount){ alert('रकम आवश्यक'); return; }
+    const { error } = await sb.from('salary_advances').insert({
+      employee_id, amount, advance_date: document.getElementById('adv-date').value||todayStr(),
+      note: document.getElementById('adv-note').value, settled:false,
+    });
+    if (error){ alert(error.message + '\n\n(salary_advances table चाहिन्छ — तलको SQL हेर्नुहोस्)'); return; }
+    closeModal(); alert('पेश्की रेकर्ड भयो ✅');
+  });
+};
+
+/* -------- बैंक Transfer Report -------- */
+window.bankTransferReport = async (month, year)=>{
+  showOverlay();
+  try{
+    const { data: pays } = await sb.from('salary_payments').select('*, employees(full_name,bank_name,bank_account)').eq('month',month).eq('year',year).eq('payment_method','online');
+    const monthNames = ['जनवरी','फेब्रुअरी','मार्च','अप्रिल','मे','जुन','जुलाई','अगस्ट','सेप्टेम्बर','अक्टोबर','नोभेम्बर','डिसेम्बर'];
+    const rows = (pays||[]).map(p=>`<tr><td>${p.employees?.full_name||'-'}</td><td>${p.employees?.bank_name||'-'}</td><td>${p.employees?.bank_account||'-'}</td><td style="text-align:right">${Number(p.net_amount).toLocaleString('en-IN')}</td></tr>`).join('');
+    const total = (pays||[]).reduce((s,p)=>s+Number(p.net_amount||0),0);
+    document.getElementById('print-area').innerHTML = `
+     <div style="font-family:'Noto Sans Devanagari',sans-serif; max-width:800px; margin:0 auto;">
+       <div style="text-align:center; margin-bottom:14px;">
+         <div style="font-size:18px; font-weight:700;">${COMPANY.name}</div>
+         <div style="font-size:14px; font-weight:700; margin-top:6px;">बैंक ट्रान्सफर प्रतिवेदन — ${monthNames[month-1]} ${year}</div>
+       </div>
+       <table class="bill-table"><thead><tr><th>कर्मचारी</th><th>बैंक</th><th>खाता नं.</th><th>रकम</th></tr></thead>
+       <tbody>${rows||'<tr><td colspan="4" style="text-align:center">कुनै online भुक्तानी छैन</td></tr>'}</tbody>
+       <tfoot><tr style="font-weight:700; background:#f2f2f2;"><td colspan="3">जम्मा</td><td style="text-align:right">${total.toLocaleString('en-IN')}</td></tr></tfoot>
+       </table>
+     </div>`;
+    window.print();
+  }finally{ hideOverlay(); }
+};
+
+/* -------- Excel Export (तलब) -------- */
+window.exportSalaryExcel = async (month, year)=>{
+  const { data: pays } = await sb.from('salary_payments').select('*, employees(full_name,employee_code)').eq('month',month).eq('year',year);
+  const rows = (pays||[]).map(p=>({
+    'ID': p.employees?.employee_code, 'नाम': p.employees?.full_name,
+    'उपस्थित दिन': p.present_days, 'कुल तलब': p.gross_amount, 'बोनस': p.bonus||0,
+    'PF': p.pf_amount||0, 'CIT': p.cit_amount||0, 'TDS': p.tds_amount||0,
+    'पेश्की': p.advance_deduction||0, 'अन्य कटौती': p.other_deduction||0,
+    'खुद तलब': p.net_amount, 'स्थिति': p.payment_status,
+  }));
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Salary');
+  XLSX.writeFile(wb, `Salary_${year}_${month}.xlsx`);
+};
+
+/* -------- व्यक्तिगत Payslip -------- */
+window.printPayslip = async (payId)=>{
+  const p = state._salaryPays.find(x=>x.id===payId);
+  const e = state.employees.find(x=>x.id===p.employee_id);
+  const monthNames = ['जनवरी','फेब्रुअरी','मार्च','अप्रिल','मे','जुन','जुलाई','अगस्ट','सेप्टेम्बर','अक्टोबर','नोभेम्बर','डिसेम्बर'];
+  const html = `
+   <div id="payslip-capture" style="font-family:'Noto Sans Devanagari',sans-serif; max-width:600px; margin:0 auto; border:1px solid #ccc; padding:20px;">
+     <div style="text-align:center; margin-bottom:10px;">
+       <div style="font-size:18px; font-weight:700;">${COMPANY.name}</div>
+       <div style="font-size:13px; font-weight:700; margin-top:6px;">तलब पर्ची (Payslip) — ${monthNames[p.month-1]} ${p.year}</div>
+     </div>
+     <table style="width:100%; font-size:13px; border-collapse:collapse;">
+       <tr><td style="padding:4px 0;">कर्मचारी</td><td style="text-align:right;"><b>${e?.full_name||'-'}</b> (${e?.employee_code||''})</td></tr>
+       <tr><td style="padding:4px 0;">उपस्थित दिन</td><td style="text-align:right;">${p.present_days}</td></tr>
+       <tr><td colspan="2"><hr/></td></tr>
+       <tr><td style="padding:4px 0;">कुल तलब (Gross)</td><td style="text-align:right;">${NPR(p.gross_amount)}</td></tr>
+       <tr><td style="padding:4px 0;">बोनस</td><td style="text-align:right;">+ ${NPR(p.bonus||0)}</td></tr>
+       <tr><td style="padding:4px 0;">PF कटौती</td><td style="text-align:right;">- ${NPR(p.pf_amount||0)}</td></tr>
+       <tr><td style="padding:4px 0;">CIT कटौती</td><td style="text-align:right;">- ${NPR(p.cit_amount||0)}</td></tr>
+       <tr><td style="padding:4px 0;">TDS कटौती</td><td style="text-align:right;">- ${NPR(p.tds_amount||0)}</td></tr>
+       <tr><td style="padding:4px 0;">पेश्की कटौती</td><td style="text-align:right;">- ${NPR(p.advance_deduction||0)}</td></tr>
+       <tr><td style="padding:4px 0;">अन्य कटौती</td><td style="text-align:right;">- ${NPR(p.other_deduction||0)}</td></tr>
+       <tr><td colspan="2"><hr/></td></tr>
+       <tr style="font-weight:700; font-size:15px;"><td style="padding:4px 0;">खुद तलब (Net)</td><td style="text-align:right;">${NPR(p.net_amount)}</td></tr>
+     </table>
+     <div style="margin-top:40px; display:flex; justify-content:space-between; font-size:12px;">
+       <div>तयार गर्ने: ______________</div><div>प्राप्त गर्ने दस्तखत: ______________</div>
+     </div>
+   </div>`;
+  document.getElementById('print-area').innerHTML = html;
+  const wrap = document.createElement('div');
+  wrap.className = 'modal-backdrop no-print'; wrap.id='payslip-modal';
+  wrap.innerHTML = `<div class="modal">${html}<div class="modal-actions">
+    <button class="btn btn-outline" onclick="document.getElementById('payslip-modal').remove()">बन्द</button>
+    <button class="btn btn-outline" onclick="window.print()">🖨️ प्रिन्ट</button>
+    <button class="btn btn-primary" onclick="html2pdf().set({filename:'Payslip-${e?.employee_code||''}-${p.month}-${p.year}.pdf',margin:10}).from(document.getElementById('payslip-capture')).save()">⬇️ PDF डाउनलोड</button>
+  </div></div>`;
+  document.body.appendChild(wrap);
+};
+function paymentMethodLabel(key){
+  return { cash:'नगद', qr:'QR Code', online:'अनलाइन', cheque:'चेक' }[key] || key || '-';
+}
+window.deleteSalary = async (id)=>{
+  if (!confirm('यो तलब रेकर्ड मेट्ने हो? यो कारबाही फिर्ता हुँदैन।')) return;
+  await sb.from('expenses').delete().eq('salary_payment_id', id);
+  const { error } = await sb.from('salary_payments').delete().eq('id', id);
+  if (error){ alert(error.message); return; }
+  render();
+};
+window.markPaidForm = (id)=>{
+  const p = state._salaryPays.find(x=>x.id===id);
+  if (!p) return;
+  const emp = state.employees.find(e=>e.id===p.employee_id);
+  const body = `
+   <div class="field"><label>भुक्तानी विधि *</label>
+     <select id="pm-method" onchange="document.getElementById('pm-ref-wrap').style.display = this.value==='cash' ? 'none' : '';">
+       <option value="cash">💵 नगद</option>
+       <option value="qr">📱 QR Code</option>
+       <option value="online">🏦 Online / Bank Transfer</option>
+       <option value="cheque">🧾 चेक</option>
+     </select>
+   </div>
+   <div class="field" id="pm-ref-wrap"><label>सन्दर्भ नं. / चेक नं. (वैकल्पिक)</label><input id="pm-ref" placeholder="जस्तै: Txn ID, चेक नं."/></div>
+   <div class="field"><label>भुक्तानी मिति</label><input id="pm-date" type="date" value="${todayStr()}"/></div>
+   <div class="msg" style="background:#F7E7D3; color:var(--amber);">ℹ️ भुक्तानी भएपछि यो रकम स्वतः "खर्च" (Expenses) पेजमा तलब श्रेणीमा थपिनेछ।</div>`;
+  openModal(`${p.employee_id ? '' : ''}भुक्तानी विधि छान्नुहोस्`, body, async ()=>{
+    const method = document.getElementById('pm-method').value;
+    const ref = document.getElementById('pm-ref').value;
+    const pdate = document.getElementById('pm-date').value || todayStr();
+    const { error } = await sb.from('salary_payments').update({
+      payment_status:'paid', paid_date: pdate, payment_method: method, payment_reference: ref,
+    }).eq('id', id);
+    if (error){ alert(error.message); return; }
+    // डुप्लिकेट नहोस् भनेर जाँच्ने, त्यसपछि खर्चमा तलब स्वतः थप्ने
+    const { data: existingExp } = await sb.from('expenses').select('id').eq('salary_payment_id', id).maybeSingle();
+    const expPayload = {
+      category:'salary', amount: p.net_amount,
+      vendor: emp?.full_name || '-', bill_no: ref || null,
+      expense_date: pdate, description: `तलब भुक्तानी — ${emp?.full_name||''} (${p.month}/${p.year})`,
+      salary_payment_id: id,
+    };
+    if (existingExp) await sb.from('expenses').update(expPayload).eq('id', existingExp.id);
+    else await sb.from('expenses').insert(expPayload);
+    closeModal(); render();
+  });
+};
+
+window.salaryEditForm = (id)=>{
+  const p = state._salaryPays.find(x=>x.id===id);
+  if (!p) return;
+  const body = `
+   <div class="msg" style="background:#F7E7D3; color:var(--amber);">Biometric/हाजिरीबाट गणना भएको दिन मिलेन भने यहाँ हातैले सच्याउन सकिन्छ।</div>
+   <div class="row">
+    <div class="field"><label>उपस्थित दिन</label><input id="se-days" type="number" step="0.5" value="${p.present_days||0}"/></div>
+    <div class="field"><label>कुल तलब (Gross)</label><input id="se-gross" type="number" value="${p.gross_amount||0}"/></div>
+   </div>
+   <div class="row">
+    <div class="field"><label>पेश्की कटौती</label><input id="se-advance" type="number" value="${p.advance_deduction||0}"/></div>
+    <div class="field"><label>अन्य कटौती</label><input id="se-other" type="number" value="${p.other_deduction||0}"/></div>
+   </div>
+   <div class="row">
+    <div class="field"><label>बोनस</label><input id="se-bonus" type="number" value="${p.bonus||0}"/></div>
+    <div class="field"><label>PF कटौती</label><input id="se-pf" type="number" value="${p.pf_amount||0}"/></div>
+   </div>
+   <div class="row">
+    <div class="field"><label>CIT कटौती</label><input id="se-cit" type="number" value="${p.cit_amount||0}"/></div>
+    <div class="field"><label>TDS कटौती</label><input id="se-tds" type="number" value="${p.tds_amount||0}"/></div>
+   </div>
+   <div class="field"><label>कैफियत</label><input id="se-remarks" value="${p.remarks||''}"/></div>`;
+  openModal('तलब सच्याउनुहोस्', body, async ()=>{
+    const gross = Number(document.getElementById('se-gross').value||0);
+    const adv = Number(document.getElementById('se-advance').value||0);
+    const other = Number(document.getElementById('se-other').value||0);
+    const bonus = Number(document.getElementById('se-bonus').value||0);
+    const pf = Number(document.getElementById('se-pf').value||0);
+    const cit = Number(document.getElementById('se-cit').value||0);
+    const tds = Number(document.getElementById('se-tds').value||0);
+    const payload = {
+      present_days: Number(document.getElementById('se-days').value||0),
+      gross_amount: gross,
+      advance_deduction: adv,
+      other_deduction: other,
+      bonus, pf_amount: pf, cit_amount: cit, tds_amount: tds,
+      net_amount: gross + bonus - adv - other - pf - cit - tds,
+      remarks: document.getElementById('se-remarks').value,
+    };
+    const { error } = await sb.from('salary_payments').update(payload).eq('id', id);
+    if (error){ alert(error.message); return; }
+    // पहिल्यै भुक्तानी भइसकेको भए, खर्चमा रहेको रकम पनि मिलाउने
+    if (p.payment_status==='paid'){
+      await sb.from('expenses').update({ amount: payload.net_amount }).eq('salary_payment_id', id);
+    }
+    if (error){ alert(error.message); return; }
+    closeModal(); render();
+  });
+};
+
+window.printSalaryReport = async (month, year)=>{
+  showOverlay();
+  try{
+    const { data: emps } = await sb.from('employees').select('*').in('status',['active','on_leave','resigned']).order('full_name');
+    const { data: pays } = await sb.from('salary_payments').select('*').eq('month',month).eq('year',year);
+    const payMap = {}; (pays||[]).forEach(p=>payMap[p.employee_id]=p);
+    const monthNames = ['जनवरी','फेब्रुअरी','मार्च','अप्रिल','मे','जुन','जुलाई','अगस्ट','सेप्टेम्बर','अक्टोबर','नोभेम्बर','डिसेम्बर'];
+    let totalGross=0, totalNet=0;
+    const rows = (emps||[]).map(e=>{
+      const p = payMap[e.id] || {};
+      totalGross += Number(p.gross_amount||0); totalNet += Number(p.net_amount||0);
+      return `<tr>
+        <td>${e.employee_code}</td><td>${e.full_name}</td><td>${e.position}</td>
+        <td style="text-align:center">${p.present_days ?? '-'}</td>
+        <td style="text-align:right">${p.gross_amount? Number(p.gross_amount).toLocaleString('en-IN'):'-'}</td>
+        <td style="text-align:right">${p.advance_deduction||p.other_deduction ? Number(Number(p.advance_deduction||0)+Number(p.other_deduction||0)).toLocaleString('en-IN') : '-'}</td>
+        <td style="text-align:right"><b>${p.net_amount? Number(p.net_amount).toLocaleString('en-IN'):'-'}</b></td>
+        <td style="text-align:center">${p.payment_status || '-'}</td>
+        <td style="text-align:center">${p.payment_status==='paid' ? paymentMethodLabel(p.payment_method) : '-'}</td>
+      </tr>`;
+    }).join('');
+    document.getElementById('print-area').innerHTML = `
+      <div style="font-family:'Noto Sans Devanagari',sans-serif; max-width:900px; margin:0 auto;">
+        <div style="text-align:center; margin-bottom:14px;">
+          <div style="font-size:20px; font-weight:700;">${COMPANY.name}</div>
+          <div style="font-size:12px;">${COMPANY.address} | फोन: ${COMPANY.phone} | PAN: ${COMPANY.pan_no}</div>
+          <div style="font-size:15px; font-weight:700; margin-top:10px; text-decoration:underline;">कर्मचारी तलबी प्रतिवेदन — ${monthNames[month-1]} ${year}</div>
+        </div>
+        <table class="bill-table">
+          <thead><tr><th>ID</th><th>नाम</th><th>पद</th><th>उपस्थित दिन</th><th>कुल तलब</th><th>कटौती</th><th>खुद तलब</th><th>स्थिति</th><th>भुक्तानी विधि</th></tr></thead>
+          <tbody>${rows || `<tr><td colspan="9" style="text-align:center">रेकर्ड छैन</td></tr>`}</tbody>
+          <tfoot><tr style="font-weight:700; background:#f2f2f2;"><td colspan="4">जम्मा</td><td style="text-align:right">${totalGross.toLocaleString('en-IN')}</td><td></td><td style="text-align:right">${totalNet.toLocaleString('en-IN')}</td><td></td><td></td></tr></tfoot>
+        </table>
+        <div style="display:flex; justify-content:space-between; margin-top:60px; font-size:13px;">
+          <div>तयार गर्ने: ______________</div>
+          <div>स्वीकृत गर्ने: ______________</div>
+        </div>
+      </div>`;
+    window.print();
+  }finally{ hideOverlay(); }
+};
+
+/* ---------------------------------------------------------------------
+   SUPPLIERS
+--------------------------------------------------------------------- */
+async function pageSuppliers(c){
+  const { data } = await sb.from('suppliers').select('*').order('created_at',{ascending:false});
+  state._suppliers = data||[];
+  c.innerHTML = `
+   <div class="toolbar"><div></div><button class="btn btn-primary" onclick="supplierForm()">+ नयाँ आपूर्तिकर्ता</button></div>
+   <div class="card"><table><thead><tr><th>नाम</th><th>प्रकार</th><th>सम्पर्क</th><th>फोन</th><th>Permit/License No.</th><th></th></tr></thead>
+   <tbody>${(data||[]).map(s=>`<tr><td>${s.name}</td><td>${s.type||'-'}</td><td>${s.contact_person||'-'}</td><td>${s.phone||'-'}</td><td>${s.permit_license_no||'-'}</td>
+     <td><button class="btn btn-outline btn-sm" onclick="supplierForm('${s.id}')">Edit</button>
+     <button class="btn btn-danger btn-sm" onclick="busy(this, ()=>deleteSupplier('${s.id}'))">मेट्नुहोस्</button></td>
+   </tr>`).join('')||`<tr><td colspan="6" class="empty-state">कुनै रेकर्ड छैन</td></tr>`}</tbody></table></div>`;
+}
+window.deleteSupplier = async (id)=>{
+  if (!confirm('यो आपूर्तिकर्ता मेट्ने हो?')) return;
+  const { error } = await sb.from('suppliers').delete().eq('id', id);
+  if (error){ alert(error.message + '\n\n(यससँग जोडिएको काठ खरिद रेकर्ड भएकोले मेट्न नसकिएको हुन सक्छ।)'); return; }
+  render();
+};
+window.supplierForm = (id)=>{
+  const s = id ? state._suppliers.find(x=>x.id===id) : {};
+  const body = `
+   <div class="field"><label>नाम *</label><input id="s-name" value="${s.name||''}"/></div>
+   <div class="field"><label>प्रकार</label>
+     <select id="s-type">
+       <option value="community_forest" ${s.type==='community_forest'?'selected':''}>Community Forest</option>
+       <option value="forest_office" ${s.type==='forest_office'?'selected':''}>Forest Office</option>
+       <option value="timber_depot" ${s.type==='timber_depot'?'selected':''}>Timber Depot</option>
+       <option value="sawmill" ${s.type==='sawmill'?'selected':''}>Sawmill</option>
+       <option value="other" ${s.type==='other'?'selected':''}>Other</option>
+     </select>
+   </div>
+   <div class="row">
+    <div class="field"><label>सम्पर्क व्यक्ति</label><input id="s-contact" value="${s.contact_person||''}"/></div>
+    <div class="field"><label>फोन</label><input id="s-phone" value="${s.phone||''}"/></div>
+   </div>
+   <div class="field"><label>Permit / License No.</label><input id="s-permit" value="${s.permit_license_no||''}"/></div>
+   <div class="field"><label>ठेगाना</label><input id="s-address" value="${s.address||''}"/></div>`;
+  openModal(id ? 'आपूर्तिकर्ता सम्पादन' : 'नयाँ आपूर्तिकर्ता', body, async ()=>{
+    const name = document.getElementById('s-name').value.trim();
+    if (!name){ alert('नाम आवश्यक'); return; }
+    const payload = {
+      name, type: document.getElementById('s-type').value,
+      contact_person: document.getElementById('s-contact').value,
+      phone: document.getElementById('s-phone').value,
+      permit_license_no: document.getElementById('s-permit').value,
+      address: document.getElementById('s-address').value,
+    };
+    const { error } = id ? await sb.from('suppliers').update(payload).eq('id', id) : await sb.from('suppliers').insert(payload);
+    if (error){ alert(error.message); return; }
+    closeModal(); render();
+  });
+};
+
+/* ---------------------------------------------------------------------
+   WOOD PURCHASE (Entry) — काठ खरिद + inventory मा auto entry
+--------------------------------------------------------------------- */
+async function pageWood(c){
+  const [{data:purchases}, {data:suppliers}] = await Promise.all([
+    sb.from('wood_purchases').select('*, suppliers(name)').order('purchase_date',{ascending:false}),
+    sb.from('suppliers').select('id,name'),
+  ]);
+  state._suppliers = suppliers||[];
+  state._woodPurchases = purchases||[];
+  c.innerHTML = `
+   <div class="toolbar"><div></div><button class="btn btn-primary" onclick="woodForm()">+ काठ खरिद Entry</button></div>
+   <div class="card"><table><thead><tr><th>मिति</th><th>Purchase No</th><th>आपूर्तिकर्ता</th><th>प्रजाति</th><th>परिमाण</th><th>दर</th><th>जम्मा</th><th>Permit No</th><th></th></tr></thead>
+   <tbody>${(purchases||[]).map(p=>`<tr>
+     <td>${p.purchase_date}</td><td>${p.purchase_no}</td><td>${p.suppliers?.name||'-'}</td><td>${p.species}</td>
+     <td>${p.quantity} ${p.unit}</td><td>${NPR(p.rate_per_unit)}</td><td><b>${NPR(p.total_amount)}</b></td><td>${p.permit_no||'-'}</td>
+     <td><button class="btn btn-outline btn-sm" onclick="woodForm('${p.id}')">Edit</button>
+     <button class="btn btn-danger btn-sm" onclick="busy(this, ()=>deleteWoodPurchase('${p.id}'))">मेट्नुहोस्</button></td>
+   </tr>`).join('')||`<tr><td colspan="9" class="empty-state">कुनै खरिद रेकर्ड छैन</td></tr>`}</tbody></table></div>`;
+}
+window.deleteWoodPurchase = async (id)=>{
+  if (!confirm('यो खरिद रेकर्ड मेट्ने हो? यससँग जोडिएको स्टक प्रवेश पनि हट्नेछ। फिर्ता हुँदैन।')) return;
+  await sb.from('inventory_transactions').delete().eq('reference_type','wood_purchase').eq('reference_id', id);
+  const { error } = await sb.from('wood_purchases').delete().eq('id', id);
+  if (error){ alert(error.message); return; }
+  render();
+};
+window.woodForm = (id)=>{
+  const w = id ? state._woodPurchases.find(x=>x.id===id) : {};
+  const body = `
+   <div class="row">
+    <div class="field"><label>आपूर्तिकर्ता</label><select id="w-supplier"><option value="">-- छान्नुहोस् --</option>${state._suppliers.map(s=>`<option value="${s.id}" ${w.supplier_id===s.id?'selected':''}>${s.name}</option>`).join('')}</select></div>
+    <div class="field"><label>प्रजाति (Species) *</label><input id="w-species" value="${w.species||''}" placeholder="साल / सिसौ / खयर"/></div>
+   </div>
+   <div class="row">
+    <div class="field"><label>परिमाण (cft) *</label><input id="w-qty" type="number" value="${w.quantity||''}"/></div>
+    <div class="field"><label>दर प्रति एकाइ *</label><input id="w-rate" type="number" value="${w.rate_per_unit||''}"/></div>
+   </div>
+   <div class="row">
+    <div class="field"><label>Permit / Release No.</label><input id="w-permit" value="${w.permit_no||''}"/></div>
+    <div class="field"><label>गाडी नं.</label><input id="w-vehicle" value="${w.vehicle_no||''}"/></div>
+   </div>
+   <div class="field"><label>खरिद मिति</label><input id="w-date" type="date" value="${w.purchase_date||todayStr()}"/></div>
+   ${id?`<div class="msg" style="background:#F7E7D3; color:var(--amber);">⚠️ सम्पादन गर्दा स्टक परिमाण स्वतः मिलाइनेछ (पुरानो घटाई नयाँ थपेर)।</div>`:''}`;
+  openModal(id ? 'काठ खरिद सम्पादन' : 'काठ खरिद Entry', body, async ()=>{
+    const species = document.getElementById('w-species').value.trim();
+    const qty = Number(document.getElementById('w-qty').value||0);
+    const rate = Number(document.getElementById('w-rate').value||0);
+    if (!species || !qty || !rate){ alert('प्रजाति, परिमाण, दर आवश्यक'); return; }
+    const payload = {
+      supplier_id: document.getElementById('w-supplier').value || null,
+      species, quantity: qty, rate_per_unit: rate,
+      permit_no: document.getElementById('w-permit').value,
+      vehicle_no: document.getElementById('w-vehicle').value,
+      purchase_date: document.getElementById('w-date').value || todayStr(),
+    };
+    let wp;
+    if (id){
+      // पुरानो inventory प्रवेश हटाएर, अपडेट पछि नयाँ परिमाणको प्रवेश थप्ने
+      await sb.from('inventory_transactions').delete().eq('reference_type','wood_purchase').eq('reference_id', id);
+      const { data, error } = await sb.from('wood_purchases').update(payload).eq('id', id).select().single();
+      if (error){ alert(error.message); return; }
+      wp = data;
+    } else {
+      const { data, error } = await sb.from('wood_purchases').insert(payload).select().single();
+      if (error){ alert(error.message); return; }
+      wp = data;
+    }
+    // inventory item find-or-create, then log entry transaction
+    let { data: item } = await sb.from('inventory_items').select('*').eq('item_name', species).maybeSingle();
+    if (!item){
+      const { data: newItem, error: ie } = await sb.from('inventory_items').insert({ item_name: species, item_type:'raw_wood', unit:'cft' }).select().single();
+      if (ie){ alert(ie.message); return; }
+      item = newItem;
+    }
+    await sb.from('inventory_transactions').insert({
+      item_id: item.id, txn_type:'entry', quantity: qty,
+      reference_type:'wood_purchase', reference_id: wp.id, txn_date: wp.purchase_date,
+      remarks: `खरिद: ${wp.purchase_no}`,
+    });
+    closeModal(); render();
+  });
+};
+
+/* ---------------------------------------------------------------------
+   INVENTORY (Stock + manual Entry/Exit)
+--------------------------------------------------------------------- */
+async function pageInventory(c){
+  const { data: items } = await sb.from('inventory_items').select('*').order('item_name');
+  state._items = items||[];
+  c.innerHTML = `
+   <div class="toolbar"><div></div>
+    <div>
+      <button class="btn btn-outline" onclick="invTxnForm('exit')">− निकास (Exit)</button>
+      <button class="btn btn-primary" onclick="invTxnForm('entry')">+ प्रवेश (Entry)</button>
+    </div>
+   </div>
+   <div class="card"><table><thead><tr><th>सामान</th><th>प्रकार</th><th>हालको स्टक</th><th>एकाइ</th><th>Reorder Level</th><th></th></tr></thead>
+   <tbody>${(items||[]).map(i=>`<tr>
+     <td>${i.item_name}</td><td>${i.item_type}</td>
+     <td><b>${i.current_stock}</b> ${Number(i.current_stock) <= Number(i.reorder_level||0) ? '<span class="badge badge-red">कम स्टक</span>':''}</td>
+     <td>${i.unit}</td><td>${i.reorder_level||0}</td>
+     <td><button class="btn btn-outline btn-sm" onclick="itemEditForm('${i.id}')">Edit</button>
+     <button class="btn btn-danger btn-sm" onclick="busy(this, ()=>deleteItem('${i.id}'))">मेट्नुहोस्</button></td>
+   </tr>`).join('')||`<tr><td colspan="6" class="empty-state">कुनै सामान थपिएको छैन। पहिले "काठ खरिद" वा तलको + Entry बाट थप्नुहोस्।</td></tr>`}</tbody></table></div>`;
+}
+window.deleteItem = async (id)=>{
+  if (!confirm('यो सामान मेट्ने हो? यससँग जोडिएको स्टक ट्रान्जेक्सन इतिहास पनि हट्नेछ।')) return;
+  await sb.from('inventory_transactions').delete().eq('item_id', id);
+  const { error } = await sb.from('inventory_items').delete().eq('id', id);
+  if (error){ alert(error.message); return; }
+  render();
+};
+window.itemEditForm = (id)=>{
+  const i = state._items.find(x=>x.id===id);
+  const body = `
+   <div class="field"><label>सामानको नाम *</label><input id="ie-name" value="${i.item_name}"/></div>
+   <div class="row">
+    <div class="field"><label>प्रकार</label><input id="ie-type" value="${i.item_type||''}"/></div>
+    <div class="field"><label>एकाइ</label><input id="ie-unit" value="${i.unit||''}"/></div>
+   </div>
+   <div class="field"><label>Reorder Level</label><input id="ie-reorder" type="number" value="${i.reorder_level||0}"/></div>
+   <div class="msg" style="background:#F7E7D3; color:var(--amber);">ℹ️ हालको स्टक परिमाण मिलाउन Entry/Exit प्रयोग गर्नुहोस्।</div>`;
+  openModal('सामान सम्पादन', body, async ()=>{
+    const name = document.getElementById('ie-name').value.trim();
+    if (!name){ alert('नाम आवश्यक'); return; }
+    const { error } = await sb.from('inventory_items').update({
+      item_name: name, item_type: document.getElementById('ie-type').value,
+      unit: document.getElementById('ie-unit').value,
+      reorder_level: Number(document.getElementById('ie-reorder').value||0),
+    }).eq('id', id);
+    if (error){ alert(error.message); return; }
+    closeModal(); render();
+  });
+};
+window.invTxnForm = (type)=>{
+  const body = `
+   <div class="field"><label>सामान</label>
+     <select id="it-item">
+       <option value="">-- नयाँ सामान थप्नुहोस् --</option>
+       ${state._items.map(i=>`<option value="${i.id}">${i.item_name} (${i.current_stock} ${i.unit})</option>`).join('')}
+     </select>
+   </div>
+   <div class="field" id="it-newname-wrap"><label>नयाँ सामानको नाम</label><input id="it-newname"/></div>
+   <div class="row">
+    <div class="field"><label>परिमाण *</label><input id="it-qty" type="number"/></div>
+    <div class="field"><label>मिति</label><input id="it-date" type="date" value="${todayStr()}"/></div>
+   </div>
+   <div class="field"><label>कारण / कैफियत</label><input id="it-remark" placeholder="उत्पादनका लागि प्रयोग / बिक्री / समायोजन"/></div>`;
+  openModal(type==='entry' ? 'स्टक प्रवेश (Entry)' : 'स्टक निकास (Exit)', body, async ()=>{
+    let itemId = document.getElementById('it-item').value;
+    const qty = Number(document.getElementById('it-qty').value||0);
+    if (!qty){ alert('परिमाण आवश्यक'); return; }
+    if (!itemId){
+      const name = document.getElementById('it-newname').value.trim();
+      if (!name){ alert('सामानको नाम आवश्यक'); return; }
+      const { data: newItem, error: ie } = await sb.from('inventory_items').insert({ item_name:name, item_type:'raw_wood', unit:'cft' }).select().single();
+      if (ie){ alert(ie.message); return; }
+      itemId = newItem.id;
+    }
+    const { error } = await sb.from('inventory_transactions').insert({
+      item_id: itemId, txn_type: type, quantity: qty,
+      reference_type:'adjustment', txn_date: document.getElementById('it-date').value || todayStr(),
+      remarks: document.getElementById('it-remark').value,
+    });
+    if (error){ alert(error.message); return; }
+    closeModal(); render();
+  });
+};
+
+/* ---------------------------------------------------------------------
+   MACHINERY
+--------------------------------------------------------------------- */
+async function pageMachinery(c){
+  const { data } = await sb.from('machinery').select('*').order('created_at',{ascending:false});
+  state._machinery = data||[];
+  c.innerHTML = `
+   <div class="toolbar"><div></div><button class="btn btn-primary" onclick="machineForm()">+ नयाँ मेसिन</button></div>
+   <div class="card"><table><thead><tr><th>नाम</th><th>प्रकार</th><th>खरिद मिति</th><th>लागत</th><th>स्थिति</th><th></th></tr></thead>
+   <tbody>${(data||[]).map(m=>`<tr><td>${m.name}</td><td>${m.type||'-'}</td><td>${m.purchase_date||'-'}</td><td>${NPR(m.purchase_cost)}</td>
+   <td><span class="badge ${m.status==='working'?'badge-green':'badge-red'}">${m.status}</span></td>
+   <td><button class="btn btn-outline btn-sm" onclick="machineForm('${m.id}')">Edit</button>
+   <button class="btn btn-danger btn-sm" onclick="busy(this, ()=>deleteMachine('${m.id}'))">मेट्नुहोस्</button></td>
+   </tr>`).join('')||`<tr><td colspan="6" class="empty-state">कुनै मेसिन थपिएको छैन</td></tr>`}</tbody></table></div>`;
+}
+window.deleteMachine = async (id)=>{
+  if (!confirm('यो मेसिन रेकर्ड मेट्ने हो?')) return;
+  const { error } = await sb.from('machinery').delete().eq('id', id);
+  if (error){ alert(error.message); return; }
+  render();
+};
+window.machineForm = (id)=>{
+  const m = id ? state._machinery.find(x=>x.id===id) : {};
+  const body = `
+   <div class="field"><label>मेसिनको नाम *</label><input id="m-name" value="${m.name||''}"/></div>
+   <div class="row">
+    <div class="field"><label>प्रकार</label><input id="m-type" value="${m.type||''}" placeholder="Cutting, Polishing, आदि"/></div>
+    <div class="field"><label>लागत</label><input id="m-cost" type="number" value="${m.purchase_cost||''}"/></div>
+   </div>
+   <div class="row">
+    <div class="field"><label>खरिद मिति</label><input id="m-date" type="date" value="${m.purchase_date||''}"/></div>
+    <div class="field"><label>स्थिति</label>
+      <select id="m-status">
+        <option value="working" ${m.status==='working'?'selected':''}>चलिरहेको (Working)</option>
+        <option value="maintenance" ${m.status==='maintenance'?'selected':''}>मर्मतमा</option>
+        <option value="broken" ${m.status==='broken'?'selected':''}>बिग्रेको</option>
+      </select>
+    </div>
+   </div>`;
+  openModal(id ? 'मेसिनरी सम्पादन' : 'नयाँ मेसिनरी', body, async ()=>{
+    const name = document.getElementById('m-name').value.trim();
+    if (!name){ alert('नाम आवश्यक'); return; }
+    const payload = {
+      name, type: document.getElementById('m-type').value,
+      purchase_cost: Number(document.getElementById('m-cost').value||0),
+      purchase_date: document.getElementById('m-date').value || null,
+      status: document.getElementById('m-status').value,
+    };
+    const { error } = id ? await sb.from('machinery').update(payload).eq('id', id) : await sb.from('machinery').insert(payload);
+    if (error){ alert(error.message); return; }
+    closeModal(); render();
+  });
+};
+
+/* ---------------------------------------------------------------------
+   CUSTOMERS
+--------------------------------------------------------------------- */
+async function pageCustomers(c){
+  const { data } = await sb.from('customers').select('*').order('created_at',{ascending:false});
+  state._customers = data||[];
+  c.innerHTML = `
+   <div class="toolbar"><div></div><button class="btn btn-primary" onclick="customerForm()">+ नयाँ ग्राहक</button></div>
+   <div class="card"><table><thead><tr><th>नाम</th><th>फोन</th><th>ठेगाना</th><th></th></tr></thead>
+   <tbody>${(data||[]).map(x=>`<tr><td>${x.name}</td><td>${x.phone||'-'}</td><td>${x.address||'-'}</td>
+     <td><button class="btn btn-outline btn-sm" onclick="customerForm('${x.id}')">Edit</button>
+     <button class="btn btn-danger btn-sm" onclick="busy(this, ()=>deleteCustomer('${x.id}'))">मेट्नुहोस्</button></td>
+   </tr>`).join('')||`<tr><td colspan="4" class="empty-state">कुनै ग्राहक छैन</td></tr>`}</tbody></table></div>`;
+}
+window.deleteCustomer = async (id)=>{
+  if (!confirm('यो ग्राहक मेट्ने हो?')) return;
+  const { error } = await sb.from('customers').delete().eq('id', id);
+  if (error){ alert(error.message + '\n\n(यस ग्राहकसँग जोडिएको बिल भएकोले मेट्न नसकिएको हुन सक्छ।)'); return; }
+  render();
+};
+window.customerForm = (id)=>{
+  const x = id ? state._customers.find(c=>c.id===id) : {};
+  const body = `<div class="field"><label>नाम *</label><input id="cu-name" value="${x.name||''}"/></div>
+   <div class="row"><div class="field"><label>फोन</label><input id="cu-phone" value="${x.phone||''}"/></div><div class="field"><label>PAN नं.</label><input id="cu-pan" value="${x.pan_no||''}"/></div></div>
+   <div class="field"><label>ठेगाना</label><input id="cu-address" value="${x.address||''}"/></div>`;
+  openModal(id ? 'ग्राहक सम्पादन' : 'नयाँ ग्राहक', body, async ()=>{
+    const name = document.getElementById('cu-name').value.trim();
+    if (!name){ alert('नाम आवश्यक'); return; }
+    const payload = { name, phone: document.getElementById('cu-phone').value, pan_no: document.getElementById('cu-pan').value, address: document.getElementById('cu-address').value };
+    const { error } = id ? await sb.from('customers').update(payload).eq('id', id) : await sb.from('customers').insert(payload);
+    if (error){ alert(error.message); return; }
+    closeModal(); render();
+  });
+};
+
+/* ---------------------------------------------------------------------
+   INVOICES / BILLING
+--------------------------------------------------------------------- */
+async function pageInvoices(c){
+  const [{data:invoices}, {data:customers}] = await Promise.all([
+    sb.from('invoices').select('*, customers(name)').order('invoice_date',{ascending:false}),
+    sb.from('customers').select('id,name'),
+  ]);
+  state._customers = customers||[];
+  state._invoices = invoices||[];
+  c.innerHTML = `
+   <div class="toolbar"><div></div><button class="btn btn-primary" onclick="invoiceForm()">+ नयाँ बिल</button></div>
+   <div class="card"><table><thead><tr><th>बिल नं.</th><th>मिति</th><th>ग्राहक</th><th>जम्मा</th><th>भुक्तानी</th><th>स्थिति</th><th></th></tr></thead>
+   <tbody>${(invoices||[]).map(i=>`<tr style="${i.status==='cancelled'?'opacity:.5;':''}">
+     <td>${i.invoice_no}</td><td>${i.invoice_date}</td><td>${i.customers?.name||'-'}</td>
+     <td><b>${NPR(i.grand_total)}</b></td>
+     <td><span class="badge ${i.payment_status==='paid'?'badge-green':i.payment_status==='partial'?'badge-amber':'badge-red'}">${i.payment_status}</span></td>
+     <td>${i.status==='cancelled' ? `<span class="badge badge-red">रद्द</span>` : i.status==='issued' ? `<span class="badge badge-green">जारी भयो</span>` : `<span class="badge badge-amber">मस्यौदा (Draft)</span>`}
+       ${i.locked ? `<span class="badge badge-red" title="सम्पादन/मेटाउनका लागि पहिले अनलक गर्नुहोस्">🔒 Locked</span>` : ''}</td>
+     <td>
+       ${i.status==='draft' ? `<button class="btn btn-primary btn-sm" onclick="busy(this, ()=>issueInvoice('${i.id}'))">✅ जारी गर्नुहोस्</button>` : ''}
+       ${i.status==='issued' && i.payment_status!=='paid' ? `<button class="btn btn-primary btn-sm" onclick="markInvoicePaidForm('${i.id}')">💰 भुक्तानी</button>` : ''}
+       ${i.payment_status==='paid' ? `<button class="btn btn-outline btn-sm" onclick="printInvoice('${i.id}')">🖨️ प्रिन्ट</button> <button class="btn btn-outline btn-sm" onclick="downloadInvoicePdf('${i.id}')">⬇️ PDF</button>`
+         : `<button class="btn btn-outline btn-sm" disabled title="भुक्तानी नभई प्रिन्ट हुँदैन">🖨️ प्रिन्ट</button>`}
+       ${i.status!=='cancelled' && !i.locked ? `<button class="btn btn-outline btn-sm" onclick="editInvoiceForm('${i.id}')">Edit</button>` : ''}
+       ${i.status!=='cancelled' && i.locked ? `<button class="btn btn-outline btn-sm" onclick="busy(this, ()=>unlockInvoice('${i.id}'))">🔓 Unlock</button>` : ''}
+       ${i.status!=='cancelled' && !i.locked ? `<button class="btn btn-danger btn-sm" onclick="busy(this, ()=>deleteInvoice('${i.id}'))">मेट्नुहोस्</button>` : ''}
+       ${i.status!=='cancelled' ? `<button class="btn btn-danger btn-sm" onclick="busy(this, ()=>cancelInvoice('${i.id}'))">रद्द</button>` : ''}
+     </td>
+   </tr>`).join('')||`<tr><td colspan="7" class="empty-state">कुनै बिल छैन</td></tr>`}</tbody></table></div>`;
+}
+
+// बिल जारी गर्ने — यसपछि मात्र भुक्तानी लिन सकिन्छ, र आम्दानी (Income) मा स्वतः रकम थपिन्छ
+window.issueInvoice = async (id)=>{
+  if (!confirm('बिल जारी गर्नुभएपछि यो आधिकारिक बीजक मानिनेछ र आम्दानीमा रकम थपिनेछ। अगाडि बढ्ने?')) return;
+  const { data: inv, error } = await sb.from('invoices').update({ status:'issued', issued_at: new Date().toISOString() }).eq('id', id).select().single();
+  if (error){ alert('जारी गर्न सकिएन: ' + error.message + '\n\n(schema_update_3.sql RUN गर्नुभएको छ कि छैन जाँच्नुहोस्।)'); return; }
+  const { data: existingIncome } = await sb.from('income').select('id').eq('invoice_id', id).maybeSingle();
+  if (!existingIncome){
+    await sb.from('income').insert({ source:'Sales Invoice '+inv.invoice_no, category:'sales', amount: inv.grand_total, income_date: inv.invoice_date, invoice_id: inv.id });
+  }
+  render();
+};
+
+/* -------- बिल भुक्तानी (नगद/QR/Online/चेक) -------- */
+window.markInvoicePaidForm = async (id)=>{
+  const inv = state._invoices.find(x=>x.id===id);
+  const due = Number(inv.grand_total) - Number(inv.paid_amount||0);
+  const body = `
+   <div class="field"><label>भुक्तानी विधि *</label>
+     <select id="ip-method" onchange="toggleQrPreview()">
+       <option value="cash">💵 नगद</option>
+       <option value="qr">📱 QR Code (eSewa/Khalti/Bank)</option>
+       <option value="online">🏦 Online / Bank Transfer</option>
+       <option value="cheque">🧾 चेक</option>
+     </select>
+   </div>
+   <div id="ip-qr-wrap" style="display:none; text-align:center; margin:10px 0;"></div>
+   <div class="row">
+    <div class="field"><label>प्राप्त रकम *</label><input id="ip-amount" type="number" value="${due}"/></div>
+    <div class="field"><label>मिति</label><input id="ip-date" type="date" value="${todayStr()}"/></div>
+   </div>
+   <div class="field"><label>सन्दर्भ नं. (वैकल्पिक)</label><input id="ip-ref" placeholder="Txn ID / चेक नं."/></div>
+   <div style="font-size:12px; color:var(--ink-soft);">बाँकी रकम: <b>${NPR(due)}</b></div>`;
+  openModal('बिल भुक्तानी लिनुहोस्', body, async ()=>{
+    const amt = Number(document.getElementById('ip-amount').value||0);
+    if (!amt){ alert('रकम आवश्यक'); return; }
+    const newPaid = Number(inv.paid_amount||0) + amt;
+    const status = newPaid >= Number(inv.grand_total) ? 'paid' : (newPaid>0 ? 'partial' : 'unpaid');
+    const { error } = await sb.from('invoices').update({
+      paid_amount: newPaid, payment_status: status,
+      payment_method: document.getElementById('ip-method').value,
+      payment_reference: document.getElementById('ip-ref').value,
+      paid_date: document.getElementById('ip-date').value || todayStr(),
+    }).eq('id', id);
+    if (error){ alert(error.message + '\n\n(schema_update_4.sql RUN गर्नुभएको छ कि जाँच्नुहोस्)'); return; }
+    closeModal(); render();
+  });
+  await toggleQrPreview();
+};
+window.toggleQrPreview = async ()=>{
+  const method = document.getElementById('ip-method')?.value;
+  const wrap = document.getElementById('ip-qr-wrap');
+  if (!wrap) return;
+  if (method==='qr'){
+    wrap.style.display='';
+    const url = await makeQrDataUrl(`Pay ${COMPANY.name} | To: ${COMPANY.payment_qr_text}`, 130);
+    wrap.innerHTML = url ? `<img src="${url}" style="width:130px;height:130px;"/><div style="font-size:11px; margin-top:4px;">ग्राहकलाई यो QR स्क्यान गर्न दिनुहोस्</div>` : '';
+  } else { wrap.style.display='none'; }
+};
+
+window.cancelInvoice = async (id)=>{
+  const reason = prompt('बिल रद्द गर्नुको कारण लेख्नुहोस् (वैकल्पिक):') || '';
+  if (!confirm('के तपाईं यो बिल साँच्चै रद्द गर्न चाहनुहुन्छ? यो पछि फिर्ता हुँदैन।')) return;
+  const { error } = await sb.from('invoices').update({ status:'cancelled', cancelled_reason: reason, cancelled_at: new Date().toISOString(), locked:false }).eq('id', id);
+  if (error){ alert('रद्द गर्न सकिएन: ' + error.message + '\n\n(सम्भवतः schema_update_2.sql अझै Supabase मा RUN गर्नुभएको छैन।)'); return; }
+  await sb.from('income').delete().eq('invoice_id', id);
+  render();
+};
+
+window.unlockInvoice = async (id)=>{
+  if (!confirm('बिल Unlock गर्ने हो? Unlock पछि यो बिल सम्पादन वा मेटाउन मिल्नेछ।')) return;
+  const { error } = await sb.from('invoices').update({ locked:false }).eq('id', id);
+  if (error){ alert(error.message); return; }
+  render();
+};
+
+window.deleteInvoice = async (id)=>{
+  const inv = state._invoices.find(x=>x.id===id);
+  if (inv.locked){ alert('यो बिल Locked छ — पहिले Unlock गर्नुहोस्।'); return; }
+  if (!confirm('यो बिल पूर्ण रूपमा मेट्ने हो? (रद्द गर्नुभन्दा फरक — रेकर्ड नै हराउनेछ) यो कारबाही फिर्ता हुँदैन।')) return;
+  await sb.from('income').delete().eq('invoice_id', id);
+  await sb.from('invoice_items').delete().eq('invoice_id', id);
+  const { error } = await sb.from('invoices').delete().eq('id', id);
+  if (error){ alert(error.message); return; }
+  render();
+};
+
+window.editInvoiceForm = async (id)=>{
+  const inv = state._invoices.find(x=>x.id===id);
+  if (inv.locked){ alert('यो बिल Locked छ — पहिले Unlock गर्नुहोस्।'); return; }
+  const { data: items } = await sb.from('invoice_items').select('*').eq('invoice_id', id);
+  const body = `
+   <div class="field"><label>ग्राहक</label>
+    <select id="inv-customer"><option value="">-- छान्नुहोस् --</option>${state._customers.map(c=>`<option value="${c.id}" ${inv.customer_id===c.id?'selected':''}>${c.name}</option>`).join('')}</select>
+   </div>
+   <div id="inv-items">
+     ${(items||[]).map(it=>`
+     <div class="row inv-item-row">
+       <div class="field" style="flex:2"><label>विवरण</label><input class="ii-desc" value="${it.description||''}"/></div>
+       <div class="field"><label>परिमाण</label><input class="ii-qty" type="number" value="${it.quantity}"/></div>
+       <div class="field"><label>दर</label><input class="ii-price" type="number" value="${it.unit_price}"/></div>
+     </div>`).join('')}
+   </div>
+   <button class="btn btn-outline btn-sm" type="button" onclick="addInvoiceRow()">+ लाइन थप्नुहोस्</button>
+   <div class="row" style="margin-top:12px;">
+    <div class="field"><label>VAT %</label><input id="inv-vat" type="number" value="${inv.vat_percent}"/></div>
+    <div class="field"><label>छुट (Discount)</label><input id="inv-discount" type="number" value="${inv.discount}"/></div>
+   </div>
+   <div class="field"><label>मिति</label><input id="inv-date" type="date" value="${inv.invoice_date}"/></div>
+   ${inv.status==='issued'?`<div class="msg" style="background:#F7E7D3; color:var(--amber);">⚠️ यो बिल जारी भइसकेको हो — रकम फेरबदल गर्दा आम्दानी रेकर्ड पनि स्वतः मिलाइनेछ।</div>`:''}`;
+  openModal('बिल सम्पादन', body, async ()=>{
+    const rows = [...document.querySelectorAll('.inv-item-row')].map(r=>({
+      description: r.querySelector('.ii-desc').value,
+      quantity: Number(r.querySelector('.ii-qty').value||0),
+      unit_price: Number(r.querySelector('.ii-price').value||0),
+    })).filter(r=>r.description && r.quantity>0);
+    if (!rows.length){ alert('कम्तिमा एउटा वस्तु राख्नुहोस्'); return; }
+    const subtotal = rows.reduce((s,r)=>s+r.quantity*r.unit_price,0);
+    const vatPct = Number(document.getElementById('inv-vat').value||0);
+    const discount = Number(document.getElementById('inv-discount').value||0);
+    const vatAmt = (subtotal - discount) * vatPct/100;
+    const grand = subtotal - discount + vatAmt;
+    const { error } = await sb.from('invoices').update({
+      customer_id: document.getElementById('inv-customer').value || null,
+      invoice_date: document.getElementById('inv-date').value || todayStr(),
+      subtotal, vat_percent: vatPct, vat_amount: vatAmt, discount, grand_total: grand,
+    }).eq('id', id);
+    if (error){ alert(error.message); return; }
+    await sb.from('invoice_items').delete().eq('invoice_id', id);
+    await sb.from('invoice_items').insert(rows.map(r=>({ ...r, invoice_id: id })));
+    if (inv.status==='issued'){
+      await sb.from('income').update({ amount: grand }).eq('invoice_id', id);
+    }
+    closeModal(); render();
+  });
+};
+
+window.printInvoice = async (id)=>{ await buildInvoiceHtml(id); window.print(); await lockInvoiceAfterPrint(id); };
+window.downloadInvoicePdf = async (id)=>{
+  showOverlay();
+  try{
+    await buildInvoiceHtml(id);
+    const el = document.getElementById('print-area').firstElementChild;
+    await html2pdf().set({ filename:`Invoice-${el.dataset.invno||id}.pdf`, margin:10 }).from(document.getElementById('print-area')).save();
+  } finally { hideOverlay(); }
+  await lockInvoiceAfterPrint(id);
+};
+async function lockInvoiceAfterPrint(id){
+  await sb.from('invoices').update({ locked:true }).eq('id', id);
+  render();
+}
+async function buildInvoiceHtml(id){
+  showOverlay();
+  try{
+    const { data: inv } = await sb.from('invoices').select('*, customers(*)').eq('id', id).single();
+    const { data: items } = await sb.from('invoice_items').select('*').eq('invoice_id', id);
+    const cust = inv.customers || {};
+    const qrUrl = await makeQrDataUrl(`Pay ${COMPANY.name} | Invoice ${inv.invoice_no} | Amount NPR ${inv.grand_total} | To: ${COMPANY.payment_qr_text}`, 110);
+    const rows = (items||[]).map((it,idx)=>`
+      <tr>
+        <td style="text-align:center">${idx+1}</td>
+        <td>${it.description||''}</td>
+        <td style="text-align:center">${it.quantity}</td>
+        <td style="text-align:right">${Number(it.unit_price).toLocaleString('en-IN')}</td>
+        <td style="text-align:right">${Number(it.line_total).toLocaleString('en-IN')}</td>
+      </tr>`).join('');
+    document.getElementById('print-area').innerHTML = `
+     <div data-invno="${inv.invoice_no}" style="font-family:'Noto Sans Devanagari',sans-serif; max-width:850px; margin:0 auto;">
+       <div style="text-align:center; margin-bottom:10px;">
+         <div style="font-weight:700; font-size:16px;">अनुसूची-५</div>
+         <div style="font-size:12px;">(नियम १७ सँग सम्बन्धित)</div>
+         <div style="font-weight:700; font-size:17px; margin-top:4px;">कर बीजकको ढाँचा</div>
+       </div>
+       <div style="display:flex; justify-content:space-between; font-size:13px; margin:14px 0 4px;">
+         <div>बीजक नम्बर: <b>${inv.invoice_no}</b></div>
+         <div>कारोबार मिति: <b>${inv.invoice_date}</b></div>
+       </div>
+       <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:10px;">
+         <div>विक्रेताको करदाता दर्ता नम्बर: <b>${COMPANY.pan_no}</b></div>
+         <div>बीजक जारी भएको मिति: <b>${todayStr()}</b></div>
+       </div>
+       <div style="font-size:13px; line-height:1.9;">
+         <div>बिक्रेताको नाम: <b>${COMPANY.name}</b></div>
+         <div>ठेगाना: ${COMPANY.address}</div>
+         <div>क्रेताको नाम: <b>${cust.name || '-'}</b></div>
+         <div>ठेगाना: ${cust.address || '-'}</div>
+         <div>क्रेताको करदाता दर्ता नम्बर: ${cust.pan_no || '-'}</div>
+         <div>भुक्तानीको तरिका: नगद / चेक / उधारो / अन्य</div>
+       </div>
+       <table class="bill-table">
+         <thead><tr><th>सि.नं.</th><th>विवरण</th><th>परिमाण</th><th>प्रति इकाई मूल्य रु.</th><th>जम्मा मूल्य रु.</th></tr></thead>
+         <tbody>${rows}</tbody>
+         <tfoot>
+           <tr><td colspan="4" style="text-align:right">जम्मा (Subtotal)</td><td style="text-align:right">${Number(inv.subtotal).toLocaleString('en-IN')}</td></tr>
+           <tr><td colspan="4" style="text-align:right">${inv.discount>0?'छुट':'....... प्रतिशतले छुट'}</td><td style="text-align:right">${Number(inv.discount||0).toLocaleString('en-IN')}</td></tr>
+           <tr><td colspan="4" style="text-align:right">कर लाग्ने मूल्य</td><td style="text-align:right">${(Number(inv.subtotal)-Number(inv.discount||0)).toLocaleString('en-IN')}</td></tr>
+           <tr><td colspan="4" style="text-align:right">${inv.vat_percent}% ले कर (VAT)</td><td style="text-align:right">${Number(inv.vat_amount).toLocaleString('en-IN')}</td></tr>
+           <tr style="font-weight:700;"><td colspan="4" style="text-align:right">जम्मा</td><td style="text-align:right">${Number(inv.grand_total).toLocaleString('en-IN')}</td></tr>
+         </tfoot>
+       </table>
+       ${inv.status==='cancelled' ? `<div style="color:#A8442E; font-weight:700; margin-top:14px;">** यो बिल रद्द गरिएको छ **</div>`:''}
+       <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:40px; font-size:13px;">
+         <div>बिक्रेताको दस्तखत: ______________</div>
+         ${qrUrl?`<div style="text-align:center;"><img src="${qrUrl}" style="width:90px;height:90px;"/><div style="font-size:10px;">QR मार्फत भुक्तानी</div></div>`:''}
+         <div>क्रेताको दस्तखत: ______________</div>
+       </div>
+     </div>`;
+  }finally{ hideOverlay(); }
+}
+window.invoiceForm = ()=>{
+  const body = `
+   <div class="field"><label>ग्राहक</label>
+    <select id="inv-customer"><option value="">-- छान्नुहोस् --</option>${state._customers.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}</select>
+   </div>
+   <div id="inv-items">
+     <div class="row inv-item-row">
+       <div class="field" style="flex:2"><label>विवरण</label><input class="ii-desc" placeholder="जस्तै: सोफा सेट"/></div>
+       <div class="field"><label>परिमाण</label><input class="ii-qty" type="number" value="1"/></div>
+       <div class="field"><label>दर</label><input class="ii-price" type="number" value="0"/></div>
+     </div>
+   </div>
+   <button class="btn btn-outline btn-sm" type="button" onclick="addInvoiceRow()">+ लाइन थप्नुहोस्</button>
+   <div class="row" style="margin-top:12px;">
+    <div class="field"><label>VAT %</label><input id="inv-vat" type="number" value="13"/></div>
+    <div class="field"><label>छुट (Discount)</label><input id="inv-discount" type="number" value="0"/></div>
+   </div>
+   <div class="field"><label>मिति</label><input id="inv-date" type="date" value="${todayStr()}"/></div>`;
+  openModal('नयाँ बिल / बिजक', body, async ()=>{
+    const rows = [...document.querySelectorAll('.inv-item-row')].map(r=>({
+      description: r.querySelector('.ii-desc').value,
+      quantity: Number(r.querySelector('.ii-qty').value||0),
+      unit_price: Number(r.querySelector('.ii-price').value||0),
+    })).filter(r=>r.description && r.quantity>0);
+    if (!rows.length){ alert('कम्तिमा एउटा वस्तु राख्नुहोस्'); return; }
+    const subtotal = rows.reduce((s,r)=>s+r.quantity*r.unit_price,0);
+    const vatPct = Number(document.getElementById('inv-vat').value||0);
+    const discount = Number(document.getElementById('inv-discount').value||0);
+    const vatAmt = (subtotal - discount) * vatPct/100;
+    const grand = subtotal - discount + vatAmt;
+    const { data: inv, error } = await sb.from('invoices').insert({
+      customer_id: document.getElementById('inv-customer').value || null,
+      invoice_date: document.getElementById('inv-date').value || todayStr(),
+      subtotal, vat_percent: vatPct, vat_amount: vatAmt, discount, grand_total: grand,
+      status: 'draft', payment_status: 'unpaid', paid_amount: 0, locked: false,
+    }).select().single();
+    if (error){ alert(error.message); return; }
+    const itemsPayload = rows.map(r=>({ ...r, invoice_id: inv.id }));
+    await sb.from('invoice_items').insert(itemsPayload);
+    closeModal(); render();
+  });
+};
+window.addInvoiceRow = ()=>{
+  const wrap = document.getElementById('inv-items');
+  const div = document.createElement('div');
+  div.className = 'row inv-item-row';
+  div.innerHTML = `
+    <div class="field" style="flex:2"><label>विवरण</label><input class="ii-desc"/></div>
+    <div class="field"><label>परिमाण</label><input class="ii-qty" type="number" value="1"/></div>
+    <div class="field"><label>दर</label><input class="ii-price" type="number" value="0"/></div>`;
+  wrap.appendChild(div);
+};
+
+/* ---------------------------------------------------------------------
+   INCOME
+--------------------------------------------------------------------- */
+async function pageIncome(c){
+  const { data } = await sb.from('income').select('*').order('income_date',{ascending:false});
+  state._income = data||[];
+  const total = (data||[]).reduce((s,i)=>s+Number(i.amount||0),0);
+  c.innerHTML = `
+   <div class="toolbar"><div class="kpi" style="border-top-color:var(--forest);"><div class="label">कुल आम्दानी</div><div class="value">${NPR(total)}</div></div>
+   <button class="btn btn-primary" onclick="incomeForm()">+ नयाँ आम्दानी</button></div>
+   <div class="card"><table><thead><tr><th>मिति</th><th>स्रोत</th><th>श्रेणी</th><th>रकम</th><th>विवरण</th><th></th></tr></thead>
+   <tbody>${(data||[]).map(i=>`<tr>
+     <td>${i.income_date}</td><td>${i.source}${i.invoice_id?' <span class="badge badge-amber" style="font-size:10px;">बिलबाट</span>':''}</td>
+     <td>${i.category||'-'}</td><td><b>${NPR(i.amount)}</b></td><td>${i.description||'-'}</td>
+     <td><button class="btn btn-outline btn-sm" onclick="incomeForm('${i.id}')">Edit</button>
+     <button class="btn btn-danger btn-sm" onclick="busy(this, ()=>deleteIncome('${i.id}'))">मेट्नुहोस्</button></td>
+   </tr>`).join('')||`<tr><td colspan="6" class="empty-state">कुनै रेकर्ड छैन</td></tr>`}</tbody></table></div>`;
+}
+window.deleteIncome = async (id)=>{
+  if (!confirm('यो आम्दानी रेकर्ड मेट्ने हो?')) return;
+  const { error } = await sb.from('income').delete().eq('id', id);
+  if (error){ alert(error.message); return; }
+  render();
+};
+window.incomeForm = (id)=>{
+  const it = id ? state._income.find(x=>x.id===id) : {};
+  const body = `
+   <div class="field"><label>स्रोत *</label><input id="in-source" value="${it.source||''}"/></div>
+   <div class="row">
+    <div class="field"><label>श्रेणी</label><input id="in-category" placeholder="sales / other" value="${it.category||''}"/></div>
+    <div class="field"><label>रकम *</label><input id="in-amount" type="number" value="${it.amount||''}"/></div>
+   </div>
+   <div class="field"><label>मिति</label><input id="in-date" type="date" value="${it.income_date||todayStr()}"/></div>
+   <div class="field"><label>विवरण</label><textarea id="in-desc" rows="2">${it.description||''}</textarea></div>
+   ${it.invoice_id ? `<div class="msg msg-amber" style="background:#F7E7D3; color:var(--amber);">⚠️ यो रेकर्ड बिल जारी हुँदा स्वतः बनेको हो। रकम मिलाउँदा बिलको रकमसँग नमिल्न सक्छ।</div>`:''}`;
+  openModal(id ? 'आम्दानी सम्पादन' : 'नयाँ आम्दानी', body, async ()=>{
+    const source = document.getElementById('in-source').value.trim();
+    const amount = Number(document.getElementById('in-amount').value||0);
+    if (!source || !amount){ alert('स्रोत र रकम आवश्यक'); return; }
+    const payload = { source, amount, category: document.getElementById('in-category').value, income_date: document.getElementById('in-date').value||todayStr(), description: document.getElementById('in-desc').value };
+    const { error } = id ? await sb.from('income').update(payload).eq('id', id) : await sb.from('income').insert(payload);
+    if (error){ alert(error.message); return; }
+    closeModal(); render();
+  });
+};
+
+/* ---------------------------------------------------------------------
+   EXPENSES
+--------------------------------------------------------------------- */
+async function pageExpenses(c){
+  const { data } = await sb.from('expenses').select('*').order('expense_date',{ascending:false});
+  state._expenses = data||[];
+  const total = (data||[]).reduce((s,i)=>s+Number(i.amount||0),0);
+  c.innerHTML = `
+   <div class="toolbar"><div class="kpi" style="border-top-color:var(--danger);"><div class="label">कुल खर्च</div><div class="value">${NPR(total)}</div></div>
+   <button class="btn btn-primary" onclick="expenseForm()">+ नयाँ खर्च</button></div>
+   <div class="card"><table><thead><tr><th>मिति</th><th>श्रेणी</th><th>विक्रेता</th><th>रकम</th><th>बिल नं.</th><th></th></tr></thead>
+   <tbody>${(data||[]).map(i=>`<tr><td>${i.expense_date}</td><td>${i.category}${i.salary_payment_id?' <span class="badge badge-amber" style="font-size:10px;">तलबबाट</span>':''}</td><td>${i.vendor||'-'}</td><td><b>${NPR(i.amount)}</b></td><td>${i.bill_no||'-'}</td>
+     <td><button class="btn btn-outline btn-sm" onclick="expenseForm('${i.id}')">Edit</button>
+     <button class="btn btn-danger btn-sm" onclick="busy(this, ()=>deleteExpense('${i.id}'))">मेट्नुहोस्</button></td>
+   </tr>`).join('')||`<tr><td colspan="6" class="empty-state">कुनै रेकर्ड छैन</td></tr>`}</tbody></table></div>`;
+}
+window.deleteExpense = async (id)=>{
+  const exp = state._expenses.find(x=>x.id===id);
+  if (exp?.salary_payment_id && !confirm('यो खर्च तलब भुक्तानीबाट स्वतः बनेको हो। मेटाउँदा तलब रेकर्डसँग नमिल्न सक्छ। अगाडि बढ्ने?')) return;
+  if (!exp?.salary_payment_id && !confirm('यो खर्च रेकर्ड मेट्ने हो?')) return;
+  const { error } = await sb.from('expenses').delete().eq('id', id);
+  if (error){ alert(error.message); return; }
+  render();
+};
+window.expenseForm = (id)=>{
+  const x = id ? state._expenses.find(e=>e.id===id) : {};
+  const body = `
+   ${x.salary_payment_id ? `<div class="msg" style="background:#F7E7D3; color:var(--amber);">⚠️ यो रेकर्ड तलब भुक्तानीबाट स्वतः बनेको हो। रकम मिलाउँदा तलब पेजको रकमसँग नमिल्न सक्छ।</div>` : ''}
+   <div class="row">
+    <div class="field"><label>श्रेणी *</label>
+      <select id="ex-category">
+        <option value="raw_material" ${x.category==='raw_material'?'selected':''}>कच्चा पदार्थ</option>
+        <option value="salary" ${x.category==='salary'?'selected':''}>तलब</option>
+        <option value="rent" ${x.category==='rent'?'selected':''}>भाडा</option>
+        <option value="electricity" ${x.category==='electricity'?'selected':''}>बिजुली</option>
+        <option value="fuel" ${x.category==='fuel'?'selected':''}>इन्धन</option>
+        <option value="maintenance" ${x.category==='maintenance'?'selected':''}>मर्मत</option>
+        <option value="transport" ${x.category==='transport'?'selected':''}>यातायात</option>
+        <option value="tax" ${x.category==='tax'?'selected':''}>कर</option>
+        <option value="other" ${x.category==='other'?'selected':''}>अन्य</option>
+      </select>
+    </div>
+    <div class="field"><label>रकम *</label><input id="ex-amount" type="number" value="${x.amount||''}"/></div>
+   </div>
+   <div class="row">
+    <div class="field"><label>विक्रेता</label><input id="ex-vendor" value="${x.vendor||''}"/></div>
+    <div class="field"><label>बिल नं.</label><input id="ex-billno" value="${x.bill_no||''}"/></div>
+   </div>
+   <div class="field"><label>मिति</label><input id="ex-date" type="date" value="${x.expense_date||todayStr()}"/></div>
+   <div class="field"><label>विवरण</label><textarea id="ex-desc" rows="2">${x.description||''}</textarea></div>`;
+  openModal(id ? 'खर्च सम्पादन' : 'नयाँ खर्च', body, async ()=>{
+    const amount = Number(document.getElementById('ex-amount').value||0);
+    if (!amount){ alert('रकम आवश्यक'); return; }
+    const payload = {
+      category: document.getElementById('ex-category').value, amount,
+      vendor: document.getElementById('ex-vendor').value, bill_no: document.getElementById('ex-billno').value,
+      expense_date: document.getElementById('ex-date').value||todayStr(), description: document.getElementById('ex-desc').value,
+    };
+    const { error } = id ? await sb.from('expenses').update(payload).eq('id', id) : await sb.from('expenses').insert(payload);
+    if (error){ alert(error.message); return; }
+    closeModal(); render();
+  });
+};
+
+/* ---------------------------------------------------------------------
+   REPORTS
+--------------------------------------------------------------------- */
+function periodRange(kind, refDate){
+  const d = new Date(refDate);
+  if (kind==='daily') return { from: refDate, to: refDate, label: refDate };
+  if (kind==='yearly'){
+    const y = d.getFullYear();
+    return { from:`${y}-01-01`, to:`${y}-12-31`, label:`वर्ष ${y}` };
+  }
+  const y = d.getFullYear(), m = d.getMonth();
+  const from = new Date(y,m,1).toISOString().slice(0,10);
+  const to = new Date(y,m+1,0).toISOString().slice(0,10);
+  return { from, to, label: `${['जन','फेब','मार्च','अप्रिल','मे','जुन','जुल','अग','सेप','अक्टो','नोभ','डिसे'][m]} ${y}` };
+}
+async function pageReports(c){
+  const kind = c.dataset.rkind || 'monthly';
+  const refDate = c.dataset.rdate || todayStr();
+  const range = periodRange(kind, refDate);
+
+  const [{data:inv}, {data:exp}, {data:inc}, {data:sal}] = await Promise.all([
+    sb.from('invoices').select('invoice_no,invoice_date,grand_total,vat_amount,payment_status,status').gte('invoice_date',range.from).lte('invoice_date',range.to).neq('status','cancelled'),
+    sb.from('expenses').select('amount,expense_date,category').gte('expense_date',range.from).lte('expense_date',range.to),
+    sb.from('income').select('amount,income_date,source').gte('income_date',range.from).lte('income_date',range.to),
+    sb.from('salary_payments').select('net_amount,payment_status').eq('payment_status','paid'),
+  ]);
+  const totalSales = (inv||[]).reduce((s,i)=>s+Number(i.grand_total||0),0);
+  const totalVat = (inv||[]).reduce((s,i)=>s+Number(i.vat_amount||0),0);
+  const totalIncomeOther = (inc||[]).filter(i=>!i.source?.startsWith('Sales Invoice')).reduce((s,i)=>s+Number(i.amount||0),0);
+  const totalExpense = (exp||[]).reduce((s,i)=>s+Number(i.amount||0),0);
+  const totalSalaryPaid = (sal||[]).reduce((s,p)=>s+Number(p.net_amount||0),0);
+  const netProfit = totalSales + totalIncomeOther - totalExpense;
+  const receivable = 0; // (all-time outstanding, computed separately below)
+
+  const { data: allOutstanding } = await sb.from('invoices').select('grand_total').neq('payment_status','paid').neq('status','cancelled');
+  const outstandingTotal = (allOutstanding||[]).reduce((s,i)=>s+Number(i.grand_total||0),0);
+  const { data: items } = await sb.from('inventory_items').select('current_stock');
+  const stockUnits = (items||[]).reduce((s,i)=>s+Number(i.current_stock||0),0);
+
+  const expByCat = {};
+  (exp||[]).forEach(e=>{ expByCat[e.category] = (expByCat[e.category]||0) + Number(e.amount||0); });
+
+  c.innerHTML = `
+   <div class="toolbar">
+     <div class="row" style="margin:0;">
+       <select id="rep-kind" onchange="setReportPeriod()">
+         <option value="daily" ${kind==='daily'?'selected':''}>दैनिक</option>
+         <option value="monthly" ${kind==='monthly'?'selected':''}>मासिक</option>
+         <option value="yearly" ${kind==='yearly'?'selected':''}>वार्षिक</option>
+       </select>
+       <input type="date" id="rep-date" value="${refDate}" onchange="setReportPeriod()"/>
+     </div>
+     <div>
+       <button class="btn btn-outline" onclick="exportReportExcel()">📊 Excel Export</button>
+       <button class="btn btn-outline" onclick="exportReportPdf()">⬇️ PDF Export</button>
+     </div>
+   </div>
+
+   <div id="report-capture">
+   <div class="section-title" style="font-size:16px;">प्रतिवेदन अवधि: ${range.label}</div>
+
+   <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); margin-bottom:20px;">
+     <div class="kpi" style="border-top-color:var(--forest);"><div class="label">कुल बिक्री</div><div class="value">${NPR(totalSales)}</div></div>
+     <div class="kpi" style="border-top-color:var(--forest);"><div class="label">अन्य आम्दानी</div><div class="value">${NPR(totalIncomeOther)}</div></div>
+     <div class="kpi" style="border-top-color:var(--danger);"><div class="label">कुल खर्च</div><div class="value">${NPR(totalExpense)}</div></div>
+     <div class="kpi" style="border-top-color:${netProfit>=0?'var(--forest)':'var(--danger)'};"><div class="label">खुद नाफा/नोक्सान</div><div class="value">${NPR(netProfit)}</div></div>
+   </div>
+
+   <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); margin-bottom:20px;">
+     <div class="card">
+       <div class="section-title" style="font-size:15px;">Profit / Loss (${range.label})</div>
+       <table>
+         <tr><td>बिक्री (Sales)</td><td style="text-align:right">${NPR(totalSales)}</td></tr>
+         <tr><td>अन्य आम्दानी</td><td style="text-align:right">${NPR(totalIncomeOther)}</td></tr>
+         <tr style="font-weight:700;"><td>कुल आम्दानी</td><td style="text-align:right">${NPR(totalSales+totalIncomeOther)}</td></tr>
+         <tr><td>घटाउनुहोस्: खर्च</td><td style="text-align:right">- ${NPR(totalExpense)}</td></tr>
+         <tr style="font-weight:700; border-top:2px solid var(--line);"><td>खुद नाफा/नोक्सान</td><td style="text-align:right">${NPR(netProfit)}</td></tr>
+       </table>
+     </div>
+     <div class="card">
+       <div class="section-title" style="font-size:15px;">कर प्रतिवेदन (Tax Report)</div>
+       <table>
+         <tr><td>कुल VAT योग्य बिक्री</td><td style="text-align:right">${NPR(totalSales)}</td></tr>
+         <tr><td>संकलित VAT</td><td style="text-align:right">${NPR(totalVat)}</td></tr>
+         <tr><td>कम्पनी PAN/VAT नं.</td><td style="text-align:right">${COMPANY.pan_no}</td></tr>
+       </table>
+       <div style="font-size:11.5px; color:var(--ink-soft); margin-top:8px;">⚠️ यो सामान्य सारांश हो — औपचारिक कर बुझाउनुअघि लेखा व्यवसायीसँग मिलान गर्नुहोस्।</div>
+     </div>
+   </div>
+
+   <div class="card" style="margin-bottom:20px;">
+     <div class="section-title" style="font-size:15px;">सरलीकृत Balance Sheet (हालसम्मको स्थिति)</div>
+     <table>
+       <tr><th colspan="2" style="text-align:left;">Assets (सम्पत्ति)</th></tr>
+       <tr><td>बाँकी प्राप्य (Outstanding Receivables)</td><td style="text-align:right">${NPR(outstandingTotal)}</td></tr>
+       <tr><td>स्टकमा रहेको मौज्दात (कुल इकाई)</td><td style="text-align:right">${stockUnits.toLocaleString('en-IN')} units</td></tr>
+       <tr><th colspan="2" style="text-align:left; padding-top:10px;">Liabilities (दायित्व)</th></tr>
+       <tr><td>तलब भुक्तान भइसकेको (सन्दर्भको लागि)</td><td style="text-align:right">${NPR(totalSalaryPaid)}</td></tr>
+     </table>
+     <div style="font-size:11.5px; color:var(--ink-soft); margin-top:8px;">⚠️ यो पूर्ण औपचारिक Balance Sheet होइन — नगद/बैंक मौज्दात, स्थिर सम्पत्ति (मेसिनरी आदि) manual रूपमा थप्नुपर्ने हुन सक्छ।</div>
+   </div>
+
+   <div class="card">
+     <div class="section-title" style="font-size:15px;">श्रेणी अनुसार खर्च</div>
+     <table><thead><tr><th>श्रेणी</th><th>रकम</th></tr></thead>
+     <tbody>${Object.keys(expByCat).length ? Object.entries(expByCat).map(([k,v])=>`<tr><td>${k}</td><td>${NPR(v)}</td></tr>`).join('') : `<tr><td colspan="2" class="empty-state">कुनै खर्च छैन</td></tr>`}</tbody></table>
+   </div>
+   </div>`;
+}
+window.setReportPeriod = ()=>{
+  document.getElementById('content').dataset.rkind = document.getElementById('rep-kind').value;
+  document.getElementById('content').dataset.rdate = document.getElementById('rep-date').value;
+  render();
+};
+window.exportReportExcel = async ()=>{
+  const c = document.getElementById('content');
+  const kind = c.dataset.rkind||'monthly', refDate = c.dataset.rdate||todayStr();
+  const range = periodRange(kind, refDate);
+  const [{data:inv},{data:exp},{data:inc}] = await Promise.all([
+    sb.from('invoices').select('invoice_no,invoice_date,grand_total,vat_amount,payment_status').gte('invoice_date',range.from).lte('invoice_date',range.to).neq('status','cancelled'),
+    sb.from('expenses').select('expense_date,category,vendor,amount').gte('expense_date',range.from).lte('expense_date',range.to),
+    sb.from('income').select('income_date,source,category,amount').gte('income_date',range.from).lte('income_date',range.to),
+  ]);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(inv||[]), 'Invoices');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(exp||[]), 'Expenses');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(inc||[]), 'Income');
+  XLSX.writeFile(wb, `Report_${range.label.replace(/\s/g,'_')}.xlsx`);
+  logAudit('export', 'reports');
+};
+window.exportReportPdf = ()=>{
+  const el = document.getElementById('report-capture');
+  html2pdf().set({ filename:`Report_${todayStr()}.pdf`, margin:10 }).from(el).save();
+  logAudit('export', 'reports');
+};
+
+/* =======================================================================
+   PHASE 1 — USERS & ROLES / PERMISSIONS MANAGEMENT
+======================================================================= */
+async function pageRolesUsers(c){
+  if (!canDo('settings_roles','view')){ c.innerHTML = `<div class="msg msg-error">अनुमति छैन।</div>`; return; }
+  const [{ data: roles, error: rErr }, { data: users, error: uErr }] = await Promise.all([
+    sb.from('roles').select('*').order('created_at'),
+    sb.from('user_profiles').select('*, roles(key,label_ne,label_en)').order('created_at'),
+  ]);
+  if (rErr || uErr){
+    c.innerHTML = `<div class="msg msg-error">Phase 1 SQL (roles/permissions) अझै migrate भएको छैन। कृपया phase1_foundation.sql Supabase मा चलाउनुहोस्।<br><small>${(rErr||uErr).message}</small></div>`;
+    return;
+  }
+  state.__roles = roles;
+  c.innerHTML = `
+    <div class="toolbar">
+      <div class="section-title" style="margin:0;">प्रयोगकर्ता र भूमिका (Users &amp; Roles)</div>
+      ${canDo('settings_roles','edit') ? `<button class="btn btn-primary" onclick="adminCreateUserForm()">+ नयाँ प्रयोगकर्ता थप्नुहोस्</button>` : ''}
+    </div>
+    <div class="card" style="margin-bottom:18px;">
+      <div class="section-title" style="font-size:15px;">प्रयोगकर्ताहरू (Users)</div>
+      <table>
+        <thead><tr><th>इमेल</th><th>पूरा नाम</th><th>भूमिका</th><th>सक्रिय</th><th>अन्तिम लगइन</th><th>कार्य</th></tr></thead>
+        <tbody>
+          ${(users||[]).map(u => `
+            <tr>
+              <td>${u.id === state.user.id ? '<b>' + (u.full_name||'—') + ' (तपाईं)</b>' : (u.full_name||'—')}</td>
+              <td>${u.full_name||'—'}</td>
+              <td>
+                <select ${!canDo('settings_roles','edit') ? 'disabled' : ''} onchange="changeUserRole('${u.id}', this.value)">
+                  ${(roles||[]).map(r => `<option value="${r.id}" ${r.id===u.role_id?'selected':''}>${r.label_ne} (${r.label_en})</option>`).join('')}
+                </select>
+              </td>
+              <td>${u.is_active ? '<span class="badge badge-green">Active</span>' : '<span class="badge badge-red">Inactive</span>'}</td>
+              <td>${u.last_login ? new Date(u.last_login).toLocaleString('en-IN') : '—'}</td>
+              <td>
+                <button class="btn btn-sm btn-outline" onclick="toggleUserActive('${u.id}', ${!u.is_active})">${u.is_active?'Deactivate':'Activate'}</button>
+              </td>
+            </tr>`).join('') || `<tr><td colspan="6" class="empty-state">कुनै प्रयोगकर्ता छैन</td></tr>`}
+        </tbody>
+      </table>
+      <div style="font-size:11.5px; color:var(--ink-soft); margin-top:10px;">माथिको "+ नयाँ प्रयोगकर्ता थप्नुहोस्" बाट Admin ले सिधै खाता बनाउन सक्छ (भूमिका छानेर)। अथवा प्रयोगकर्ता आफै Login पृष्ठबाट "नयाँ खाता बनाउनुहोस्" गर्न सक्छन् — तिनीहरू default भूमिकामा यहाँ स्वतः देखिन्छन्।</div>
+    </div>
+    <div class="card">
+      <div class="section-title" style="font-size:15px;">भूमिका अनुसार अनुमति (Permissions per Role)</div>
+      <div class="row" style="margin-bottom:12px;">
+        <div class="field" style="max-width:260px;">
+          <label>भूमिका छान्नुहोस्</label>
+          <select id="perm-role-select" onchange="loadPermMatrix(this.value)">
+            ${(roles||[]).map(r=>`<option value="${r.id}">${r.label_ne} (${r.label_en})</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <div id="perm-matrix">लोड हुँदैछ...</div>
+    </div>`;
+  if (roles && roles.length) await loadPermMatrix(roles[0].id);
+}
+window.onAdminUserEmpChange = ()=>{
+  const val = document.getElementById('au-emp').value;
+  document.getElementById('au-name-wrap').style.display = (val === '__other__') ? '' : 'none';
+};
+window.adminCreateUserForm = async ()=>{
+  if (!canDo('settings_roles','edit')){ toast('अनुमति छैन', 'error'); return; }
+  const roles = state.__roles || [];
+  const { data: emps } = await sb.from('employees').select('id,full_name,phone').order('full_name');
+  state.__empsForUser = emps||[];
+  const body = `
+   <div class="field"><label>कर्मचारी छान्नुहोस् *</label>
+     <select id="au-emp" onchange="onAdminUserEmpChange()">
+       <option value="">-- छान्नुहोस् --</option>
+       ${(emps||[]).map(e=>`<option value="${e.id}">${e.full_name}${e.phone?' — '+e.phone:''}</option>`).join('')}
+       <option value="__other__">✍️ अन्य (सूचीमा नभएको व्यक्ति)</option>
+     </select>
+   </div>
+   <div class="field" id="au-name-wrap" style="display:none;"><label>पूरा नाम *</label><input id="au-name"/></div>
+   <div class="field"><label>इमेल *</label><input id="au-email" type="email" placeholder="you@example.com"/></div>
+   <div class="field"><label>अस्थायी पासवर्ड *</label><input id="au-pass" type="text" placeholder="कम्तिमा ६ अक्षर"/>
+     <div style="font-size:11px; color:var(--ink-soft); margin-top:4px;">यो पासवर्ड प्रयोगकर्तालाई सिधै भन्नुहोस् — पछि उनीहरू आफै बदल्न सक्छन्।</div>
+   </div>
+   <div class="field"><label>भूमिका *</label>
+     <select id="au-role">${roles.map(r=>`<option value="${r.id}">${r.label_ne} (${r.label_en})</option>`).join('')}</select>
+   </div>
+   <div class="msg" style="background:#F7E7D3; color:var(--amber);">ℹ️ यो सुविधा प्रयोग गर्न Supabase मा "admin-create-user" नामको Edge Function डिप्लोय भएको हुनुपर्छ (साथैको admin-create-user.ts फाइल हेर्नुहोस्)।</div>`;
+  openModal('नयाँ प्रयोगकर्ता थप्नुहोस्', body, async ()=>{
+    const empSel = document.getElementById('au-emp').value;
+    let full_name = '';
+    if (empSel === '__other__'){
+      full_name = document.getElementById('au-name').value.trim();
+    } else if (empSel) {
+      const emp = state.__empsForUser.find(e=>e.id===empSel);
+      full_name = emp?.full_name || '';
+    }
+    const email = document.getElementById('au-email').value.trim();
+    const password = document.getElementById('au-pass').value;
+    const role_id = document.getElementById('au-role').value;
+    if (!empSel){ alert('कर्मचारी छान्नुहोस् वा "अन्य" रोज्नुहोस्'); return; }
+    if (!full_name || !email || !password || password.length<6){ alert('सबै फिल्ड भर्नुहोस् (पासवर्ड कम्तिमा ६ अक्षर)'); return; }
+    const { data, error } = await sb.functions.invoke('admin-create-user', {
+      body: { email, password, full_name, role_id },
+    });
+    if (error || data?.error){
+      alert('प्रयोगकर्ता बनाउन सकिएन: ' + (data?.error || error.message) + '\n\n(admin-create-user Edge Function Supabase मा डिप्लोय भएको छ कि जाँच्नुहोस्।)');
+      return;
+    }
+    closeModal(); toast('प्रयोगकर्ता सफलतापूर्वक बनियो ✅'); render();
+  });
+};
+window.changeUserRole = async (userId, roleId)=>{
+  if (!canDo('settings_roles','edit')){ toast('अनुमति छैन', 'error'); return; }
+  const { error } = await sb.from('user_profiles').update({ role_id: roleId }).eq('id', userId);
+  if (error){ toast('असफल: ' + error.message, 'error'); return; }
+  logAudit('update', 'settings_roles', userId, { changed: 'role_id', new_role_id: roleId });
+  toast('भूमिका अपडेट भयो');
+  render();
+};
+window.toggleUserActive = async (userId, newVal)=>{
+  if (!canDo('settings_roles','edit')){ toast('अनुमति छैन', 'error'); return; }
+  const { error } = await sb.from('user_profiles').update({ is_active: newVal }).eq('id', userId);
+  if (error){ toast('असफल: ' + error.message, 'error'); return; }
+  logAudit('update', 'settings_roles', userId, { changed: 'is_active', new_value: newVal });
+  toast(newVal ? 'सक्रिय गरियो' : 'निष्क्रिय गरियो');
+  render();
+};
+const PERM_MODULES = [
+  ['dashboard','ड्यासबोर्ड'], ['employees','कर्मचारी'], ['attendance','हाजिरी'], ['salary','तलब'],
+  ['suppliers','आपूर्तिकर्ता'], ['wood','काठ खरिद'], ['inventory','स्टक'], ['machinery','मेसिनरी'],
+  ['customers','ग्राहक'], ['invoices','बिल'], ['income','आम्दानी'], ['expenses','खर्च'], ['reports','प्रतिवेदन'],
+  ['manufacturing','उत्पादन (Manufacturing)'], ['work_orders','कार्य आदेश'], ['barcode','Barcode/QR'],
+  ['purchase','खरिद'], ['supplier_ledger','आपूर्तिकर्ता खाता'], ['crm','ग्राहक CRM'], ['accounting','लेखा'],
+  ['analytics','Analytics'], ['delivery','डेलिभरी'], ['files','फाइल'],
+  ['settings_roles','प्रयोगकर्ता/भूमिका'], ['audit_log','Audit Log'], ['backup','Backup'],
+];
+window.loadPermMatrix = async (roleId)=>{
+  const box = document.getElementById('perm-matrix');
+  const sel = document.getElementById('perm-role-select');
+  if (sel) sel.value = roleId;
+  const { data: perms, error } = await sb.from('permissions').select('*').eq('role_id', roleId);
+  if (error){ box.innerHTML = `<div class="msg msg-error">${error.message}</div>`; return; }
+  const map = {}; (perms||[]).forEach(p=>{ map[p.module_key]=p; });
+  const actions = ['view','create','edit','delete','export','print'];
+  box.innerHTML = `
+    <table>
+      <thead><tr><th>Module</th>${actions.map(a=>`<th style="text-align:center;">${a}</th>`).join('')}</tr></thead>
+      <tbody>
+        ${PERM_MODULES.map(([key,label])=>{
+          const p = map[key] || {};
+          return `<tr>
+            <td>${label}</td>
+            ${actions.map(a => `<td style="text-align:center;">
+              <input type="checkbox" ${p['can_'+a] ? 'checked':''} ${!canDo('settings_roles','edit')?'disabled':''}
+                onchange="togglePerm('${roleId}','${key}','${a}',this.checked)"/>
+            </td>`).join('')}
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>`;
+};
+window.togglePerm = async (roleId, moduleKey, action, checked)=>{
+  if (!canDo('settings_roles','edit')){ toast('अनुमति छैन', 'error'); return; }
+  const field = 'can_' + action;
+  const { error } = await sb.from('permissions')
+    .upsert({ role_id: roleId, module_key: moduleKey, [field]: checked }, { onConflict: 'role_id,module_key' });
+  if (error){ toast('असफल: ' + error.message, 'error'); return; }
+  logAudit('update', 'settings_roles', roleId, { module_key: moduleKey, [field]: checked });
+  toast('अनुमति अपडेट भयो', 'ok', 1500);
+};
+
+/* =======================================================================
+   PHASE 1 — AUDIT LOG VIEWER
+======================================================================= */
+async function pageAuditLog(c){
+  if (!canDo('audit_log','view')){ c.innerHTML = `<div class="msg msg-error">अनुमति छैन।</div>`; return; }
+  const { data, error } = await sb.from('audit_log').select('*').order('created_at', { ascending:false }).limit(200);
+  if (error){
+    c.innerHTML = `<div class="msg msg-error">Phase 1 SQL अझै migrate भएको छैन।<br><small>${error.message}</small></div>`;
+    return;
+  }
+  c.innerHTML = `
+    <div class="toolbar">
+      <div class="section-title" style="margin:0;">Audit Log (पछिल्लो २०० रेकर्ड)</div>
+      <button class="btn btn-outline" onclick="exportAuditExcel()">📊 Excel Export</button>
+    </div>
+    <div class="card">
+      <table>
+        <thead><tr><th>समय</th><th>प्रयोगकर्ता</th><th>Action</th><th>Module</th><th>Record</th><th>Details</th></tr></thead>
+        <tbody>
+          ${(data||[]).map(r=>`
+            <tr>
+              <td>${new Date(r.created_at).toLocaleString('en-IN')}</td>
+              <td>${r.user_email||'—'}</td>
+              <td><span class="badge ${r.action==='delete'?'badge-red':r.action==='login'||r.action==='insert'?'badge-green':'badge-amber'}">${r.action}</span></td>
+              <td>${r.module_key||'—'}</td>
+              <td>${r.record_id||'—'}</td>
+              <td style="max-width:280px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title='${r.details?JSON.stringify(r.details):''}'>${r.details?JSON.stringify(r.details):''}</td>
+            </tr>`).join('') || `<tr><td colspan="6" class="empty-state">कुनै रेकर्ड छैन</td></tr>`}
+        </tbody>
+      </table>
+    </div>`;
+  state.__auditData = data || [];
+}
+window.exportAuditExcel = ()=>{
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(state.__auditData||[]), 'AuditLog');
+  XLSX.writeFile(wb, `AuditLog_${todayStr()}.xlsx`);
+  logAudit('export', 'audit_log');
+};
+
+/* ---------------------------------------------------------------------
+   INIT
+--------------------------------------------------------------------- */
+sb.auth.onAuthStateChange((_event, session)=>{ state.user = session?.user || null; render(); });
+checkSession();
+</script>
+</body>
+</html>
