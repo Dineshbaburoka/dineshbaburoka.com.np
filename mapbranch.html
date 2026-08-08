@@ -104,6 +104,78 @@
     @keyframes btn-spin {
       to { transform: rotate(360deg); }
     }
+
+    /* ===== Post-login Popup Modal ===== */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(12, 36, 97, 0.55);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      animation: fadeIn 0.2s ease;
+    }
+    .modal-overlay.show { display: flex; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .modal-box {
+      background: var(--card-bg);
+      width: 92%;
+      max-width: 380px;
+      border-radius: 14px;
+      padding: 30px 25px;
+      box-shadow: 0 10px 35px rgba(0,0,0,0.25);
+      text-align: center;
+      border-top: 6px solid var(--primary-color);
+      animation: slideUp 0.25s ease;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--primary-color);
+      margin-bottom: 8px;
+    }
+    .modal-sub {
+      font-size: 13px;
+      color: #57606f;
+      margin-bottom: 22px;
+    }
+
+    .modal-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 600;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-bottom: 12px;
+      transition: 0.2s;
+    }
+    .modal-btn:last-child { margin-bottom: 0; }
+    .modal-btn.archive { background: #1e3799; }
+    .modal-btn.archive:hover { background: #0c2461; }
+    .modal-btn.mappass { background: #0a8a5f; }
+    .modal-btn.mappass:hover { background: #066b48; }
+    .modal-btn.fullsummary { background: #b7791f; }
+    .modal-btn.fullsummary:hover { background: #92600f; }
+    .modal-btn.option-a { background: #0c2461; }
+    .modal-btn.option-a:hover { background: #071638; }
+    .modal-btn.option-b { background: #0c2461; }
+    .modal-btn.option-b:hover { background: #071638; }
+    .modal-btn.back { background: #7f8c9a; font-weight: 500; font-size: 13px; padding: 10px; }
+    .modal-btn.back:hover { background: #626e78; }
   </style>
 </head>
 <body>
@@ -129,13 +201,50 @@
     </form>
   </div>
 
+  <!-- ===== लगइन पछि देखिने Popup (Step 1: छनौट) ===== -->
+  <div id="choiceModal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-title">✅ लगइन सफल भयो</div>
+      <div class="modal-sub">कृपया अगाडि जान एउटा विकल्प छान्नुहोस्</div>
+
+      <button type="button" class="modal-btn archive" onclick="goToArchive()">
+        📋 अभिलेखीकरण
+      </button>
+      <button type="button" class="modal-btn mappass" onclick="goTo('all_setup.html')">
+        🗺️ नक्सा पास
+      </button>
+      <button type="button" class="modal-btn fullsummary" onclick="goTo('full_summary.html')">
+        📊 Full Summary
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== नक्सा पास क्लिक गरेपछि देखिने Popup (Step 2: सब-छनौट) ===== -->
+  <div id="mapPassModal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-title">🗺️ नक्सा पास</div>
+      <div class="modal-sub">कुन प्रणालीमा जाने हो छान्नुहोस्</div>
+
+      <button type="button" class="modal-btn option-a" onclick="goTo('all_setup.html')">
+        🏢 All Setup
+      </button>
+      <button type="button" class="modal-btn option-b" onclick="goTo('all_setup1.html')">
+        🏢 All Setup 1
+      </button>
+
+      <button type="button" class="modal-btn back" onclick="backToChoice()">
+        ⬅️ पछाडि जानुहोस्
+      </button>
+    </div>
+  </div>
+
   <script>
     // Supabase Connect Settings
     const SUPABASE_URL = "https://lyjokogftwtvnhwszqni.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_gxEL2-GVTVy8E0WxMBZHDQ_b5TzsDI9"; 
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // लगइन प्रोसेस
+    // लगइन प्रोसेस (Supabase Authentication प्रयोग गरेर)
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('loginEmail').value.trim();
@@ -150,47 +259,131 @@
       loginBtnText.innerHTML = 'प्रतीक्षा गर्नुहोस्...<span class="spinner"></span>';
 
       try {
-      // `system_users` टेबलबाट रोल (role) समेत तान्ने
-      const { data, error } = await _supabase
-        .from('system_users')
-        .select('fullname, email, role')
-        .eq('email', email)
-        .eq('password', password)
-        .maybeSingle();
+        // Step 1: Supabase Auth बाट इमेल/पासवर्ड प्रमाणीकरण (authentication)
+        const { data: authData, error: authError } = await _supabase.auth.signInWithPassword({
+          email: email,
+          password: password
+        });
 
-      if (error) {
-        alert("❌ प्राविधिक त्रुटि: " + error.message);
-      } else if (data) {
-        // सेसन डाटाहरू स्थानीय रूपमा सुरक्षित राख्ने
-        localStorage.setItem("userLoggedIn", "true");
-        localStorage.setItem("loggedInUserEmail", data.email);
-        localStorage.setItem("userRole", data.role); // रोल पनि सेभ गर्ने
-
-        // डाटाबेसमा भएको रोल (Role) को आधारमा पेज रिडाइरेक्ट गर्ने (स्वतः छनौट)
-        if (data.role === "admin") {
-            window.location.href = "all_setup.html";
-        } else if (data.role === "staff") {
-            window.location.href = "mapform.html";
-        } else if (data.role === "consultancy") {
-            window.location.href = "consultancy.html";
-        } else {
-            // यदि डाटाबेसमा रोल खाली छ वा कुनै पनि रोल मिल्दैन भने डिफल्ट पेजमा लैजाने
-            window.location.href = "dashboard.html";
+        if (authError) {
+          alert("❌ गलत इमेल वा पासवर्ड! कृपया पुनः जाँच्नुहोस्।\n(" + authError.message + ")");
+          return;
         }
 
-      } else {
-        alert("❌ गलत इमेल वा पासवर्ड! कृपया पुनः जाँच्नुहोस्।");
-      }
+        // Step 2: प्रयोगकर्ताको प्रोफाइल/रोल `system_users` टेबलबाट तान्ने
+        // (auth_id column ले auth.users.id सँग जोड्छ; auth_id नभेटे email बाट फलब्याक)
+        const authUser = authData.user;
+        let { data: profile, error: profileError } = await _supabase
+          .from('system_users')
+          .select('fullname, email, role')
+          .eq('auth_id', authUser.id)
+          .maybeSingle();
+
+        if (!profile && !profileError) {
+          const fallback = await _supabase
+            .from('system_users')
+            .select('fullname, email, role')
+            .eq('email', authUser.email)
+            .maybeSingle();
+          profile = fallback.data;
+          profileError = fallback.error;
+        }
+
+        if (profileError) {
+          alert("❌ प्राविधिक त्रुटि: " + profileError.message);
+          return;
+        }
+        if (!profile) {
+          alert("❌ यो प्रयोगकर्ताको प्रोफाइल फेला परेन। कृपया प्रशासकलाई सम्पर्क गर्नुहोस्।");
+          return;
+        }
+
+        // सेसन डाटाहरू स्थानीय रूपमा सुरक्षित राख्ने
+        localStorage.setItem("userLoggedIn", "true");
+        localStorage.setItem("loggedInUserEmail", profile.email || authUser.email);
+        localStorage.setItem("userRole", profile.role || "");
+
+        // Step 3: भूमिका (role) अनुसार सही पेजमा रिडाइरेक्ट गर्ने
+        const userRole = profile.role || "";
+        if (userRole === "consultancy") {
+          window.location.href = "consultancy.html";
+        } else {
+          window.location.href = "full_summary.html";
+        }
+
       } catch (err) {
         alert("❌ अनपेक्षित त्रुटि भयो: " + err.message);
       } finally {
-        // सफल भई रिडाइरेक्ट नभएको अवस्थामा (त्रुटि/गलत विवरण) बटन फेरि सक्रिय गर्ने
-        if (document.body.contains(loginBtn)) {
-          loginBtn.disabled = false;
-          loginBtnText.innerHTML = originalText;
-        }
+        loginBtn.disabled = false;
+        loginBtnText.innerHTML = originalText;
       }
     });
+
+    // ब्राउजरको "Back" बटन थिचेर यो पेजमा फर्कंदा (bfcache बाट),
+    // पहिले नै लगइन भइसकेको छ भने सिधै छनौट Popup फेरि देखाउने
+    function showChoiceIfLoggedIn() {
+      if (localStorage.getItem("userLoggedIn") === "true") {
+        document.getElementById('mapPassModal').classList.remove('show');
+        document.getElementById('choiceModal').classList.add('show');
+      }
+    }
+
+    // सामान्य पेज लोडमा पनि जाँच्ने (उदाहरण: कसैले यो URL सिधै फेरि खोल्यो)
+    document.addEventListener('DOMContentLoaded', showChoiceIfLoggedIn);
+
+    // "pageshow" इभेन्टले बफ-क्यास (bfcache) बाट फर्कंदा पनि ट्रिगर हुन्छ
+    // (Back बटन थिचेर आउँदा धेरैजसो ब्राउजरले पेज पुनः-लोड नगरी क्यासबाट देखाउँछन्)
+    window.addEventListener('pageshow', function(event) {
+      showChoiceIfLoggedIn();
+    });
+
+    // ===== Popup नेभिगेसन फंक्सनहरू =====
+
+    // "अभिलेखीकरण" बटन क्लिक गर्दा
+    function goToArchive() {
+      window.location.href = "odl_building.html"; // आवश्यक अनुसार यो पेज बदल्न सकिन्छ
+    }
+
+    // "नक्सा पास" बटन क्लिक गर्दा सब-छनौट Popup देखाउने
+    function showMapPassOptions() {
+      document.getElementById('choiceModal').classList.remove('show');
+      document.getElementById('mapPassModal').classList.add('show');
+    }
+
+    // सब-छनौटबाट फेरि पहिलो Popup मा फर्किने
+    function backToChoice() {
+      document.getElementById('mapPassModal').classList.remove('show');
+      document.getElementById('choiceModal').classList.add('show');
+    }
+
+    // छानिएको पेजमा जाने
+    function goTo(page) {
+      window.location.href = page;
+    }
+
+    // ===== (प्रशासकका लागि) नयाँ प्रयोगकर्ता खाता बनाउने उदाहरण =====
+    // Supabase Authentication प्रयोग गरेर user id create गर्न तलको जस्तो function प्रयोग गर्नुहोस्।
+    // उदाहरण: await createUserAccount("staff@galkotmun.gov.np", "SecurePass123", "राम बहादुर", "staff");
+    async function createUserAccount(email, password, fullname, role) {
+      // 1) Supabase Auth मा नयाँ खाता बनाउने
+      const { data, error } = await _supabase.auth.signUp({ email, password });
+      if (error) {
+        alert("❌ खाता बनाउँदा त्रुटि: " + error.message);
+        return;
+      }
+
+      // 2) auth.users को id सँग जोडेर `system_users` टेबलमा प्रोफाइल/रोल थप्ने (auth_id column मार्फत)
+      const { error: insertError } = await _supabase
+        .from('system_users')
+        .insert([{ auth_id: data.user.id, email, fullname, role }]);
+
+      if (insertError) {
+        alert("❌ प्रोफाइल सेभ गर्दा त्रुटि: " + insertError.message);
+        return;
+      }
+
+      alert("✅ नयाँ प्रयोगकर्ता खाता सफलतापूर्वक बनियो।");
+    }
   </script>
 
 </body>

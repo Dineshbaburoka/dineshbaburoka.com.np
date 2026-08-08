@@ -85,6 +85,14 @@
     .text-center { text-align: center !important; }
 
     .remarks-box { color: var(--accent-color); font-weight: bold; font-size: 13px; background-color: #fff5f5; }
+
+    /* Logout Button */
+    .btn-logout {
+      background: var(--danger-color); color: white; border: none; padding: 10px 18px;
+      font-size: 14px; font-weight: bold; border-radius: 6px; cursor: pointer; transition: 0.2s;
+      display: inline-flex; align-items: center; gap: 8px; white-space: nowrap;
+    }
+    .btn-logout:hover { background: #e03d4b; }
   </style>
 </head>
 <body>
@@ -97,6 +105,7 @@
   <div class="master-form-container">
     <div class="form-header-container">
       <div class="form-title" id="formMainTitle">🏛️ गलकोट नगरपालिका - भूमि व्यवस्थापन (कन्सलटेन्सी डेटा प्रविष्टि तथा संशोधन पोर्टल)</div>
+      <button type="button" class="btn-logout" onclick="logoutUser()">🚪 लगआउट</button>
     </div>
     
     <form id="masterDataForm">
@@ -297,6 +306,33 @@
     let returnedDatabase = [];
     const floorsList = ['base', 'semi', 'ground', '1st', '2nd', '3rd', '4th', '5th'];
 
+    // ==================== 🚪 LOGOUT र निष्क्रियता (Inactivity) पत्ता लगाउने ====================
+    const INACTIVITY_LIMIT_MS = 10 * 60 * 1000; // 10 मिनेट
+    let inactivityTimer = null;
+
+    function logoutUser(auto) {
+      localStorage.removeItem("userLoggedIn");
+      localStorage.removeItem("loggedInUserEmail");
+      localStorage.removeItem("userRole");
+      _supabase.auth.signOut().finally(() => {
+        if (auto) {
+          alert("⏱️ 10 मिनेटसम्म केही चलाइएन, सुरक्षाका लागि स्वतः लगआउट गरियो।");
+        }
+        window.location.href = "mapbranch.html";
+      });
+    }
+
+    function resetInactivityTimer() {
+      if (inactivityTimer) clearTimeout(inactivityTimer);
+      inactivityTimer = setTimeout(() => logoutUser(true), INACTIVITY_LIMIT_MS);
+    }
+
+    // प्रयोगकर्ताको कुनै पनि गतिविधि (माउस, टाइपिङ, स्क्रोल, टच) मा टाइमर रिसेट गर्ने
+    ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart', 'click'].forEach(evt => {
+      document.addEventListener(evt, resetInactivityTimer, { passive: true });
+    });
+    resetInactivityTimer();
+
     document.addEventListener("DOMContentLoaded", () => {
       setupLiveCalculations();
       fetchReturnedFromSupabase();
@@ -353,10 +389,13 @@
 
     async function fetchReturnedFromSupabase() {
       try {
+        const currentUserEmail = localStorage.getItem("loggedInUserEmail") || "";
+
         const { data, error } = await _supabase
           .from('g_map_branch1')
           .select('*')
           .eq('status', 'Returned')
+          .eq('entered_by_email', currentUserEmail)
           .order('created_at', { ascending: false });
 
         if (error) throw error;
@@ -483,7 +522,8 @@
       }
 
       const dataToSave = getFormDataObject();
-      dataToSave.status = 'Pending'; 
+      dataToSave.status = 'Pending';
+      dataToSave.entered_by_email = localStorage.getItem("loggedInUserEmail") || null;
 
       try {
         const { error } = await _supabase

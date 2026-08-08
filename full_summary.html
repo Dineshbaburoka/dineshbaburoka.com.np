@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Full Summary - गलकोट नगरपालिका</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  body { font-family: 'Noto Sans Devanagari', sans-serif; }
+  .custom-scrollbar::-webkit-scrollbar { height: 6px; width: 6px; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+  .tab-btn.active { background: #0c2461; color: #fff; }
+  .spin { animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  table th { position: sticky; top: 0; background: #1a252f; color: #fff; z-index: 5; }
+</style>
+</head>
+<body class="bg-gray-100 text-sm antialiased">
+
+  <!-- TOPBAR -->
+  <header class="bg-gradient-to-r from-[#3182ce] to-[#2b6cb0] text-white flex items-center justify-between px-4 md:px-6 py-3 shadow-md sticky top-0 z-30">
+    <h1 class="text-sm md:text-base font-bold tracking-wide flex items-center gap-2">
+      <i class="fa-solid fa-chart-column"></i>
+      <span>Full Summary — गलकोट नगरपालिका</span>
+    </h1>
+    <div class="flex items-center gap-3">
+      <button onclick="openChoiceModal()" class="bg-white/15 hover:bg-white/25 text-white px-3 py-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-colors">
+        <i class="fa-solid fa-arrows-turn-to-dots"></i>
+        <span class="hidden sm:inline">सेक्सन बदल्नुहोस्</span>
+      </button>
+      <div class="hidden sm:flex flex-col text-left">
+        <span class="font-bold text-xs" id="topbar-user-display">Loading...</span>
+        <span class="text-[10px] text-blue-100" id="topbar-role-display">Loading...</span>
+      </div>
+      <button onclick="handleLogout()" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-colors">
+        <i class="fa-solid fa-right-from-bracket"></i>
+        <span class="hidden sm:inline">लगआउट</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="p-4 md:p-6 max-w-[1500px] mx-auto">
+
+    <!-- SUMMARY CARDS -->
+    <div id="summary-cards" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div class="bg-white rounded-xl shadow p-4 border-l-4 border-blue-600">
+        <div class="text-[11px] text-gray-500 font-semibold">घर कायम आवेदन (कुल)</div>
+        <div class="text-2xl font-bold text-blue-700 mt-1" id="gk-total">--</div>
+      </div>
+      <div class="bg-white rounded-xl shadow p-4 border-l-4 border-emerald-600">
+        <div class="text-[11px] text-gray-500 font-semibold">घर कायम - सम्पन्न</div>
+        <div class="text-2xl font-bold text-emerald-700 mt-1" id="gk-completed">--</div>
+      </div>
+      <div class="bg-white rounded-xl shadow p-4 border-l-4 border-purple-600">
+        <div class="text-[11px] text-gray-500 font-semibold">नक्सा पास आवेदन (कुल)</div>
+        <div class="text-2xl font-bold text-purple-700 mt-1" id="mb-total">--</div>
+      </div>
+      <div class="bg-white rounded-xl shadow p-4 border-l-4 border-amber-600">
+        <div class="text-[11px] text-gray-500 font-semibold">नक्सा पास - निर्माण सम्पन्न</div>
+        <div class="text-2xl font-bold text-amber-700 mt-1" id="mb-done">--</div>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="flex gap-2 mb-4">
+      <button class="tab-btn active px-4 py-2 rounded-md text-xs font-semibold bg-white shadow border" onclick="switchTab('gk')" id="tab-gk">
+        📋 घर कायम (ghar_kayam_applications)
+      </button>
+      <button class="tab-btn px-4 py-2 rounded-md text-xs font-semibold bg-white shadow border" onclick="switchTab('mb')" id="tab-mb">
+        🗺️ नक्सा पास (g_map_branch1)
+      </button>
+    </div>
+
+    <!-- SEARCH -->
+    <div class="flex flex-col sm:flex-row gap-2 mb-3 items-stretch sm:items-center justify-between">
+      <div class="relative w-full sm:w-80">
+        <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-gray-400 text-xs"></i>
+        <input type="text" id="search-box" oninput="renderTable()" placeholder="नाम, किट्टा नं, वडा... खोज्नुहोस्" class="w-full bg-white pl-8 pr-3 py-2 rounded-md text-xs border border-gray-300 focus:outline-none focus:border-blue-500">
+      </div>
+      <div class="text-[11px] text-gray-500" id="row-count-label">-- वटा रेकर्ड</div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="bg-white rounded-xl shadow overflow-hidden">
+      <div class="overflow-auto custom-scrollbar max-h-[65vh]" id="table-wrapper">
+        <div class="flex items-center justify-center gap-2 text-gray-400 py-16" id="loading-row">
+          <i class="fa-solid fa-circle-notch spin"></i> डेटा लोड हुँदैछ...
+        </div>
+        <table class="min-w-full text-xs hidden" id="data-table">
+          <thead id="table-head"></thead>
+          <tbody id="table-body" class="divide-y divide-gray-100"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- ===== सेक्सन छनौट Popup ===== -->
+  <div id="choiceModal" class="fixed inset-0 bg-[#0c2461]/55 z-[1000] hidden justify-center items-center">
+    <div class="bg-white w-[92%] max-w-[380px] rounded-2xl p-8 text-center shadow-2xl border-t-[6px] border-[#0c2461]">
+      <div class="text-lg font-bold text-[#0c2461] mb-2">✅ सेक्सन छान्नुहोस्</div>
+      <div class="text-xs text-gray-500 mb-6">कृपया अगाडि जान एउटा विकल्प छान्नुहोस्</div>
+
+      <button type="button" onclick="switchSection('odl_building.html')" class="w-full flex items-center justify-center gap-2 py-3 mb-3 text-white text-sm font-semibold rounded-lg bg-[#1e3799] hover:bg-[#0c2461] transition-colors">
+        📋 अभिलेखीकरण
+      </button>
+      <button type="button" onclick="switchSection('all_setup.html')" class="w-full flex items-center justify-center gap-2 py-3 mb-3 text-white text-sm font-semibold rounded-lg bg-[#0a8a5f] hover:bg-[#066b48] transition-colors">
+        🗺️ नक्सा पास
+      </button>
+      <button type="button" onclick="switchSection('full_summary.html')" class="w-full flex items-center justify-center gap-2 py-3 mb-3 text-white text-sm font-semibold rounded-lg bg-[#b7791f] hover:bg-[#92600f] transition-colors">
+        📊 Full Summary
+      </button>
+      <button type="button" onclick="closeChoiceModal()" class="w-full py-2.5 text-xs font-medium text-white rounded-lg bg-gray-400 hover:bg-gray-500 transition-colors">
+        ⬅️ बन्द गर्नुहोस्
+      </button>
+    </div>
+  </div>
+
+<script>
+  const SUPABASE_URL = "https://lyjokogftwtvnhwszqni.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_gxEL2-GVTVy8E0WxMBZHDQ_b5TzsDI9";
+  const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  let ghar_kayam_rows = [];
+  let map_branch_rows = [];
+  let currentTab = 'gk';
+
+  // ===== स्तम्भ परिभाषा (मुख्य/उपयोगी स्तम्भहरू मात्र देखाउने) =====
+  const GK_COLUMNS = [
+    { key: 'sn', label: 'सि.नं.' },
+    { key: 'registration_no', label: 'दर्ता नं.' },
+    { key: 'registration_date', label: 'दर्ता मिति' },
+    { key: 'landowner_name', label: 'जग्गाधनी' },
+    { key: 'contact_phone', label: 'फोन' },
+    { key: 'ward_no', label: 'वडा नं.' },
+    { key: 'tole_marga', label: 'टोल/मार्ग' },
+    { key: 'kitta_no', label: 'किट्टा नं.' },
+    { key: 'area', label: 'क्षेत्रफल' },
+    { key: 'number_of_floors', label: 'तल्ला संख्या' },
+    { key: 'total_amount', label: 'कुल रकम' },
+    { key: 'status', label: 'स्थिति' },
+  ];
+
+  const MB_COLUMNS = [
+    { key: 'registrano', label: 'दर्ता नं.' },
+    { key: 'registrano_date', label: 'दर्ता मिति' },
+    { key: 'owner', label: 'नाम (Owner)' },
+    { key: 'phone', label: 'फोन' },
+    { key: 'ward', label: 'वडा' },
+    { key: 'tole', label: 'टोल' },
+    { key: 'kitta', label: 'किट्टा नं.' },
+    { key: 'area', label: 'क्षेत्रफल' },
+    { key: 'total_floors', label: 'तल्ला संख्या' },
+    { key: 'house_no', label: 'घर नं.' },
+    { key: 'status', label: 'स्थिति' },
+  ];
+
+  function fmtVal(v) {
+    if (v === null || v === undefined || v === '') return '<span class="text-gray-300">—</span>';
+    return String(v);
+  }
+
+  function statusBadge(status) {
+    if (!status) return fmtVal(status);
+    const s = String(status).toLowerCase();
+    let cls = 'bg-gray-100 text-gray-600';
+    if (s.includes('सम्पन्न') || s.includes('done') || s.includes('complete')) cls = 'bg-emerald-100 text-emerald-700';
+    else if (s.includes('प्रक्रिया') || s.includes('pending') || s.includes('process')) cls = 'bg-amber-100 text-amber-700';
+    else if (s.includes('अस्वीकृत') || s.includes('reject')) cls = 'bg-red-100 text-red-700';
+    return `<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${cls}">${status}</span>`;
+  }
+
+  async function loadData() {
+    try {
+      const [gkRes, mbRes] = await Promise.all([
+        _supabase.from('ghar_kayam_applications').select('*').order('id', { ascending: false }),
+        _supabase.from('g_map_branch1').select('*').order('id', { ascending: false })
+      ]);
+
+      if (gkRes.error) console.error('ghar_kayam_applications:', gkRes.error.message);
+      if (mbRes.error) console.error('g_map_branch1:', mbRes.error.message);
+
+      ghar_kayam_rows = gkRes.data || [];
+      map_branch_rows = mbRes.data || [];
+
+      // सारांश कार्ड अपडेट
+      document.getElementById('gk-total').innerText = ghar_kayam_rows.length;
+      document.getElementById('gk-completed').innerText = ghar_kayam_rows.filter(r => (r.status || '').toString().toLowerCase().includes('सम्पन्न') || (r.status || '').toString().toLowerCase().includes('complete')).length;
+      document.getElementById('mb-total').innerText = map_branch_rows.length;
+      document.getElementById('mb-done').innerText = map_branch_rows.filter(r => (r.status || '').toString().toLowerCase().includes('सम्पन्न') || (r.status || '').toString().toLowerCase().includes('complete')).length;
+
+      document.getElementById('loading-row').classList.add('hidden');
+      document.getElementById('data-table').classList.remove('hidden');
+      renderTable();
+    } catch (err) {
+      document.getElementById('loading-row').innerHTML = '<span class="text-red-500 text-xs">❌ डेटा तान्न सकिएन: ' + err.message + '</span>';
+    }
+  }
+
+  function switchTab(tab) {
+    currentTab = tab;
+    document.getElementById('tab-gk').classList.toggle('active', tab === 'gk');
+    document.getElementById('tab-mb').classList.toggle('active', tab === 'mb');
+    document.getElementById('search-box').value = '';
+    renderTable();
+  }
+
+  function renderTable() {
+    const columns = currentTab === 'gk' ? GK_COLUMNS : MB_COLUMNS;
+    const rows = currentTab === 'gk' ? ghar_kayam_rows : map_branch_rows;
+    const q = document.getElementById('search-box').value.trim().toLowerCase();
+
+    const filtered = !q ? rows : rows.filter(r =>
+      columns.some(c => (r[c.key] || '').toString().toLowerCase().includes(q))
+    );
+
+    document.getElementById('row-count-label').innerText = filtered.length + ' वटा रेकर्ड';
+
+    // Head
+    const thead = document.getElementById('table-head');
+    thead.innerHTML = '<tr>' + columns.map(c => `<th class="px-3 py-2.5 text-left font-semibold whitespace-nowrap">${c.label}</th>`).join('') + '</tr>';
+
+    // Body
+    const tbody = document.getElementById('table-body');
+    if (filtered.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="${columns.length}" class="text-center text-gray-400 py-10">कुनै रेकर्ड फेला परेन</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = filtered.map((r, i) => {
+      const cells = columns.map(c => {
+        if (c.key === 'status') return `<td class="px-3 py-2 whitespace-nowrap">${statusBadge(r[c.key])}</td>`;
+        return `<td class="px-3 py-2 whitespace-nowrap">${fmtVal(r[c.key])}</td>`;
+      }).join('');
+      return `<tr class="hover:bg-blue-50/50 ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/40'}">${cells}</tr>`;
+    }).join('');
+  }
+
+  // ===== सेक्सन छनौट Popup नियन्त्रण =====
+  function openChoiceModal() {
+    const modal = document.getElementById('choiceModal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  }
+  function closeChoiceModal() {
+    const modal = document.getElementById('choiceModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+  function switchSection(page) {
+    window.location.href = page;
+  }
+
+  function handleLogout() {
+    localStorage.removeItem("userLoggedIn");
+    localStorage.removeItem("loggedInUserEmail");
+    localStorage.removeItem("userRole");
+    window.location.href = "mapbranch.html";
+  }
+
+  function initPage() {
+    if (localStorage.getItem("userLoggedIn") !== "true") {
+      window.location.href = "mapbranch.html";
+      return;
+    }
+    const userEmail = localStorage.getItem("loggedInUserEmail") || "user@galkotmun.gov.np";
+    const userRole = localStorage.getItem("userRole") || "staff";
+    document.getElementById('topbar-user-display').innerText = userEmail;
+    document.getElementById('topbar-role-display').innerText = userRole.toUpperCase();
+    loadData();
+  }
+
+  window.onload = initPage;
+</script>
+</body>
+</html>

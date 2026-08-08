@@ -99,6 +99,7 @@
           <div class="field">
             <label>इमेल ठेगाना (Email)</label>
             <input type="email" id="regEmail" placeholder="username@galkotmun.gov.np" required>
+            <small style="color:#b8790a; font-size:11px; margin-top:4px;">⚠️ सम्पादन गर्दा यसले profile मात्र बदल्छ; login email बदल्न प्रयोगकर्ताले आफैं account मा गई इमेल परिवर्तन गर्नुपर्छ, वा admin ले SQL Editor बाट auth.users पनि अपडेट गर्नुपर्छ।</small>
           </div>
           <div class="field" id="passwordFieldContainer">
             <label id="passwordLabel">पासवर्ड (Password)</label>
@@ -152,6 +153,24 @@
     let systemUsersGlobalList = [];
     let isSystemUnlocked = false;
 
+    // ==================== 🚪 LOGIN GUARD (पेज लोड हुनु अगावै जाँच) ====================
+    (function enforceLoginGuard() {
+      const isLoggedIn = localStorage.getItem("userLoggedIn") === "true";
+      const userRole = localStorage.getItem("userRole");
+
+      if (!isLoggedIn) {
+        // लगइन नै नभएको भए सिधै login page मा पठाउने
+        window.location.replace("mapbranch.html");
+        return;
+      }
+
+      if (userRole !== "admin") {
+        // लगइन भए तापनि admin role नभएमा पनि login page मा नै फर्काउने
+        alert("❌ तपाईंसँग यो पेज हेर्ने अनुमति छैन। Admin मात्र प्रवेश गर्न सक्नुहुन्छ।");
+        window.location.replace("mapbranch.html");
+      }
+    })();
+
     // ==================== 🔒 SECURITY LOCK ENGINE ====================
     async function checkAndUnlockSystem() {
       if (isSystemUnlocked) return true;
@@ -177,25 +196,21 @@
       }
 
       try {
-        // डेटाबेसमा हाल लगइन भएको इमेल र पासवर्ड रुजु गर्ने
-        const { data, error } = await _supabase
-          .from('system_users')
-          .select('id')
-          .eq('email', currentAdminEmail.trim())
-          .eq('password', cleanInput)
-          .maybeSingle();
+        // Supabase Authentication प्रयोग गरेर हाल लगइन भएको एडमिनको पासवर्ड रुजु गर्ने
+        const { data, error } = await _supabase.auth.signInWithPassword({
+          email: currentAdminEmail.trim(),
+          password: cleanInput
+        });
 
-        if (error) throw error;
-
-        if (data) {
-          isSystemUnlocked = true;
-          updateLockBtnUI();
-          alert("🔓 प्रमाणीकरण सफल भयो!");
-          return true;
-        } else {
+        if (error) {
           alert("❌ गलत पासवर्ड! प्रणालीमा पहुँच अस्वीकृत भयो।");
           return false;
         }
+
+        isSystemUnlocked = true;
+        updateLockBtnUI();
+        alert("🔓 प्रमाणीकरण सफल भयो!");
+        return true;
       } catch (err) {
         console.error("Error verifying password:", err);
         alert("❌ नेटवर्क वा डेटाबेस त्रुटि! पासवर्ड रुजु गर्न सकिएन।");
@@ -291,8 +306,8 @@
       document.getElementById('regRole').value = user.role || 'admin';
       
       document.getElementById('regPassword').required = false;
-      document.getElementById('regPassword').placeholder = "(परिवर्तन नगर्ने भए खाली छोड्नुस्)";
-      document.getElementById('passwordLabel').innerText = "नयाँ पासवर्ड (ऐच्छिक)";
+      document.getElementById('regPassword').value = "";
+      document.getElementById('passwordFieldContainer').style.display = "none";
 
       document.getElementById('formPanelTitle').innerText = `✏️ प्रयोगकर्ता सम्पादन (ID: ${user.id})`;
       document.getElementById('btnSubmitForm').innerText = "💾 विवरण अपडेट गर्नुस्";
@@ -307,6 +322,7 @@
       document.getElementById('regPassword').required = true;
       document.getElementById('regPassword').placeholder = "******";
       document.getElementById('passwordLabel').innerText = "पासवर्ड (Password)";
+      document.getElementById('passwordFieldContainer').style.display = "flex";
 
       document.getElementById('formPanelTitle').innerText = "➕ नयाँ आईडी सिर्जना";
       document.getElementById('btnSubmitForm').innerText = "👤 अकाउन्ट तयार गर्नुस्";
@@ -326,10 +342,9 @@
       const role = document.getElementById('regRole').value;
 
       if (editingId) {
+        // सम्पादन: profile जानकारी मात्र अपडेट हुन्छ (Auth पासवर्ड यहाँबाट परिवर्तन हुँदैन)
+        // पासवर्ड परिवर्तन गर्न 🔑 बटन प्रयोग गर्नुहोस् (त्यसले Reset Email पठाउँछ)
         let updateData = { fullname, email, role };
-        if(password.trim() !== "") {
-          updateData.password = password;
-        }
 
         const { error } = await _supabase
           .from('system_users')
@@ -344,14 +359,40 @@
           fetchUsers(); 
         }
       } else {
+        // Admin को हालको session सुरक्षित राख्ने (signUp ले client session बदल्न सक्छ, त्यसैले पछि फर्काउन)
+        const { data: sessionBefore } = await _supabase.auth.getSession();
+        const adminSession = sessionBefore?.session || null;
+
+        // Step 1: Supabase Authentication मा नयाँ खाता (auth.users) सिर्जना
+        const { data: authData, error: authError } = await _supabase.auth.signUp({
+          email: email,
+          password: password
+        });
+
+        if (authError) {
+          alert("❌ खाता सिर्जना गर्दा त्रुटि: " + authError.message);
+          return;
+        }
+
+        // Step 2: Admin को session तुरुन्तै फर्काउने (signUp ले session लाई नयाँ user मा सारिदिने भएकाले,
+        // profile insert गर्नु अघि नै admin को अनुमति भएको session फिर्ता ल्याउनुपर्छ, नत्र RLS ले रोक्छ)
+        if (adminSession) {
+          await _supabase.auth.setSession({
+            access_token: adminSession.access_token,
+            refresh_token: adminSession.refresh_token
+          });
+        }
+
+        // Step 3: auth uid सँग जोडेर profile/role `system_users` टेबलमा राख्ने (auth_id column मार्फत)
+        // (यो अब फेरि admin को session बाट हुन्छ, त्यसैले RLS policy पास हुन्छ)
         const { error } = await _supabase
           .from('system_users')
-          .insert([{ fullname, email, password, role, status1: 'active' }]);
-        
+          .insert([{ auth_id: authData.user.id, fullname, email, role, status1: 'active' }]);
+
         if (error) { 
-          alert("❌ त्रुटि: " + error.message); 
+          alert("❌ त्रुटि: " + error.message + "\n(Auth खाता बनिसक्यो, तर प्रोफाइल सेभ हुन सकेन।)"); 
         } else { 
-          alert("🎉 नयाँ प्रयोगकर्ता थपियो!"); 
+          alert("🎉 नयाँ प्रयोगकर्ता थपियो! (इमेल भेरिफिकेसन सेटिङ अनुसार प्रयोगकर्ताले इमेल पुष्टि गर्नुपर्ने हुन सक्छ।)"); 
           document.getElementById('createUserForm').reset(); 
           fetchUsers(); 
         }
@@ -361,12 +402,12 @@
     async function deleteUser(userId, userName) {
       if (!(await checkAndUnlockSystem())) return;
 
-      if (confirm(`⚠️ के तपाईं पक्का प्रयोगकर्ता "${userName}" को अकाउन्ट प्रणालीबाट पूर्ण रूपमा हटाउन चाहनुहुन्छ?`)) {
+      if (confirm(`⚠️ के तपाईं पक्का प्रयोगकर्ता "${userName}" को प्रोफाइल प्रणालीबाट हटाउन चाहनुहुन्छ?\n(नोट: यसले प्रणालीबाट पहुँच रोक्छ, तर Supabase Auth को login भने Dashboard बाट मात्र पूर्ण रूपमा मेटाउन सकिन्छ।)`)) {
         const { error } = await _supabase.from('system_users').delete().eq('id', userId);
         if (error) {
           alert("❌ प्रयोगकर्ता हटाउन सकिएन: " + error.message);
         } else {
-          alert(`🎉 प्रयोगकर्ता "${userName}" को खाता सफलतापूर्वक हटाइयो।`);
+          alert(`🎉 प्रयोगकर्ता "${userName}" को प्रोफाइल हटाइयो।`);
           if(document.getElementById('editingUserId').value == userId) resetUserForm();
           fetchUsers();
         }
@@ -392,14 +433,17 @@
     async function changeUserPassword(userId) {
       if (!(await checkAndUnlockSystem())) return;
 
-      const newPass = prompt("नयाँ पासवर्ड राख्नुहोस्:");
-      if(newPass) {
-        const { error } = await _supabase.from('system_users').update({ password: newPass.trim() }).eq('id', userId);
+      // सुरक्षाका कारण, ब्राउजर (client) बाट अर्को प्रयोगकर्ताको Auth पासवर्ड सिधै बदल्न मिल्दैन।
+      // यसको सट्टा Supabase ले सो प्रयोगकर्तालाई "पासवर्ड रिसेट" इमेल पठाउँछ, जसबाट उनले आफैं नयाँ पासवर्ड राख्न सक्छन्।
+      const user = systemUsersGlobalList.find(u => u.id === userId);
+      if (!user) return;
+
+      if (confirm(`"${user.fullname}" (${user.email}) लाई पासवर्ड रिसेट लिङ्क इमेल पठाउने हो?`)) {
+        const { error } = await _supabase.auth.resetPasswordForEmail(user.email);
         if (error) {
-          alert("❌ पासवर्ड परिवर्तन गर्न सकिएन: " + error.message);
+          alert("❌ रिसेट इमेल पठाउन सकिएन: " + error.message);
         } else {
-          alert("🔐 पासवर्ड परिवर्तन भयो!");
-          fetchUsers();
+          alert("📧 पासवर्ड रिसेट लिङ्क " + user.email + " मा पठाइयो।");
         }
       }
     }
