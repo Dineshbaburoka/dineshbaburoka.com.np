@@ -524,6 +524,7 @@
       const dataToSave = getFormDataObject();
       dataToSave.status = 'Pending';
       dataToSave.entered_by_email = localStorage.getItem("loggedInUserEmail") || null;
+      dataToSave.entered_by_name = localStorage.getItem("loggedInUserName") || null;
 
       try {
         const { error } = await _supabase

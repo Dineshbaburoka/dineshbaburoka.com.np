@@ -301,6 +301,7 @@
         // सेसन डाटाहरू स्थानीय रूपमा सुरक्षित राख्ने
         localStorage.setItem("userLoggedIn", "true");
         localStorage.setItem("loggedInUserEmail", profile.email || authUser.email);
+        localStorage.setItem("loggedInUserName", profile.fullname || "");
         localStorage.setItem("userRole", profile.role || "");
 
         // Step 3: भूमिका (role) अनुसार सही पेजमा रिडाइरेक्ट गर्ने

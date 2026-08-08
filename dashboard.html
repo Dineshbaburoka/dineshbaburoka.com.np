@@ -172,11 +172,12 @@
             <th>स्थायी मिति</th>
             <th>सम्पन्न मिति</th>
             <th>हालको अवस्था (Status)</th>
+            <th>👤 प्रविष्टि गर्ने (Consultancy)</th>
           </tr>
         </thead>
         <tbody id="tableBody">
           <tr>
-            <td colspan="8" style="text-align: center; color: #888; padding: 20px;">डाटा लोड हुँदैछ, कृपया पर्खनुहोस्...</td>
+            <td colspan="9" style="text-align: center; color: #888; padding: 20px;">डाटा लोड हुँदैछ, कृपया पर्खनुहोस्...</td>
           </tr>
         </tbody>
       </table>
@@ -256,7 +257,7 @@
         }
       } catch (err) {
         console.error("मुख्य त्रुटि:", err);
-        document.getElementById('tableBody').innerHTML = `<tr><td colspan="8" style="text-align: center; color: red;">त्रुटि: डाटा प्राप्त गर्न सकिएन।</td></tr>`;
+        document.getElementById('tableBody').innerHTML = `<tr><td colspan="9" style="text-align: center; color: red;">त्रुटि: डाटा प्राप्त गर्न सकिएन।</td></tr>`;
       }
     }
 
@@ -372,7 +373,7 @@
       tbody.innerHTML = "";
 
       if (filteredData.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: #888; padding: 20px;">छानिएको आर्थिक वर्षमा कुनै इजाजत जारी भएका रेकर्डहरू भेटिएनन्।</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; color: #888; padding: 20px;">छानिएको आर्थिक वर्षमा कुनै इजाजत जारी भएका रेकर्डहरू भेटिएनन्।</td></tr>`;
         return;
       }
 
@@ -400,6 +401,7 @@
             <td>${row.per_issued_date || '-'}</td>
             <td>${row.done_issued_date || '-'}</td>
             <td>${statusBadge}</td>
+            <td style="font-size:12px;">${row.entered_by_name || '-'}<br><span style="color:#888;">${row.entered_by_email || ''}</span></td>
           </tr>
         `;
       });

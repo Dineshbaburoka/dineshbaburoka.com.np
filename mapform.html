@@ -163,6 +163,10 @@
     <div class="form-header-container">
       <div class="form-title" id="formHeaderTitle">🏛️ गलकोट नगरपालिका - भूमि व्यवस्थापन (कार्यालय कर्मचारी कार्यप्रणाली)</div>
     </div>
+
+    <div id="submittedByBanner" style="display:none; background:#eaf0ff; border-left:5px solid var(--primary-color); border-radius:8px; padding:12px 16px; margin-bottom:20px; font-size:14px; font-weight:600; color:var(--primary-color);">
+      👤 यो फाइल पेश गर्ने कन्सल्टेन्सी: <span id="submittedByName">-</span> (<span id="submittedByEmail">-</span>)
+    </div>
     
     <form id="masterDataForm">
       <input type="hidden" id="record_id" value="">
@@ -329,11 +333,12 @@
             <th>कित्ता नं.</th>
             <th>कुल क्षेत्रफल</th>
             <th>अवस्था (Status)</th>
+            <th>👤 प्रविष्टि गर्ने (Consultancy)</th>
             <th class="action-col" style="width:200px;">कार्यहरू (Actions)</th>
           </tr>
         </thead>
         <tbody id="databaseTableBody">
-          <tr><td colspan="8" class="text-center">डेटा लोड हुँदैछ...</td></tr>
+          <tr><td colspan="9" class="text-center">डेटा लोड हुँदैछ...</td></tr>
         </tbody>
       </table>
     </div>
@@ -440,7 +445,7 @@
       tbody.innerHTML = '';
 
       if (dataArray.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" class="text-center" style="color:#999; padding: 20px;">फिल्टर बमोजिमको कुनै डाटा फेला परेन।</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" class="text-center" style="color:#999; padding: 20px;">फिल्टर बमोजिमको कुनै डाटा फेला परेन।</td></tr>`;
         return;
       }
 
@@ -460,6 +465,7 @@
           <td>${item.kitta}</td>
           <td><b style="color:red;">${item.tot_area || '0.00'}</b></td>
           <td>${statusBadge}</td>
+          <td style="font-size:12.5px;">${item.entered_by_name || '-'}<br><span style="color:#747d8c;">${item.entered_by_email || ''}</span></td>
           <td class="action-col">
             <button type="button" class="action-btn btn-edit" onclick="loadRecordForStaff(${item.id})">✏️ Review</button>
             <button type="button" class="action-btn btn-delete" onclick="deleteRecord(${item.id}, '${item.owner}')">❌</button>
@@ -522,6 +528,10 @@
       document.getElementById('verifyBtn').style.display = 'flex';
       document.getElementById('returnBtn').style.display = 'flex';
       document.getElementById('formHeaderTitle').innerText = "🔎 फाइल पुनरावलोकन तथा प्रमाणीकरण मोड (Review Mode)";
+
+      document.getElementById('submittedByName').innerText = record.entered_by_name || 'थाहा छैन';
+      document.getElementById('submittedByEmail').innerText = record.entered_by_email || '-';
+      document.getElementById('submittedByBanner').style.display = 'block';
       
       document.getElementById('mainFormContainer').classList.add('review-mode-active');
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -678,6 +688,7 @@
       document.getElementById('verifyBtn').style.display = 'none';
       document.getElementById('returnBtn').style.display = 'none';
       document.getElementById('formHeaderTitle').innerText = "🏛️ गलकोट नगरपालिका - भूमि व्यवस्थापन (कार्यालय कर्मचारी कार्यप्रणाली)";
+      document.getElementById('submittedByBanner').style.display = 'none';
       document.getElementById('mainFormContainer').classList.remove('review-mode-active');
     }
   </script>
