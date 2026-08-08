@@ -267,8 +267,10 @@
         .card-details h3 { font-size: 1.08rem; color: var(--indigo); font-weight: 700; margin-bottom: 2px; }
         .card-details .designation { font-size: 0.9rem; color: var(--crimson); font-weight: 700; margin-bottom: 3px; }
         .info-card.rep-card .card-details .designation { color: var(--indigo); }
-        .card-details .meta-info { font-size: 0.86rem; color: var(--muted); font-weight: 600; display: flex; align-items: center; gap: 5px; }
+        .card-details .meta-info { font-size: 1.2rem; color:#0d3f8f; font-weight: 1000; display: flex; align-items: center; gap: 5px; }
         .card-details .meta-info i { color: var(--gold); width: 14px; }
+        .card-details .meta-info.phone-info { font-size: 1.5rem; color: #0d3f8f; font-weight: 1000; }
+        .card-details .meta-info.phone-info i { color: #0d3f8f; }
 
         /* ============ फुटर टिकर — पित्तलको पट्टिका (brass plaque) शैली ============ */
         .ticker-section {
@@ -601,7 +603,7 @@
                     <h3>${item.name}</h3>
                     <p class="designation">${item.designation}</p>
                     <p class="meta-info"><i class="fa-solid fa-door-open"></i> शाखा/कोठा नं: ${convertToNepaliNumerals(item.room_no)}</p>
-                    ${item.phone ? `<p class="meta-info"><i class="fa-solid fa-phone"></i> ${convertToNepaliNumerals(item.phone)}</p>` : ''}
+                    ${item.phone ? `<p class="meta-info phone-info"><i class="fa-solid fa-phone"></i> ${convertToNepaliNumerals(item.phone)}</p>` : ''}
                 </div>
             `;
             grid.appendChild(card);
@@ -625,7 +627,7 @@
                 <div class="card-details">
                     <h3>${item.name}</h3>
                     <p class="designation">${item.designation}</p>
-                    ${item.contact ? `<p class="meta-info"><i class="fa-solid fa-phone"></i> ${convertToNepaliNumerals(item.contact)}</p>` : ''}
+                    ${item.contact ? `<p class="meta-info phone-info"><i class="fa-solid fa-phone"></i> ${convertToNepaliNumerals(item.contact)}</p>` : ''}
                 </div>
             `;
             grid.appendChild(card);
