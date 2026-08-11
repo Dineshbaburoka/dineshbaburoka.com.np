@@ -60,6 +60,10 @@
     #left-sidebar:hover { width: 180px; }
     body.has-sidebar { padding-left: 52px; }
   }
+  .fd-field label { display:block; font-size: 10.5px; font-weight: 600; color: #64748b; margin-bottom: 3px; text-transform: capitalize; }
+  .fd-field input, .fd-field textarea { width: 100%; border: 1px solid #d1d5db; border-radius: 6px; padding: 6px 8px; font-size: 12px; outline: none; font-family: inherit; }
+  .fd-field input:focus, .fd-field textarea:focus { border-color: #2563eb; }
+  .fd-field input[readonly] { background: #f1f5f9; color: #94a3b8; }
 </style>
 </head>
 <body class="bg-gray-100 text-sm antialiased has-sidebar">
@@ -196,7 +200,18 @@
 
         <div>
           <label class="block text-[11px] font-semibold text-gray-600 mb-1">पद <span class="text-red-500">*</span></label>
-          <input type="text" id="emp-post" required class="w-full border border-gray-300 rounded-md px-3 py-2 text-xs focus:outline-none focus:border-blue-500" placeholder="जस्तै: सव-इन्जिनियर, प्रशासकीय सहायक">
+          <select id="emp-post" required onchange="toggleEmpPostOther()" class="w-full border border-gray-300 rounded-md px-3 py-2 text-xs focus:outline-none focus:border-blue-500">
+            <option value="">-- पद छान्नुहोस् --</option>
+            <option value="फाँटवाला">फाँटवाला</option>
+            <option value="सव-इन्जिनियर">सव-इन्जिनियर</option>
+            <option value="इन्जिनियर">इन्जिनियर</option>
+            <option value="प्रशासकीय सहायक">प्रशासकीय सहायक</option>
+            <option value="वडा सचिव">वडा सचिव</option>
+            <option value="प्रमुख प्रशासकीय अधिकृत">प्रमुख प्रशासकीय अधिकृत</option>
+            <option value="कन्सल्टेन्सी">कन्सल्टेन्सी</option>
+            <option value="अन्य">अन्य (आफै टाइप गर्नुहोस्)</option>
+          </select>
+          <input type="text" id="emp-post-other" style="display:none;" class="w-full border border-gray-300 rounded-md px-3 py-2 text-xs mt-2 focus:outline-none focus:border-blue-500" placeholder="पद टाइप गर्नुहोस्">
         </div>
 
         <div>
@@ -302,6 +317,38 @@
     </div>
   </div>
 
+  <!-- ===== Full विवरण Edit/Delete Modal (Admin मात्र) ===== -->
+  <div id="fullDetailModal" class="fixed inset-0 bg-[#0c2461]/55 z-[1000] hidden justify-center items-center px-4">
+    <div class="bg-white w-full max-w-[900px] rounded-2xl p-6 shadow-2xl border-t-[6px] border-[#0c2461] max-h-[92vh] overflow-y-auto custom-scrollbar">
+      <div class="flex items-center justify-between mb-4">
+        <div class="text-base font-bold text-[#0c2461] flex items-center gap-2" id="fd-modal-title">
+          <i class="fa-solid fa-pen-to-square"></i> पूर्ण विवरण सम्पादन गर्नुहोस्
+        </div>
+        <button onclick="closeFullDetailModal()" class="text-gray-400 hover:text-gray-600 text-lg leading-none">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="fullDetailForm" onsubmit="saveFullDetail(event)">
+        <div id="fd-fields-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-4"></div>
+
+        <div id="fd-form-msg" class="text-[11px] hidden mb-3"></div>
+
+        <div class="flex flex-wrap gap-2 pt-1 border-t sticky bottom-0 bg-white">
+          <button type="submit" id="fd-save-btn" class="flex-1 min-w-[160px] py-2.5 rounded-lg text-white text-xs font-semibold bg-[#0c2461] hover:bg-[#09194d] transition-colors flex items-center justify-center gap-2 mt-3">
+            <i class="fa-solid fa-floppy-disk"></i> <span id="fd-save-btn-label">अपडेट गर्नुहोस्</span>
+          </button>
+          <button type="button" onclick="deleteFullDetailRecord()" class="flex-1 min-w-[160px] py-2.5 mt-3 rounded-lg text-white text-xs font-semibold bg-red-600 hover:bg-red-700 transition-colors flex items-center justify-center gap-2">
+            <i class="fa-solid fa-trash"></i> रेकर्ड मेटाउनुहोस्
+          </button>
+          <button type="button" onclick="closeFullDetailModal()" class="px-5 py-2.5 mt-3 rounded-lg text-xs font-medium text-white bg-gray-400 hover:bg-gray-500 transition-colors">
+            बन्द गर्नुहोस्
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
 <script>
   const SUPABASE_URL = "https://lyjokogftwtvnhwszqni.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_gxEL2-GVTVy8E0WxMBZHDQ_b5TzsDI9";
@@ -310,6 +357,9 @@
   let ghar_kayam_rows = [];
   let map_branch_rows = [];
   let currentTab = 'gk';
+  let isAdmin = false;
+  let fd_currentTable = null;
+  let fd_currentId = null;
 
   // ===== स्तम्भ परिभाषा (मुख्य/उपयोगी स्तम्भहरू मात्र देखाउने) =====
   const GK_COLUMNS = [
@@ -404,21 +454,33 @@
 
     // Head
     const thead = document.getElementById('table-head');
-    thead.innerHTML = '<tr>' + columns.map(c => `<th class="px-3 py-2.5 text-left font-semibold whitespace-nowrap">${c.label}</th>`).join('') + '</tr>';
+    thead.innerHTML = '<tr>' + columns.map(c => `<th class="px-3 py-2.5 text-left font-semibold whitespace-nowrap">${c.label}</th>`).join('') +
+      (isAdmin ? '<th class="px-3 py-2.5 text-center font-semibold whitespace-nowrap">कार्य</th>' : '') + '</tr>';
 
     // Body
     const tbody = document.getElementById('table-body');
     if (filtered.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="${columns.length}" class="text-center text-gray-400 py-10">कुनै रेकर्ड फेला परेन</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="${columns.length + (isAdmin ? 1 : 0)}" class="text-center text-gray-400 py-10">कुनै रेकर्ड फेला परेन</td></tr>`;
       return;
     }
+
+    const tableName = currentTab === 'gk' ? 'ghar_kayam_applications' : 'g_map_branch1';
 
     tbody.innerHTML = filtered.map((r, i) => {
       const cells = columns.map(c => {
         if (c.key === 'status') return `<td class="px-3 py-2 whitespace-nowrap">${statusBadge(r[c.key])}</td>`;
         return `<td class="px-3 py-2 whitespace-nowrap">${fmtVal(r[c.key])}</td>`;
       }).join('');
-      return `<tr class="hover:bg-blue-50/50 ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/40'}">${cells}</tr>`;
+      const actionCell = isAdmin ? `
+        <td class="px-3 py-2 whitespace-nowrap text-center">
+          <button onclick="openFullDetailModal('${tableName}', '${r.id}')" class="text-blue-600 hover:text-blue-800 mr-2" title="पूर्ण विवरण / सम्पादन">
+            <i class="fa-solid fa-pen-to-square"></i>
+          </button>
+          <button onclick="quickDeleteRow('${tableName}', '${r.id}')" class="text-red-600 hover:text-red-800" title="मेटाउनुहोस्">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </td>` : '';
+      return `<tr class="hover:bg-blue-50/50 ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/40'}">${cells}${actionCell}</tr>`;
     }).join('');
   }
 
@@ -444,6 +506,7 @@
   function openEmployeeModal(editId) {
     document.getElementById('employeeForm').reset();
     document.getElementById('emp-id').value = '';
+    setEmpPostValue('');
     const msg = document.getElementById('emp-form-msg');
     msg.classList.add('hidden');
     msg.innerText = '';
@@ -461,7 +524,7 @@
       if (row) {
         document.getElementById('emp-id').value = row.id;
         document.getElementById('emp-name').value = row.name || '';
-        document.getElementById('emp-post').value = row.post || '';
+        setEmpPostValue(row.post || '');
         document.getElementById('emp-code').value = row.code_number || '';
         document.getElementById('emp-mobile').value = row.mobile || '';
         document.getElementById('emp-ward').value = row.ward || '';
@@ -505,6 +568,35 @@
     }
   }
 
+  function toggleEmpPostOther() {
+    const isOther = document.getElementById('emp-post').value === 'अन्य';
+    document.getElementById('emp-post-other').style.display = isOther ? 'block' : 'none';
+    document.getElementById('emp-post-other').required = isOther;
+  }
+
+  // पद select मा कुनै पूर्वनिर्धारित सूचीमा नभएको मान भए 'अन्य' मा राखी text box मा देखाउने
+  function setEmpPostValue(value) {
+    const select = document.getElementById('emp-post');
+    const otherInput = document.getElementById('emp-post-other');
+    const found = Array.from(select.options).some(o => o.value === value && value !== '' && value !== 'अन्य');
+    if (found) {
+      select.value = value;
+      otherInput.style.display = 'none';
+      otherInput.required = false;
+      otherInput.value = '';
+    } else if (value) {
+      select.value = 'अन्य';
+      otherInput.style.display = 'block';
+      otherInput.required = true;
+      otherInput.value = value;
+    } else {
+      select.value = '';
+      otherInput.style.display = 'none';
+      otherInput.required = false;
+      otherInput.value = '';
+    }
+  }
+
   function toggleSystemUserFields() {
     const isYes = document.querySelector('input[name="emp-issystem"]:checked')?.value === 'yes';
     const fields = document.getElementById('emp-system-fields');
@@ -529,9 +621,12 @@
     const empId = document.getElementById('emp-id').value;
     const isEdit = !!empId;
 
+    const postSelectVal = document.getElementById('emp-post').value;
+    const postFinal = postSelectVal === 'अन्य' ? document.getElementById('emp-post-other').value.trim() : postSelectVal;
+
     const payload = {
       name: document.getElementById('emp-name').value.trim(),
-      post: document.getElementById('emp-post').value.trim(),
+      post: postFinal,
       code_number: document.getElementById('emp-code').value.trim() || null,
       mobile: document.getElementById('emp-mobile').value.trim() || null,
       ward: document.getElementById('emp-ward').value.trim() || null,
@@ -686,12 +781,136 @@
     }
     const userEmail = localStorage.getItem("loggedInUserEmail") || "user@galkotmun.gov.np";
     const userRole = localStorage.getItem("userRole") || "staff";
+    isAdmin = userRole.toLowerCase() === 'admin';
     document.getElementById('topbar-user-display').innerText = userEmail;
     document.getElementById('topbar-role-display').innerText = userRole.toUpperCase();
     loadData();
   }
 
   window.onload = initPage;
+
+  // ===== घर कायम / नक्सा पास — Full विवरण Edit/Delete (Admin मात्र) =====
+  const FD_READONLY_KEYS = ['id', 'created_at'];
+
+  function fdLabelize(key) {
+    return key.replace(/_/g, ' ').replace(/\b\w/g, ch => ch.toUpperCase());
+  }
+
+  function openFullDetailModal(tableName, id) {
+    if (!isAdmin) {
+      alert('❌ यो सुविधा प्रयोग गर्न Admin अनुमति चाहिन्छ।');
+      return;
+    }
+    const cache = tableName === 'ghar_kayam_applications' ? ghar_kayam_rows : map_branch_rows;
+    const row = cache.find(r => String(r.id) === String(id));
+    if (!row) { alert('रेकर्ड फेला परेन।'); return; }
+
+    fd_currentTable = tableName;
+    fd_currentId = id;
+
+    const label = tableName === 'ghar_kayam_applications' ? '📋 घर कायम — पूर्ण विवरण सम्पादन' : '🗺️ नक्सा पास — पूर्ण विवरण सम्पादन';
+    document.getElementById('fd-modal-title').innerHTML = `<i class="fa-solid fa-pen-to-square"></i> ${label}`;
+
+    const grid = document.getElementById('fd-fields-grid');
+    const keys = Object.keys(row);
+    grid.innerHTML = keys.map(key => {
+      const val = row[key] === null || row[key] === undefined ? '' : row[key];
+      const isReadonly = FD_READONLY_KEYS.includes(key);
+      const isLong = typeof val === 'string' && val.length > 60;
+      const safeVal = String(val).replace(/"/g, '&quot;');
+      if (isLong) {
+        return `<div class="fd-field sm:col-span-2 lg:col-span-3"><label>${fdLabelize(key)}</label><textarea data-fd-key="${key}" rows="2" ${isReadonly ? 'readonly' : ''}>${String(val)}</textarea></div>`;
+      }
+      return `<div class="fd-field"><label>${fdLabelize(key)}</label><input type="text" data-fd-key="${key}" value="${safeVal}" ${isReadonly ? 'readonly' : ''}></div>`;
+    }).join('');
+
+    const msg = document.getElementById('fd-form-msg');
+    msg.classList.add('hidden');
+    msg.innerText = '';
+
+    const modal = document.getElementById('fullDetailModal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  }
+
+  function closeFullDetailModal() {
+    const modal = document.getElementById('fullDetailModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    fd_currentTable = null;
+    fd_currentId = null;
+  }
+
+  async function saveFullDetail(e) {
+    e.preventDefault();
+    if (!fd_currentTable || !fd_currentId) return;
+
+    const btn = document.getElementById('fd-save-btn');
+    const btnLabel = document.getElementById('fd-save-btn-label');
+    const msg = document.getElementById('fd-form-msg');
+
+    const payload = {};
+    document.querySelectorAll('#fd-fields-grid [data-fd-key]').forEach(el => {
+      const key = el.getAttribute('data-fd-key');
+      if (FD_READONLY_KEYS.includes(key)) return;
+      const v = el.value.trim();
+      payload[key] = v === '' ? null : v;
+    });
+
+    btn.disabled = true;
+    btn.querySelector('i').className = 'fa-solid fa-circle-notch spin';
+    btnLabel.innerText = 'अपडेट हुँदैछ...';
+    msg.classList.add('hidden');
+
+    try {
+      const { error } = await _supabase.from(fd_currentTable).update(payload).eq('id', fd_currentId);
+      if (error) throw error;
+
+      msg.className = 'text-[11px] text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-md px-3 py-2';
+      msg.innerText = '✅ विवरण सफलतापूर्वक अपडेट भयो।';
+      msg.classList.remove('hidden');
+
+      await loadData();
+      setTimeout(() => { closeFullDetailModal(); }, 800);
+    } catch (err) {
+      msg.className = 'text-[11px] text-red-700 bg-red-50 border border-red-200 rounded-md px-3 py-2';
+      msg.innerText = '❌ अपडेट गर्न सकिएन: ' + (err.message || 'अज्ञात त्रुटि');
+      msg.classList.remove('hidden');
+    } finally {
+      btn.disabled = false;
+      btn.querySelector('i').className = 'fa-solid fa-floppy-disk';
+      btnLabel.innerText = 'अपडेट गर्नुहोस्';
+    }
+  }
+
+  async function deleteFullDetailRecord() {
+    if (!fd_currentTable || !fd_currentId) return;
+    if (!confirm('के तपाईं यो रेकर्ड पूर्ण रूपमा मेटाउन निश्चित हुनुहुन्छ? यो कार्य फिर्ता गर्न सकिँदैन।')) return;
+
+    try {
+      const { error } = await _supabase.from(fd_currentTable).delete().eq('id', fd_currentId);
+      if (error) throw error;
+      closeFullDetailModal();
+      await loadData();
+    } catch (err) {
+      alert('❌ मेटाउन सकिएन: ' + (err.message || 'अज्ञात त्रुटि'));
+    }
+  }
+
+  async function quickDeleteRow(tableName, id) {
+    if (!isAdmin) {
+      alert('❌ यो सुविधा प्रयोग गर्न Admin अनुमति चाहिन्छ।');
+      return;
+    }
+    if (!confirm('के तपाईं यो रेकर्ड मेटाउन निश्चित हुनुहुन्छ? यो कार्य फिर्ता गर्न सकिँदैन।')) return;
+    try {
+      const { error } = await _supabase.from(tableName).delete().eq('id', id);
+      if (error) throw error;
+      await loadData();
+    } catch (err) {
+      alert('❌ मेटाउन सकिएन: ' + (err.message || 'अज्ञात त्रुटि'));
+    }
+  }
 </script>
 </body>
 </html>
