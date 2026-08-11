@@ -219,6 +219,43 @@
           <textarea id="emp-details" rows="3" class="w-full border border-gray-300 rounded-md px-3 py-2 text-xs focus:outline-none focus:border-blue-500" placeholder="थप जानकारी (वैकल्पिक)"></textarea>
         </div>
 
+        <div id="emp-issystem-block" class="border-t pt-3.5">
+          <label class="block text-[11px] font-semibold text-gray-600 mb-2">यो कर्मचारीलाई System (Login) प्रयोगकर्ता बनाउने हो?</label>
+          <div class="flex gap-4">
+            <label class="flex items-center gap-1.5 text-xs cursor-pointer">
+              <input type="radio" name="emp-issystem" value="yes" onchange="toggleSystemUserFields()"> हो
+            </label>
+            <label class="flex items-center gap-1.5 text-xs cursor-pointer">
+              <input type="radio" name="emp-issystem" value="no" checked onchange="toggleSystemUserFields()"> होइन
+            </label>
+          </div>
+
+          <div id="emp-system-fields" class="hidden mt-3 space-y-3.5 bg-blue-50/50 border border-blue-100 rounded-lg p-3">
+            <div>
+              <label class="block text-[11px] font-semibold text-gray-600 mb-1">लगइन इमेल <span class="text-red-500">*</span></label>
+              <input type="email" id="emp-user-email" class="w-full border border-gray-300 rounded-md px-3 py-2 text-xs focus:outline-none focus:border-blue-500" placeholder="username@galkotmun.gov.np">
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-gray-600 mb-1">पासवर्ड <span class="text-red-500">*</span></label>
+              <input type="password" id="emp-user-password" minlength="6" class="w-full border border-gray-300 rounded-md px-3 py-2 text-xs focus:outline-none focus:border-blue-500" placeholder="कम्तिमा ६ अक्षर">
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-gray-600 mb-1">भूमिका (Role) <span class="text-red-500">*</span></label>
+              <select id="emp-user-role" class="w-full border border-gray-300 rounded-md px-3 py-2 text-xs focus:outline-none focus:border-blue-500">
+                <option value="admin">Admin (प्रशासक)</option>
+                <option value="staff" selected>Staff (कर्मचारी)</option>
+                <option value="consultancy">Consultancy (कन्सल्टेन्सी)</option>
+                <option value="sub_engineer">Sub-Engineer (सब-इन्जिनियर)</option>
+                <option value="engineer">Engineer (इन्जिनियर)</option>
+                <option value="ward_secretary">Ward Secretary (वडा सचिव)</option>
+              </select>
+            </div>
+            <div class="text-[10px] text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-2.5 py-1.5">
+              ⚠️ यसले Supabase Auth मा नयाँ लगइन खाता र <code>system_users</code> टेबलमा प्रोफाइल दुबै बनाउँछ।
+            </div>
+          </div>
+        </div>
+
         <div id="emp-form-msg" class="text-[11px] hidden"></div>
 
         <div class="flex gap-2 pt-1">
@@ -413,6 +450,11 @@
 
     const titleEl = document.getElementById('employee-modal-title');
     const btnLabel = document.getElementById('emp-submit-btn-label');
+    const issystemBlock = document.getElementById('emp-issystem-block');
+
+    // टगल हरेक पटक 'होइन' मा रिसेट गर्ने
+    document.querySelector('input[name="emp-issystem"][value="no"]').checked = true;
+    toggleSystemUserFields();
 
     if (editId) {
       const row = employee_rows_cache.find(r => String(r.id) === String(editId));
@@ -427,6 +469,8 @@
       }
       titleEl.innerHTML = '<i class="fa-solid fa-user-pen"></i> कर्मचारी सम्पादन गर्नुहोस्';
       btnLabel.innerText = 'अपडेट गर्नुहोस्';
+      // सम्पादनको बेला System User सिर्जना गर्ने विकल्प देखाइँदैन (त्यो create-मात्रको लागि हो)
+      issystemBlock.classList.add('hidden');
 
       // सम्पादन गर्दा कर्मचारी सूची Modal लाई लुकाउने
       const listModal = document.getElementById('employeeListModal');
@@ -438,6 +482,7 @@
     } else {
       titleEl.innerHTML = '<i class="fa-solid fa-user-plus"></i> कर्मचारी सिर्जना गर्नुहोस्';
       btnLabel.innerText = 'सुरक्षित गर्नुहोस्';
+      issystemBlock.classList.remove('hidden');
       employeeModalOpenedFromList = false;
     }
 
@@ -460,6 +505,22 @@
     }
   }
 
+  function toggleSystemUserFields() {
+    const isYes = document.querySelector('input[name="emp-issystem"]:checked')?.value === 'yes';
+    const fields = document.getElementById('emp-system-fields');
+    const emailEl = document.getElementById('emp-user-email');
+    const passEl = document.getElementById('emp-user-password');
+    if (isYes) {
+      fields.classList.remove('hidden');
+      emailEl.required = true;
+      passEl.required = true;
+    } else {
+      fields.classList.add('hidden');
+      emailEl.required = false;
+      passEl.required = false;
+    }
+  }
+
   async function submitEmployee(e) {
     e.preventDefault();
     const btn = document.getElementById('emp-submit-btn');
@@ -477,6 +538,11 @@
       details: document.getElementById('emp-details').value.trim() || null,
     };
 
+    const isSystemUser = !isEdit && document.querySelector('input[name="emp-issystem"]:checked')?.value === 'yes';
+    const userEmail = document.getElementById('emp-user-email').value.trim();
+    const userPassword = document.getElementById('emp-user-password').value;
+    const userRole = document.getElementById('emp-user-role').value;
+
     btn.disabled = true;
     btn.querySelector('i').className = 'fa-solid fa-circle-notch spin';
     btnLabel.innerText = isEdit ? 'अपडेट हुँदैछ...' : 'सुरक्षित हुँदैछ...';
@@ -491,8 +557,38 @@
       }
       if (error) throw error;
 
+      // ===== "हो" छानिएको भए साथसाथै System (Login) प्रयोगकर्ता पनि बनाउने =====
+      if (isSystemUser) {
+        btnLabel.innerText = 'User खाता बनाउँदैछ...';
+
+        // हालको (admin/staff) session सुरक्षित राख्ने, किनभने signUp ले session बदलिदिन्छ
+        const { data: sessionBefore } = await _supabase.auth.getSession();
+        const currentSession = sessionBefore?.session || null;
+
+        const { data: authData, error: authError } = await _supabase.auth.signUp({
+          email: userEmail,
+          password: userPassword
+        });
+        if (authError) throw new Error('User खाता बनाउँदा त्रुटि: ' + authError.message + ' (कर्मचारी विवरण भने सुरक्षित भइसक्यो।)');
+
+        // signUp ले session लाई नयाँ user मा सारिदिने भएकाले, अघिकै session फिर्ता ल्याउने
+        if (currentSession) {
+          await _supabase.auth.setSession({
+            access_token: currentSession.access_token,
+            refresh_token: currentSession.refresh_token
+          });
+        }
+
+        const { error: sysUserError } = await _supabase
+          .from('system_users')
+          .insert([{ auth_id: authData.user.id, fullname: payload.name, email: userEmail, role: userRole, status1: 'active' }]);
+        if (sysUserError) throw new Error('User प्रोफाइल सेभ गर्दा त्रुटि: ' + sysUserError.message + ' (Auth खाता बनिसक्यो, कर्मचारी विवरण पनि सुरक्षित भइसक्यो।)');
+      }
+
       msg.className = 'text-[11px] text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-md px-3 py-2';
-      msg.innerText = isEdit ? '✅ कर्मचारी सफलतापूर्वक अपडेट भयो।' : '✅ कर्मचारी सफलतापूर्वक सुरक्षित भयो।';
+      msg.innerText = isEdit
+        ? '✅ कर्मचारी सफलतापूर्वक अपडेट भयो।'
+        : (isSystemUser ? '✅ कर्मचारी सुरक्षित भयो र System खाता पनि बनियो।' : '✅ कर्मचारी सफलतापूर्वक सुरक्षित भयो।');
       msg.classList.remove('hidden');
       document.getElementById('employeeForm').reset();
       setTimeout(() => { closeEmployeeModal(); }, 900);
