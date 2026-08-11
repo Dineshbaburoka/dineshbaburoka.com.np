@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>गलकोट नगरपालिका - भवन निर्माण सम्पन्न प्रमाण पत्र</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --primary-color: #c0392b;
+      --secondary-color: #2c3e50;
+      --success-color: #27ae60;
+      --warning-color: #f39c12;
+      --danger-color: #d35400;
+      --bg-color: #f5f6fa;
+      --card-bg: #ffffff;
+      --border-color: #dcdde1;
+      --edit-bg: #fffde7;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { 
+      font-family: 'Noto Sans Devanagari', sans-serif; 
+      background: var(--bg-color); 
+      padding: 30px 20px; 
+      color: #000000; 
+      line-height: 1.5; 
+    }
+    .search-wrapper { 
+      max-width: 850px; 
+      margin: 0 auto 20px auto; 
+      background: var(--card-bg); 
+      padding: 25px; 
+      border-radius: 12px; 
+      box-shadow: 0 8px 20px rgba(0,0,0,0.05); 
+      border: 2px solid var(--secondary-color); 
+    }
+    .system-title {
+      text-align: center;
+      color: var(--secondary-color);
+      font-size: 21px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    
+    /* Notice Dashboard Styling */
+    .notice-dashboard {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .notice-card {
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+      color: white;
+      font-weight: 600;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .card-success { background-color: var(--success-color); }
+    .card-warning { background-color: var(--warning-color); }
+    .card-danger { background-color: var(--danger-color); }
+    .card-num { font-size: 24px; font-weight: 700; display: block; margin-top: 5px; }
+
+    .search-box { 
+      width: 100%; 
+      padding: 12px; 
+      border: 2px solid var(--border-color); 
+      border-radius: 8px; 
+      font-size: 16px; 
+      outline: none; 
+      font-weight: 600; 
+      text-align: center; 
+    }
+    .print-certificate-container {
+      max-width: 850px; 
+      margin: 0 auto 30px auto; 
+      background: var(--card-bg);
+      padding: 30px 40px; 
+      border-radius: 4px; 
+      position: relative; 
+      font-size: 16.5px; 
+      color: #000000;
+      display: none; 
+    }
+    .header-table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
+    .header-logo { width: 105px; text-align: left; vertical-align: top; }
+    .header-logo img { width: 95px; height: auto; }
+    .header-text { text-align: center; vertical-align: top; line-height: 1.35; }
+    .muni-name { font-size: 19px; font-weight: 600; color: #000; }
+    .exec-office { font-size: 28px; font-weight: 700; color: #cc0000; margin-top: 2px; }
+    .dept-name { font-size: 15px; font-weight: 700; margin-top: 1px; }
+    .address-line { font-size: 17px; font-weight: 600; }
+    .header-photo { width: 105px; text-align: right; vertical-align: top; }
+    .photo-box { width: 95px; height: 115px; border: 2px solid #000; margin-left: auto; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+    .cert-main-title { text-align: center; font-size: 24px; font-weight: 700; margin: 15px 0; text-decoration: underline; letter-spacing: 0.5px; }
+    .meta-row { display: flex; justify-content: space-between; font-weight: 700; font-size: 16.5px; margin-bottom: 6px; }
+    .cert-body-para { text-align: justify; margin-bottom: 12px; line-height: 1.7; text-justify: inter-word; }
+    .dynamic-span { 
+      font-weight: 700; 
+      border-bottom: 1px dashed #000000; 
+      padding: 0 5px; 
+      display: inline-block;
+      background-color: var(--edit-bg);
+      border-radius: 3px;
+    }
+    .editable-span {
+      background-color: #e3f2fd;
+      border-bottom: 1px solid #1e88e5;
+      outline: none;
+    }
+    .editable-span:focus { background-color: #fff59d; }
+    .section-head { font-weight: 700; margin-top: 12px; margin-bottom: 4px; font-size: 16.5px; }
+    .indent-block { padding-left: 15px; }
+    .boundary-table { width: 100%; margin-left: 15px; margin-bottom: 12px; }
+    .boundary-table td { padding: 3px 0; width: 50%; }
+    .area-data-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14.5px; }
+    .area-data-table th, .area-data-table td { border: 1px solid #000; padding: 5px 8px; }
+    .area-data-table th { background-color: #f2f2f2; font-weight: 700; text-align: center; }
+    .text-center { text-align: center; }
+    .signature-row { display: flex; justify-content: space-between; text-align: center; margin-top: 40px; margin-bottom: 12px; font-size: 13px; font-weight: 600; }
+    .sig-column { width: 18.5%; }
+    .sig-top-line { border-top: 1px dashed #000; margin-bottom: 4px; width: 100%; }
+    .sig-name { display: inline-block; min-width: 90%; font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+    .sig-role { font-size: 12px; font-weight: 500; margin-bottom: 3px; }
+    .sig-post { min-width: 70px; font-size: 12px; }
+    .sig-title { font-size: 13px; font-weight: 700; margin-top: 2px; }
+    .bottom-office-footer { display: flex; justify-content: space-between; font-weight: 700; border-top: 2px solid #000; padding-top: 6px; margin-top: 20px; font-size: 14.5px; }
+    .duplicate-info-line {
+      display: none;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 600;
+      margin-top: 14px;
+      color: var(--primary-color);
+    }
+    .duplicate-info-line b { font-weight: 700; }
+    
+    .print-action-box { text-align: center; margin-top: 25px; border-top: 1px solid #e2e8f0; padding-top: 20px; display: flex; justify-content: center; gap: 15px; }
+    .btn-submit-print { background-color: var(--primary-color); color: white; border: none; padding: 12px 30px; font-size: 15px; font-weight: 700; border-radius: 6px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+    .alert-no-record { text-align: center; padding: 40px; color: #7f8c8d; font-size: 16px; background: white; max-width: 850px; margin: 0 auto; border-radius: 8px; border: 2px dashed #cbd5e1; font-weight: 600; }
+
+    .duplicate-watermark {
+      position: absolute;
+      top: 42%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-28deg);
+      font-size: 64px;
+      font-weight: 900;
+      color: rgba(192, 57, 43, 0.22);
+      border: 5px solid rgba(192, 57, 43, 0.22);
+      padding: 4px 26px;
+      border-radius: 10px;
+      pointer-events: none;
+      z-index: 5;
+      display: none;
+      white-space: nowrap;
+    }
+    .btn-duplicate-print { background-color: var(--secondary-color); color: white; border: none; padding: 12px 30px; font-size: 15px; font-weight: 700; border-radius: 6px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+    .btn-issue-cert { background-color: #8e44ad; color: white; border: none; padding: 12px 30px; font-size: 15px; font-weight: 700; border-radius: 6px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+
+    /* ===== प्रमाणपत्र जारी गर्ने (कर्मचारी छनोट) Modal ===== */
+    .issue-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(44, 62, 80, 0.55);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+    .issue-modal-overlay.show { display: flex; }
+    .issue-modal-box {
+      background: #fff;
+      width: 100%;
+      max-width: 520px;
+      border-radius: 14px;
+      padding: 24px;
+      box-shadow: 0 10px 35px rgba(0,0,0,0.3);
+      border-top: 6px solid #8e44ad;
+      max-height: 92vh;
+      overflow-y: auto;
+    }
+    .issue-modal-title { font-size: 17px; font-weight: 700; color: #8e44ad; margin-bottom: 4px; display:flex; align-items:center; justify-content:space-between; }
+    .issue-modal-sub { font-size: 12px; color: #7f8c8d; margin-bottom: 16px; }
+    .issue-block { border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 12px; background: #fafbff; }
+    .issue-block-title { font-size: 13px; font-weight: 700; color: var(--secondary-color); margin-bottom: 8px; }
+    .issue-field { margin-bottom: 10px; }
+    .issue-field:last-child { margin-bottom: 0; }
+    .issue-field label { display:block; font-weight: 600; font-size: 12px; color: #57606f; margin-bottom: 5px; }
+    .issue-field select, .issue-field input[type="text"] {
+      width: 100%; padding: 9px 10px; border: 2px solid var(--border-color); border-radius: 6px; font-size: 13px; outline: none; font-family: inherit;
+    }
+    .issue-field select:focus, .issue-field input:focus { border-color: #8e44ad; }
+    .issue-row-two { display: flex; gap: 10px; }
+    .issue-row-two > div { flex: 1; }
+    .issue-btn-row { display:flex; gap:10px; margin-top: 14px; }
+    .issue-btn-row button { flex:1; padding: 11px; border:none; border-radius: 7px; font-weight:700; font-size:13.5px; cursor:pointer; }
+    .issue-btn-primary { background: #8e44ad; color:#fff; }
+    .issue-btn-cancel { background:#95a5a6; color:#fff; }
+    .issue-modal-close { cursor:pointer; color:#95a5a6; font-size:18px; line-height:1; }
+
+    /* ===== प्रतिलिपी जारी Modal ===== */
+    .dup-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(44, 62, 80, 0.55);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+    .dup-modal-overlay.show { display: flex; }
+    .dup-modal-box {
+      background: #fff;
+      width: 100%;
+      max-width: 460px;
+      border-radius: 14px;
+      padding: 24px;
+      box-shadow: 0 10px 35px rgba(0,0,0,0.3);
+      border-top: 6px solid var(--primary-color);
+      max-height: 92vh;
+      overflow-y: auto;
+    }
+    .dup-modal-title { font-size: 17px; font-weight: 700; color: var(--primary-color); margin-bottom: 4px; display:flex; align-items:center; justify-content:space-between; }
+    .dup-modal-sub { font-size: 12px; color: #7f8c8d; margin-bottom: 16px; }
+    .dup-field { margin-bottom: 13px; }
+    .dup-field label { display:block; font-weight: 600; font-size: 12.5px; color: #57606f; margin-bottom: 5px; }
+    .dup-field input[type="text"], .dup-field select, .dup-field textarea {
+      width: 100%; padding: 9px 10px; border: 2px solid var(--border-color); border-radius: 6px; font-size: 13px; outline: none; font-family: inherit;
+    }
+    .dup-field input:focus, .dup-field select:focus, .dup-field textarea:focus { border-color: var(--primary-color); }
+    .dup-radio-row { display: flex; gap: 14px; flex-wrap: wrap; }
+    .dup-radio-row label { display:flex; align-items:center; gap:6px; font-size: 12.5px; font-weight: 500; color:#2c3e50; cursor:pointer; }
+    .dup-btn-row { display:flex; gap:10px; margin-top: 6px; }
+    .dup-btn-row button { flex:1; padding: 11px; border:none; border-radius: 7px; font-weight:700; font-size:13.5px; cursor:pointer; }
+    .dup-btn-primary { background: var(--primary-color); color:#fff; }
+    .dup-btn-cancel { background:#95a5a6; color:#fff; }
+    .dup-modal-close { cursor:pointer; color:#95a5a6; font-size:18px; line-height:1; }
+
+    @page { size: A4 portrait; margin: 8mm 12mm; }
+    @page {
+      size: A4 portrait;
+      margin: 10mm;
+    }
+    @media print {
+      html, body { background: #fff; padding: 0; margin: 0; width: 210mm; }
+      .print-certificate-container { max-width: 190mm !important; }
+      .search-wrapper, .print-action-box, .alert-no-record, .notice-dashboard, .dup-modal-overlay, .issue-modal-overlay { display: none !important; }
+      .print-certificate-container {
+        display: block !important; box-shadow: none !important; border: none !important;
+        padding: 0 !important; margin: 0 !important; width: 100% !important; max-width: 100% !important;
+        font-size: 17.5px !important;
+      }
+      .dynamic-span { border-bottom: none !important; background-color: transparent !important; padding: 0 !important; }
+      .editable-span { border-bottom: none !important; background-color: transparent !important; }
+      .duplicate-watermark.print-show { display: block !important; }
+      .duplicate-info-line.print-show { display: flex !important; }
+
+      .header-table { margin-bottom: 4px !important; }
+      .header-logo img { width: 95px !important; }
+      .photo-box { width: 90px !important; height: 108px !important; font-size: 14px !important; }
+      .muni-name { font-size: 21px !important; }
+      .exec-office { font-size: 29px !important; margin-top: 1px !important; }
+      .dept-name { font-size: 17px !important; }
+      .address-line { font-size: 20px !important; }
+      .cert-main-title { margin: 8px 0 !important; font-size: 23px !important; }
+      .meta-row { font-size: 17.5px !important; margin-bottom: 4px !important; }
+      .cert-body-para { margin-bottom: 7px !important; line-height: 1.5 !important; }
+      .section-head { margin-top: 7px !important; margin-bottom: 4px !important; font-size: 17.5px !important; }
+      .area-data-table { margin: 7px 0 !important; font-size: 15.5px !important; }
+      .area-data-table th, .area-data-table td { padding: 4px 7px !important; }
+      .boundary-table { margin-bottom: 7px !important; }
+      .boundary-table td { padding: 3px 0 !important; }
+      .indent-block { padding-left: 13px !important; }
+      .signature-row { margin-top: 20px !important; margin-bottom: 7px !important; }
+      .sig-name, .sig-title { font-size: 15.5px !important; }
+      .sig-role, .sig-post { font-size: 14.5px !important; }
+      .bottom-office-footer { margin-top: 9px !important; padding-top: 4px !important; font-size: 15.5px !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="search-wrapper">
+    <div class="system-title">🏛️ गलकोट नगरपालिका - भवन निर्माण सम्पन्न प्रमाण पत्र प्रणाली</div>
+    
+    <!-- Notice Dashboard Board -->
+    <div class="notice-dashboard">
+      <div class="notice-card card-success">
+        📜 स्थायी इजाजत संख्या
+        <span id="cnt_approved" class="card-num">०</span>
+      </div>
+      <div class="notice-card card-warning">
+        ⚠️ म्याद नाघ्यो, थप गर्नुहोला (२ वर्ष कटेका)
+        <span id="cnt_delayed_2yr" class="card-num">०</span>
+      </div>
+      <div class="notice-card card-danger">
+        🚨 अत्यन्तै ढिलो, तुरुन्तै थप गर्नुहोला (४ वर्ष कटेका)
+        <span id="cnt_delayed_4yr" class="card-num">०</span>
+      </div>
+    </div>
+
+    <input type="text" id="certSearchBox" class="search-box" placeholder="🔍 दर्ता न. / जग्गाधनीको नाम / कित्ता नं. टाइप गरी खोज्नुहोस्..." oninput="searchCertificateSystem()">
+  </div>
+
+  <div id="emptyDisplayAlert" class="alert-no-record">
+    🔍 विवरण खोज्नका लागि माथिको सर्च बक्समा जग्गाधनीको नाम वा अन्य कुञ्जी शब्द टाइप गर्नुहोस्।
+  </div>
+
+  <div class="print-certificate-container" id="certificatePrintVolume">
+    <div class="duplicate-watermark" id="duplicateWatermark">प्रतिलिपी प्रमाण-पत्र</div>
+    <!-- Header Section -->
+    <table class="header-table">
+      <tr>
+        <td class="header-logo"><img src="https://upload.wikimedia.org/wikipedia/commons/2/23/Emblem_of_Nepal.svg" alt="Emblem of Nepal"></td>
+        <td class="header-text">
+          <div class="muni-name">गलकोट नगरपालिका</div>
+          <div class="exec-office">नगर कार्यपालिकाको कार्यालय</div>
+          <div class="dept-name">(भूमि व्यवस्थापन तथा भवन नियमन शाखा)</div>
+          <div class="address-line">गलकोट, बागलुङ</div>
+        </td>
+        <td class="header-photo"><div class="photo-box">घरधनीको तस्विर</div></td>
+      </tr>
+    </table>
+
+    <div class="cert-main-title">भवन निर्माण सम्पन्न प्रमाण पत्र</div>
+
+    <div class="meta-row">
+      <div>पत्र संख्या : <span id="lbl_done_certificate" class="dynamic-span editable-span" contenteditable="true">.........</span></div>
+      <div>मिति : <span id="lbl_done_issued_date" class="dynamic-span editable-span" contenteditable="true">......../......../........</span></div>
+    </div>
+    <div class="meta-row" style="margin-bottom: 15px;">
+      <div>प्रमाण पत्र नं : <span id="lbl_done_chalani_no" class="dynamic-span editable-span" contenteditable="true">............</span></div>
+      <div></div>
+    </div>
+
+    <div class="cert-body-para">
+      घर नं. <span id="lbl_house_no" class="dynamic-span editable-span" contenteditable="true">.....</span> 
+      बाटो <span id="lbl_road_width" class="dynamic-span"></span> 
+      मार्ग/टोल <span id="lbl_tole" class="dynamic-span"></span> मा 
+      श्रीमान्/श्रीमती/सुश्री <strong><span id="lbl_owner" class="dynamic-span"></span></strong> को गलकोट नगरपालिका वडा नं. <strong><span id="lbl_ward" class="dynamic-span"></span></strong> 
+      <strong><span id="lbl_tole_two" class="dynamic-span"></span></strong> ठाउँमा निम्न बमोजिमको घर/भवन निर्माण कार्य पूरा भएको प्रमाणित गरिएको छ ।
+    </div>
+
+    <div class="section-head">१. जग्गाको विवरण:</div>
+    <div class="cert-body-para indent-block">
+      ग.न.पा. साविक गा.वि.स. <strong><span id="lbl_savik_gavis" class="dynamic-span"></span></strong> वडा नं. <strong><span id="lbl_savik_ward" class="dynamic-span"></span></strong> हालको वडा नं. <strong><span id="lbl_ward_two" class="dynamic-span"></span></strong> कित्ता नं. <strong><span id="lbl_kitta" class="dynamic-span"></span></strong> क्षेत्रफल <strong><span id="lbl_area" class="dynamic-span"></span></strong> मा निर्माण भएको घरको 
+      लम्बाई <strong><span id="lbl_tot_length" class="dynamic-span"></span></strong> चौडाई <strong><span id="lbl_tot_width" class="dynamic-span"></span></strong> उचाई <strong><span id="lbl_tot_height" class="dynamic-span"></span></strong> फिट।
+    </div>
+
+    <div class="section-head">२. घर किल्ला :</div>
+    <table class="boundary-table">
+      <tr><td>पूर्व: <span id="lbl_east" class="dynamic-span" style="width: 80%;"></span></td><td>उत्तर: <span id="lbl_north" class="dynamic-span" style="width: 80%;"></span></td></tr>
+      <tr><td>पश्चिम: <span id="lbl_west" class="dynamic-span" style="width: 80%;"></span></td><td>दक्षिण: <span id="lbl_south" class="dynamic-span" style="width: 80%;"></span></td></tr>
+    </table>
+
+    <div class="cert-body-para">
+      <strong>३. घर धनीको नाम, थर वतन:</strong> <span id="lbl_owner_two" class="dynamic-span" style="min-width: 200px;"></span><br>
+      <strong>४. घर धनीको बाबु/पतिको नाम, थर वतन:</strong> <span id="lbl_father" class="dynamic-span" style="min-width: 200px;"></span> / बाजेको नाम: <span id="lbl_grandfather" class="dynamic-span" style="min-width: 180px;"></span>
+    </div>
+
+    <div class="section-head">५. पास नक्सा अनुसार पाउने र निर्माण भएको स्थिति (वर्ग फिट):</div>
+    <table class="area-data-table">
+      <thead>
+        <tr>
+          <th style="width: 8%;">क्र.सं.</th>
+          <th style="width: 32%;">तल्ला (Floors)</th>
+          <th style="width: 30%;">पास नक्सा अनुसार पाउने (व.फि.)</th>
+          <th style="width: 30%;">निर्माण भएको स्थिति (व.फि.)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="text-center">क)</td><td>भूमिगत (Basement)</td><td class="text-center" id="cell_p_base_a">-</td><td class="text-center" id="cell_f_base_a">-</td></tr>
+        <tr><td class="text-center">ख)</td><td>अर्ध भूमिगत (Semi-Basement)</td><td class="text-center" id="cell_p_semi_a">-</td><td class="text-center" id="cell_f_semi_a">-</td></tr>
+        <tr><td class="text-center">ग)</td><td>जमीन तल्ला (Ground Floor)</td><td class="text-center" id="cell_p_ground_a">-</td><td class="text-center" id="cell_f_ground_a">-</td></tr>
+        <tr><td class="text-center">घ)</td><td>पहिलो तल्ला (First Floor)</td><td class="text-center" id="cell_p_1st_a">-</td><td class="text-center" id="cell_f_1st_a">-</td></tr>
+        <tr><td class="text-center">ङ)</td><td>दोस्रो तल्ला (Second Floor)</td><td class="text-center" id="cell_p_2nd_a">-</td><td class="text-center" id="cell_f_2nd_a">-</td></tr>
+        <tr><td class="text-center">च)</td><td>तेस्रो तल्ला (Third Floor)</td><td class="text-center" id="cell_p_3rd_a">-</td><td class="text-center" id="cell_f_3rd_a">-</td></tr>
+        <tr><td class="text-center">छ)</td><td>चौतो तल्ला (Fourth Floor)</td><td class="text-center" id="cell_p_4th_a">-</td><td class="text-center" id="cell_f_4th_a">-</td></tr>
+        <tr><td class="text-center">ज)</td><td>पाँचौ तल्ला (Fifth Floor)</td><td class="text-center" id="cell_p_5th_a">-</td><td class="text-center" id="cell_f_5th_a">-</td></tr>
+        <tr style="font-weight: 700; background-color: #fafafa;">
+          <td class="text-center" colspan="2">कुल क्षेत्रफल (Total Area)</td>
+          <td class="text-center" id="cell_p_tot_area" style="color: #2c3e50;">-</td>
+          <td class="text-center" id="cell_f_tot_area" style="color: #c0392b;">-</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="cert-body-para" style="line-height: 1.65;">
+      <strong>६. उचाई फिट/ मिटर:</strong> <span id="lbl_tot_height_two" class="dynamic-span"></span> <strong>कुल तल्ला संख्या:</strong> <span id="lbl_total_floors" class="dynamic-span"></span><br>
+      <strong>७. केन्द्र रेखाबाट छाड्नुपर्ने दूरी:</strong> <span id="lbl_roadce" class="dynamic-span"></span> छोडेको दूरी <span id="lbl_roadcex" class="dynamic-span"></span><br>
+      <strong>८. छाड्नुपर्ने सेटब्याक:</strong> <span id="lbl_setbac" class="dynamic-span"></span> छोडेको सेटब्याक <span id="lbl_setbacx" class="dynamic-span"></span><br>
+      <strong>९. नदि किनार भए त्यसको लागि छाड्नुपर्ने दूरी:</strong> <span id="lbl_river" class="dynamic-span"></span> छोडेको दूरी <span id="lbl_riverx" class="dynamic-span"></span><br>
+      <strong>१०. संधियार सिमानाबाट छाड्नुपर्ने दूरी:</strong> <span id="lbl_land" class="dynamic-span"></span> छोडेको दूरी <span id="lbl_landb" class="dynamic-span"></span>
+    </div>
+
+    <!-- Signatures -->
+    <div class="signature-row">
+      <div class="sig-column">
+        <div class="sig-top-line"></div>
+        <span id="lbl_sig_prepared_name" class="sig-name dynamic-span editable-span" contenteditable="true">.....................</span>
+        <div class="sig-role"><span id="lbl_sig_prepared_post" class="sig-post dynamic-span editable-span" contenteditable="true">..........</span></div>
+        <div class="sig-title">तयार गर्ने</div>
+      </div>
+      <div class="sig-column">
+        <div class="sig-top-line"></div>
+        <span id="lbl_sig_inspected_name" class="sig-name dynamic-span editable-span" contenteditable="true">.....................</span>
+        <div class="sig-role"><span id="lbl_sig_inspected_post" class="sig-post dynamic-span editable-span" contenteditable="true">..........</span></div>
+        <div class="sig-title">निरीक्षण गर्ने</div>
+      </div>
+      <div class="sig-column">
+        <div class="sig-top-line"></div>
+        <span id="lbl_sig_checked_name" class="sig-name dynamic-span editable-span" contenteditable="true">.....................</span>
+        <div class="sig-role"><span id="lbl_sig_checked_post" class="sig-post dynamic-span editable-span" contenteditable="true">..........</span></div>
+        <div class="sig-title">जाँच गर्ने</div>
+      </div>
+      <div class="sig-column">
+        <div class="sig-top-line"></div>
+        <span id="lbl_sig_issued_name" class="sig-name dynamic-span editable-span" contenteditable="true">.....................</span>
+        <div class="sig-role"><span id="lbl_sig_issued_post" class="sig-post dynamic-span editable-span" contenteditable="true">..........</span></div>
+        <div class="sig-title">जारी गर्ने</div>
+      </div>
+      <div class="sig-column" id="sigApprovedColumn" style="display:none;">
+        <div class="sig-top-line"></div>
+        <span id="lbl_sig_approved_name" class="sig-name dynamic-span editable-span" contenteditable="true">.....................</span>
+        <div class="sig-role"><span id="lbl_sig_approved_post" class="sig-post dynamic-span editable-span" contenteditable="true">..........</span></div>
+        <div class="sig-title" id="lbl_sig_approved_title">प्रतिलिपी जारी गर्ने</div>
+      </div>
+    </div>
+
+    <div class="duplicate-info-line" id="duplicateInfoLine">
+      <span><b>प्रतिलिपी कारण:</b> <span id="dup_out_reason"></span></span>
+      <span><b>प्रतिलिपी संख्या:</b> <span id="dup_out_no"></span></span>
+    </div>
+
+    <div class="bottom-office-footer">
+      <div>गलकोट नगरपालिका</div><div>भूमि व्यवस्थापन तथा भवन नियमन शाखा</div>
+    </div>
+
+    </div>
+
+    <!-- बटनहरू -->
+    <div class="print-action-box">
+      <button class="btn-issue-cert" onclick="openIssueModal()">🧾 प्रतिलिपी जारी गर्ने</button>
+      <button class="btn-submit-print" onclick="printOriginalCertificate()">🖨️ प्रमाण पत्र प्रिन्ट गर्नुस्</button>
+    </div>
+  </div>
+
+  <!-- ===== प्रमाणपत्र जारी गर्ने (कर्मचारी छनोट) Modal ===== -->
+  <div class="issue-modal-overlay" id="issueModal">
+    <div class="issue-modal-box">
+      <div class="issue-modal-title">
+        <span>🧾 प्रतिलिपी प्रमाणपत्र जारी गर्ने विवरण</span>
+        <span class="issue-modal-close" onclick="closeIssueModal()">✕</span>
+      </div>
+      <div class="issue-modal-sub">प्रतिलिपी प्रमाणपत्रमा देखिने पाँच वटा हस्ताक्षर स्थान र प्रतिलिपी विवरण भर्नुहोस् (* चिन्ह भएका मात्र अनिवार्य)।</div>
+
+      <form id="issueForm" onsubmit="submitIssueCertificate(event)">
+        <div class="issue-block" style="background:#fff5f5; border:1px dashed var(--primary-color);">
+          <div style="font-weight:700;">🧾 प्रतिलिपी प्रमाणपत्र जारी</div>
+          <div style="font-size:12px; color:#7f8c8d; margin-top:4px;">यो सधैं प्रतिलिपीको रूपमा जारी हुन्छ — मूल प्रमाणपत्रको जारी मिति/पत्र संख्या बदलिने छैन।</div>
+        </div>
+
+        <div id="issue-duplicate-fields" style="display:block;">
+          <div class="issue-block">
+            <div class="issue-block-title">प्रतिलिपी जारी गर्नुको कारण <span style="color:#c0392b;">*</span></div>
+            <div class="dup-radio-row">
+              <label><input type="radio" name="issue-dup-reason" value="हराएको" checked onchange="toggleIssueDupReasonOther()">नामसारी</label>
+              <label><input type="radio" name="issue-dup-reason" value="विवरण संशोधन" onchange="toggleIssueDupReasonOther()"> विवरण संशोधन</label>
+              <label><input type="radio" name="issue-dup-reason" value="अन्य" onchange="toggleIssueDupReasonOther()"> अन्य</label>
+            </div>
+          </div>
+
+          <div class="issue-field" id="issue-dup-reason-other-field" style="display:none;">
+            <label>कारण विवरण</label>
+            <textarea id="issue-dup-reason-other" rows="2" placeholder="कारण खुलाउनुहोस्"></textarea>
+          </div>
+
+          <div class="issue-row-two">
+            <div class="issue-field">
+              <label>प्रतिलिपी संख्या</label>
+              <input type="text" id="issue-dup-no" placeholder="प्रतिलिपी-१">
+            </div>
+            <div class="issue-field">
+              <label>प्रतिलिपी जारी मिति</label>
+              <input type="text" id="issue-dup-date" placeholder="......../......../........">
+            </div>
+          </div>
+        </div>
+
+        <div class="issue-block">
+          <div class="issue-block-title">१. तयार गर्ने</div>
+          <div class="issue-row-two">
+            <div class="issue-field">
+              <label>कर्मचारी नाम <span style="color:#c0392b;">*</span></label>
+              <select id="issue-prepared-name" required onchange="autoFillIssuePost(this,'issue-prepared-post')"><option value="">-- कर्मचारी छान्नुहोस् --</option></select>
+            </div>
+            <div class="issue-field">
+              <label>पद</label>
+              <input type="text" id="issue-prepared-post" placeholder="पद">
+            </div>
+          </div>
+        </div>
+
+        <div class="issue-block">
+          <div class="issue-block-title">२. फिल्ड निरीक्षण गर्ने</div>
+          <div class="issue-row-two">
+            <div class="issue-field">
+              <label>कर्मचारी नाम</label>
+              <select id="issue-inspected-name" onchange="autoFillIssuePost(this,'issue-inspected-post')"><option value="">-- कर्मचारी छान्नुहोस् (वैकल्पिक) --</option></select>
+            </div>
+            <div class="issue-field">
+              <label>पद</label>
+              <input type="text" id="issue-inspected-post" placeholder="पद">
+            </div>
+          </div>
+        </div>
+
+        <div class="issue-block">
+          <div class="issue-block-title">३. जाँच गर्ने</div>
+          <div class="issue-row-two">
+            <div class="issue-field">
+              <label>कर्मचारी नाम</label>
+              <select id="issue-checked-name" onchange="autoFillIssuePost(this,'issue-checked-post')"><option value="">-- कर्मचारी छान्नुहोस् (वैकल्पिक) --</option></select>
+            </div>
+            <div class="issue-field">
+              <label>पद</label>
+              <input type="text" id="issue-checked-post" placeholder="पद">
+            </div>
+          </div>
+        </div>
+
+        <div class="issue-block">
+          <div class="issue-block-title">४. जारी गर्ने</div>
+          <div class="issue-row-two">
+            <div class="issue-field">
+              <label>कर्मचारी नाम <span style="color:#c0392b;">*</span></label>
+              <select id="issue-issued-name" required onchange="autoFillIssuePost(this,'issue-issued-post')"><option value="">-- कर्मचारी छान्नुहोस् --</option></select>
+            </div>
+            <div class="issue-field">
+              <label>पद</label>
+              <input type="text" id="issue-issued-post" placeholder="पद">
+            </div>
+          </div>
+        </div>
+
+        <div class="issue-block">
+          <div class="issue-block-title">५. स्वीकृत गर्ने</div>
+          <div class="issue-row-two">
+            <div class="issue-field">
+              <label>कर्मचारी नाम</label>
+              <select id="issue-approved-name" onchange="autoFillIssuePost(this,'issue-approved-post')"><option value="">-- कर्मचारी छान्नुहोस् (वैकल्पिक) --</option></select>
+            </div>
+            <div class="issue-field">
+              <label>पद</label>
+              <input type="text" id="issue-approved-post" placeholder="पद">
+            </div>
+          </div>
+        </div>
+
+        <div id="issue-form-msg" style="display:none; font-size:12px; margin-bottom:6px; padding:8px 10px; border-radius:6px;"></div>
+
+        <div class="issue-btn-row">
+          <button type="submit" class="issue-btn-primary" id="issue-submit-btn">✅ प्रतिलिपी लागू गरी सुरक्षित गर्नुस्</button>
+          <button type="button" class="issue-btn-cancel" onclick="closeIssueModal()">रद्द गर्नुस्</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = "https://lyjokogftwtvnhwszqni.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_gxEL2-GVTVy8E0WxMBZHDQ_b5TzsDI9"; 
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let serverDatabase = [];
+    let currentSelectedRowId = null; 
+    let currentIsDuplicateMode = false; // प्रतिलिपी मोड सक्रिय छ/छैन भन्ने ट्र्याक (प्रिन्ट बटनले यसैअनुसार व्यवहार गर्छ)
+
+    document.addEventListener("DOMContentLoaded", () => {
+      loadDatabaseSnapshot();
+      setupNepaliDigitAutoConvert();
+    });
+
+    // ===== टाइप गर्दा नै अंग्रेजी अंकलाई नेपाली अंकमा स्वतः परिवर्तन गर्ने =====
+    function setupNepaliDigitAutoConvert() {
+      // Contenteditable (प्रमाणपत्रमा प्रत्यक्ष सम्पादन गरिने) फिल्डहरू
+      const editableFieldIds = [
+        'lbl_done_certificate', 'lbl_done_issued_date', 'lbl_done_chalani_no', 'lbl_house_no'
+      ];
+      editableFieldIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.addEventListener('input', () => convertFieldDigitsInPlace(el, true));
+      });
+
+      // Text input फिल्डहरू (प्रतिलिपी Modal)
+      const inputFieldIds = ['dup-no', 'dup-date'];
+      inputFieldIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.addEventListener('input', () => convertFieldDigitsInPlace(el, false));
+      });
+    }
+
+    function convertFieldDigitsInPlace(el, isContentEditable) {
+      const original = isContentEditable ? el.innerText : el.value;
+      const converted = convertToNepaliDigits(original);
+      if (converted === original) return;
+
+      if (isContentEditable) {
+        // कर्सर अन्त्यमा राख्ने गरी अपडेट गर्ने
+        el.innerText = converted;
+        const range = document.createRange();
+        const sel = window.getSelection();
+        range.selectNodeContents(el);
+        range.collapse(false);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      } else {
+        const cursorPos = el.selectionStart;
+        el.value = converted;
+        el.setSelectionRange(cursorPos, cursorPos);
+      }
+    }
+
+    async function loadDatabaseSnapshot() {
+      try {
+        const { data, error } = await _supabase.from('g_map_branch1').select('*');
+        if (error) throw error;
+        serverDatabase = data;
+        
+        // डेटा लोड भएपछि नोटिस तथ्याङ्कहरू अपडेट गर्ने
+        calculateNoticeStatistics();
+      } catch (err) { console.error("Database connection failure:", err.message); }
+    }
+
+    // नोटिसका लागि तथ्याङ्क गणना गर्ने स्वचालित फङ्गसन
+    function calculateNoticeStatistics() {
+      let approvedCount = 0;
+      let delayed2YearCount = 0;
+      let delayed4YearCount = 0;
+
+      // चालु साल (नेपाली वर्ष २०८३ लाई आधार मान्दा)
+      const currentYear = 2083;
+
+      serverDatabase.forEach(row => {
+        // १. स्थायी इजाजत दिएका संख्या (जसको प्रमाणपत्र नम्बर वा जारी मिति उपलब्ध छ)
+        if (row.done_certificate && row.done_issued_date && row.done_issued_date.includes('/')) {
+          approvedCount++;
+        } else {
+          // प्रमाणपत्र जारी नभएकाको हकमा म्याद गणना
+          let registerYear = currentYear; // डिफल्ट चालु वर्ष
+          
+          // यदि दर्ता वर्ष पत्र संख्या वा दर्ता नम्बरमा उपलब्ध भए निकाल्ने (उदा: २०७९/८०)
+          if (row.registrano && row.registrano.toString().includes('/')) {
+            const parts = row.registrano.toString().split('/');
+            const baseYear = parseInt(parts[0].replace(/[^0-9]/g, ''));
+            if (!isNaN(baseYear) && baseYear > 2000) registerYear = baseYear;
+          }
+
+          const yearsElapsed = currentYear - registerYear;
+
+          // २ वर्ष कटेका र ४ वर्ष कटेकाको वर्गिकरण
+          if (yearsElapsed >= 4) {
+            delayed4YearCount++;
+          } else if (yearsElapsed >= 2) {
+            delayed2YearCount++;
+          }
+        }
+      });
+
+      // सूचना बोर्डमा संख्या देखाउने (नेपाली अंकमा परिवर्तन गरेर)
+      document.getElementById('cnt_approved').innerText = convertToNepaliDigits(approvedCount);
+      document.getElementById('cnt_delayed_2yr').innerText = convertToNepaliDigits(delayed2YearCount);
+      document.getElementById('cnt_delayed_4yr').innerText = convertToNepaliDigits(delayed4YearCount);
+    }
+
+    function convertToNepaliDigits(value) {
+      if (value === undefined || value === null || value === '') return '०';
+      let textSource = value.toString().trim();
+      const eng = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+      const nep = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
+      for (let i = 0; i < 10; i++) {
+        const regex = new RegExp(eng[i], 'g');
+        textSource = textSource.replace(regex, nep[i]);
+      }
+      return textSource;
+    }
+
+    function searchCertificateSystem() {
+      const searchInput = document.getElementById('certSearchBox').value.toLowerCase().trim();
+      const visualContainer = document.getElementById('certificatePrintVolume');
+      const feedbackAlert = document.getElementById('emptyDisplayAlert');
+
+      if (searchInput === "") {
+        visualContainer.style.display = "none";
+        feedbackAlert.style.display = "block";
+        currentSelectedRowId = null;
+        return;
+      }
+
+      const targetMatch = serverDatabase.find(row => {
+        const rNo = row.registrano ? row.registrano.toString().toLowerCase() : '';
+        const name = row.owner ? row.owner.toLowerCase() : '';
+        const kit = row.kitta ? row.kitta.toString().toLowerCase() : '';
+        return rNo.includes(searchInput) || name.includes(searchInput) || kit.includes(searchInput);
+      });
+
+      if (targetMatch) {
+        currentSelectedRowId = targetMatch.id; 
+        setDuplicateMode(false);
+
+        document.getElementById('lbl_ward').innerText = convertToNepaliDigits(targetMatch.ward);
+        document.getElementById('lbl_ward_two').innerText = convertToNepaliDigits(targetMatch.ward);
+        document.getElementById('lbl_kitta').innerText = convertToNepaliDigits(targetMatch.kitta);
+        document.getElementById('lbl_owner').innerText = targetMatch.owner || '';
+        document.getElementById('lbl_owner_two').innerText = targetMatch.owner || '';
+        document.getElementById('lbl_tole').innerText = targetMatch.tole || '.........';
+        document.getElementById('lbl_tole_two').innerText = targetMatch.tole || '.........';
+        document.getElementById('lbl_road_width').innerText = targetMatch.road_width ? convertToNepaliDigits(targetMatch.road_width) : '.........';
+        
+        document.getElementById('lbl_done_issued_date').innerText = targetMatch.done_issued_date ? convertToNepaliDigits(targetMatch.done_issued_date) : '......../......../........';
+        document.getElementById('lbl_done_certificate').innerText = targetMatch.done_certificate ? convertToNepaliDigits(targetMatch.done_certificate) : '२०८२/२०८३';
+        document.getElementById('lbl_done_chalani_no').innerText = targetMatch.done_chalani_no ? convertToNepaliDigits(targetMatch.done_chalani_no) : '............';
+        document.getElementById('lbl_house_no').innerText = targetMatch.house_no ? convertToNepaliDigits(targetMatch.house_no) : '.....';
+
+        document.getElementById('lbl_tot_length').innerText = targetMatch.tot_length ? convertToNepaliDigits(targetMatch.tot_length) : '---';
+        document.getElementById('lbl_tot_width').innerText = targetMatch.tot_width ? convertToNepaliDigits(targetMatch.tot_width) : '---';
+        document.getElementById('lbl_tot_height').innerText = targetMatch.tot_height ? convertToNepaliDigits(targetMatch.tot_height) : '---';
+        document.getElementById('lbl_tot_height_two').innerText = targetMatch.tot_height ? convertToNepaliDigits(targetMatch.tot_height) : '---';
+        document.getElementById('lbl_total_floors').innerText = convertToNepaliDigits(targetMatch.total_floors);
+        
+        document.getElementById('lbl_savik_gavis').innerText = targetMatch.savik_gavis || '................';
+        document.getElementById('lbl_savik_ward').innerText = convertToNepaliDigits(targetMatch.savik_ward);
+        document.getElementById('lbl_area').innerText = targetMatch.area ? convertToNepaliDigits(targetMatch.area) : '.........';
+        document.getElementById('lbl_father').innerText = targetMatch.father || '................';
+        document.getElementById('lbl_grandfather').innerText = targetMatch.grandfather || '................';
+
+        document.getElementById('lbl_east').innerText = targetMatch.east || '................';
+        document.getElementById('lbl_west').innerText = targetMatch.west || '................';
+        document.getElementById('lbl_north').innerText = targetMatch.north || '................';
+        document.getElementById('lbl_south').innerText = targetMatch.south || '................';
+
+        document.getElementById('lbl_roadce').innerText = targetMatch.roadce ? convertToNepaliDigits(targetMatch.roadce) : '---';
+        document.getElementById('lbl_roadcex').innerText = targetMatch.roadcex ? convertToNepaliDigits(targetMatch.roadcex) : '---';
+        document.getElementById('lbl_setbac').innerText = targetMatch.setbac ? convertToNepaliDigits(targetMatch.setbac) : '---';
+        document.getElementById('lbl_setbacx').innerText = targetMatch.setbacx ? convertToNepaliDigits(targetMatch.setbacx) : '---';
+        document.getElementById('lbl_river').innerText = targetMatch.river ? convertToNepaliDigits(targetMatch.river) : '---';
+        document.getElementById('lbl_riverx').innerText = targetMatch.riverx ? convertToNepaliDigits(targetMatch.riverx) : '---';
+        document.getElementById('lbl_land').innerText = targetMatch.land ? convertToNepaliDigits(targetMatch.land) : '---';
+        document.getElementById('lbl_landb').innerText = targetMatch.landb ? convertToNepaliDigits(targetMatch.landb) : '---';
+
+        let floors = ['base_a', 'semi_a', 'ground_a', '1st_a', '2nd_a', '3rd_a', '4th_a', '5th_a'];
+        floors.forEach(f => {
+          let val = targetMatch['f_' + f] ? convertToNepaliDigits(targetMatch['f_' + f]) : '-';
+          document.getElementById(`cell_p_${f}`).innerText = val;
+          document.getElementById(`cell_f_${f}`).innerText = val;
+        });
+
+        let val_total = targetMatch.tot_area ? convertToNepaliDigits(targetMatch.tot_area) : '०.००';
+        document.getElementById('cell_p_tot_area').innerText = val_total;
+        document.getElementById('cell_f_tot_area').innerText = val_total;
+
+        feedbackAlert.style.display = "none";
+        visualContainer.style.display = "block";
+      } else {
+        visualContainer.style.display = "none";
+        feedbackAlert.style.display = "block";
+        feedbackAlert.innerText = "❌ विवरण फेला परेन। कृपया सही विवरण फेरि टाईप गर्नुहोला।";
+        currentSelectedRowId = null;
+      }
+    }
+
+    // ध्यान दिनुहोस्: यो फंक्शनले मूल प्रमाण पत्र (g_map_branch1) को done_* फिल्डहरू अपडेट गर्छ।
+    // यो केवल "प्रमाणपत्र जारी गर्ने" बाट मात्र कल हुनुपर्छ — "प्रतिलिपी जारी गर्ने" प्रवाहबाट कहिल्यै होइन,
+    // किनभने प्रतिलिपी (duplicate) मूल प्रमाण पत्र होइन र यसले मूल रेकर्डको जारी मिति/पत्र संख्या बदल्नु हुँदैन।
+    // प्रतिलिपीको विवरण छुट्टै 'certificate_duplicates' तालिकामा (submitDuplicateCertificate मार्फत) सुरक्षित हुन्छ।
+    async function saveCertificateMetadata() {
+      if (!currentSelectedRowId) {
+        alert("कुनै रेकर्ड छानिएको छैन!");
+        return false;
+      }
+
+      const doneIssuedDate = document.getElementById('lbl_done_issued_date').innerText.trim();
+      const doneCertificate = document.getElementById('lbl_done_certificate').innerText.trim();
+      const doneChalaniNo = document.getElementById('lbl_done_chalani_no').innerText.trim();
+      const houseNo = document.getElementById('lbl_house_no').innerText.trim();
+
+      // पाँचै हस्ताक्षर स्थानका नाम/पद पनि सुरक्षित गर्ने, ताकि प्रिन्ट गर्दा सम्पूर्ण प्रमाणपत्र नै supabase मा जोगिन्छ
+      const sigPreparedName = document.getElementById('lbl_sig_prepared_name').innerText.trim();
+      const sigPreparedPost = document.getElementById('lbl_sig_prepared_post').innerText.trim();
+      const sigInspectedName = document.getElementById('lbl_sig_inspected_name').innerText.trim();
+      const sigInspectedPost = document.getElementById('lbl_sig_inspected_post').innerText.trim();
+      const sigCheckedName = document.getElementById('lbl_sig_checked_name').innerText.trim();
+      const sigCheckedPost = document.getElementById('lbl_sig_checked_post').innerText.trim();
+      const sigIssuedName = document.getElementById('lbl_sig_issued_name').innerText.trim();
+      const sigIssuedPost = document.getElementById('lbl_sig_issued_post').innerText.trim();
+      const sigApprovedName = document.getElementById('lbl_sig_approved_name').innerText.trim();
+      const sigApprovedPost = document.getElementById('lbl_sig_approved_post').innerText.trim();
+
+      try {
+        const { error } = await _supabase
+          .from('g_map_branch1')
+          .update({ 
+            done_issued_date: doneIssuedDate,
+            done_certificate: doneCertificate,
+            done_chalani_no: doneChalaniNo,
+            house_no: houseNo,
+            sig_prepared_name: sigPreparedName,
+            sig_prepared_post: sigPreparedPost,
+            sig_inspected_name: sigInspectedName,
+            sig_inspected_post: sigInspectedPost,
+            sig_checked_name: sigCheckedName,
+            sig_checked_post: sigCheckedPost,
+            sig_issued_name: sigIssuedName,
+            sig_issued_post: sigIssuedPost,
+            sig_approved_name: sigApprovedName,
+            sig_approved_post: sigApprovedPost
+          })
+          .eq('id', currentSelectedRowId);
+
+        if (error) throw error;
+
+        loadDatabaseSnapshot();
+        return true;
+      } catch (err) {
+        alert("❌ जारी मिति र विवरण सुरक्षित गर्न सकिएन: " + err.message);
+        return false;
+      }
+    }
+
+    // ===== सामान्य (मूल) प्रमाण पत्र प्रिन्ट गर्नुअघि प्रतिलिपी मोड निष्क्रिय गर्ने, अनि प्रिन्ट हुनुअघि नै सम्पूर्ण प्रमाणपत्र supabase मा save गर्ने =====
+    async function printOriginalCertificate() {
+      if (!currentSelectedRowId) {
+        alert("पहिले माथिको सर्च बक्सबाट कुनै रेकर्ड छान्नुहोस्!");
+        return;
+      }
+      // यदि प्रतिलिपी पहिले नै सुरक्षित भई देखिइरहेको छ भने, त्यही मोडमा नै प्रिन्ट गर्ने
+      // (सामान्य मोडमा फर्काएर वाटरमार्क/जानकारी हराउनु हुँदैन)। अन्यथा सामान्य प्रमाणपत्रको रूपमा सुरक्षित गरी प्रिन्ट गर्ने।
+      if (!currentIsDuplicateMode) {
+        setDuplicateMode(false);
+        await saveCertificateMetadata();
+      }
+      window.print();
+    }
+
+    function setDuplicateMode(isDuplicate) {
+      currentIsDuplicateMode = isDuplicate;
+      const watermark = document.getElementById('duplicateWatermark');
+      const infoLine = document.getElementById('duplicateInfoLine');
+      const approvedColumn = document.getElementById('sigApprovedColumn');
+      const approvedTitle = document.getElementById('lbl_sig_approved_title');
+      if (isDuplicate) {
+        watermark.classList.add('print-show');
+        infoLine.classList.add('print-show');
+        // प्रतिलिपी भएमा: ५औं स्थानमा "प्रतिलिपी जारी गर्ने" देखाउने
+        approvedColumn.style.display = '';
+        approvedTitle.innerText = 'प्रतिलिपी जारी गर्ने';
+      } else {
+        watermark.classList.remove('print-show');
+        infoLine.classList.remove('print-show');
+        // सामान्य प्रमाणपत्रमा: ५औं स्थान लुकाएर ४ जनामा मात्र सीमित गर्ने
+        approvedColumn.style.display = 'none';
+        approvedTitle.innerText = 'स्वीकृत गर्ने';
+      }
+    }
+
+    // कर्मचारी सूची क्यास (issue modal ले प्रयोग गर्छ)
+    let systemEmployeesCache = [];
+
+    // प्रिन्ट सकिएपछि प्रतिलिपी मोड बन्द गर्ने (ताकि अर्को पटक सामान्य प्रिन्ट सफा होस्)
+    window.addEventListener('afterprint', () => setDuplicateMode(false));
+
+    // ===== प्रमाणपत्र जारी गर्ने (कर्मचारी छनोट) Modal नियन्त्रण =====
+    async function loadSystemEmployeesForIssue() {
+      const selects = [
+        document.getElementById('issue-prepared-name'),
+        document.getElementById('issue-inspected-name'),
+        document.getElementById('issue-checked-name'),
+        document.getElementById('issue-issued-name'),
+        document.getElementById('issue-approved-name')
+      ];
+
+      if (systemEmployeesCache.length === 0) {
+        try {
+          const { data, error } = await _supabase
+            .from('employees')
+            .select('name, post')
+            .order('name', { ascending: true });
+          if (error) throw error;
+          systemEmployeesCache = data || [];
+        } catch (err) {
+          console.error('कर्मचारी सूची ल्याउन सकिएन:', err.message);
+        }
+      }
+
+      selects.forEach(sel => {
+        const currentVal = sel.value;
+        sel.innerHTML = '<option value="">-- कर्मचारी छान्नुहोस् --</option>' +
+          systemEmployeesCache.map(u => `<option value="${u.name}" data-role="${u.post || ''}">${u.name}${u.post ? ' (' + u.post + ')' : ''}</option>`).join('');
+        if (currentVal) sel.value = currentVal;
+      });
+    }
+
+    function autoFillIssuePost(selectEl, postFieldId) {
+      const selectedOption = selectEl.options[selectEl.selectedIndex];
+      const role = selectedOption ? selectedOption.getAttribute('data-role') : '';
+      const postField = document.getElementById(postFieldId);
+      if (role) postField.value = role;
+    }
+
+    function openIssueModal() {
+      if (!currentSelectedRowId) {
+        alert("पहिले माथिको सर्च बक्सबाट कुनै रेकर्ड छान्नुहोस्!");
+        return;
+      }
+      const msg = document.getElementById('issue-form-msg');
+      msg.style.display = 'none';
+
+      // प्रतिलिपी फिल्डहरू प्रत्येक पटक खोल्दा रिसेट गर्ने
+      document.getElementById('issue-dup-no').value = '';
+      document.getElementById('issue-dup-date').value = '';
+      document.getElementById('issue-dup-reason-other').value = '';
+      document.querySelector('input[name="issue-dup-reason"][value="हराएको"]').checked = true;
+      toggleIssueDuplicateFields();
+
+      loadSystemEmployeesForIssue().then(() => {
+        // पहिल्यै प्रमाणपत्रमा भएको विवरण भए selects मा पूर्व-चयन गर्ने
+        const presetPrepared = document.getElementById('lbl_sig_prepared_name').innerText.trim();
+        const presetInspected = document.getElementById('lbl_sig_inspected_name').innerText.trim();
+        const presetChecked = document.getElementById('lbl_sig_checked_name').innerText.trim();
+        const presetIssued = document.getElementById('lbl_sig_issued_name').innerText.trim();
+        const presetApproved = document.getElementById('lbl_sig_approved_name').innerText.trim();
+
+        if (presetPrepared && !presetPrepared.startsWith('.')) document.getElementById('issue-prepared-name').value = presetPrepared;
+        if (presetInspected && !presetInspected.startsWith('.')) document.getElementById('issue-inspected-name').value = presetInspected;
+        if (presetChecked && !presetChecked.startsWith('.')) document.getElementById('issue-checked-name').value = presetChecked;
+        if (presetIssued && !presetIssued.startsWith('.')) document.getElementById('issue-issued-name').value = presetIssued;
+        if (presetApproved && !presetApproved.startsWith('.')) document.getElementById('issue-approved-name').value = presetApproved;
+
+        document.getElementById('issue-prepared-post').value = document.getElementById('lbl_sig_prepared_post').innerText.trim().replace(/^\.+$/, '');
+        document.getElementById('issue-inspected-post').value = document.getElementById('lbl_sig_inspected_post').innerText.trim().replace(/^\.+$/, '');
+        document.getElementById('issue-checked-post').value = document.getElementById('lbl_sig_checked_post').innerText.trim().replace(/^\.+$/, '');
+        document.getElementById('issue-issued-post').value = document.getElementById('lbl_sig_issued_post').innerText.trim().replace(/^\.+$/, '');
+        document.getElementById('issue-approved-post').value = document.getElementById('lbl_sig_approved_post').innerText.trim().replace(/^\.+$/, '');
+      });
+
+      document.getElementById('issueModal').classList.add('show');
+    }
+
+    function closeIssueModal() {
+      document.getElementById('issueModal').classList.remove('show');
+    }
+
+    // प्रतिलिपी-मात्रका फिल्डहरू सधैं देखाउने र सुझाव नम्बर भर्ने
+    function toggleIssueDuplicateFields() {
+      document.getElementById('issue-duplicate-fields').style.display = 'block';
+
+      const suggestBox = document.getElementById('issue-dup-no');
+      if (!suggestBox.value) {
+        const origCertNo = document.getElementById('lbl_done_certificate').innerText.trim();
+        suggestBox.value = origCertNo ? (origCertNo + '-प्रतिलिपी') : '';
+      }
+
+      const btn = document.getElementById('issue-submit-btn');
+      btn.innerText = '✅ प्रतिलिपी लागू गरी सुरक्षित गर्नुस्';
+    }
+
+    function toggleIssueDupReasonOther() {
+      const isOther = document.querySelector('input[name="issue-dup-reason"]:checked')?.value === 'अन्य';
+      document.getElementById('issue-dup-reason-other-field').style.display = isOther ? 'block' : 'none';
+    }
+
+    // प्रतिलिपी मात्रको जानकारी 'certificate_duplicates' तालिकामा सुरक्षित गर्ने।
+    // यसले मूल प्रमाण पत्रको (g_map_branch1) done_* फिल्ड कहिल्यै छुँदैन — किनभने यो प्रतिलिपी हो, मूल प्रमाणपत्र होइन।
+    async function saveIssuedDuplicate() {
+      const reasonChoice = document.querySelector('input[name="issue-dup-reason"]:checked')?.value || '';
+      const reasonOther = document.getElementById('issue-dup-reason-other').value.trim();
+      const finalReason = reasonChoice === 'अन्य' && reasonOther ? reasonOther : reasonChoice;
+
+      const dupNo = document.getElementById('issue-dup-no').value.trim();
+      const dupDate = document.getElementById('issue-dup-date').value.trim();
+      const inspectedBy = document.getElementById('issue-inspected-name').value;
+      const checkedBy = document.getElementById('issue-checked-name').value;
+      const issuedBy = document.getElementById('issue-issued-name').value;
+      const approvedBy = document.getElementById('issue-approved-name').value;
+
+      try {
+        const { error } = await _supabase.from('certificate_duplicates').insert([{
+          map_branch_id: currentSelectedRowId,
+          reason: finalReason || null,
+          duplicate_no: dupNo || null,
+          duplicate_date: dupDate || null,
+          inspected_by: inspectedBy || null,
+          checked_by: checkedBy || null,
+          issued_by: issuedBy || null,
+          approved_by: approvedBy || null
+        }]);
+        if (error) throw error;
+
+        // प्रमाणपत्रमा प्रतिलिपी कारण र संख्या मात्र देखाउने
+        document.getElementById('dup_out_reason').innerText = finalReason || '—';
+        document.getElementById('dup_out_no').innerText = dupNo ? convertToNepaliDigits(dupNo) : '—';
+
+        setDuplicateMode(true);
+        return true;
+      } catch (err) {
+        alert("❌ प्रतिलिपी सुरक्षित गर्न सकिएन: " + err.message);
+        return false;
+      }
+    }
+
+    async function submitIssueCertificate(e) {
+      e.preventDefault();
+
+      const preparedName = document.getElementById('issue-prepared-name').value;
+      const preparedPost = document.getElementById('issue-prepared-post').value.trim();
+      const inspectedName = document.getElementById('issue-inspected-name').value;
+      const inspectedPost = document.getElementById('issue-inspected-post').value.trim();
+      const checkedName = document.getElementById('issue-checked-name').value;
+      const checkedPost = document.getElementById('issue-checked-post').value.trim();
+      const issuedName = document.getElementById('issue-issued-name').value;
+      const issuedPost = document.getElementById('issue-issued-post').value.trim();
+      const approvedName = document.getElementById('issue-approved-name').value;
+      const approvedPost = document.getElementById('issue-approved-post').value.trim();
+
+      // सबै फिल्ड अनिवार्य होइनन् — "तयार गर्ने" र "जारी गर्ने" मात्र अनिवार्य
+      if (!preparedName || !issuedName) {
+        const msg = document.getElementById('issue-form-msg');
+        msg.className = '';
+        msg.style.cssText = 'display:block; font-size:12px; margin-bottom:6px; padding:8px 10px; border-radius:6px; background:#fdecea; color:#c0392b; border:1px solid #f5b7b1;';
+        msg.innerText = '❌ कृपया कम्तिमा "तयार गर्ने" र "जारी गर्ने" स्थानका लागि कर्मचारी छान्नुहोस्।';
+        return;
+      }
+
+      document.getElementById('lbl_sig_prepared_name').innerText = preparedName;
+      document.getElementById('lbl_sig_prepared_post').innerText = preparedPost || '..........';
+      document.getElementById('lbl_sig_inspected_name').innerText = inspectedName || '.....................';
+      document.getElementById('lbl_sig_inspected_post').innerText = inspectedPost || '..........';
+      document.getElementById('lbl_sig_checked_name').innerText = checkedName || '.....................';
+      document.getElementById('lbl_sig_checked_post').innerText = checkedPost || '..........';
+      document.getElementById('lbl_sig_issued_name').innerText = issuedName;
+      document.getElementById('lbl_sig_issued_post').innerText = issuedPost || '..........';
+      document.getElementById('lbl_sig_approved_name').innerText = approvedName || '.....................';
+      document.getElementById('lbl_sig_approved_post').innerText = approvedPost || '..........';
+
+      const btn = document.getElementById('issue-submit-btn');
+      const msg = document.getElementById('issue-form-msg');
+      btn.disabled = true;
+      btn.innerText = 'सुरक्षित हुँदैछ...';
+
+      // सधैं प्रतिलिपीको रूपमा मात्र certificate_duplicates तालिकामा सुरक्षित हुने
+      const saved = await saveIssuedDuplicate();
+
+      btn.disabled = false;
+      toggleIssueDuplicateFields();
+
+      if (!saved) {
+        msg.className = '';
+        msg.style.cssText = 'display:block; font-size:12px; margin-bottom:6px; padding:8px 10px; border-radius:6px; background:#fdecea; color:#c0392b; border:1px solid #f5b7b1;';
+        msg.innerText = '⚠️ हस्ताक्षर विवरण लागू भयो, तर प्रतिलिपी विवरण सुरक्षित गर्न सकिएन।';
+        return;
+      }
+
+      closeIssueModal();
+      // प्रतिलिपी सुरक्षित भएपछि सिधै प्रिन्ट नहुने — वाटरमार्क/जानकारी सहित प्रमाणपत्र स्क्रिनमा देखिइरहन्छ,
+      // प्रयोगकर्ताले तल्लो "🖨️ प्रमाण पत्र प्रिन्ट गर्नुस्" बटन थिचेपछि मात्र प्रिन्ट हुन्छ।
+    }
+  </script>
+</body>
+</html>
