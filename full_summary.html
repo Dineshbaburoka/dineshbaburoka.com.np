@@ -179,7 +179,7 @@
   <div id="employeeModal" class="fixed inset-0 bg-[#0c2461]/55 z-[1000] hidden justify-center items-center px-4">
     <div class="bg-white w-full max-w-[480px] rounded-2xl p-6 md:p-7 shadow-2xl border-t-[6px] border-[#0c2461] max-h-[90vh] overflow-y-auto custom-scrollbar">
       <div class="flex items-center justify-between mb-5">
-        <div class="text-base font-bold text-[#0c2461] flex items-center gap-2">
+        <div class="text-base font-bold text-[#0c2461] flex items-center gap-2" id="employee-modal-title">
           <i class="fa-solid fa-user-plus"></i> कर्मचारी सिर्जना गर्नुहोस्
         </div>
         <button onclick="closeEmployeeModal()" class="text-gray-400 hover:text-gray-600 text-lg leading-none">
@@ -188,6 +188,7 @@
       </div>
 
       <form id="employeeForm" class="space-y-3.5" onsubmit="submitEmployee(event)">
+        <input type="hidden" id="emp-id" value="">
         <div>
           <label class="block text-[11px] font-semibold text-gray-600 mb-1">पूरा नाम <span class="text-red-500">*</span></label>
           <input type="text" id="emp-name" required class="w-full border border-gray-300 rounded-md px-3 py-2 text-xs focus:outline-none focus:border-blue-500" placeholder="कर्मचारीको पूरा नाम">
@@ -222,7 +223,7 @@
 
         <div class="flex gap-2 pt-1">
           <button type="submit" id="emp-submit-btn" class="flex-1 py-2.5 rounded-lg text-white text-xs font-semibold bg-[#0c2461] hover:bg-[#09194d] transition-colors flex items-center justify-center gap-2">
-            <i class="fa-solid fa-floppy-disk"></i> सुरक्षित गर्नुहोस्
+            <i class="fa-solid fa-floppy-disk"></i> <span id="emp-submit-btn-label">सुरक्षित गर्नुहोस्</span>
           </button>
           <button type="button" onclick="closeEmployeeModal()" class="px-5 py-2.5 rounded-lg text-xs font-medium text-white bg-gray-400 hover:bg-gray-500 transition-colors">
             रद्द गर्नुहोस्
@@ -255,6 +256,7 @@
               <th class="px-3 py-2 text-left">संकेत नं.</th>
               <th class="px-3 py-2 text-left">मोबाइल</th>
               <th class="px-3 py-2 text-left">वडा/शाखा</th>
+              <th class="px-3 py-2 text-center">कार्य</th>
             </tr>
           </thead>
           <tbody id="employee-list-body" class="divide-y divide-gray-100"></tbody>
@@ -398,12 +400,37 @@
     window.location.href = page;
   }
 
-  // ===== कर्मचारी सिर्जना Modal नियन्त्रण =====
-  function openEmployeeModal() {
+  // ===== कर्मचारी सिर्जना / सम्पादन Modal नियन्त्रण =====
+  let employee_rows_cache = [];
+
+  function openEmployeeModal(editId) {
     document.getElementById('employeeForm').reset();
+    document.getElementById('emp-id').value = '';
     const msg = document.getElementById('emp-form-msg');
     msg.classList.add('hidden');
     msg.innerText = '';
+
+    const titleEl = document.getElementById('employee-modal-title');
+    const btnLabel = document.getElementById('emp-submit-btn-label');
+
+    if (editId) {
+      const row = employee_rows_cache.find(r => String(r.id) === String(editId));
+      if (row) {
+        document.getElementById('emp-id').value = row.id;
+        document.getElementById('emp-name').value = row.name || '';
+        document.getElementById('emp-post').value = row.post || '';
+        document.getElementById('emp-code').value = row.code_number || '';
+        document.getElementById('emp-mobile').value = row.mobile || '';
+        document.getElementById('emp-ward').value = row.ward || '';
+        document.getElementById('emp-details').value = row.details || '';
+      }
+      titleEl.innerHTML = '<i class="fa-solid fa-user-pen"></i> कर्मचारी सम्पादन गर्नुहोस्';
+      btnLabel.innerText = 'अपडेट गर्नुहोस्';
+    } else {
+      titleEl.innerHTML = '<i class="fa-solid fa-user-plus"></i> कर्मचारी सिर्जना गर्नुहोस्';
+      btnLabel.innerText = 'सुरक्षित गर्नुहोस्';
+    }
+
     const modal = document.getElementById('employeeModal');
     modal.classList.remove('hidden');
     modal.classList.add('flex');
@@ -417,7 +444,11 @@
   async function submitEmployee(e) {
     e.preventDefault();
     const btn = document.getElementById('emp-submit-btn');
+    const btnLabel = document.getElementById('emp-submit-btn-label');
     const msg = document.getElementById('emp-form-msg');
+    const empId = document.getElementById('emp-id').value;
+    const isEdit = !!empId;
+
     const payload = {
       name: document.getElementById('emp-name').value.trim(),
       post: document.getElementById('emp-post').value.trim(),
@@ -428,15 +459,21 @@
     };
 
     btn.disabled = true;
-    btn.innerHTML = '<i class="fa-solid fa-circle-notch spin"></i> सुरक्षित हुँदैछ...';
+    btn.querySelector('i').className = 'fa-solid fa-circle-notch spin';
+    btnLabel.innerText = isEdit ? 'अपडेट हुँदैछ...' : 'सुरक्षित हुँदैछ...';
     msg.classList.add('hidden');
 
     try {
-      const { error } = await _supabase.from('employees').insert([payload]);
+      let error;
+      if (isEdit) {
+        ({ error } = await _supabase.from('employees').update(payload).eq('id', empId));
+      } else {
+        ({ error } = await _supabase.from('employees').insert([payload]));
+      }
       if (error) throw error;
 
       msg.className = 'text-[11px] text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-md px-3 py-2';
-      msg.innerText = '✅ कर्मचारी सफलतापूर्वक सुरक्षित भयो।';
+      msg.innerText = isEdit ? '✅ कर्मचारी सफलतापूर्वक अपडेट भयो।' : '✅ कर्मचारी सफलतापूर्वक सुरक्षित भयो।';
       msg.classList.remove('hidden');
       document.getElementById('employeeForm').reset();
       setTimeout(() => { closeEmployeeModal(); }, 900);
@@ -446,7 +483,8 @@
       msg.classList.remove('hidden');
     } finally {
       btn.disabled = false;
-      btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> सुरक्षित गर्नुहोस्';
+      btn.querySelector('i').className = 'fa-solid fa-floppy-disk';
+      btnLabel.innerText = isEdit ? 'अपडेट गर्नुहोस्' : 'सुरक्षित गर्नुहोस्';
     }
   }
 
@@ -474,22 +512,46 @@
       const { data, error } = await _supabase.from('employees').select('*').order('id', { ascending: false });
       if (error) throw error;
 
-      if (!data || data.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="text-center text-gray-400 py-8">कुनै कर्मचारी फेला परेन</td></tr>`;
+      employee_rows_cache = data || [];
+
+      if (employee_rows_cache.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center text-gray-400 py-8">कुनै कर्मचारी फेला परेन</td></tr>`;
       } else {
-        tbody.innerHTML = data.map((r, i) => `
+        tbody.innerHTML = employee_rows_cache.map((r, i) => `
           <tr class="${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/40'}">
             <td class="px-3 py-2 whitespace-nowrap">${fmtVal(r.name)}</td>
             <td class="px-3 py-2 whitespace-nowrap">${fmtVal(r.post)}</td>
             <td class="px-3 py-2 whitespace-nowrap">${fmtVal(r.code_number)}</td>
             <td class="px-3 py-2 whitespace-nowrap">${fmtVal(r.mobile)}</td>
             <td class="px-3 py-2 whitespace-nowrap">${fmtVal(r.ward)}</td>
+            <td class="px-3 py-2 whitespace-nowrap text-center">
+              <button onclick="openEmployeeModal(${r.id})" class="text-blue-600 hover:text-blue-800 mr-2" title="सम्पादन गर्नुहोस्">
+                <i class="fa-solid fa-pen-to-square"></i>
+              </button>
+              <button onclick="deleteEmployee(${r.id})" class="text-red-600 hover:text-red-800" title="मेटाउनुहोस्">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </td>
           </tr>`).join('');
       }
       loading.classList.add('hidden');
       table.classList.remove('hidden');
     } catch (err) {
       loading.innerHTML = '<span class="text-red-500 text-xs">❌ लोड गर्न सकिएन: ' + err.message + '</span>';
+    }
+  }
+
+  async function deleteEmployee(id) {
+    const row = employee_rows_cache.find(r => String(r.id) === String(id));
+    const displayName = row ? row.name : '';
+    if (!confirm('के तपाईं "' + displayName + '" लाई मेटाउन निश्चित हुनुहुन्छ?')) return;
+
+    try {
+      const { error } = await _supabase.from('employees').delete().eq('id', id);
+      if (error) throw error;
+      loadEmployeeList();
+    } catch (err) {
+      alert('❌ मेटाउन सकिएन: ' + (err.message || 'अज्ञात त्रुटि'));
     }
   }
 
