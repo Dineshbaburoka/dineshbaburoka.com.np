@@ -202,13 +202,6 @@
           <label class="block text-[11px] font-semibold text-gray-600 mb-1">पद <span class="text-red-500">*</span></label>
           <select id="emp-post" required onchange="toggleEmpPostOther()" class="w-full border border-gray-300 rounded-md px-3 py-2 text-xs focus:outline-none focus:border-blue-500">
             <option value="">-- पद छान्नुहोस् --</option>
-            <option value="फाँटवाला">फाँटवाला</option>
-            <option value="सव-इन्जिनियर">सव-इन्जिनियर</option>
-            <option value="इन्जिनियर">इन्जिनियर</option>
-            <option value="प्रशासकीय सहायक">प्रशासकीय सहायक</option>
-            <option value="वडा सचिव">वडा सचिव</option>
-            <option value="प्रमुख प्रशासकीय अधिकृत">प्रमुख प्रशासकीय अधिकृत</option>
-            <option value="कन्सल्टेन्सी">कन्सल्टेन्सी</option>
             <option value="अन्य">अन्य (आफै टाइप गर्नुहोस्)</option>
           </select>
           <input type="text" id="emp-post-other" style="display:none;" class="w-full border border-gray-300 rounded-md px-3 py-2 text-xs mt-2 focus:outline-none focus:border-blue-500" placeholder="पद टाइप गर्नुहोस्">
@@ -503,9 +496,10 @@
   let employee_rows_cache = [];
   let employeeModalOpenedFromList = false;
 
-  function openEmployeeModal(editId) {
+  async function openEmployeeModal(editId) {
     document.getElementById('employeeForm').reset();
     document.getElementById('emp-id').value = '';
+    await loadEmpPostOptions();
     setEmpPostValue('');
     const msg = document.getElementById('emp-form-msg');
     msg.classList.add('hidden');
@@ -572,6 +566,55 @@
     const isOther = document.getElementById('emp-post').value === 'अन्य';
     document.getElementById('emp-post-other').style.display = isOther ? 'block' : 'none';
     document.getElementById('emp-post-other').required = isOther;
+  }
+
+  // ===== पद (Post) सूची Database (employees table) बाट Dynamic रूपमा ल्याउने =====
+  let empPostOptionsLoaded = false;
+
+  async function loadEmpPostOptions() {
+    try {
+      const { data, error } = await _supabase
+        .from('employees')
+        .select('post')
+        .not('post', 'is', null);
+      if (error) throw error;
+
+      // डुप्लिकेट हटाई, खाली मान हटाई, नेपाली वर्णानुक्रममा मिलाउने
+      const uniquePosts = Array.from(
+        new Set((data || []).map(r => (r.post || '').trim()).filter(Boolean))
+      ).sort((a, b) => a.localeCompare(b, 'ne'));
+
+      const select = document.getElementById('emp-post');
+      const currentValue = select.value;
+
+      // पुराना विकल्प हटाई फेरि बनाउने ('' र 'अन्य' बाहेक)
+      select.innerHTML = '';
+      const optDefault = document.createElement('option');
+      optDefault.value = '';
+      optDefault.innerText = '-- पद छान्नुहोस् --';
+      select.appendChild(optDefault);
+
+      uniquePosts.forEach(post => {
+        const opt = document.createElement('option');
+        opt.value = post;
+        opt.innerText = post;
+        select.appendChild(opt);
+      });
+
+      const optOther = document.createElement('option');
+      optOther.value = 'अन्य';
+      optOther.innerText = 'अन्य (आफै टाइप गर्नुहोस्)';
+      select.appendChild(optOther);
+
+      // पहिले छानिएको मान भए फर्काउने
+      if (currentValue && Array.from(select.options).some(o => o.value === currentValue)) {
+        select.value = currentValue;
+      }
+
+      empPostOptionsLoaded = true;
+    } catch (err) {
+      console.error('पद सूची लोड गर्न समस्या:', err);
+    }
   }
 
   // पद select मा कुनै पूर्वनिर्धारित सूचीमा नभएको मान भए 'अन्य' मा राखी text box मा देखाउने
