@@ -220,7 +220,7 @@
         </div>
 
         <div id="emp-issystem-block" class="border-t pt-3.5">
-          <label class="block text-[11px] font-semibold text-gray-600 mb-2">यो कर्मचारीलाई System (Login) प्रयोगकर्ता बनाउने हो?</label>
+          <label class="block text-[11px] font-semibold text-gray-600 mb-2" id="emp-issystem-label">यो कर्मचारीलाई System (Login) प्रयोगकर्ता बनाउने हो?</label>
           <div class="flex gap-4">
             <label class="flex items-center gap-1.5 text-xs cursor-pointer">
               <input type="radio" name="emp-issystem" value="yes" onchange="toggleSystemUserFields()"> हो
@@ -450,7 +450,7 @@
 
     const titleEl = document.getElementById('employee-modal-title');
     const btnLabel = document.getElementById('emp-submit-btn-label');
-    const issystemBlock = document.getElementById('emp-issystem-block');
+    const issystemLabel = document.getElementById('emp-issystem-label');
 
     // टगल हरेक पटक 'होइन' मा रिसेट गर्ने
     document.querySelector('input[name="emp-issystem"][value="no"]').checked = true;
@@ -469,8 +469,8 @@
       }
       titleEl.innerHTML = '<i class="fa-solid fa-user-pen"></i> कर्मचारी सम्पादन गर्नुहोस्';
       btnLabel.innerText = 'अपडेट गर्नुहोस्';
-      // सम्पादनको बेला System User सिर्जना गर्ने विकल्प देखाइँदैन (त्यो create-मात्रको लागि हो)
-      issystemBlock.classList.add('hidden');
+      // सम्पादनमा पनि System User विकल्प देखाइन्छ, ताकि पहिले नबनाइएको भए अहिले थप्न मिलोस्
+      issystemLabel.innerText = 'यो कर्मचारीको लागि System (Login) प्रयोगकर्ता खाता पनि थप्ने हो?';
 
       // सम्पादन गर्दा कर्मचारी सूची Modal लाई लुकाउने
       const listModal = document.getElementById('employeeListModal');
@@ -482,7 +482,7 @@
     } else {
       titleEl.innerHTML = '<i class="fa-solid fa-user-plus"></i> कर्मचारी सिर्जना गर्नुहोस्';
       btnLabel.innerText = 'सुरक्षित गर्नुहोस्';
-      issystemBlock.classList.remove('hidden');
+      issystemLabel.innerText = 'यो कर्मचारीलाई System (Login) प्रयोगकर्ता बनाउने हो?';
       employeeModalOpenedFromList = false;
     }
 
@@ -538,7 +538,7 @@
       details: document.getElementById('emp-details').value.trim() || null,
     };
 
-    const isSystemUser = !isEdit && document.querySelector('input[name="emp-issystem"]:checked')?.value === 'yes';
+    const isSystemUser = document.querySelector('input[name="emp-issystem"]:checked')?.value === 'yes';
     const userEmail = document.getElementById('emp-user-email').value.trim();
     const userPassword = document.getElementById('emp-user-password').value;
     const userRole = document.getElementById('emp-user-role').value;
@@ -586,9 +586,11 @@
       }
 
       msg.className = 'text-[11px] text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-md px-3 py-2';
-      msg.innerText = isEdit
-        ? '✅ कर्मचारी सफलतापूर्वक अपडेट भयो।'
-        : (isSystemUser ? '✅ कर्मचारी सुरक्षित भयो र System खाता पनि बनियो।' : '✅ कर्मचारी सफलतापूर्वक सुरक्षित भयो।');
+      if (isEdit) {
+        msg.innerText = isSystemUser ? '✅ कर्मचारी अपडेट भयो र System खाता पनि बनियो।' : '✅ कर्मचारी सफलतापूर्वक अपडेट भयो।';
+      } else {
+        msg.innerText = isSystemUser ? '✅ कर्मचारी सुरक्षित भयो र System खाता पनि बनियो।' : '✅ कर्मचारी सफलतापूर्वक सुरक्षित भयो।';
+      }
       msg.classList.remove('hidden');
       document.getElementById('employeeForm').reset();
       setTimeout(() => { closeEmployeeModal(); }, 900);
