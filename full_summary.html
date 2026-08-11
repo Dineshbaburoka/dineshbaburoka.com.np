@@ -402,6 +402,7 @@
 
   // ===== कर्मचारी सिर्जना / सम्पादन Modal नियन्त्रण =====
   let employee_rows_cache = [];
+  let employeeModalOpenedFromList = false;
 
   function openEmployeeModal(editId) {
     document.getElementById('employeeForm').reset();
@@ -426,9 +427,18 @@
       }
       titleEl.innerHTML = '<i class="fa-solid fa-user-pen"></i> कर्मचारी सम्पादन गर्नुहोस्';
       btnLabel.innerText = 'अपडेट गर्नुहोस्';
+
+      // सम्पादन गर्दा कर्मचारी सूची Modal लाई लुकाउने
+      const listModal = document.getElementById('employeeListModal');
+      if (!listModal.classList.contains('hidden')) {
+        listModal.classList.add('hidden');
+        listModal.classList.remove('flex');
+        employeeModalOpenedFromList = true;
+      }
     } else {
       titleEl.innerHTML = '<i class="fa-solid fa-user-plus"></i> कर्मचारी सिर्जना गर्नुहोस्';
       btnLabel.innerText = 'सुरक्षित गर्नुहोस्';
+      employeeModalOpenedFromList = false;
     }
 
     const modal = document.getElementById('employeeModal');
@@ -439,6 +449,15 @@
     const modal = document.getElementById('employeeModal');
     modal.classList.add('hidden');
     modal.classList.remove('flex');
+
+    // सम्पादनबाट खुलेको भए फेरि कर्मचारी सूची Modal देखाउने र ताजा डाटा ल्याउने
+    if (employeeModalOpenedFromList) {
+      employeeModalOpenedFromList = false;
+      const listModal = document.getElementById('employeeListModal');
+      listModal.classList.remove('hidden');
+      listModal.classList.add('flex');
+      loadEmployeeList();
+    }
   }
 
   async function submitEmployee(e) {
