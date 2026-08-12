@@ -276,57 +276,53 @@
     .namsari-note { font-size: 12.5px; margin-top: 8px; font-style: italic; }
 
     @page { size: A4 portrait; margin: 8mm 12mm; }
-    @page {
-      size: A4 portrait;
-      margin: 10mm;
-    }
     @media print {
       html, body { background: #fff; padding: 0; margin: 0; width: 210mm; }
-      .print-certificate-container { max-width: 190mm !important; }
+      .print-certificate-container { max-width: 186mm !important; }
       .search-wrapper, .print-action-box, .alert-no-record, .notice-dashboard, .dup-modal-overlay, .issue-modal-overlay { display: none !important; }
       .print-certificate-container {
         display: block !important; box-shadow: none !important; border: none !important;
         padding: 0 !important; margin: 0 !important; width: 100% !important; max-width: 100% !important;
-        font-size: 17.5px !important;
+        font-size: 15.5px !important;
       }
       .cert-backside-page {
         display: block !important; box-shadow: none !important; border: none !important;
         padding: 0 !important; margin: 0 !important; width: 100% !important; max-width: 100% !important;
-        font-size: 17.5px !important;
+        font-size: 15.5px !important;
         page-break-before: always;
         break-before: page;
       }
-      .backside-title { font-size: 21px !important; margin-bottom: 14px !important; }
-      .backside-list li { margin-bottom: 10px !important; }
-      .namsari-title { font-size: 19px !important; }
-      .namsari-table { font-size: 13.5px !important; }
-      .namsari-table td { height: 30px !important; }
+      .backside-title { font-size: 19px !important; margin-bottom: 12px !important; }
+      .backside-list li { margin-bottom: 8px !important; }
+      .namsari-title { font-size: 17px !important; }
+      .namsari-table { font-size: 12.5px !important; }
+      .namsari-table td { height: 26px !important; }
       .namsari-title, .namsari-note { break-inside: avoid; }
       .dynamic-span { border-bottom: none !important; background-color: transparent !important; padding: 0 !important; }
       .editable-span { border-bottom: none !important; background-color: transparent !important; }
       .duplicate-watermark { display: block !important; }
       .duplicate-info-line { display: flex !important; }
 
-      .header-table { margin-bottom: 4px !important; }
-      .header-logo img { width: 95px !important; }
-      .photo-box { width: 90px !important; height: 108px !important; font-size: 14px !important; }
-      .muni-name { font-size: 21px !important; }
-      .exec-office { font-size: 29px !important; margin-top: 1px !important; }
-      .dept-name { font-size: 17px !important; }
-      .address-line { font-size: 20px !important; }
-      .cert-main-title { margin: 8px 0 !important; font-size: 23px !important; }
-      .meta-row { font-size: 17.5px !important; margin-bottom: 4px !important; }
-      .cert-body-para { margin-bottom: 7px !important; line-height: 1.5 !important; }
-      .section-head { margin-top: 7px !important; margin-bottom: 4px !important; font-size: 17.5px !important; }
-      .area-data-table { margin: 7px 0 !important; font-size: 15.5px !important; }
-      .area-data-table th, .area-data-table td { padding: 4px 7px !important; }
-      .boundary-table { margin-bottom: 7px !important; }
-      .boundary-table td { padding: 3px 0 !important; }
-      .indent-block { padding-left: 13px !important; }
-      .signature-row { margin-top: 20px !important; margin-bottom: 7px !important; }
-      .sig-name, .sig-title { font-size: 15.5px !important; }
-      .sig-role, .sig-post { font-size: 14.5px !important; }
-      .bottom-office-footer { margin-top: 9px !important; padding-top: 4px !important; font-size: 15.5px !important; }
+      .header-table { margin-bottom: 3px !important; }
+      .header-logo img { width: 82px !important; }
+      .photo-box { width: 78px !important; height: 94px !important; font-size: 12px !important; }
+      .muni-name { font-size: 18px !important; }
+      .exec-office { font-size: 25px !important; margin-top: 1px !important; }
+      .dept-name { font-size: 14.5px !important; }
+      .address-line { font-size: 17px !important; }
+      .cert-main-title { margin: 6px 0 !important; font-size: 20px !important; }
+      .meta-row { font-size: 15.5px !important; margin-bottom: 3px !important; }
+      .cert-body-para { margin-bottom: 5px !important; line-height: 1.42 !important; }
+      .section-head { margin-top: 5px !important; margin-bottom: 3px !important; font-size: 15.5px !important; }
+      .area-data-table { margin: 5px 0 !important; font-size: 13.5px !important; }
+      .area-data-table th, .area-data-table td { padding: 3px 6px !important; }
+      .boundary-table { margin-bottom: 5px !important; }
+      .boundary-table td { padding: 2px 0 !important; }
+      .indent-block { padding-left: 12px !important; }
+      .signature-row { margin-top: 14px !important; margin-bottom: 5px !important; }
+      .sig-name, .sig-title { font-size: 13.5px !important; }
+      .sig-role, .sig-post { font-size: 12.5px !important; }
+      .bottom-office-footer { margin-top: 6px !important; padding-top: 3px !important; font-size: 13.5px !important; }
     }
   </style>
 </head>
@@ -436,7 +432,7 @@
         </tr>
       </tbody>
     </table>
-
+<br>
     <div class="cert-body-para" style="line-height: 1.65;">
       <strong>६. उचाई फिट/ मिटर:</strong> <span id="lbl_tot_height_two" class="dynamic-span"></span> <strong>कुल तल्ला संख्या:</strong> <span id="lbl_total_floors" class="dynamic-span"></span><br>
       <strong>७. केन्द्र रेखाबाट छाड्नुपर्ने दूरी:</strong> <span id="lbl_roadce" class="dynamic-span"></span> छोडेको दूरी <span id="lbl_roadcex" class="dynamic-span"></span><br>
@@ -444,7 +440,7 @@
       <strong>९. नदि किनार भए त्यसको लागि छाड्नुपर्ने दूरी:</strong> <span id="lbl_river" class="dynamic-span"></span> छोडेको दूरी <span id="lbl_riverx" class="dynamic-span"></span><br>
       <strong>१०. संधियार सिमानाबाट छाड्नुपर्ने दूरी:</strong> <span id="lbl_land" class="dynamic-span"></span> छोडेको दूरी <span id="lbl_landb" class="dynamic-span"></span>
     </div>
-
+<br><br>
     <!-- Signatures -->
     <div class="signature-row">
       <div class="sig-column">
@@ -478,13 +474,12 @@
         <div class="sig-title" id="lbl_sig_approved_title">प्रतिलिपी जारी गर्ने</div>
       </div>
     </div>
-
     <div class="duplicate-info-line" id="duplicateInfoLine">
       <span><b>प्रतिलिपी कारण:</b> <span id="dup_out_reason"></span></span>
       <span><b>प्रतिलिपी संख्या:</b> <span id="dup_out_no"></span></span>
       <span><b>प्रतिलिपी जारी मिति:</b> <span id="dup_out_date"></span></span>
     </div>
-
+    <br><br>
     <div class="bottom-office-footer">
       <div>गलकोट नगरपालिका</div><div>भूमि व्यवस्थापन तथा भवन नियमन शाखा</div>
     </div>
@@ -526,9 +521,24 @@
           <tr><td rowspan="3">५</td><td rowspan="3"></td><td rowspan="3"></td><td rowspan="3"></td><td rowspan="3"></td><td></td><td rowspan="3"></td><td></td></tr>
           <tr><td></td><td></td></tr>
           <tr><td></td><td></td></tr>
+                    <tr><td rowspan="3">६</td><td rowspan="3"></td><td rowspan="3"></td><td rowspan="3"></td><td rowspan="3"></td><td></td><td rowspan="3"></td><td></td></tr>
+          <tr><td></td><td></td></tr>
+          <tr><td></td><td></td></tr>
+                    <tr><td rowspan="3">७</td><td rowspan="3"></td><td rowspan="3"></td><td rowspan="3"></td><td rowspan="3"></td><td></td><td rowspan="3"></td><td></td></tr>
+          <tr><td></td><td></td></tr>
+          <tr><td></td><td></td></tr>
+                    <tr><td rowspan="3">८</td><td rowspan="3"></td><td rowspan="3"></td><td rowspan="3"></td><td rowspan="3"></td><td></td><td rowspan="3"></td><td></td></tr>
+          <tr><td></td><td></td></tr>
+          <tr><td></td><td></td></tr>
+                    <tr><td rowspan="3">९</td><td rowspan="3"></td><td rowspan="3"></td><td rowspan="3"></td><td rowspan="3"></td><td></td><td rowspan="3"></td><td></td></tr>
+          <tr><td></td><td></td></tr>
+          <tr><td></td><td></td></tr>
+                    <tr><td rowspan="3">१०</td><td rowspan="3"></td><td rowspan="3"></td><td rowspan="3"></td><td rowspan="3"></td><td></td><td rowspan="3"></td><td></td></tr>
+          <tr><td></td><td></td></tr>
+          <tr><td></td><td></td></tr>
         </tbody>
       </table>
-      <div class="namsari-note">नोट: नामसारी गर्दा सम्बन्धित विवरण स्पष्ट रूपमा भरी प्रमाणित गर्नुपर्नेछ।</div>
+      <div class="namsari-note">नोट: नामसारी गर्दा सम्बन्धित प्रमाणको आधारमा विवरण स्पष्ट रूपमा भरी प्रमाणित गर्नुपर्नेछ। अन्यथा नामसारी भएको मानिने छैन ।</div>
     </div>
 
     <!-- बटनहरू -->
@@ -557,7 +567,7 @@
           <div class="issue-block">
             <div class="issue-block-title">प्रतिलिपी जारी गर्नुको कारण <span style="color:#c0392b;">*</span></div>
             <div class="dup-radio-row">
-              <label><input type="radio" name="issue-dup-reason" value="हराएको" checked onchange="toggleIssueDupReasonOther()">नामसारी</label>
+              <label><input type="radio" name="issue-dup-reason" value="हराएको" checked onchange="toggleIssueDupReasonOther()">हराएको</label>
               <label><input type="radio" name="issue-dup-reason" value="विवरण संशोधन" onchange="toggleIssueDupReasonOther()"> विवरण संशोधन</label>
               <label><input type="radio" name="issue-dup-reason" value="अन्य" onchange="toggleIssueDupReasonOther()"> अन्य</label>
             </div>
