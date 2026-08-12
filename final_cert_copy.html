@@ -241,6 +241,40 @@
     .dup-btn-cancel { background:#95a5a6; color:#fff; }
     .dup-modal-close { cursor:pointer; color:#95a5a6; font-size:18px; line-height:1; }
 
+    .cert-backside-page {
+      max-width: 850px;
+      margin: 0 auto 30px auto;
+      background: var(--card-bg);
+      padding: 30px 40px;
+      border-radius: 4px;
+      font-size: 16px;
+      color: #000000;
+      display: none;
+      line-height: 1.7;
+    }
+    .backside-title {
+      text-align: center;
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 18px;
+      text-decoration: underline;
+    }
+    .backside-list { padding-left: 22px; }
+    .backside-list li { margin-bottom: 12px; text-align: justify; text-justify: inter-word; }
+
+    .namsari-title {
+      text-align: center;
+      font-size: 18px;
+      font-weight: 700;
+      margin: 22px 0 12px 0;
+      text-decoration: underline;
+    }
+    .namsari-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .namsari-table th, .namsari-table td { border: 1px solid #000; padding: 6px 5px; text-align: center; vertical-align: middle; }
+    .namsari-table th { background-color: #f2f2f2; font-weight: 700; }
+    .namsari-table td { height: 28px; }
+    .namsari-note { font-size: 12.5px; margin-top: 8px; font-style: italic; }
+
     @page { size: A4 portrait; margin: 8mm 12mm; }
     @page {
       size: A4 portrait;
@@ -255,10 +289,23 @@
         padding: 0 !important; margin: 0 !important; width: 100% !important; max-width: 100% !important;
         font-size: 17.5px !important;
       }
+      .cert-backside-page {
+        display: block !important; box-shadow: none !important; border: none !important;
+        padding: 0 !important; margin: 0 !important; width: 100% !important; max-width: 100% !important;
+        font-size: 17.5px !important;
+        page-break-before: always;
+        break-before: page;
+      }
+      .backside-title { font-size: 21px !important; margin-bottom: 14px !important; }
+      .backside-list li { margin-bottom: 10px !important; }
+      .namsari-title { font-size: 19px !important; }
+      .namsari-table { font-size: 13.5px !important; }
+      .namsari-table td { height: 30px !important; }
+      .namsari-title, .namsari-note { break-inside: avoid; }
       .dynamic-span { border-bottom: none !important; background-color: transparent !important; padding: 0 !important; }
       .editable-span { border-bottom: none !important; background-color: transparent !important; }
-      .duplicate-watermark.print-show { display: block !important; }
-      .duplicate-info-line.print-show { display: flex !important; }
+      .duplicate-watermark { display: block !important; }
+      .duplicate-info-line { display: flex !important; }
 
       .header-table { margin-bottom: 4px !important; }
       .header-logo img { width: 95px !important; }
@@ -331,7 +378,7 @@
 
     <div class="meta-row">
       <div>पत्र संख्या : <span id="lbl_done_certificate" class="dynamic-span editable-span" contenteditable="true">.........</span></div>
-      <div>मिति : <span id="lbl_done_issued_date" class="dynamic-span editable-span" contenteditable="true">......../......../........</span></div>
+      <div>जारी मिति : <span id="lbl_done_issued_date" class="dynamic-span editable-span" contenteditable="true">......../......../........</span></div>
     </div>
     <div class="meta-row" style="margin-bottom: 15px;">
       <div>प्रमाण पत्र नं : <span id="lbl_done_chalani_no" class="dynamic-span editable-span" contenteditable="true">............</span></div>
@@ -424,7 +471,7 @@
         <div class="sig-role"><span id="lbl_sig_issued_post" class="sig-post dynamic-span editable-span" contenteditable="true">..........</span></div>
         <div class="sig-title">जारी गर्ने</div>
       </div>
-      <div class="sig-column" id="sigApprovedColumn" style="display:none;">
+      <div class="sig-column" id="sigApprovedColumn">
         <div class="sig-top-line"></div>
         <span id="lbl_sig_approved_name" class="sig-name dynamic-span editable-span" contenteditable="true">.....................</span>
         <div class="sig-role"><span id="lbl_sig_approved_post" class="sig-post dynamic-span editable-span" contenteditable="true">..........</span></div>
@@ -435,12 +482,53 @@
     <div class="duplicate-info-line" id="duplicateInfoLine">
       <span><b>प्रतिलिपी कारण:</b> <span id="dup_out_reason"></span></span>
       <span><b>प्रतिलिपी संख्या:</b> <span id="dup_out_no"></span></span>
+      <span><b>प्रतिलिपी जारी मिति:</b> <span id="dup_out_date"></span></span>
     </div>
 
     <div class="bottom-office-footer">
       <div>गलकोट नगरपालिका</div><div>भूमि व्यवस्थापन तथा भवन नियमन शाखा</div>
     </div>
 
+    </div>
+
+    <!-- ===== पछाडिको पाना (Backside) — प्रमाणपत्र दिँदा अपनाउने कार्यविधि ===== -->
+    <div class="cert-backside-page" id="certBacksidePage">
+      <div class="namsari-title">नामसारी विवरण</div>
+      <table class="namsari-table">
+        <thead>
+          <tr>
+            <th rowspan="2" style="width:6%;">क्र.सं.</th>
+            <th rowspan="2" style="width:9%;">मिति</th>
+            <th colspan="4">नामसारी भई कायम भएको घरधनीको विवरण</th>
+            <th rowspan="2" style="width:12%;">नामसारीको कारण</th>
+            <th rowspan="2" style="width:20%;">प्रमाणित गर्ने</th>
+          </tr>
+          <tr>
+            <th style="width:11%;">नाम</th>
+            <th style="width:11%;">बाबु/पतिको नाम</th>
+            <th style="width:13%;">बाजेको नाम/ससुराको नाम</th>
+            <th style="width:15%;">ना.प्र.न./जारी मिति/ जारी जिल्ला</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td rowspan="3">१</td><td rowspan="3"></td><td rowspan="3"></td><td rowspan="3"></td><td rowspan="3"></td><td></td><td rowspan="3"></td><td></td></tr>
+          <tr><td></td><td></td></tr>
+          <tr><td></td><td></td></tr>
+          <tr><td rowspan="3">२</td><td rowspan="3"></td><td rowspan="3"></td><td rowspan="3"></td><td rowspan="3"></td><td></td><td rowspan="3"></td><td></td></tr>
+          <tr><td></td><td></td></tr>
+          <tr><td></td><td></td></tr>
+          <tr><td rowspan="3">३</td><td rowspan="3"></td><td rowspan="3"></td><td rowspan="3"></td><td rowspan="3"></td><td></td><td rowspan="3"></td><td></td></tr>
+          <tr><td></td><td></td></tr>
+          <tr><td></td><td></td></tr>
+          <tr><td rowspan="3">४</td><td rowspan="3"></td><td rowspan="3"></td><td rowspan="3"></td><td rowspan="3"></td><td></td><td rowspan="3"></td><td></td></tr>
+          <tr><td></td><td></td></tr>
+          <tr><td></td><td></td></tr>
+          <tr><td rowspan="3">५</td><td rowspan="3"></td><td rowspan="3"></td><td rowspan="3"></td><td rowspan="3"></td><td></td><td rowspan="3"></td><td></td></tr>
+          <tr><td></td><td></td></tr>
+          <tr><td></td><td></td></tr>
+        </tbody>
+      </table>
+      <div class="namsari-note">नोट: नामसारी गर्दा सम्बन्धित निर्णय/प्रमाणको आधारमा विवरण स्पष्ट रूपमा भरी प्रमाणित गर्नुपर्नेछ।</div>
     </div>
 
     <!-- बटनहरू -->
@@ -549,7 +637,7 @@
         </div>
 
         <div class="issue-block">
-          <div class="issue-block-title">५. स्वीकृत गर्ने</div>
+          <div class="issue-block-title">५.प्रतिलिपी जारी गर्ने</div>
           <div class="issue-row-two">
             <div class="issue-field">
               <label>कर्मचारी नाम</label>
@@ -696,9 +784,11 @@
       const searchInput = document.getElementById('certSearchBox').value.toLowerCase().trim();
       const visualContainer = document.getElementById('certificatePrintVolume');
       const feedbackAlert = document.getElementById('emptyDisplayAlert');
+      const backsidePage = document.getElementById('certBacksidePage');
 
       if (searchInput === "") {
         visualContainer.style.display = "none";
+        backsidePage.style.display = "none";
         feedbackAlert.style.display = "block";
         currentSelectedRowId = null;
         return;
@@ -768,8 +858,10 @@
 
         feedbackAlert.style.display = "none";
         visualContainer.style.display = "block";
+        backsidePage.style.display = "block";
       } else {
         visualContainer.style.display = "none";
+        backsidePage.style.display = "none";
         feedbackAlert.style.display = "block";
         feedbackAlert.innerText = "❌ विवरण फेला परेन। कृपया सही विवरण फेरि टाईप गर्नुहोला।";
         currentSelectedRowId = null;
@@ -853,19 +945,15 @@
       currentIsDuplicateMode = isDuplicate;
       const watermark = document.getElementById('duplicateWatermark');
       const infoLine = document.getElementById('duplicateInfoLine');
-      const approvedColumn = document.getElementById('sigApprovedColumn');
       const approvedTitle = document.getElementById('lbl_sig_approved_title');
+      // ५औं हस्ताक्षर स्थान (sigApprovedColumn) अब सधैं देखिने गरी राखिएको छ — प्रतिलिपी होस् वा नहोस्।
       if (isDuplicate) {
         watermark.classList.add('print-show');
         infoLine.classList.add('print-show');
-        // प्रतिलिपी भएमा: ५औं स्थानमा "प्रतिलिपी जारी गर्ने" देखाउने
-        approvedColumn.style.display = '';
         approvedTitle.innerText = 'प्रतिलिपी जारी गर्ने';
       } else {
         watermark.classList.remove('print-show');
         infoLine.classList.remove('print-show');
-        // सामान्य प्रमाणपत्रमा: ५औं स्थान लुकाएर ४ जनामा मात्र सीमित गर्ने
-        approvedColumn.style.display = 'none';
         approvedTitle.innerText = 'स्वीकृत गर्ने';
       }
     }
@@ -1003,9 +1091,10 @@
         }]);
         if (error) throw error;
 
-        // प्रमाणपत्रमा प्रतिलिपी कारण र संख्या मात्र देखाउने
+        // प्रमाणपत्रमा प्रतिलिपी कारण, संख्या र जारी मिति देखाउने
         document.getElementById('dup_out_reason').innerText = finalReason || '—';
         document.getElementById('dup_out_no').innerText = dupNo ? convertToNepaliDigits(dupNo) : '—';
+        document.getElementById('dup_out_date').innerText = dupDate ? convertToNepaliDigits(dupDate) : '—';
 
         setDuplicateMode(true);
         return true;
