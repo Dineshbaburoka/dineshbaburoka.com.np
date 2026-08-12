@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>भवन निर्माण व्यवस्थापन प्रणाली - Advanced ERP Layout</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase JS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .nav-active { background-color: #1a252f !important; color: #ffffff !important; border-left: 4px solid #3182ce; }
+        .submenu-active { color: #3182ce !important; font-weight: 600; }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #1a252f; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #4a5568; border-radius: 4px; }
+        /* Smooth Sidebar Transition */
+        .sidebar-transition { transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        /* ===== सबै बटनको लोडिङ/प्रोसेसिङ अवस्था ===== */
+        #top-progress-bar {
+            position: fixed;
+            top: 0; left: 0;
+            height: 3px;
+            width: 0%;
+            background: linear-gradient(90deg, #3182ce, #63b3ed);
+            z-index: 9999;
+            opacity: 0;
+            transition: width 0.25s ease, opacity 0.2s ease;
+        }
+        #top-progress-bar.active {
+            opacity: 1;
+            width: 90%;
+            transition: width 4s cubic-bezier(0.1,0.7,0.4,1), opacity 0.2s ease;
+        }
+        #top-progress-bar.done {
+            width: 100%;
+            opacity: 0;
+            transition: width 0.2s ease, opacity 0.4s ease 0.15s;
+        }
+
+        button.btn-loading,
+        a.btn-loading {
+            pointer-events: none;
+            opacity: 0.7;
+            position: relative;
+        }
+        .btn-loading-spinner {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid rgba(255,255,255,0.5);
+            border-top-color: #ffffff;
+            border-radius: 50%;
+            animation: btn-spin 0.7s linear infinite;
+            margin-left: 6px;
+            vertical-align: middle;
+        }
+        .nav-item.btn-loading .btn-loading-spinner,
+        .submenu-item.btn-loading .btn-loading-spinner {
+            border: 2px solid rgba(255,255,255,0.25);
+            border-top-color: #63b3ed;
+        }
+        @keyframes btn-spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 h-screen text-sm font-sans overflow-hidden antialiased">
+
+    <!-- सबै बटन/लिंक क्लिकमा देखिने ग्लोबल प्रोग्रेस बार -->
+    <div id="top-progress-bar"></div>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- मुख्य प्रणाली लेआउट (Main Application Layout - Open by Default) -->
+    <div id="main-app-layout" class="flex h-screen w-full relative">
+        
+        <!-- SIDEBAR BACKDROP FOR MOBILE -->
+        <div id="sidebar-backdrop" onclick="toggleMobileSidebar()" class="fixed inset-0 bg-black/50 z-30 hidden md:hidden"></div>
+
+        <!-- SIDEBAR (नेभिगेसन मेनु) -->
+        <div id="sidebar-panel" class="sidebar-transition w-64 bg-[#2c3e50] text-gray-300 flex flex-col justify-between h-screen border-r border-gray-700 select-none shrink-0 fixed md:relative z-40 transform -translate-x-full md:translate-x-0">
+            <div>
+                <!-- Brand Header -->
+                <div class="p-4 bg-[#1a252f] text-white flex items-center justify-between font-semibold text-base border-b border-gray-700">
+                    <div class="flex items-center gap-3 overflow-hidden whitespace-nowrap">
+                        <i class="fa-solid fa-layer-group text-blue-400 text-lg shrink-0"></i>
+                        <span class="sidebar-text font-bold">EBPS</span>
+                    </div>
+                    <button onclick="toggleSidebarCollapse()" class="hidden md:inline-block text-gray-400 hover:text-white ml-2 focus:outline-none">
+                        <i id="collapse-icon" class="fa-solid fa-bars-staggered"></i>
+                    </button>
+                </div>
+                
+                <!-- Advanced Live Search Area -->
+                <div class="p-2 bg-[#233241] border-b border-gray-700/60 sidebar-text">
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-gray-500 text-xs"></i>
+                        <input type="text" id="menu-search" oninput="filterMenu()" placeholder="मेनु खोज्नुहोस्..." class="w-full bg-[#1a252f] text-gray-200 pl-8 pr-3 py-1.5 rounded-md text-xs border border-gray-600/50 focus:outline-none focus:border-blue-500">
+                    </div>
+                </div>
+                
+                <!-- Dynamic Navigation Container -->
+                <nav id="dynamic-sidebar" class="custom-scrollbar mt-2 flex flex-col gap-0.5 text-xs overflow-y-auto max-h-[calc(100vh-140px)]">
+                    <!-- Dynamic tabs will render here -->
+                </nav>
+            </div>
+            
+            <div class="p-3 bg-[#1a252f] text-center text-[10px] text-gray-500 border-t border-gray-700 sidebar-text whitespace-nowrap overflow-hidden">
+                <!-- Footer space -->
+            </div>
+        </div>
+
+        <!-- WORKSPACE AREA (दायाँ मुख्य कार्यक्षेत्र) -->
+        <div class="flex-1 flex flex-col overflow-hidden w-full">
+            
+            <!-- TOPBAR -->
+            <header class="bg-gradient-to-r from-[#3182ce] to-[#2b6cb0] text-white flex items-center justify-between px-4 md:px-6 py-3 shadow-md z-20">
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleMobileSidebar()" class="md:hidden text-white text-lg focus:outline-none mr-1">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <h1 class="text-sm md:text-base font-bold tracking-wide flex items-center gap-2">
+                        <i class="fa-solid fa-city hidden sm:inline-block"></i>
+                        <span id="current-view-title">भवन व्यवस्थापन प्रणाली</span>
+                    </h1>
+                </div>
+
+                <div class="flex items-center gap-3 md:gap-4">
+                    <!-- SWITCH SECTION BUTTON (अभिलेखीकरण / नक्सा पास / Full Summary छनौट Popup खोल्ने) -->
+                    <button onclick="openChoiceModal()" class="bg-white/15 hover:bg-white/25 text-white px-3 py-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-sm focus:outline-none">
+                        <i class="fa-solid fa-arrows-turn-to-dots"></i>
+                        <span class="hidden sm:inline">सेक्सन बदल्नुहोस्</span>
+                    </button>
+
+                    <!-- Dynamic User Widget (Role र Email मात्र देखाउने) -->
+                    <div class="flex items-center gap-2 pr-1 md:pr-2">
+                        <div class="w-8 h-8 rounded-full bg-blue-900/80 text-white flex items-center justify-center font-bold text-xs border border-white/40 shadow-sm" id="user-avatar">U</div>
+                        <div class="hidden sm:flex flex-col text-left">
+                            <span class="font-bold text-xs" id="topbar-user-display">Loading...</span>
+                            <span class="text-[10px] text-blue-100" id="topbar-role-display">Loading...</span>
+                        </div>
+                    </div>
+
+                    <!-- LOGOUT BUTTON -->
+                    <button onclick="handleLogout()" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-sm focus:outline-none">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span class="hidden sm:inline">लगआउट</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- ===== सेक्सन छनौट Popup (मुख्य लगइन-पछिको Popup, यहाँ पनि उपलब्ध) ===== -->
+            <div id="choiceModal" class="fixed inset-0 bg-[#0c2461]/55 z-[1000] hidden justify-center items-center">
+                <div class="bg-white w-[92%] max-w-[380px] rounded-2xl p-8 text-center shadow-2xl border-t-[6px] border-[#0c2461]">
+                    <div class="text-lg font-bold text-[#0c2461] mb-2">✅ सेक्सन छान्नुहोस्</div>
+                    <div class="text-xs text-gray-500 mb-6">कृपया अगाडि जान एउटा विकल्प छान्नुहोस्</div>
+
+                    <button type="button" onclick="switchSection('odl_building.html')" class="w-full flex items-center justify-center gap-2 py-3 mb-3 text-white text-sm font-semibold rounded-lg bg-[#1e3799] hover:bg-[#0c2461] transition-colors">
+                        📋 अभिलेखीकरण
+                    </button>
+                    <button type="button" onclick="switchSection('all_setup.html')" class="w-full flex items-center justify-center gap-2 py-3 mb-3 text-white text-sm font-semibold rounded-lg bg-[#0a8a5f] hover:bg-[#066b48] transition-colors">
+                        🗺️ नक्सा पास
+                    </button>
+                    <button type="button" onclick="switchSection('full_summary.html')" class="w-full flex items-center justify-center gap-2 py-3 mb-3 text-white text-sm font-semibold rounded-lg bg-[#b7791f] hover:bg-[#92600f] transition-colors">
+                        📊 Full Summary
+                    </button>
+                    <button type="button" onclick="closeChoiceModal()" class="w-full py-2.5 text-xs font-medium text-white rounded-lg bg-gray-400 hover:bg-gray-500 transition-colors">
+                        ⬅️ बन्द गर्नुहोस्
+                    </button>
+                </div>
+            </div>
+
+            <!-- CORE CONTENTS WRAPPER WITH LOADING STATE -->
+            <main class="flex-1 bg-gray-50 overflow-hidden relative">
+                <!-- Advanced Loader Spinner overlay -->
+                <div id="iframe-loader" class="absolute inset-0 bg-slate-100/70 z-10 flex flex-col items-center justify-center gap-3 opacity-0 pointer-events-none transition-opacity duration-200">
+                    <div class="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                    <span class="text-xs font-semibold text-gray-500 tracking-wider">डेटा लोड हुँदैछ...</span>
+                </div>
+                <iframe id="content-frame" src="about:blank" onload="hideIframeLoader()" class="w-full h-full border-none m-0 p-0 z-0"></iframe>
+            </main>
+        </div>
+    </div>
+
+    <!-- प्रणाली नियन्त्रण गर्ने जाभास्क्रिप्ट -->
+    <script>
+        const SUPABASE_URL = "https://lyjokogftwtvnhwszqni.supabase.co";
+        const SUPABASE_ANON_KEY = "sb_publishable_gxEL2-GVTVy8E0WxMBZHDQ_b5TzsDI9"; 
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // ===== सबै बटन/लिंकहरुमा Loading/Processing देखाउने साझा (universal) व्यवस्था =====
+        function startButtonLoading(el) {
+            if (!el || el.classList.contains('btn-loading')) return;
+            el.classList.add('btn-loading');
+            el.dataset.loadingActive = "true";
+            const spinner = document.createElement('span');
+            spinner.className = 'btn-loading-spinner';
+            spinner.setAttribute('data-btn-spinner', 'true');
+            el.appendChild(spinner);
+        }
+
+        function stopButtonLoading(el) {
+            if (!el) return;
+            el.classList.remove('btn-loading');
+            delete el.dataset.loadingActive;
+            const spinner = el.querySelector('[data-btn-spinner]');
+            if (spinner) spinner.remove();
+        }
+
+        function stopAllButtonLoading() {
+            document.querySelectorAll('.btn-loading').forEach(stopButtonLoading);
+        }
+
+        function showTopProgress() {
+            const bar = document.getElementById('top-progress-bar');
+            bar.classList.remove('done');
+            // Reflow ट्रिक ताकि transition पुनः सुरु होस्
+            void bar.offsetWidth;
+            bar.classList.add('active');
+        }
+
+        function finishTopProgress() {
+            const bar = document.getElementById('top-progress-bar');
+            bar.classList.remove('active');
+            bar.classList.add('done');
+            setTimeout(() => {
+                bar.classList.remove('done');
+                bar.style.width = '';
+            }, 500);
+        }
+
+        // कुनै पनि बटन/मेनु-लिंक क्लिक हुनेबित्तिकै तुरुन्तै Loading देखाउने,
+        // र iframe/खण्ड लोड सकिएपछि (hideIframeLoader/ठोस समय) स्वतः हटाउने
+        document.addEventListener('click', function (e) {
+            const target = e.target.closest('button, .nav-item, .submenu-item');
+            if (!target) return;
+            if (target.disabled) return;
+
+            const isNavAction = target.classList.contains('nav-item') || target.classList.contains('submenu-item');
+            startButtonLoading(target);
+
+            if (isNavAction) {
+                showTopProgress();
+                // यी बटनहरु iframe लोड सकिएपछि hideIframeLoader() मार्फत हटाइनेछन्
+                // सुरक्षाको लागि निश्चित समयपछि पनि स्वतः हटाउने (कुनै त्रुटिले अड्किन नदिन)
+                setTimeout(() => { stopButtonLoading(target); finishTopProgress(); }, 8000);
+            } else {
+                // टगल/ड्रपडाउन जस्ता तत्काल प्रतिक्रिया दिने बटनहरुका लागि छोटो प्रोसेसिङ प्रभाव
+                setTimeout(() => stopButtonLoading(target), 350);
+            }
+        }, true);
+
+        let isSidebarCollapsed = false;
+        let idleTimeout;
+        const IDLE_TIME_LIMIT = 5 * 60 * 1000; // ५ मिनेट मिलिसेकेन्डमा
+
+        // ड्यासबोर्डबाट नाममा क्लिक गरी छानिएको व्यक्तिको विवरण (Tab बदल्दा पनि कायम रहन्छ)
+        let activeTrackId = null;
+        let activeTrackOwner = '';
+
+        // MENU_CONFIG मा प्रमाणिक र चल्ने FontAwesome आइकनहरू व्यवस्थापन गरिएको छ
+        const MENU_CONFIG = [
+            { type: 'single', title: 'ड्यासबोर्ड', url: 'dashboard1.html', icon: 'fa-solid fa-chart-pie text-amber-400', isDefault: true },
+            { type: 'single', title: 'अभिलेखीकरण दर्ता गर्ने (Map Form)', url: 'mapform1.html', icon: 'fa-solid fa-map-location-dot text-blue-400' },
+            { type: 'single', title: 'राजस्व व्यवस्थापन', url: 'revenue1.html', icon: 'fa-solid fa-sack-dollar text-lime-400' },            {
+                type: 'dropdown',
+                title: 'अभिलेखीकरण आदेदन',
+                icon: 'fa-solid fa-folder-open text-yellow-400',
+                dropdownId: 'budget-dropdown',
+                items: [
+                    { title: 'अभिलेखीकरण आवेदन ', url: 'register1.html', icon: 'fa-solid fa-file-signature text-yellow-500' },
+                    { title: 'अभिलेखीकरण आवेदन', url: 'Aaveban.html', icon: 'fa-solid fa-file-shield text-orange-400' }
+                ]
+            },
+            {
+                type: 'dropdown',
+                title: 'सूचना तथा मुचुल्का',
+                icon: 'fa-solid fa-bullhorn text-emerald-400',
+                dropdownId: 'planning-dropdown',
+                items: [
+                    { title: 'सूचना प्रकाशनका लागि वार्डलाई पत्र', url: 'notice1.html', icon: 'fa-solid fa-bullhorn text-emerald-500' },
+                    { title: '७ दिने सूचना', url: '7_notice.html', icon: 'fa-solid fa-file-lines text-indigo-400' },
+                    { title: 'सूचना टाँस मुचुल्का', url: 'sarjaminmuchulka.html', icon: 'fa-solid fa-file-contract text-indigo-400' },
+                    { title: 'सर्जमिन मुचुल्का', url: 'sarjaminmuchulka1.html', icon: 'fa-solid fa-file-contract text-indigo-400' }
+                ]
+            },
+            {
+                type: 'dropdown',
+                title: 'भवन कायमका लागि सिफारिस',
+                icon: 'fa-solid fa-business-time text-sky-400',
+                dropdownId: 'monitoring-dropdown',
+                items: [
+                    { title: 'भवन कायमका लागि सिफारिस', url: 'temorder.html', icon: 'fa-solid fa-file-pen text-sky-500' }
+                ]
+            },
+            {
+                type: 'dropdown',
+                title: 'अभिलेखीकरणका लागि टिप्पणी आदेश',
+                icon: 'fa-solid fa-passport text-rose-400',
+                dropdownId: 'payment-dropdown',
+                items: [
+                    { title: 'अभिलेखीकरणका लागि टिप्पणी आदेश', url: 'tippani.html', icon: 'fa-solid fa-file-import text-rose-500' }
+                                ]
+            },
+            {
+                type: 'dropdown',
+                title: 'अभिलेखीकरण प्रमाण पत्र',
+                icon: 'fa-solid fa-building-circle-check text-rose-400',
+                dropdownId: 'final-payment-dropdown',
+                items: [
+                    { title: 'अभिलेखीकरण प्रमाण पत्र', url: 'certificate_avi.html', icon: 'fa-solid fa-clipboard-check text-rose-500' }                ]
+            },
+    
+        ];
+
+        // १. एड्भान्स टोस्ट नोटीफिकेशन प्रणाली
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `flex items-center gap-3 p-3.5 rounded-xl shadow-xl border bg-white text-gray-800 text-xs font-semibold pointer-events-auto transform transition-all duration-300 translate-x-20 opacity-0 min-w-[260px] max-w-sm`;
+            
+            const icon = type === 'success' ? '<i class="fa-solid fa-circle-check text-green-500 text-base"></i>' : '<i class="fa-solid fa-circle-exclamation text-red-500 text-base"></i>';
+            toast.innerHTML = `${icon} <div class="flex-1">${message}</div>`;
+            
+            container.appendChild(toast);
+            setTimeout(() => { toast.classList.remove('translate-x-20', 'opacity-0'); }, 10);
+            setTimeout(() => {
+                toast.classList.add('translate-x-20', 'opacity-0');
+                setTimeout(() => { toast.remove(); }, 300);
+            }, 3500);
+        }
+
+        // २. लाइभ मेनु सर्च फिल्टर मेकानिजम
+        function filterMenu() {
+            const query = document.getElementById('menu-search').value.toLowerCase().trim();
+            const elements = document.querySelectorAll('#dynamic-sidebar > *');
+            
+            elements.forEach(el => {
+                if(el.tagName === 'A') {
+                    const text = el.innerText.toLowerCase();
+                    el.style.display = text.includes(query) ? 'flex' : 'none';
+                } else {
+                    const buttons = el.querySelectorAll('button, .submenu-item');
+                    let match = false;
+                    buttons.forEach(b => { if(b.innerText.toLowerCase().includes(query)) match = true; });
+                    
+                    const subContainer = el.querySelector('div[id]');
+                    if(query !== "" && match) {
+                        subContainer?.classList.remove('hidden');
+                    } else if (query === "") {
+                        subContainer?.classList.add('hidden');
+                    }
+                    el.style.display = match ? 'block' : 'none';
+                }
+            });
+        }
+
+        // ३. साइडबार कोल्याप्स/एक्सपान्ड
+        function toggleSidebarCollapse() {
+            const sidebar = document.getElementById('sidebar-panel');
+            const texts = document.querySelectorAll('.sidebar-text');
+            const icon = document.getElementById('collapse-icon');
+            
+            isSidebarCollapsed = !isSidebarCollapsed;
+            if(isSidebarCollapsed) {
+                sidebar.classList.remove('w-64');
+                sidebar.classList.add('w-16');
+                texts.forEach(t => t.classList.add('hidden'));
+                icon.className = "fa-solid fa-arrow-right-to-bracket rotate-180";
+                document.getElementById('menu-search').parentElement.classList.add('hidden');
+            } else {
+                sidebar.classList.remove('w-16');
+                sidebar.classList.add('w-64');
+                texts.forEach(t => t.classList.remove('hidden'));
+                icon.className = "fa-solid fa-bars-staggered";
+                document.getElementById('menu-search').parentElement.classList.remove('hidden');
+            }
+        }
+
+        // ४. मोबाइल ड्रअर टगल मेकानिजम
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('sidebar-panel');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            if(sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.remove('-translate-x-full');
+                backdrop.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                backdrop.classList.add('hidden');
+            }
+        }
+
+        // ५. भूमिका (Role) अनुसार मेनु रेन्डर गर्ने
+        function renderSidebarMenu(userRole) {
+            const sidebarContainer = document.getElementById('dynamic-sidebar');
+            sidebarContainer.innerHTML = ''; 
+
+            MENU_CONFIG.forEach(menu => {
+                if (menu.type === 'single') {
+                    const link = document.createElement('a');
+                    link.href = "#";
+                    link.className = "nav-item flex items-center gap-3 px-4 py-3 hover:bg-[#34495e] hover:text-white transition-colors group";
+                    if (menu.isDefault) link.id = "dynamic-default-tab";
+                    link.setAttribute('onclick', `loadPage('${menu.url}', '${menu.title}', this)`);
+                    link.innerHTML = `<i class="${menu.icon} w-5 text-sm transition-transform group-hover:scale-110"></i> <span class="sidebar-text">${menu.title}</span>`;
+                    sidebarContainer.appendChild(link);
+
+                } else if (menu.type === 'dropdown') {
+                    const dropdownWrapper = document.createElement('div');
+                    dropdownWrapper.className = "bg-[#1a252f]/40 border-y border-gray-700/50";
+                    const arrowId = `${menu.dropdownId}-arrow`;
+                    
+                    dropdownWrapper.innerHTML = `
+                        <button onclick="toggleDropdown('${menu.dropdownId}', '${arrowId}')" class="w-full flex items-center justify-between px-4 py-3 text-gray-300 hover:bg-[#34495e] hover:text-white transition-colors focus:outline-none">
+                            <span class="flex items-center gap-3">
+                                <i class="${menu.icon} w-5 text-sm"></i> 
+                                <span class="font-semibold text-gray-200 sidebar-text">${menu.title}</span>
+                            </span>
+                            <i id="${arrowId}" class="fa-solid fa-chevron-down text-[10px] transition-transform duration-200 transform sidebar-text"></i>
+                        </button>
+                        <div id="${menu.dropdownId}" class="pl-10 bg-[#1a252f]/60 divide-y divide-gray-800/30 text-[11px] hidden"></div>
+                    `;
+                    sidebarContainer.appendChild(dropdownWrapper);
+                    
+                    const submenuContainer = document.getElementById(menu.dropdownId);
+                    menu.items.forEach(subItem => {
+                        const subLink = document.createElement('a');
+                        subLink.href = "#";
+                        subLink.className = "submenu-item block py-2.5 text-gray-400 hover:text-white transition-colors";
+                        subLink.setAttribute('onclick', `loadPage('${subItem.url}', '${subItem.title}', this, true)`);
+                        subLink.innerHTML = `<i class="${subItem.icon} mr-2"></i> ${subItem.title}`;
+                        submenuContainer.appendChild(subLink);
+                    });
+                }
+            });
+        }
+
+        // ६. आईफ्रेम र टपबार व्यवस्थापन
+        function loadPage(pageUrl, title, element, isSubmenu = false) {
+            document.getElementById('iframe-loader').classList.remove('opacity-0', 'pointer-events-none');
+            document.getElementById('current-view-title').innerText = title;
+
+            const iframe = document.getElementById('content-frame');
+            const userRole = localStorage.getItem("userRole") || "staff";
+            let finalUrl = pageUrl;
+
+            // पहिले नै कुनै व्यक्ति ट्र्याक भइरहेको छ र यो URL मा आफैं id नराखिएको भए, उही व्यक्तिको id जोड्ने
+            // (ड्यासबोर्ड र दर्ता फारम जस्ता पेजमा id आवश्यक नभएकोले ती अपवाद)
+            const skipAutoId = ['dashboard.html', 'mapform.html', 'admin.html'];
+            const baseName = pageUrl.split('?')[0];
+
+            // ड्यासबोर्डमा फर्किंदा ट्र्याक भइरहेको व्यक्ति खाली गर्ने (नयाँ नाम नछानेसम्म)
+            if (baseName === 'dashboard.html') {
+                activeTrackId = null;
+                activeTrackOwner = '';
+            }
+
+            if (activeTrackId && !pageUrl.includes('id=') && !skipAutoId.includes(baseName)) {
+                const sep = pageUrl.includes('?') ? '&' : '?';
+                pageUrl = `${pageUrl}${sep}id=${encodeURIComponent(activeTrackId)}&owner=${encodeURIComponent(activeTrackOwner || '')}`;
+                finalUrl = pageUrl;
+            }
+            
+            if (userRole) {
+                const separator = finalUrl.includes('?') ? '&' : '?';
+                finalUrl = `${finalUrl}${separator}role=${encodeURIComponent(userRole)}`;
+            }
+            iframe.src = finalUrl;
+
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('nav-active'));
+            document.querySelectorAll('.submenu-item').forEach(item => item.classList.remove('submenu-active'));
+            
+            if (element) {
+                if (isSubmenu) {
+                    element.classList.add('submenu-active');
+                } else {
+                    element.classList.add('nav-active');
+                }
+            }
+            if(window.innerWidth < 768) toggleMobileSidebar();
+        }
+
+        function hideIframeLoader() {
+            document.getElementById('iframe-loader').classList.add('opacity-0', 'pointer-events-none');
+            // सम्बन्धित मेनु/लिंक बटनको Loading अवस्था र माथिको प्रोग्रेस बार हटाउने
+            document.querySelectorAll('.nav-item.btn-loading, .submenu-item.btn-loading').forEach(stopButtonLoading);
+            finishTopProgress();
+        }
+
+        function toggleDropdown(dropdownId, arrowId) {
+            const dropdown = document.getElementById(dropdownId);
+            const arrow = document.getElementById(arrowId);
+            if (dropdown && dropdown.classList.contains('hidden')) {
+                dropdown.classList.remove('hidden');
+                arrow.classList.add('rotate-180');
+            } else if(dropdown) {
+                dropdown.classList.add('hidden');
+                arrow.classList.remove('rotate-180');
+            }
+        }
+
+        // ===== सेक्सन छनौट Popup (अभिलेखीकरण / नक्सा पास / Full Summary) =====
+        function openChoiceModal() {
+            const modal = document.getElementById('choiceModal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+        }
+        function closeChoiceModal() {
+            const modal = document.getElementById('choiceModal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+        function switchSection(page) {
+            window.location.href = page;
+        }
+
+        // ७. लगआउट फङ्सन
+        function handleLogout() {
+            // रिडाइरेक्ट नभएसम्म लगआउट बटनमा Loading अवस्था कायम राख्ने
+            const logoutBtn = document.querySelector('button[onclick="handleLogout()"]');
+            if (logoutBtn) {
+                startButtonLoading(logoutBtn);
+                logoutBtn.disabled = true;
+            }
+
+            localStorage.removeItem("userLoggedIn");
+            localStorage.removeItem("loggedInUserEmail");
+            localStorage.removeItem("userRole");
+            
+            showToast("प्रणालीबाट सफलतापूर्वक लगआउट गरियो।", "success");
+            
+            setTimeout(() => {
+                window.location.href = "mapbranch.html"; 
+            }, 800);
+        }
+
+        // ८. ५ मिनेट निष्क्रिय (Idle) अटो-लगआउट व्यवस्थापन
+        function resetIdleTimer() {
+            clearTimeout(idleTimeout);
+            idleTimeout = setTimeout(() => {
+                alert("🔒 सुरक्षाको कारणले ५ मिनेटसम्म कुनै गतिविधि नभएको हुँदा प्रणाली स्वतः लगआउट गरिएको छ।");
+                handleLogout();
+            }, IDLE_TIME_LIMIT);
+        }
+
+        function setupIdleTracker() {
+            if (localStorage.getItem("userLoggedIn") !== "true") return;
+
+            window.onload = resetIdleTimer;
+            window.onmousemove = resetIdleTimer;
+            window.onmousedown = resetIdleTimer; 
+            window.ontouchstart = resetIdleTimer; 
+            window.onclick = resetIdleTimer;     
+            window.onkeypress = resetIdleTimer;  
+            window.addEventListener('scroll', resetIdleTimer, true);
+
+            const iframe = document.getElementById('content-frame');
+            if (iframe) {
+                iframe.addEventListener('load', () => {
+                    try {
+                        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                        ['mousemove', 'mousedown', 'keypress', 'scroll', 'touchstart'].forEach(evt => {
+                            iframeDoc.addEventListener(evt, resetIdleTimer, true);
+                        });
+                    } catch (e) {
+                        // cross-origin protection block
+                    }
+                });
+            }
+        }
+
+        // ९. प्रारम्भिक बुटलोडर (केवल लगइन भएको role र email देखाउने व्यवस्था)
+        function initializeSystem() {
+            if (localStorage.getItem("userLoggedIn") !== "true") {
+                window.location.href = "mapbranch.html";
+                return;
+            }
+
+            // लोकल स्टोरेजबाट सेसन डेटा तान्ने[cite: 3]
+            const userEmail = localStorage.getItem("loggedInUserEmail") || "user@galkotmun.gov.np";
+            const userRole = localStorage.getItem("userRole") || "staff";
+            
+            // टपबारमा युजरको वास्तविक इमेल (Email) राख्ने[cite: 3]
+            document.getElementById('topbar-user-display').innerText = userEmail;
+            
+            // रोल व्यवस्थापन प्रदर्शन[cite: 3]
+            let displayRole = userRole.toUpperCase();
+            if (userRole === "admin") displayRole = "Admin";
+            if (userRole === "staff") displayRole = "Staff";
+            if (userRole === "consultancy") displayRole = "Consultancy";
+            
+            document.getElementById('topbar-role-display').innerText = displayRole;
+            document.getElementById('user-avatar').innerText = userEmail.charAt(0).toUpperCase();
+
+            renderSidebarMenu(userRole);
+            setupIdleTracker(); 
+            
+            // यदि URL मा ?track=ID दिइएको छ भने सिधै तोकिएको page मा त्यो विवरण देखाउने (कुनै खोजी नगरी)
+            // र त्यसपछि जुनसुकै अर्को Tab मा गए पनि उही व्यक्तिको विवरण कायम राख्ने
+            const trackId = new URLSearchParams(window.location.search).get('track');
+            const trackOwner = new URLSearchParams(window.location.search).get('owner');
+            const trackTarget = new URLSearchParams(window.location.search).get('target') || 'trackview.html';
+            const allNavLinks = document.querySelectorAll('#dynamic-sidebar a');
+
+            if (trackId) {
+                activeTrackId = trackId;
+                activeTrackOwner = trackOwner || '';
+
+                let trackTab = null;
+                allNavLinks.forEach(link => {
+                    if (link.getAttribute('onclick') && link.getAttribute('onclick').includes(trackTarget)) {
+                        trackTab = link;
+                    }
+                });
+                loadPage(`${trackTarget}?id=${encodeURIComponent(trackId)}&owner=${encodeURIComponent(trackOwner || '')}`, 'Track विवरण', trackTab, false);
+
+                // URL बाट ?track=... हटाउने, ताकि Refresh (F5) गर्दा फेरि उही व्यक्तिमा नफर्की सुरुबाट (Dashboard) खुल्ने
+                window.history.replaceState({}, '', window.location.pathname);
+                return;
+            }
+
+            // डिफल्ट रूपमा ड्यासबोर्ड लोड गर्ने[cite: 3]
+            let defaultTab = null;
+            allNavLinks.forEach(link => {
+                if (link.getAttribute('onclick') && link.getAttribute('onclick').includes('dashboard.html')) {
+                    defaultTab = link;
+                }
+            });
+
+            if (defaultTab) {
+                loadPage('dashboard.html', 'ड्यासबोर्ड', defaultTab, false);
+            } else {
+                loadPage('dashboard.html', 'ड्यासबोर्ड', null, false);
+            }
+        }
+
+        window.onload = initializeSystem;
+    </script>
+</body>
+</html>
