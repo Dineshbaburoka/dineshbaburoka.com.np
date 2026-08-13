@@ -34,6 +34,11 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2.39.8/dist/umd/supabase.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/recordrtc@5.6.2/RecordRTC.js"></script>
 
+    <!-- NEPALI DEVANAGARI FONT FOR CRISP CANVAS + UI TYPOGRAPHY -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700;900&display=swap" rel="stylesheet">
+
     <!-- 3. ADVANCED GLASSMORPHISM & CSS LAYOUT SYSTEM -->
     <style>
         .scrollbar-premium::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -73,6 +78,11 @@
             stroke-dasharray: 565.48; /* 2 * Math.PI * 90 */
             stroke-dashoffset: 0;
             transition: stroke-dashoffset 1s linear;
+        }
+
+        /* Apply Devanagari-friendly font stack across the whole app UI */
+        body, textarea, input, select, button {
+            font-family: 'Noto Sans Devanagari', 'Mukta', system-ui, sans-serif;
         }
     </style>
 </head>
@@ -230,6 +240,11 @@
                     </h2>
                 </div>
                 
+                <!-- QUICK SEARCH BOX FOR QUESTION BANK -->
+                <div class="relative">
+                    <input type="text" id="bank-search-input" oninput="applyLiveSearchFilterLayer(this.value)" placeholder="🔎 प्रश्न खोज्नुहोस् (Search questions)..." class="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold text-slate-200 outline-none focus:border-cyan-500 transition-all shadow-inner">
+                </div>
+
                 <select id="filter-category-selector" onchange="applyLiveCategoryFilterLayer(this.value)" class="w-full p-2.5 bg-slate-950 border border-purple-900/30 rounded-xl text-xs font-bold text-purple-300 outline-none focus:border-purple-500 transition-all shadow-inner">
                     <option value="ALL">📂 सबै विधाका प्रश्नहरू हेर्नुहोस् (Show All Records)</option>
                     <option value="सामान्य ज्ञान">🌐 सामान्य ज्ञान (General GK)</option>
@@ -312,7 +327,7 @@
                         </svg>
                         
                         <!-- LOKSEWA HUB INTERACTIVE INTEGRATED LOGO CONTAINER IN THE CENTER -->
-                        <img id="ui-timer-integrated-logo" src="logo_hub_2.jpg" alt="Logo" class="absolute w-[80px] h-[80px] rounded-full object-cover opacity-20 z-10 transition-opacity duration-300">
+                        <img id="ui-timer-integrated-logo" src="https://dineshbaburoka.com.np/hub_icon.ico" alt="Logo" crossorigin="anonymous" class="absolute w-[80px] h-[80px] rounded-full object-cover opacity-20 z-10 transition-opacity duration-300">
                         
                         <!-- REMAINING NUMERIC TIMER STRING DISPLAY IN CENTER OVER LOGO LAYER -->
                         <div id="preview-timer-numeric-string" class="absolute font-mono text-3xl font-black text-brand-gold z-20 text-shadow-md">5</div>
@@ -354,6 +369,7 @@
     let localMemoryQuestionCollection = [];
     let runtimeSelectedQuestionObject = null;
     let activeFilteringCategoryToken = "ALL";
+    let activeSearchQueryToken = "";
 
     // CORE NODE TREE CACHE POINTER REGISTER REFERENCES
     const DOM = {
@@ -582,14 +598,25 @@
         dispatchUIRowRenderPipelineLoop();
     }
 
+    // LIVE TEXT SEARCH FILTER ROUTINE (matches question + all four options)
+    function applyLiveSearchFilterLayer(searchInputValue) {
+        activeSearchQueryToken = (searchInputValue || "").trim().toLowerCase();
+        dispatchUIRowRenderPipelineLoop();
+    }
+
     // INTERFACE BUILDER ARCHITECT: EMITS STYLISH INTERACTIVE ENTRY GRID LIST
     function dispatchUIRowRenderPipelineLoop() {
         const activeContainerNodeViewportElement = DOM.bankContainer();
         activeContainerNodeViewportElement.innerHTML = "";
 
         const computationalFilteredRecordDatasetArray = localMemoryQuestionCollection.filter(recordDataRow => {
-            if (activeFilteringCategoryToken === "ALL") return true;
-            return recordDataRow.category === activeFilteringCategoryToken;
+            const categoryMatches = activeFilteringCategoryToken === "ALL" || recordDataRow.category === activeFilteringCategoryToken;
+            if (!categoryMatches) return false;
+
+            if (activeSearchQueryToken === "") return true;
+            const haystack = [recordDataRow.question, recordDataRow.a, recordDataRow.b, recordDataRow.c, recordDataRow.d]
+                .filter(Boolean).join(' ').toLowerCase();
+            return haystack.includes(activeSearchQueryToken);
         });
 
         DOM.filteredCount().innerText = `${computationalFilteredRecordDatasetArray.length} items aggregated`;
@@ -767,8 +794,21 @@
     // ====================================================================
     // 🚀 FULL HD VERTICAL REEL/SHORT CANVAS VIDEO GENERATOR ARCHITECTURE
     // ====================================================================
-    function orchestratePremiumCanvasReelPipeline() {
+    async function orchestratePremiumCanvasReelPipeline() {
         if (!runtimeSelectedQuestionObject) return alert("सिस्टम त्रुटि: कुनै प्रश्न डेटा रेकर्ड चयन गरिएको छैन।");
+
+        // ENSURE THE DEVANAGARI WEBFONT IS FULLY LOADED BEFORE CANVAS DRAWING BEGINS,
+        // otherwise the first frames of the recording can fall back to a generic
+        // font while Noto Sans Devanagari is still downloading.
+        try {
+            await Promise.all([
+                document.fonts.load('900 52px "Noto Sans Devanagari"'),
+                document.fonts.load('bold 42px "Noto Sans Devanagari"'),
+                document.fonts.load('900 24px "Noto Sans Devanagari"')
+            ]);
+        } catch (fontLoadError) {
+            console.warn("Devanagari webfont preload skipped:", fontLoadError);
+        }
 
         const UI_TriggerButtonSelectorElement = DOM.engineTriggerBtn();
         const UI_NumericTimerTextSelectorElement = DOM.viewPreviewTimerText();
@@ -798,29 +838,73 @@
         // Asynchronously Pre-load Central Inside-Timer Circular Logo Image Asset
         const imageTimerEmbeddedLogoLayer = new Image();
         imageTimerEmbeddedLogoLayer.crossOrigin = "anonymous";
-        imageTimerEmbeddedLogoLayer.src = "logo_hub_2.jpg"; // Maps default or local root workspace file
+        imageTimerEmbeddedLogoLayer.src = "https://dineshbaburoka.com.np/hub_icon.ico"; // Hosted watermark logo used inside the countdown circle
 
         let logoAssetLoadStatusFlag = false;
         imageTimerEmbeddedLogoLayer.onload = () => { logoAssetLoadStatusFlag = true; };
         imageTimerEmbeddedLogoLayer.onerror = () => { logoAssetLoadStatusFlag = false; console.warn("Canvas Engine: Logo loading error. Vector overlay skipped."); };
 
         // Set up High Bitrate Capture Device Stream Core Hook Interface
-        const hardwareCanvasFrameStreamOutput = masterGraphicRenderingCanvas.captureStream(30); 
+        const hardwareCanvasFrameStreamOutput = masterGraphicRenderingCanvas.captureStream(30);
+
+        // DETECT THE BEST NATIVELY-SUPPORTED CODEC ON THIS BROWSER SO THE
+        // DOWNLOADED FILE'S EXTENSION ALWAYS MATCHES ITS REAL CONTAINER FORMAT.
+        // Real MP4 (H.264) recording only works on browsers that support it
+        // (e.g. Safari); everywhere else we correctly fall back to WebM,
+        // which any modern player (VLC, mobile gallery apps, etc.) opens fine.
+        function resolveBestSupportedRecordingFormat() {
+            const candidateFormats = [
+                { mimeType: 'video/mp4;codecs=avc1', extension: 'mp4' },
+                { mimeType: 'video/mp4', extension: 'mp4' },
+                { mimeType: 'video/webm;codecs=vp9', extension: 'webm' },
+                { mimeType: 'video/webm;codecs=vp8', extension: 'webm' },
+                { mimeType: 'video/webm', extension: 'webm' }
+            ];
+            for (const candidate of candidateFormats) {
+                if (window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(candidate.mimeType)) {
+                    return candidate;
+                }
+            }
+            // Ultimate fallback: RecordRTC's own default WebM encoder
+            return { mimeType: 'video/webm;codecs=vp9', extension: 'webm' };
+        }
+
+        const resolvedRecordingFormat = resolveBestSupportedRecordingFormat();
+
         const transactionalRecordRTCEngine = new RecordRTC(hardwareCanvasFrameStreamOutput, {
             type: 'video',
-            mimeType: 'video/webm;codecs=vp9',
+            mimeType: resolvedRecordingFormat.mimeType,
             bitsPerSecond: 9500000 
         });
 
         transactionalRecordRTCEngine.startRecording();
 
+        // ---- REAL WALL-CLOCK TIMING (NOT FRAME-COUNT BASED) ----
+        // requestAnimationFrame fires at whatever refresh rate the device/browser
+        // gives (30/60/90/120Hz etc.), so counting frames and assuming 30fps made
+        // the exported clip's real length drift away from 5 seconds. Everything
+        // is now anchored to performance.now() so the recorded video is ALWAYS
+        // exactly 5.000 seconds long, regardless of frame rate.
+        // Video is exactly 5 seconds total: second 0-1 shows "5", 1-2 shows "4",
+        // 2-3 shows "3", 3-4 shows "2", 4-5 shows "1" — one number per full real
+        // second, with the correct-answer highlight fading in during that final
+        // "1" second (no extra time is added on top — 5 numbers = 5 seconds).
+        const TOTAL_REEL_DURATION_MS = 5000;                 // exact total video length
+        const recordingStartTimestampMs = performance.now();
+
         let computationalLoopTickIncrement = 0;
         let interactiveCountdownIntegerTimerClock = 5;
         let finalAnswerVisibilityTriggerStatusFlag = false;
+        let recordingFinalizeAlreadyTriggeredFlag = false;
         const targetMaxSVGCircumference = 2 * Math.PI * 140; // Math Radius allocation size inside Canvas vector matrix loop
+
+        // Hard stop scheduled independently of the render loop so the exported
+        // file duration can never drift past 5 seconds even under frame-rate jitter.
+        setTimeout(() => { finalizeReelRecordingAndDownload(); }, TOTAL_REEL_DURATION_MS);
 
         function renderingExecutionLoopCoreCycle() {
             computationalLoopTickIncrement++;
+            const elapsedRecordingTimeMs = performance.now() - recordingStartTimestampMs;
             
             // FRAME GRAPHIC MATRIX 1: MOUNT DEPLOYED IMAGE ASSET BACKGROUND LAYER
             if (backgroundAssetLoadStatusFlag) {
@@ -853,7 +937,7 @@
             executeSmoothRoundedRectangleVectorDraw(renderMatrixContext2D, 290, 100, 500, 110, 30, true, true);
 
             renderMatrixContext2D.fillStyle = '#a855f7';
-            renderMatrixContext2D.font = '900 24px sans-serif';
+            renderMatrixContext2D.font = "900 24px 'Noto Sans Devanagari', sans-serif";
             renderMatrixContext2D.textAlign = 'center';
             renderMatrixContext2D.fillText((runtimeSelectedQuestionObject.category || "सामान्य ज्ञान").toUpperCase(), 540, 142);
 
@@ -861,19 +945,40 @@
             renderMatrixContext2D.fillRect(440, 155, 200, 2);
 
             renderMatrixContext2D.fillStyle = '#22d3ee';
-            renderMatrixContext2D.font = '900 28px sans-serif';
+            renderMatrixContext2D.font = "900 28px 'Noto Sans Devanagari', sans-serif";
             renderMatrixContext2D.textAlign = 'center';
             renderMatrixContext2D.letterSpacing = "8px";
             renderMatrixContext2D.fillText("LOKSEWA HUB QUIZ", 540, 192);
-            renderMatrixContext2D.letterSpacing = "0px"; 
+            renderMatrixContext2D.letterSpacing = "0px";
+
+            // FRAME GRAPHIC MATRIX 3.5: "QUESTION N/TOTAL" COUNTER + FOLLOW WATERMARK
+            const currentQuestionOrdinalPosition = Math.max(1, localMemoryQuestionCollection.findIndex(r => r.id === runtimeSelectedQuestionObject.id) + 1);
+            const totalQuestionCountInBank = localMemoryQuestionCollection.length || 1;
+            renderMatrixContext2D.fillStyle = 'rgba(255, 255, 255, 0.55)';
+            renderMatrixContext2D.font = "700 22px 'Noto Sans Devanagari', sans-serif";
+            renderMatrixContext2D.textAlign = 'center';
+            renderMatrixContext2D.fillText(`Question ${String(currentQuestionOrdinalPosition).padStart(2, '0')}/${String(totalQuestionCountInBank).padStart(2, '0')}`, 540, 225);
+
+            renderMatrixContext2D.fillStyle = 'rgba(255, 188, 0, 0.85)';
+            renderMatrixContext2D.font = "700 24px 'Noto Sans Devanagari', sans-serif";
+            renderMatrixContext2D.fillText("Follow for more Loksewa Questions", 540, 1860);
 
             // FRAME GRAPHIC MATRIX 4: MULTI-LINE TEXT DISPATCH FOR QUESTIONS
+            // Adaptive font sizing: longer questions automatically shrink so they
+            // still fit cleanly within the fixed vertical text zone above the options.
+            const questionCharacterLength = (runtimeSelectedQuestionObject.question || "").length;
+            let adaptiveQuestionFontSizePx = 52;
+            let adaptiveQuestionLineHeightPx = 80;
+            if (questionCharacterLength > 140) { adaptiveQuestionFontSizePx = 34; adaptiveQuestionLineHeightPx = 54; }
+            else if (questionCharacterLength > 100) { adaptiveQuestionFontSizePx = 40; adaptiveQuestionLineHeightPx = 62; }
+            else if (questionCharacterLength > 60) { adaptiveQuestionFontSizePx = 46; adaptiveQuestionLineHeightPx = 72; }
+
             renderMatrixContext2D.fillStyle = '#ffffff';
-            renderMatrixContext2D.font = '900 52px sans-serif';
+            renderMatrixContext2D.font = `900 ${adaptiveQuestionFontSizePx}px 'Noto Sans Devanagari', sans-serif`;
             renderMatrixContext2D.shadowColor = 'rgba(0, 0, 0, 0.85)';
             renderMatrixContext2D.shadowBlur = 25;
             renderMatrixContext2D.textAlign = 'center';
-            executeDynamicMultilineTextProcessor(renderMatrixContext2D, runtimeSelectedQuestionObject.question, 540, 440, 920, 80);
+            executeDynamicMultilineTextProcessor(renderMatrixContext2D, runtimeSelectedQuestionObject.question, 540, 440, 920, adaptiveQuestionLineHeightPx);
             renderMatrixContext2D.shadowBlur = 0; 
 
             // FRAME GRAPHIC MATRIX 5: STATIC/DYNAMIC MCQ CHOICE INTERFACE ARRAY EMITTER
@@ -902,10 +1007,10 @@
 
                 if (finalAnswerVisibilityTriggerStatusFlag && runtimeSelectedQuestionObject.answer === optionRowStruct.marker) {
                     renderMatrixContext2D.fillStyle = '#34d399';
-                    renderMatrixContext2D.font = '900 42px sans-serif';
+                    renderMatrixContext2D.font = "900 42px 'Noto Sans Devanagari', sans-serif";
                 } else {
                     renderMatrixContext2D.fillStyle = '#e2e8f0';
-                    renderMatrixContext2D.font = 'bold 42px sans-serif';
+                    renderMatrixContext2D.font = "bold 42px 'Noto Sans Devanagari', sans-serif";
                 }
                 renderMatrixContext2D.textAlign = 'left';
                 renderMatrixContext2D.fillText(`${optionRowStruct.prefix}  ${optionRowStruct.data}`, 140, computationalAxisPositionY + 76);
@@ -948,20 +1053,22 @@
                 renderMatrixContext2D.textAlign = 'center';
                 renderMatrixContext2D.fillText(interactiveCountdownIntegerTimerClock, 540, 1665);
                 
-                // Execute Time Reduction Logic over 30 FPS Interpolation Cycle
-                if (computationalLoopTickIncrement % 30 === 0 && interactiveCountdownIntegerTimerClock > 0) {
-                    interactiveCountdownIntegerTimerClock--;
+                // Execute Time Reduction Logic anchored to real elapsed wall-clock time.
+                // 1 real second per number: 0-1s→5, 1-2s→4, 2-3s→3, 3-4s→2, 4-5s→1.
+                let liveCountdownRemainingSeconds = Math.max(1, 5 - Math.floor(elapsedRecordingTimeMs / 1000));
+                if (liveCountdownRemainingSeconds !== interactiveCountdownIntegerTimerClock) {
+                    interactiveCountdownIntegerTimerClock = liveCountdownRemainingSeconds;
                     UI_NumericTimerTextSelectorElement.innerText = interactiveCountdownIntegerTimerClock;
-                    
+
                     // Update Simulator Live SVG element bar dynamically in real time
                     let liveCircumferenceDashOffsetValue = targetMaxSVGCircumference - ((interactiveCountdownIntegerTimerClock / 5) * targetMaxSVGCircumference);
                     UI_VectorCircleProgressElement.style.strokeDashoffset = liveCircumferenceDashOffsetValue;
                 }
-                
-                if (interactiveCountdownIntegerTimerClock <= 0) {
-                    finalAnswerVisibilityTriggerStatusFlag = true;
-                    DOM.integratedLogo().style.opacity = "0.9"; // Enhance visual clarity of simulator logo when complete
-                }
+
+                // NOTE: the countdown circle (5,4,3,2,1) now occupies the FULL 5
+                // seconds of the video — one number per real second — so the
+                // "correct answer" reveal screen is intentionally not swapped in
+                // during recording; it would eat into the fixed 5-second runtime.
             } else {
                 // TIMER EXPIRATION SCREEN BLOCK DISPLAY
                 renderMatrixContext2D.fillStyle = 'rgba(2, 44, 34, 0.96)';
@@ -973,7 +1080,7 @@
                 let normalizedCorrectValueString = runtimeSelectedQuestionObject[runtimeSelectedQuestionObject.answer];
 
                 renderMatrixContext2D.fillStyle = '#10b981';
-                renderMatrixContext2D.font = '900 46px sans-serif';
+                renderMatrixContext2D.font = "900 46px 'Noto Sans Devanagari', sans-serif";
                 renderMatrixContext2D.textAlign = 'center';
                 renderMatrixContext2D.fillText(`✅ सही उत्तर: (${normalizedKeyTargetString}) ${normalizedCorrectValueString}`, 540, 1644);
 
@@ -982,31 +1089,42 @@
                 UI_VectorCircleProgressElement.style.strokeDashoffset = targetMaxSVGCircumference; // empty SVG countdown visualization tracking node
             }
 
-            // EVALUATE TICK RUNTIME RANGE TO STOP RECORDING FRAME AND DISPATCH WEB WORKER FILE COMPILE
-            if (computationalLoopTickIncrement < 235) {
+            // STOP EXACTLY AT THE REAL 5-SECOND WALL-CLOCK MARK (frame-count-independent)
+            if (elapsedRecordingTimeMs < TOTAL_REEL_DURATION_MS) {
                 requestAnimationFrame(renderingExecutionLoopCoreCycle);
             } else {
                 cancelAnimationFrame(renderingExecutionLoopCoreCycle);
-                
-                transactionalRecordRTCEngine.stopRecording(() => {
-                    let compiledBinaryBlobVideoOutputData = transactionalRecordRTCEngine.getBlob();
-                    
-                    if (!compiledBinaryBlobVideoOutputData || compiledBinaryBlobVideoOutputData.size === 0) {
-                        alert("क्रिटICAL रेन्डर विफलता: भिडियो स्ट्रीम बाइनरी कम्पाइल हुन सकेन।");
-                    } else {
-                        let activeVirtualBlobUrlPointer = URL.createObjectURL(compiledBinaryBlobVideoOutputData);
-                        let fileDownloadTriggerAnchorLinkNode = document.createElement('a');
-                        fileDownloadTriggerAnchorLinkNode.href = activeVirtualBlobUrlPointer;
-                        fileDownloadTriggerAnchorLinkNode.download = `LoksewaHub_Studio_Reel_v4_${Date.now()}.mp4`;
-                        fileDownloadTriggerAnchorLinkNode.click();
-                    }
-
-                    // RESTORE ENGINE ACTION OPERATIONS BUTTON BACK TO DEFAULT STATES
-                    UI_TriggerButtonSelectorElement.disabled = false;
-                    UI_TriggerButtonSelectorElement.innerText = "⚡ GENERATE FULL HD SHORT / REEL (WITH TIMER LOGO)";
-                    UI_TriggerButtonSelectorElement.className = "w-full bg-gradient-to-r from-red-600 via-pink-600 to-purple-600 hover:from-red-500 hover:to-purple-500 text-white py-4 rounded-2xl font-black shadow-xl shadow-pink-900/20 transition-all transform active:scale-95 text-center text-xs tracking-wider uppercase flex items-center justify-center gap-2";
-                });
+                finalizeReelRecordingAndDownload();
             }
+        }
+
+        // Stops the recording (idempotent — safe to call from both the render loop's
+        // own elapsed-time check AND the hard setTimeout safety net; whichever fires
+        // first wins, guaranteeing the exported clip is exactly 5 seconds).
+        function finalizeReelRecordingAndDownload() {
+            if (recordingFinalizeAlreadyTriggeredFlag) return;
+            recordingFinalizeAlreadyTriggeredFlag = true;
+
+            transactionalRecordRTCEngine.stopRecording(() => {
+                let compiledBinaryBlobVideoOutputData = transactionalRecordRTCEngine.getBlob();
+
+                if (!compiledBinaryBlobVideoOutputData || compiledBinaryBlobVideoOutputData.size === 0) {
+                    alert("क्रिटICAL रेन्डर विफलता: भिडियो स्ट्रीम बाइनरी कम्पाइल हुन सकेन।");
+                } else {
+                    let activeVirtualBlobUrlPointer = URL.createObjectURL(compiledBinaryBlobVideoOutputData);
+                    let fileDownloadTriggerAnchorLinkNode = document.createElement('a');
+                    fileDownloadTriggerAnchorLinkNode.href = activeVirtualBlobUrlPointer;
+                    // Extension now always matches the actual recorded container (mp4 or webm)
+                    fileDownloadTriggerAnchorLinkNode.download = `LoksewaHub_Studio_Reel_v4_${Date.now()}.${resolvedRecordingFormat.extension}`;
+                    fileDownloadTriggerAnchorLinkNode.click();
+                    setTimeout(() => URL.revokeObjectURL(activeVirtualBlobUrlPointer), 4000);
+                }
+
+                // RESTORE ENGINE ACTION OPERATIONS BUTTON BACK TO DEFAULT STATES
+                UI_TriggerButtonSelectorElement.disabled = false;
+                UI_TriggerButtonSelectorElement.innerText = "⚡ GENERATE FULL HD SHORT / REEL (WITH TIMER LOGO)";
+                UI_TriggerButtonSelectorElement.className = "w-full bg-gradient-to-r from-red-600 via-pink-600 to-purple-600 hover:from-red-500 hover:to-purple-500 text-white py-4 rounded-2xl font-black shadow-xl shadow-pink-900/20 transition-all transform active:scale-95 text-center text-xs tracking-wider uppercase flex items-center justify-center gap-2";
+            });
         }
 
         // Delay loop slightly for hardware buffer clearing and canvas normalization execution
