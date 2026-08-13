@@ -885,11 +885,13 @@
         // the exported clip's real length drift away from 5 seconds. Everything
         // is now anchored to performance.now() so the recorded video is ALWAYS
         // exactly 5.000 seconds long, regardless of frame rate.
-        // Video is exactly 5 seconds total: second 0-1 shows "5", 1-2 shows "4",
-        // 2-3 shows "3", 3-4 shows "2", 4-5 shows "1" — one number per full real
-        // second, with the correct-answer highlight fading in during that final
-        // "1" second (no extra time is added on top — 5 numbers = 5 seconds).
-        const TOTAL_REEL_DURATION_MS = 5000;                 // exact total video length
+        // Video is 7 seconds total: seconds 0-5 run the countdown (second 0-1
+        // shows "5", 1-2 shows "4", 2-3 shows "3", 3-4 shows "2", 4-5 shows "1"
+        // — one number per full real second), then seconds 5-7 hold on the
+        // "correct answer" reveal screen so it actually appears in the export.
+        const COUNTDOWN_PHASE_DURATION_MS = 5000;             // length of the numeric countdown
+        const ANSWER_REVEAL_DURATION_MS = 2000;               // extra hold time for the answer screen
+        const TOTAL_REEL_DURATION_MS = COUNTDOWN_PHASE_DURATION_MS + ANSWER_REVEAL_DURATION_MS; // exact total video length
         const recordingStartTimestampMs = performance.now();
 
         let computationalLoopTickIncrement = 0;
@@ -1016,6 +1018,11 @@
                 renderMatrixContext2D.fillText(`${optionRowStruct.prefix}  ${optionRowStruct.data}`, 140, computationalAxisPositionY + 76);
             });
 
+            // Flip to the answer-reveal screen once the 5-second countdown phase is over.
+            if (elapsedRecordingTimeMs >= COUNTDOWN_PHASE_DURATION_MS) {
+                finalAnswerVisibilityTriggerStatusFlag = true;
+            }
+
             // FRAME GRAPHIC MATRIX 6: RE-ENGINEERED DYNAMIC CLOCK AND EMBEDDED CENTRAL LOGO
             if (!finalAnswerVisibilityTriggerStatusFlag) {
                 
@@ -1065,10 +1072,10 @@
                     UI_VectorCircleProgressElement.style.strokeDashoffset = liveCircumferenceDashOffsetValue;
                 }
 
-                // NOTE: the countdown circle (5,4,3,2,1) now occupies the FULL 5
-                // seconds of the video — one number per real second — so the
-                // "correct answer" reveal screen is intentionally not swapped in
-                // during recording; it would eat into the fixed 5-second runtime.
+                // The countdown circle (5,4,3,2,1) occupies the first 5 seconds
+                // of the video — one number per real second. Once that phase
+                // ends, finalAnswerVisibilityTriggerStatusFlag flips true above
+                // and the remaining 2 seconds hold on the answer-reveal screen.
             } else {
                 // TIMER EXPIRATION SCREEN BLOCK DISPLAY
                 renderMatrixContext2D.fillStyle = 'rgba(2, 44, 34, 0.96)';
