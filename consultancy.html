@@ -1,135 +1,493 @@
 <!DOCTYPE html>
 <html lang="ne">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>गलकोट नगरपालिका - भूमि व्यवस्थापन (कन्सलटेन्सी मास्टर पोर्टल)</title>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
-  
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>गलकोट नगरपालिका - भूमि व्यवस्थापन Consultancy e-Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --primary-color:#0c2461;
+    --primary-light:#1e3799;
+    --secondary-color:#1e3799;
+    --accent-color:#cf1b1b;
+    --success-color:#2ed573;
+    --success-dark:#26af5f;
+    --danger-color:#ff4757;
+    --warning-color:#ffa502;
+    --bg-color:#f1f4f9;
+    --card-bg:#ffffff;
+    --border-color:#dfe4ec;
+    --text-main:#2f3542;
+    --text-muted:#606a7d;
+    --radius:12px;
+    --shadow:0 4px 20px rgba(12,36,97,0.08);
+  }
+  [data-theme="dark"]{
+    --bg-color:#0f172a;
+    --card-bg:#16213a;
+    --border-color:#2a3654;
+    --text-main:#e7ecf7;
+    --text-muted:#a3adc2;
+    --shadow:0 4px 20px rgba(0,0,0,0.35);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Noto Sans Devanagari',sans-serif;
+    background:var(--bg-color);
+    color:var(--text-main);
+    padding-bottom:70px;
+    transition:background .25s ease,color .25s ease;
+  }
+  a{color:inherit;}
+  .container{max-width:1200px;margin:0 auto;padding:0 18px;}
 
-  <style>
-    :root {
-      --primary-color: #0c2461;
-      --secondary-color: #1e3799;
-      --accent-color: #cf1b1b;
-      --success-color: #2ed573;
-      --danger-color: #ff4757;
-      --warning-color: #ffa502;
-      --bg-color: #f1f2f6;
-      --card-bg: #ffffff;
-      --border-color: #ced6e0;
-    }
+  /* ============ HEADER ============ */
+  .app-header{
+    position:sticky;top:0;z-index:500;
+    background:linear-gradient(180deg,var(--primary-color),var(--primary-light));
+    color:#fff;box-shadow:0 2px 12px rgba(0,0,0,0.18);
+  }
+  .header-inner{
+    max-width:1200px;margin:0 auto;padding:12px 18px;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  }
+  .header-brand{display:flex;align-items:center;gap:12px;}
+  .header-brand .logo{font-size:30px;line-height:1;}
+  .header-brand h1{font-size:16px;font-weight:700;line-height:1.3;}
+  .header-brand p{font-size:12.5px;font-weight:500;opacity:.88;}
+  .header-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .status-pill{
+    display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.12);
+    padding:6px 12px;border-radius:20px;font-size:12.5px;font-weight:600;
+  }
+  .status-dot{width:8px;height:8px;border-radius:50%;background:var(--success-color);box-shadow:0 0 0 3px rgba(46,213,115,0.3);}
+  .user-chip{
+    display:flex;flex-direction:column;align-items:flex-end;font-size:12px;line-height:1.3;
+  }
+  .user-chip b{font-size:13px;}
+  .icon-btn{
+    background:rgba(255,255,255,0.14);border:none;color:#fff;width:36px;height:36px;border-radius:10px;
+    cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:.2s;
+  }
+  .icon-btn:hover{background:rgba(255,255,255,0.26);}
+  .btn-logout-header{
+    background:var(--danger-color);color:#fff;border:none;padding:9px 16px;border-radius:9px;font-size:13.5px;
+    font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:.2s;
+  }
+  .btn-logout-header:hover{background:#e03d4b;}
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Noto Sans Devanagari', sans-serif; background: var(--bg-color); padding: 25px; color: #2f3542; }
+  /* ============ RETURNED ALERT BANNER ============ */
+  .notification-alert{
+    max-width:1200px;margin:18px auto 0 auto;background:#fff0f1;
+    border-left:6px solid var(--danger-color);padding:15px 18px;border-radius:10px;
+    font-weight:700;font-size:15px;color:#b31212;display:none;
+    align-items:center;justify-content:space-between;gap:12px;
+    border-top:1px solid #ffa8a8;border-right:1px solid #ffa8a8;border-bottom:1px solid #ffa8a8;
+    box-shadow:var(--shadow);position:relative;
+  }
+  [data-theme="dark"] .notification-alert{background:#301418;color:#ff9aa2;border-color:#5a2530;}
+  .notification-alert .close-alert{
+    position:absolute;top:8px;right:10px;background:none;border:none;font-size:16px;color:#b31212;cursor:pointer;opacity:.7;
+  }
+  .notification-alert .close-alert:hover{opacity:1;}
 
-    /* Returned Files Notification Alert Banner */
-    .notification-alert {
-      max-width: 1200px; margin: 0 auto 20px auto; background: #fff0f1;
-      border-left: 6px solid var(--danger-color); padding: 15px; border-radius: 6px;
-      font-weight: bold; font-size: 16px; color: #b31212; display: none;
-      align-items: center; justify-content: space-between; gap: 10px;
-      border: 1px solid #ffa8a8;
-    }
+  /* ============ DASHBOARD CARDS ============ */
+  .dashboard-grid{
+    max-width:1200px;margin:22px auto 0 auto;display:grid;
+    grid-template-columns:repeat(5,1fr);gap:14px;padding:0 18px;
+  }
+  .dash-card{
+    background:var(--card-bg);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);
+    border:1px solid var(--border-color);cursor:pointer;transition:transform .18s ease,box-shadow .18s ease;
+    display:flex;flex-direction:column;gap:8px;
+  }
+  .dash-card:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(12,36,97,0.14);}
+  .dash-card .dc-icon{font-size:24px;}
+  .dash-card .dc-value{font-size:26px;font-weight:800;color:var(--primary-color);}
+  [data-theme="dark"] .dash-card .dc-value{color:#8fa5ff;}
+  .dash-card .dc-label{font-size:12.5px;font-weight:600;color:var(--text-muted);}
+  .dash-card.new{border-top:4px solid var(--primary-color);}
+  .dash-card.pending{border-top:4px solid var(--warning-color);}
+  .dash-card.revise{border-top:4px solid var(--danger-color);}
+  .dash-card.done{border-top:4px solid var(--success-color);}
+  .dash-card.total{border-top:4px solid var(--secondary-color);}
 
-    /* Master Containers Layout */
-    .master-form-container, .database-container {
-      max-width: 1200px; margin: 0 auto 30px auto; background: var(--card-bg);
-      padding: 35px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-      border-top: 6px solid var(--primary-color);
-    }
-    .database-container { border-top: 6px solid var(--danger-color); }
-    
-    .form-header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 3px double var(--border-color); padding-bottom: 15px; flex-wrap: wrap; gap: 15px; }
-    .form-title { color: var(--primary-color); font-size: 24px; font-weight: bold; }
-    .section-subtitle { font-size: 16px; font-weight: bold; color: var(--secondary-color); margin: 25px 0 15px 0; border-bottom: 2px solid var(--border-color); padding-bottom: 5px; grid-column: 1 / -1; }
-    
-    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; }
-    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; background: #fff5f5; padding: 15px; border-radius: 8px; border: 1px dashed var(--danger-color); margin-bottom: 20px; }
-    .grid-5 { display: grid; grid-template-columns: 2fr repeat(4, 1fr); gap: 10px; align-items: center; margin-bottom: 10px; }
-    
-    .field { display: flex; flex-direction: column; }
-    .field label { font-weight: 600; margin-bottom: 5px; font-size: 14px; color: #57606f; }
-    .field label.required::after { content: " *"; color: red; }
-    .field input, .field select { padding: 10px; border: 2px solid var(--border-color); border-radius: 6px; font-size: 14px; outline: none; transition: 0.2s; }
-    .field input:focus { border-color: var(--secondary-color); }
-    
-    .floor-label { font-weight: 600; font-size: 14px; color: #2f3542; }
-    .floor-input { padding: 8px; border: 2px solid var(--border-color); border-radius: 4px; font-size: 14px; text-align: center; }
-    .floor-area-input { background-color: #fff9db; font-weight: bold; color: #2f3542; border: 2px solid #fab005; }
+  /* ============ MASTER CONTAINERS ============ */
+  .master-form-container, .database-container{
+    max-width:1200px;margin:24px auto 30px auto;background:var(--card-bg);
+    padding:28px;border-radius:var(--radius);box-shadow:var(--shadow);
+    border-top:6px solid var(--primary-color);
+  }
+  .database-container{border-top:6px solid var(--danger-color);}
+  .form-header-container{
+    display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;
+    border-bottom:2px solid var(--border-color);padding-bottom:14px;flex-wrap:wrap;gap:12px;
+  }
+  .form-title{color:var(--primary-color);font-size:19px;font-weight:800;}
+  [data-theme="dark"] .form-title{color:#8fa5ff;}
 
-    /* Search Box Input */
-    .search-box { width: 100%; padding: 12px; margin-bottom: 20px; border: 2px solid var(--danger-color); border-radius: 6px; font-size: 15px; outline: none; font-weight: bold; }
+  /* ============ PROGRESS STEPPER ============ */
+  .stepper{
+    display:flex;align-items:center;justify-content:space-between;list-style:none;margin:0 0 26px 0;
+    overflow-x:auto;padding-bottom:6px;
+  }
+  .stepper li{
+    flex:1;min-width:78px;display:flex;flex-direction:column;align-items:center;gap:6px;position:relative;font-size:11px;
+    color:var(--text-muted);font-weight:600;text-align:center;
+  }
+  .stepper li::before{
+    content:"";position:absolute;top:15px;left:-50%;width:100%;height:3px;background:var(--border-color);z-index:0;
+  }
+  .stepper li:first-child::before{content:none;}
+  .stepper li.done::before{background:var(--success-color);}
+  .step-circle{
+    width:32px;height:32px;border-radius:50%;background:var(--bg-color);border:2px solid var(--border-color);
+    display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--text-muted);z-index:1;font-size:13px;
+    transition:.2s;
+  }
+  .stepper li.active .step-circle{background:var(--primary-color);border-color:var(--primary-color);color:#fff;}
+  .stepper li.active{color:var(--primary-color);}
+  [data-theme="dark"] .stepper li.active{color:#8fa5ff;}
+  .stepper li.done .step-circle{background:var(--success-color);border-color:var(--success-color);color:#fff;}
 
-    /* Buttons */
-    .action-buttons { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-top: 30px; }
-    .btn { color: white; border: none; padding: 14px 20px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer; transition: 0.3s; display: flex; justify-content: center; align-items: center; gap: 10px; text-align: center; text-decoration: none; }
-    .btn-save { background: var(--primary-color); }
-    .btn-save:hover { background: var(--secondary-color); }
-    .btn-resubmit { background: var(--success-color); display: none; }
-    .btn-resubmit:hover { background: #26af5f; }
-    .btn-clear { background: var(--danger-color); }
-    .btn-clear:hover { background: #e03d4b; }
-    .btn-scroll { background: var(--warning-color); padding: 8px 15px; font-size: 14px; }
+  .wizard-step{display:none;animation:fadeIn .25s ease;}
+  .wizard-step.active{display:block;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
 
-    /* Table Styling */
-    .db-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
-    .db-table th, .db-table td { border: 1px solid var(--border-color); padding: 12px; text-align: left; }
-    .db-table th { background-color: #f1f2f6; color: var(--primary-color); font-weight: bold; }
-    .db-table tr:hover { background-color: #f8f9fa; }
-    
-    .action-btn { padding: 8px 14px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; margin-right: 5px; color: white; transition: 0.2s; }
-    .btn-edit { background-color: var(--warning-color); }
-    .btn-edit:hover { background-color: #ff7f50; }
-    .text-center { text-align: center !important; }
+  .section-subtitle{
+    font-size:15.5px;font-weight:800;color:var(--secondary-color);margin:6px 0 16px 0;
+    border-bottom:2px solid var(--border-color);padding-bottom:8px;grid-column:1/-1;
+    display:flex;align-items:center;gap:8px;
+  }
+  [data-theme="dark"] .section-subtitle{color:#8fa5ff;}
 
-    .remarks-box { color: var(--accent-color); font-weight: bold; font-size: 13px; background-color: #fff5f5; }
+  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;}
+  .grid-4{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:15px;
+    background:#fff5f5;padding:16px;border-radius:10px;border:1px dashed var(--danger-color);margin-bottom:20px;
+  }
+  [data-theme="dark"] .grid-4{background:#301418;}
+  .grid-5{display:grid;grid-template-columns:2fr repeat(4,1fr);gap:10px;align-items:center;margin-bottom:10px;}
 
-    /* Logout Button */
-    .btn-logout {
-      background: var(--danger-color); color: white; border: none; padding: 10px 18px;
-      font-size: 14px; font-weight: bold; border-radius: 6px; cursor: pointer; transition: 0.2s;
-      display: inline-flex; align-items: center; gap: 8px; white-space: nowrap;
-    }
-    .btn-logout:hover { background: #e03d4b; }
-  </style>
+  .field{display:flex;flex-direction:column;position:relative;}
+  .field label{font-weight:600;margin-bottom:6px;font-size:13.5px;color:var(--text-muted);display:flex;align-items:center;gap:5px;}
+  .field label.required::after{content:" *";color:var(--danger-color);}
+  .field input, .field select{
+    padding:11px 12px;border:2px solid var(--border-color);border-radius:9px;font-size:14px;outline:none;
+    transition:.2s;background:var(--card-bg);color:var(--text-main);font-family:inherit;
+  }
+  .field input:focus, .field select:focus{border-color:var(--secondary-color);box-shadow:0 0 0 3px rgba(30,55,153,0.12);}
+  .field input.field-error, .field select.field-error{border-color:var(--danger-color);background:#fff5f5;}
+  .field input.field-success, .field select.field-success{border-color:var(--success-color);}
+  .field-msg{font-size:11.5px;color:var(--danger-color);margin-top:4px;font-weight:600;display:none;}
+  .field-msg.show{display:block;}
+
+  .floor-card{
+    background:var(--bg-color);border:1px solid var(--border-color);border-radius:12px;padding:16px;margin-bottom:14px;
+  }
+  .floor-label{font-weight:700;font-size:14.5px;color:var(--text-main);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+  .floor-input{padding:9px;border:2px solid var(--border-color);border-radius:7px;font-size:14px;text-align:center;background:var(--card-bg);color:var(--text-main);width:100%;}
+  .floor-area-input{background-color:#fff9db;font-weight:bold;color:#2f3542;border:2px solid #fab005;}
+  .floor-grid-inner{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;}
+  .floor-grid-inner span{font-size:11px;color:var(--text-muted);font-weight:600;display:block;margin-bottom:4px;}
+
+  /* ============ BUILDING SUMMARY ============ */
+  .summary-box{
+    background:linear-gradient(135deg,var(--primary-color),var(--primary-light));color:#fff;border-radius:12px;
+    padding:18px;margin:18px 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;
+  }
+  .summary-box .sb-item{text-align:center;}
+  .summary-box .sb-val{font-size:20px;font-weight:800;}
+  .summary-box .sb-label{font-size:11.5px;opacity:.85;font-weight:600;margin-top:2px;}
+
+  /* ============ COMPASS ============ */
+  .compass-wrap{display:flex;justify-content:center;margin:10px 0 22px 0;}
+  .compass{
+    display:grid;grid-template-columns:70px 90px 70px;grid-template-rows:50px 50px 50px;
+    text-align:center;font-weight:700;font-size:13px;color:var(--text-muted);
+  }
+  .compass .c-center{
+    grid-column:2;grid-row:2;background:var(--primary-color);color:#fff;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;font-size:20px;
+  }
+  .compass .c-n{grid-column:2;grid-row:1;align-self:end;}
+  .compass .c-s{grid-column:2;grid-row:3;align-self:start;}
+  .compass .c-e{grid-column:3;grid-row:2;align-self:center;justify-self:start;}
+  .compass .c-w{grid-column:1;grid-row:2;align-self:center;justify-self:end;}
+
+  /* ============ SEARCH ============ */
+  .search-box{
+    width:100%;padding:12px 14px;margin-bottom:8px;border:2px solid var(--danger-color);border-radius:9px;
+    font-size:14.5px;outline:none;font-weight:700;background:var(--card-bg);color:var(--text-main);
+  }
+  .search-result-count{font-size:12.5px;color:var(--text-muted);font-weight:700;margin-bottom:16px;}
+
+  /* ============ BUTTONS ============ */
+  .action-buttons{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-top:26px;}
+  .btn{
+    color:#fff;border:none;padding:14px 20px;font-size:15.5px;font-weight:700;border-radius:9px;cursor:pointer;
+    transition:.2s;display:flex;justify-content:center;align-items:center;gap:9px;text-align:center;text-decoration:none;
+  }
+  .btn:disabled{opacity:.6;cursor:not-allowed;}
+  .btn-save{background:var(--primary-color);}
+  .btn-save:hover{background:var(--secondary-color);}
+  .btn-resubmit{background:var(--success-color);display:none;}
+  .btn-resubmit:hover{background:var(--success-dark);}
+  .btn-clear{background:var(--danger-color);}
+  .btn-clear:hover{background:#e03d4b;}
+  .btn-scroll{background:var(--warning-color);padding:9px 16px;font-size:13.5px;white-space:nowrap;}
+  .btn-outline{background:transparent;border:2px solid var(--border-color);color:var(--text-main);}
+  .btn-outline:hover{border-color:var(--secondary-color);color:var(--secondary-color);}
+
+  .wizard-nav{display:flex;justify-content:space-between;gap:12px;margin-top:26px;flex-wrap:wrap;}
+  .wizard-nav .btn{min-width:130px;}
+
+  /* ============ TABLE / CARDS FOR RETURNED FILES ============ */
+  .db-table{width:100%;border-collapse:collapse;margin-top:6px;font-size:14px;}
+  .db-table th, .db-table td{border:1px solid var(--border-color);padding:12px;text-align:left;}
+  .db-table th{background-color:var(--bg-color);color:var(--primary-color);font-weight:700;}
+  [data-theme="dark"] .db-table th{color:#8fa5ff;}
+  .db-table tr:hover{background-color:rgba(30,55,153,0.05);}
+  .action-btn{padding:8px 14px;border:none;border-radius:6px;cursor:pointer;font-weight:700;font-size:13px;margin-right:5px;color:#fff;transition:.2s;}
+  .btn-edit{background-color:var(--warning-color);}
+  .btn-edit:hover{background-color:#ff7f50;}
+  .text-center{text-align:center !important;}
+  .remarks-box{color:var(--accent-color);font-weight:700;font-size:13px;background-color:#fff5f5;}
+  [data-theme="dark"] .remarks-box{background-color:#301418;}
+
+  .returned-cards{display:none;flex-direction:column;gap:14px;}
+  .returned-card{
+    background:var(--bg-color);border:1px solid var(--border-color);border-radius:12px;padding:16px;
+  }
+  .returned-card .rc-row{display:flex;justify-content:space-between;font-size:13.5px;padding:4px 0;border-bottom:1px dashed var(--border-color);}
+  .returned-card .rc-row:last-of-type{border-bottom:none;}
+  .returned-card .rc-row span:first-child{color:var(--text-muted);font-weight:600;}
+  .returned-card .rc-remark{margin-top:10px;background:#fff5f5;color:var(--accent-color);padding:8px 10px;border-radius:8px;font-size:12.5px;font-weight:700;}
+  [data-theme="dark"] .returned-card .rc-remark{background:#301418;}
+  .returned-card .rc-status{display:inline-block;background:var(--danger-color);color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:8px;}
+  .returned-card .rc-edit{margin-top:12px;width:100%;}
+
+  .empty-state{
+    text-align:center;padding:40px 20px;color:var(--text-muted);
+  }
+  .empty-state .es-icon{font-size:44px;margin-bottom:10px;}
+  .empty-state .es-text{font-weight:700;font-size:15px;color:var(--success-color);}
+
+  /* ============ MY APPLICATIONS (status list) ============ */
+  .status-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:11.5px;font-weight:700;white-space:nowrap;}
+  .status-badge.st-pending{background:#fff4e0;color:#b9700a;}
+  .status-badge.st-returned{background:#fff0f1;color:#b31212;}
+  .status-badge.st-done{background:#e6faf0;color:#0f8a4d;}
+  .status-badge.st-other{background:#eef1f7;color:#45526b;}
+  [data-theme="dark"] .status-badge.st-pending{background:#3a2c10;color:#ffb74d;}
+  [data-theme="dark"] .status-badge.st-returned{background:#301418;color:#ff9aa2;}
+  [data-theme="dark"] .status-badge.st-done{background:#0e2b1f;color:#5ee6a4;}
+  [data-theme="dark"] .status-badge.st-other{background:#232d45;color:#a3adc2;}
+
+  .filter-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+  .filter-tab{
+    padding:8px 16px;border-radius:20px;border:2px solid var(--border-color);background:var(--card-bg);
+    color:var(--text-muted);font-size:13px;font-weight:700;cursor:pointer;transition:.2s;
+  }
+  .filter-tab:hover{border-color:var(--secondary-color);}
+  .filter-tab.active{background:var(--primary-color);border-color:var(--primary-color);color:#fff;}
+
+  .app-cards{display:none;flex-direction:column;gap:14px;}
+  .app-card{background:var(--bg-color);border:1px solid var(--border-color);border-radius:12px;padding:16px;}
+  .app-card .ac-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+  .app-card .ac-row{display:flex;justify-content:space-between;font-size:13.5px;padding:4px 0;border-bottom:1px dashed var(--border-color);}
+  .app-card .ac-row:last-of-type{border-bottom:none;}
+  .app-card .ac-row span:first-child{color:var(--text-muted);font-weight:600;}
+  @media (max-width:640px){
+    .app-cards{display:flex;}
+    #myAppsTableWrap{display:none;}
+  }
+
+  /* ============ REVIEW ============ */
+  .review-block{background:var(--bg-color);border:1px solid var(--border-color);border-radius:12px;padding:16px;margin-bottom:14px;}
+  .review-block h4{color:var(--primary-color);font-size:14.5px;margin-bottom:10px;}
+  [data-theme="dark"] .review-block h4{color:#8fa5ff;}
+  .review-row{display:flex;justify-content:space-between;font-size:13.5px;padding:5px 0;border-bottom:1px dashed var(--border-color);gap:10px;}
+  .review-row span:first-child{color:var(--text-muted);font-weight:600;}
+  .review-row span:last-child{font-weight:700;text-align:right;}
+
+  /* ============ TOASTS ============ */
+  #toastContainer{position:fixed;top:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:10px;max-width:320px;}
+  .toast{
+    background:var(--card-bg);color:var(--text-main);border-radius:10px;padding:14px 16px;box-shadow:0 8px 24px rgba(0,0,0,0.18);
+    font-size:13.5px;font-weight:700;display:flex;align-items:center;gap:10px;border-left:5px solid var(--primary-color);
+    animation:slideIn .25s ease;
+  }
+  .toast.success{border-left-color:var(--success-color);}
+  .toast.error{border-left-color:var(--danger-color);}
+  .toast.warning{border-left-color:var(--warning-color);}
+  @keyframes slideIn{from{opacity:0;transform:translateX(30px);}to{opacity:1;transform:translateX(0);}}
+
+  /* ============ DRAFT MODAL ============ */
+  .modal-overlay{
+    position:fixed;inset:0;background:rgba(12,36,97,0.55);z-index:9998;display:none;align-items:center;justify-content:center;padding:16px;
+  }
+  .modal-overlay.show{display:flex;}
+  .modal-box{
+    background:var(--card-bg);color:var(--text-main);border-radius:14px;padding:26px;max-width:380px;width:100%;text-align:center;
+    box-shadow:0 20px 50px rgba(0,0,0,0.3);animation:fadeIn .2s ease;
+  }
+  .modal-box .mb-icon{font-size:34px;margin-bottom:10px;}
+  .modal-box h3{font-size:16.5px;margin-bottom:8px;}
+  .modal-box p{font-size:13.5px;color:var(--text-muted);margin-bottom:20px;}
+  .modal-actions{display:flex;gap:10px;}
+  .modal-actions .btn{flex:1;padding:11px;font-size:13.5px;}
+
+  /* ============ MOBILE BOTTOM NAV ============ */
+  .bottom-nav{
+    display:none;position:fixed;bottom:0;left:0;right:0;background:var(--card-bg);border-top:1px solid var(--border-color);
+    z-index:600;box-shadow:0 -4px 16px rgba(0,0,0,0.08);
+  }
+  .bottom-nav-inner{display:flex;justify-content:space-around;padding:8px 4px;}
+  .bottom-nav a{
+    display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10.5px;font-weight:700;color:var(--text-muted);
+    text-decoration:none;padding:4px 8px;border-radius:8px;
+  }
+  .bottom-nav a span:first-child{font-size:18px;}
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width:900px){
+    .dashboard-grid{grid-template-columns:repeat(2,1fr);}
+  }
+  @media (max-width:640px){
+    body{padding-bottom:82px;}
+    .master-form-container, .database-container{padding:18px;border-radius:10px;}
+    .grid-5{grid-template-columns:1fr 1fr;}
+    .grid-5 .floor-label{grid-column:1/-1;}
+    .db-table{display:none;}
+    .returned-cards{display:flex;}
+    .bottom-nav{display:block;}
+    .header-brand h1{font-size:14px;}
+    .header-brand p{font-size:11px;}
+    .stepper li{font-size:9.5px;min-width:56px;}
+    .step-circle{width:26px;height:26px;font-size:11px;}
+  }
+  @media (min-width:641px){
+    .returned-cards{display:none !important;}
+  }
+
+  .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
+  button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible{outline:3px solid #4dabf7;outline-offset:2px;}
+</style>
 </head>
 <body>
 
-  <div id="returnedNotification" class="notification-alert">
-    <div>⚠️ ध्यानाकर्षण: गलकोट नगरपालिकाबाट विवरण नपुगेर <b><span id="returnedCount">0</span> वटा फाइलहरू फिर्ता</b> आएका छन्! कृपया आवश्यक परिमार्जन गरी पुनः पठाउनुहोस्।</div>
-    <button class="btn btn-scroll" onclick="scrollToReturnedSection()">👇 सूची हेर्नुहोस्</button>
+<div id="toastContainer" aria-live="polite"></div>
+
+<!-- ============ HEADER ============ -->
+<header class="app-header">
+  <div class="header-inner">
+    <div class="header-brand">
+      <div class="logo">🏛️</div>
+      <div>
+        <h1>गलकोट नगरपालिका</h1>
+        <p>भूमि व्यवस्थापन तथा भवन सम्बन्धी Consultancy Portal</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <span class="status-pill"><span class="status-dot"></span> Online</span>
+      <span class="user-chip">
+        <b id="headerUserName">प्रयोगकर्ता</b>
+        <span id="headerUserRole">Consultancy</span>
+      </span>
+      <button type="button" class="icon-btn" id="darkModeToggle" title="Dark mode" aria-label="Toggle dark mode">🌙</button>
+      <button type="button" class="btn-logout-header" onclick="logoutUser()">🚪 लगआउट</button>
+    </div>
+  </div>
+</header>
+
+<!-- ============ RETURNED NOTIFICATION ============ -->
+<div id="returnedNotification" class="notification-alert">
+  <button type="button" class="close-alert" onclick="dismissReturnedNotification()" aria-label="Close">✕</button>
+  <div>⚠️ ध्यानाकर्षण: गलकोट नगरपालिकाबाट विवरण नपुगेर <b><span id="returnedCount">0</span> वटा फाइलहरू फिर्ता</b> आएका छन्! कृपया आवश्यक परिमार्जन गरी पुनः पठाउनुहोस्।</div>
+  <button class="btn btn-scroll" onclick="scrollToReturnedSection()">👇 फाइल हेर्नुहोस्</button>
+</div>
+
+<!-- ============ DASHBOARD SUMMARY CARDS ============ -->
+<div class="dashboard-grid" id="dashboardCards">
+  <div class="dash-card new" onclick="goToFormTop()">
+    <div class="dc-icon">📝</div>
+    <div class="dc-value">—</div>
+    <div class="dc-label">नयाँ आवेदन</div>
+  </div>
+  <div class="dash-card pending" onclick="scrollToReturnedSection()">
+    <div class="dc-icon">⏳</div>
+    <div class="dc-value" id="statPending">0</div>
+    <div class="dc-label">Pending (पेन्डिङ)</div>
+  </div>
+  <div class="dash-card revise" onclick="scrollToReturnedSection()">
+    <div class="dc-icon">🔄</div>
+    <div class="dc-value" id="statReturned">0</div>
+    <div class="dc-label">संशोधन आवश्यक</div>
+  </div>
+  <div class="dash-card done" onclick="scrollToReturnedSection()">
+    <div class="dc-icon">✅</div>
+    <div class="dc-value" id="statCompleted">0</div>
+    <div class="dc-label">सम्पन्न</div>
+  </div>
+  <div class="dash-card total" onclick="scrollToReturnedSection()">
+    <div class="dc-icon">📊</div>
+    <div class="dc-value" id="statTotal">0</div>
+    <div class="dc-label">कुल आवेदन</div>
+  </div>
+</div>
+
+<!-- ============ MASTER FORM ============ -->
+<div class="master-form-container" id="formTop">
+  <div class="form-header-container">
+    <div class="form-title" id="formMainTitle">🏛️ नयाँ आवेदन / कन्सलटेन्सी डेटा प्रविष्टि</div>
   </div>
 
-  <div class="master-form-container">
-    <div class="form-header-container">
-      <div class="form-title" id="formMainTitle">🏛️ गलकोट नगरपालिका - भूमि व्यवस्थापन (कन्सलटेन्सी डेटा प्रविष्टि तथा संशोधन पोर्टल)</div>
-      <button type="button" class="btn-logout" onclick="logoutUser()">🚪 लगआउट</button>
-    </div>
-    
-    <form id="masterDataForm">
-      <input type="hidden" id="record_id" value="">
-      
-      <div id="returnedRemarksSection" class="section-subtitle" style="color: var(--accent-color); display: none;">❌ नगरपालिकाबाट फाइल फिर्ता हुनुको मुख्य कारण (Rejection Remarks)</div>
-      <div id="remarksWrapper" class="grid-4" style="display: none;">
-        <div class="field" style="grid-column: 1 / -1;">
-          <label style="color: var(--accent-color); font-weight: bold;">नगरपालिकाको टिप्पणी (Remarks From Municipality):</label>
-          <input type="text" id="remarks" style="background-color: #fff0f1; border: 2px solid var(--danger-color); color: red; font-weight: bold;" readonly>
-        </div>
-      </div>
+  <!-- Progress Stepper -->
+  <ol class="stepper" id="stepperNav">
+    <li class="step-item active" data-step="1"><div class="step-circle">①</div><span>जग्गाधनी</span></li>
+    <li class="step-item" data-step="2"><div class="step-circle">②</div><span>जग्गा/कित्ता</span></li>
+    <li class="step-item" data-step="3"><div class="step-circle">③</div><span>चारकिल्ला</span></li>
+    <li class="step-item" data-step="4"><div class="step-circle">④</div><span>मापदण्ड</span></li>
+    <li class="step-item" data-step="5"><div class="step-circle">⑤</div><span>तल्लागत</span></li>
+    <li class="step-item" data-step="6"><div class="step-circle">⑥</div><span>Review</span></li>
+    <li class="step-item" data-step="7"><div class="step-circle">⑦</div><span>Submit</span></li>
+  </ol>
 
-      <div class="section-subtitle">जग्गा र जग्गाधनीको विवरण (Land And Landownership Details)</div>
+  <form id="masterDataForm" novalidate>
+    <input type="hidden" id="record_id" value="">
+
+    <div id="returnedRemarksSection" class="section-subtitle" style="color: var(--accent-color); display: none;">❌ नगरपालिकाबाट फाइल फिर्ता हुनुको मुख्य कारण (Rejection Remarks)</div>
+    <div id="remarksWrapper" class="grid-4" style="display: none;">
+      <div class="field" style="grid-column: 1 / -1;">
+        <label style="color: var(--accent-color); font-weight: bold;">नगरपालिकाको टिप्पणी (Remarks From Municipality):</label>
+        <input type="text" id="remarks" style="background-color:#fff0f1;border:2px solid var(--danger-color);color:red;font-weight:bold;" readonly>
+      </div>
+    </div>
+
+    <!-- STEP 1: जग्गाधनी विवरण -->
+    <div class="wizard-step active" data-step="1">
+      <div class="section-subtitle">👤 जग्गाधनी विवरण (Land And Landownership Details)</div>
       <div class="grid-3">
-        <div class="field"><label class="required">जग्गाधनीको नाम/थर</label><input type="text" id="owner" placeholder="उदा: खिम बहादुर थापा" required></div>
-        <div class="field"><label class="required">घरधनीको फोन नम्बर</label><input type="text" id="phone" placeholder="उदा: ९८XXXXXXXX" required></div>
-        <div class="field"><label class="required">नागरिकता नं</label><input type="text" id="cit_no" placeholder="उदा: ४५३०-२९८" required></div>
-        <div class="field"><label class="required">जारी मिति</label><input type="text" id="cit_date" placeholder="उदा: २०६६-१०-१३" required></div>
-        <div class="field"><label class="required">जारी कार्यालय</label><input type="text" id="cit_office" placeholder="उदा: जि.प्र.का. बागलुङ" required></div>
-        <div class="field"><label class="required">बाजेको नाम/थर</label><input type="text" id="grandfather" placeholder="उदा: राम बहादुर थापा" required></div>
-        <div class="field"><label class="required">बाबुको नाम/थर</label><input type="text" id="father" placeholder="उदा: हरि बहादुर थापा" required></div>
+        <div class="field"><label class="required">👤 जग्गाधनीको नाम/थर</label><input type="text" id="owner" placeholder="उदा: खिम बहादुर थापा" required><span class="field-msg">कृपया नाम भर्नुहोस्।</span></div>
+        <div class="field"><label class="required">📱 घरधनीको फोन नम्बर</label><input type="text" id="phone" placeholder="उदा: ९८XXXXXXXX" required><span class="field-msg">कृपया फोन नम्बर भर्नुहोस्।</span></div>
+        <div class="field"><label class="required">🪪 नागरिकता नं</label><input type="text" id="cit_no" placeholder="उदा: ४५३०-२९८" required><span class="field-msg">कृपया नागरिकता नं. भर्नुहोस्।</span></div>
+        <div class="field"><label class="required">📅 जारी मिति</label><input type="text" id="cit_date" placeholder="उदा: २०६६-१०-१३" required><span class="field-msg">कृपया जारी मिति भर्नुहोस्।</span></div>
+        <div class="field"><label class="required">🏢 जारी कार्यालय</label><input type="text" id="cit_office" placeholder="उदा: जि.प्र.का. बागलुङ" required><span class="field-msg">कृपया जारी कार्यालय भर्नुहोस्।</span></div>
+        <div class="field"><label class="required">👴 बाजेको नाम/थर</label><input type="text" id="grandfather" placeholder="उदा: राम बहादुर थापा" required><span class="field-msg">कृपया बाजेको नाम भर्नुहोस्।</span></div>
+        <div class="field"><label class="required">👨 बाबुको नाम/थर</label><input type="text" id="father" placeholder="उदा: हरि बहादुर थापा" required><span class="field-msg">कृपया बाबुको नाम भर्नुहोस्।</span></div>
+      </div>
+    </div>
+
+    <!-- STEP 2: जग्गा तथा कित्ता विवरण -->
+    <div class="wizard-step" data-step="2">
+      <div class="section-subtitle">🏞️ जग्गा तथा कित्ता विवरण (Plot & Building Basic Details)</div>
+      <div class="grid-3">
         <div class="field">
-          <label class="required">वडा नं.</label>
+          <label class="required">📍 वडा नं.</label>
           <select id="ward" required>
             <option value="" disabled selected>वडा नं. छान्नुहोस्</option>
             <option value="1">१</option><option value="2">२</option><option value="3">३</option>
@@ -137,8 +495,9 @@
             <option value="7">७</option><option value="8">८</option><option value="9">९</option>
             <option value="10">१०</option><option value="11">११</option>
           </select>
+          <span class="field-msg">कृपया वडा नं. छान्नुहोस्।</span>
         </div>
-        <div class="field"><label class="required">मार्ग / टोल</label><input type="text" id="tole" placeholder="उदा: आँगाखेत" required></div>
+        <div class="field"><label class="required">🛣️ मार्ग / टोल</label><input type="text" id="tole" placeholder="उदा: आँगाखेत" required><span class="field-msg">कृपया मार्ग/टोल भर्नुहोस्।</span></div>
         <div class="field">
           <label class="required">साविक गाविस</label>
           <select id="savik_gavis" required>
@@ -148,7 +507,8 @@
             <option value="मल्म">मल्म</option><option value="काँडेवास">काँडेवास</option>
             <option value="पाण्डवखानी">पाण्डवखानी</option><option value="रिघा">रिघा</option>
           </select>
-        </div>       
+          <span class="field-msg">कृपया साविक गाविस छान्नुहोस्।</span>
+        </div>
         <div class="field">
           <label class="required">साविक वडा नं.</label>
           <select id="savik_ward" required>
@@ -157,461 +517,1076 @@
             <option value="4">४</option><option value="5">५</option><option value="6">६</option>
             <option value="7">७</option><option value="8">८</option><option value="9">९</option>
           </select>
+          <span class="field-msg">कृपया साविक वडा नं. छान्नुहोस्।</span>
         </div>
-        <div class="field"><label class="required">कित्ता नं.</label><input type="text" id="kitta" placeholder="उदा: १९९" required></div>
-        <div class="field"><label class="required">क्षेत्रफल (रोपनी-आना-पैसा-दाम)</label><input type="text" id="area" placeholder="उदा: १-८-३-२" required></div>
-        
-        <div class="field"><label>घरको कुल लम्बाई (फिट)</label><input type="text" id="tot_length" placeholder="उदा: ३० फिट ६ इन्च"></div>
-        <div class="field"><label>घरको कुल चौडाई (फिट)</label><input type="text" id="tot_width" placeholder="उदा: २५ फिट ४ इन्च"></div>
-        <div class="field"><label>घरको कुल उचाई (फिट)</label><input type="text" id="tot_height" placeholder="उदा: ३० फिट"></div>
-        
-        <div class="field"><label>कुल तल्ला संख्या</label><input type="text" id="total_floors" placeholder="उदा: ५.५"></div>
-        <div class="field"><label>कोठा संख्या</label><input type="text" id="room" placeholder="उदा: ५"></div>
-        <div class="field"><label>ढोकाको संख्या</label><input type="text" id="door" placeholder="उदा: ५"></div>
-        <div class="field"><label>झ्यालको संख्या</label><input type="text" id="window" placeholder="उदा: ५"></div>
-        <div class="field"><label>शटरको  संख्या</label><input type="text" id="shutter" placeholder="उदा: ५"></div>
-        <div class="field"><label>च्यानल गेटको संख्या</label><input type="text" id="cg" placeholder="उदा: ५"></div>
-        <div class="field"><label>घरले चर्चेको क्षेत्रफल (व.फि.)</label><input type="number" step="any" id="cov_area" placeholder="उदा: ९००"></div>
-        <div class="field"><label>भवनको कुल क्षेत्रफल (व.फि.)</label><input type="number" step="any" id="tot_area" placeholder="स्वचालित वा हातले लेख्न मिल्छ" style="background-color: #e8f4fd; font-weight: bold; color: #cf1b1b; border: 2px solid #2196f3;"></div>
+        <div class="field"><label class="required">🏠 कित्ता नं.</label><input type="text" id="kitta" placeholder="उदा: १९९" required><span class="field-msg">कृपया कित्ता नं. भर्नुहोस्।</span></div>
+        <div class="field"><label class="required">📐 क्षेत्रफल (रोपनी-आना-पैसा-दाम)</label><input type="text" id="area" placeholder="उदा: १-८-३-२" required><span class="field-msg">कृपया क्षेत्रफल भर्नुहोस्।</span></div>
+        <div class="field"><label>📏 घरको कुल लम्बाई (फिट)</label><input type="text" id="tot_length" placeholder="उदा: ३० फिट ६ इन्च"></div>
+        <div class="field"><label>📏 घरको कुल चौडाई (फिट)</label><input type="text" id="tot_width" placeholder="उदा: २५ फिट ४ इन्च"></div>
+        <div class="field"><label>📏 घरको कुल उचाई (फिट)</label><input type="text" id="tot_height" placeholder="उदा: ३० फिट"></div>
+        <div class="field"><label>🏢 कुल तल्ला संख्या</label><input type="text" id="total_floors" placeholder="उदा: ५.५"></div>
+        <div class="field"><label>🚪 कोठा संख्या</label><input type="text" id="room" placeholder="उदा: ५"></div>
+        <div class="field"><label>🚪 ढोकाको संख्या</label><input type="text" id="door" placeholder="उदा: ५"></div>
+        <div class="field"><label>🪟 झ्यालको संख्या</label><input type="text" id="window" placeholder="उदा: ५"></div>
+        <div class="field"><label>🪟 शटरको संख्या</label><input type="text" id="shutter" placeholder="उदा: ५"></div>
+        <div class="field"><label>🚧 च्यानल गेटको संख्या</label><input type="text" id="cg" placeholder="उदा: ५"></div>
+        <div class="field"><label>📐 घरले चर्चेको क्षेत्रफल (व.फि.)</label><input type="number" step="any" id="cov_area" placeholder="उदा: ९००"></div>
+        <div class="field"><label>📊 भवनको कुल क्षेत्रफल (व.फि.)</label><input type="number" step="any" id="tot_area" placeholder="स्वचालित वा हातले लेख्न मिल्छ" style="background-color:#e8f4fd;font-weight:bold;color:#cf1b1b;border:2px solid #2196f3;"></div>
       </div>
+    </div>
 
-      <div class="section-subtitle">चारकिल्ला (Land Boundary Details)</div>
+    <!-- STEP 3: चारकिल्ला -->
+    <div class="wizard-step" data-step="3">
+      <div class="section-subtitle">🧭 चारकिल्ला (Land Boundary Details)</div>
+      <div class="compass-wrap">
+        <div class="compass">
+          <div class="c-n">↑ उत्तर</div>
+          <div class="c-w">पश्चिम ←</div>
+          <div class="c-center">🏠</div>
+          <div class="c-e">→ पूर्व</div>
+          <div class="c-s">↓ दक्षिण</div>
+        </div>
+      </div>
       <div class="grid-3">
-        <div class="field"><label class="required">पूर्व</label><input type="text" id="east" placeholder="पूर्व सिमाना" required></div>
-        <div class="field"><label class="required">पश्चिम</label><input type="text" id="west" placeholder="पश्चिम सिमाना" required></div>        
-        <div class="field"><label class="required">उत्तर</label><input type="text" id="north" placeholder="उत्तर सिमाना" required></div>        
-        <div class="field"><label class="required">दक्षिण</label><input type="text" id="south" placeholder="दक्षिण सिमाना" required></div>
+        <div class="field"><label class="required">पूर्व</label><input type="text" id="east" placeholder="पूर्व सिमाना" required><span class="field-msg">कृपया पूर्व सिमाना भर्नुहोस्।</span></div>
+        <div class="field"><label class="required">पश्चिम</label><input type="text" id="west" placeholder="पश्चिम सिमाना" required><span class="field-msg">कृपया पश्चिम सिमाना भर्नुहोस्।</span></div>
+        <div class="field"><label class="required">उत्तर</label><input type="text" id="north" placeholder="उत्तर सिमाना" required><span class="field-msg">कृपया उत्तर सिमाना भर्नुहोस्।</span></div>
+        <div class="field"><label class="required">दक्षिण</label><input type="text" id="south" placeholder="दक्षिण सिमाना" required><span class="field-msg">कृपया दक्षिण सिमाना भर्नुहोस्।</span></div>
       </div>
+    </div>
 
-      <div class="section-subtitle">मापदण्ड तथा प्राविधिक विवरण (Standards & Technical Details)</div>
+    <!-- STEP 4: मापदण्ड तथा प्राविधिक विवरण -->
+    <div class="wizard-step" data-step="4">
+      <div class="section-subtitle">📐 मापदण्ड तथा प्राविधिक विवरण (Standards & Technical Details)</div>
       <div class="grid-3">
-        <div class="field"><label class="required">बाटो चौँडाई</label><input type="text" id="road_width" placeholder="उदा: १० मिटर" required></div>
-        <div class="field"><label class="required">बाटो केन्द्रबाट छाड्नु पर्ने दुरी</label><input type="text" id="roadce" placeholder="उदा: १५ मिटर" required></div>
-        <div class="field"><label class="required">बाटो केन्द्रबाट छाडेको दुरी</label><input type="text" id="roadcex" placeholder="उदा: १५ मिटर" required></div>
-        <div class="field"><label class="required">छाड्नु पर्ने सेटब्याक</label><input type="text" id="setbac" placeholder="उदा: १.५ मिटर" required></div>
-        <div class="field"><label class="required">छाडेको सेटब्याक</label><input type="text" id="setbacx" placeholder="उदा: १.५ मिटर" required></div>
-        <div class="field"><label class="required">नदि किनारबाट छोड्नु पर्ने दुरी</label><input type="text" id="river" placeholder="उदा: १५ मिटर" required></div>
-        <div class="field"><label class="required">नदि किनारबाट छोडेको दुरी</label><input type="text" id="riverx" placeholder="उदा: १५ मिटर" required></div>
-        <div class="field"><label class="required">संधियार सिमानाबाट छोड्नु पर्ने दुरी</label><input type="text" id="land" placeholder="उदा: १.५ मिटर" required></div>
-        <div class="field"><label class="required">संधियार सिमानाबाट छोडेको दुरी</label><input type="text" id="landb" placeholder="उदा: १.५ मिटर" required></div>
-        <div class="field"><label class="required">राजश्व दर रु</label><input type="text" id="revinuerate" placeholder="उदा: १०" required></div>
-        <div class="field"><label class="required">गाउँ कभरेज प्रतिशत</label><input type="text" id="gc" placeholder="उदा: ७०" required></div>
-        <div class="field"><label class="required">फार (FAR)</label><input type="text" id="far" placeholder="उदा: १.५" required></div>
+        <div class="field"><label class="required">बाटो चौँडाई</label><input type="text" id="road_width" placeholder="उदा: १० मिटर" required><span class="field-msg">आवश्यक</span></div>
+        <div class="field"><label class="required">बाटो केन्द्रबाट छाड्नु पर्ने दुरी</label><input type="text" id="roadce" placeholder="उदा: १५ मिटर" required><span class="field-msg">आवश्यक</span></div>
+        <div class="field"><label class="required">बाटो केन्द्रबाट छाडेको दुरी</label><input type="text" id="roadcex" placeholder="उदा: १५ मिटर" required><span class="field-msg">आवश्यक</span></div>
+        <div class="field"><label class="required">छाड्नु पर्ने सेटब्याक</label><input type="text" id="setbac" placeholder="उदा: १.५ मिटर" required><span class="field-msg">आवश्यक</span></div>
+        <div class="field"><label class="required">छाडेको सेटब्याक</label><input type="text" id="setbacx" placeholder="उदा: १.५ मिटर" required><span class="field-msg">आवश्यक</span></div>
+        <div class="field"><label class="required">नदि किनारबाट छोड्नु पर्ने दुरी</label><input type="text" id="river" placeholder="उदा: १५ मिटर" required><span class="field-msg">आवश्यक</span></div>
+        <div class="field"><label class="required">नदि किनारबाट छोडेको दुरी</label><input type="text" id="riverx" placeholder="उदा: १५ मिटर" required><span class="field-msg">आवश्यक</span></div>
+        <div class="field"><label class="required">संधियार सिमानाबाट छोड्नु पर्ने दुरी</label><input type="text" id="land" placeholder="उदा: १.५ मिटर" required><span class="field-msg">आवश्यक</span></div>
+        <div class="field"><label class="required">संधियार सिमानाबाट छोडेको दुरी</label><input type="text" id="landb" placeholder="उदा: १.५ मिटर" required><span class="field-msg">आवश्यक</span></div>
+        <div class="field"><label class="required">राजश्व दर रु</label><input type="text" id="revinuerate" placeholder="उदा: १०" required><span class="field-msg">आवश्यक</span></div>
+        <div class="field"><label class="required">गाउँ कभरेज प्रतिशत</label><input type="text" id="gc" placeholder="उदा: ७०" required><span class="field-msg">आवश्यक</span></div>
+        <div class="field"><label class="required">फार (FAR)</label><input type="text" id="far" placeholder="उदा: १.५" required><span class="field-msg">आवश्यक</span></div>
+      </div>
+    </div>
+
+    <!-- STEP 5: भवन तथा तल्लागत विवरण -->
+    <div class="wizard-step" data-step="5">
+      <div class="section-subtitle">🏢 भवन तथा तल्लागत विवरण (५ औं तल्लासम्म) <span style="font-weight:normal;font-size:11.5px;color:var(--danger-color);">*(क्षेत्रफल आफैं पनि निस्किन्छ वा हातले फेर्न पनि मिल्छ)</span></div>
+
+      <div class="floor-card">
+        <div class="floor-label">🕳️ बेसमेन्ट (भूमिगत)</div>
+        <div class="floor-grid-inner">
+          <div><span>लम्बाई</span><input type="text" id="f_base_l" placeholder="लम्बाई" class="floor-input"></div>
+          <div><span>चौडाई</span><input type="text" id="f_base_w" placeholder="चौडाई" class="floor-input"></div>
+          <div><span>उचाई</span><input type="text" id="f_base_h" placeholder="उचाई" class="floor-input"></div>
+          <div><span>क्षेत्रफल</span><input type="number" step="any" id="f_base_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input"></div>
+        </div>
       </div>
 
-      <div class="section-subtitle">तल्लागत विस्तृत नाप र क्षेत्रफल विवरण (५ औं तल्लासम्म) <span style="font-weight:normal; font-size:12px; color:red;">*(क्षेत्रफल आफैं पनि निस्किन्छ वा हातले फेर्न पनि मिल्छ)</span></div>
-
-      <div class="grid-5">
-        <div class="floor-label">बेसमेन्ट (भूमिगत)</div>
-        <input type="text" id="f_base_l" placeholder="लम्बाई (उदा: ४० फिट)" class="floor-input">
-        <input type="text" id="f_base_w" placeholder="चौडाई (उदा: ३० फिट)" class="floor-input">
-        <input type="text" id="f_base_h" placeholder="उचाई (उदा: १० फिट)" class="floor-input">
-        <input type="number" step="any" id="f_base_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input">
+      <div class="floor-card">
+        <div class="floor-label">🕳️ सेमिबेसमेन्ट (अर्ध भूमिगत)</div>
+        <div class="floor-grid-inner">
+          <div><span>लम्बाई</span><input type="text" id="f_semi_l" placeholder="लम्बाई" class="floor-input"></div>
+          <div><span>चौडाई</span><input type="text" id="f_semi_w" placeholder="चौडाई" class="floor-input"></div>
+          <div><span>उचाई</span><input type="text" id="f_semi_h" placeholder="उचाई" class="floor-input"></div>
+          <div><span>क्षेत्रफल</span><input type="number" step="any" id="f_semi_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input"></div>
+        </div>
       </div>
 
-      <div class="grid-5">
-        <div class="floor-label">सेमिबेसमेन्ट (अर्ध भूमिगत)</div>
-        <input type="text" id="f_semi_l" placeholder="लम्बाई" class="floor-input">
-        <input type="text" id="f_semi_w" placeholder="चौडाई" class="floor-input">
-        <input type="text" id="f_semi_h" placeholder="उचाई" class="floor-input">
-        <input type="number" step="any" id="f_semi_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input">
+      <div class="floor-card">
+        <div class="floor-label">🏠 जमिन तल्ला (Ground Floor)</div>
+        <div class="floor-grid-inner">
+          <div><span>लम्बाई</span><input type="text" id="f_ground_l" placeholder="लम्बाई" class="floor-input"></div>
+          <div><span>चौडाई</span><input type="text" id="f_ground_w" placeholder="चौडाई" class="floor-input"></div>
+          <div><span>उचाई</span><input type="text" id="f_ground_h" placeholder="उचाई" class="floor-input"></div>
+          <div><span>क्षेत्रफल</span><input type="number" step="any" id="f_ground_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input"></div>
+        </div>
       </div>
 
-      <div class="grid-5">
-        <div class="floor-label">जमिन तल्ला (Ground Floor)</div>
-        <input type="text" id="f_ground_l" placeholder="लम्बाई" class="floor-input">
-        <input type="text" id="f_ground_w" placeholder="चौडाई" class="floor-input">
-        <input type="text" id="f_ground_h" placeholder="उचाई" class="floor-input">
-        <input type="number" step="any" id="f_ground_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input">
+      <div class="floor-card">
+        <div class="floor-label">🏢 पहिलो तल्ला (First Floor)</div>
+        <div class="floor-grid-inner">
+          <div><span>लम्बाई</span><input type="text" id="f_1st_l" placeholder="लम्बाई" class="floor-input"></div>
+          <div><span>चौडाई</span><input type="text" id="f_1st_w" placeholder="चौडाई" class="floor-input"></div>
+          <div><span>उचाई</span><input type="text" id="f_1st_h" placeholder="उचाई" class="floor-input"></div>
+          <div><span>क्षेत्रफल</span><input type="number" step="any" id="f_1st_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input"></div>
+        </div>
       </div>
 
-      <div class="grid-5">
-        <div class="floor-label">पहिलो तल्ला (First Floor)</div>
-        <input type="text" id="f_1st_l" placeholder="लम्बाई" class="floor-input">
-        <input type="text" id="f_1st_w" placeholder="चौडाई" class="floor-input">
-        <input type="text" id="f_1st_h" placeholder="उचाई" class="floor-input">
-        <input type="number" step="any" id="f_1st_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input">
+      <div class="floor-card">
+        <div class="floor-label">🏢 दोस्रो तल्ला (Second Floor)</div>
+        <div class="floor-grid-inner">
+          <div><span>लम्बाई</span><input type="text" id="f_2nd_l" placeholder="लम्बाई" class="floor-input"></div>
+          <div><span>चौडाई</span><input type="text" id="f_2nd_w" placeholder="चौडाई" class="floor-input"></div>
+          <div><span>उचाई</span><input type="text" id="f_2nd_h" placeholder="उचाई" class="floor-input"></div>
+          <div><span>क्षेत्रफल</span><input type="number" step="any" id="f_2nd_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input"></div>
+        </div>
       </div>
 
-      <div class="grid-5">
-        <div class="floor-label">दोस्रो तल्ला (Second Floor)</div>
-        <input type="text" id="f_2nd_l" placeholder="लम्बाई" class="floor-input">
-        <input type="text" id="f_2nd_w" placeholder="चौडाई" class="floor-input">
-        <input type="text" id="f_2nd_h" placeholder="उचाई" class="floor-input">
-        <input type="number" step="any" id="f_2nd_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input">
+      <div class="floor-card">
+        <div class="floor-label">🏢 तेस्रो तल्ला (Third Floor)</div>
+        <div class="floor-grid-inner">
+          <div><span>लम्बाई</span><input type="text" id="f_3rd_l" placeholder="लम्बाई" class="floor-input"></div>
+          <div><span>चौडाई</span><input type="text" id="f_3rd_w" placeholder="चौडाई" class="floor-input"></div>
+          <div><span>उचाई</span><input type="text" id="f_3rd_h" placeholder="उचाई" class="floor-input"></div>
+          <div><span>क्षेत्रफल</span><input type="number" step="any" id="f_3rd_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input"></div>
+        </div>
       </div>
 
-      <div class="grid-5">
-        <div class="floor-label">तेस्रो तल्ला (Third Floor)</div>
-        <input type="text" id="f_3rd_l" placeholder="लम्बाई" class="floor-input">
-        <input type="text" id="f_3rd_w" placeholder="चौडाई" class="floor-input">
-        <input type="text" id="f_3rd_h" placeholder="उचाई" class="floor-input">
-        <input type="number" step="any" id="f_3rd_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input">
+      <div class="floor-card">
+        <div class="floor-label">🏢 चौतो तल्ला (Fourth Floor)</div>
+        <div class="floor-grid-inner">
+          <div><span>लम्बाई</span><input type="text" id="f_4th_l" placeholder="लम्बाई" class="floor-input"></div>
+          <div><span>चौडाई</span><input type="text" id="f_4th_w" placeholder="चौडाई" class="floor-input"></div>
+          <div><span>उचाई</span><input type="text" id="f_4th_h" placeholder="उचाई" class="floor-input"></div>
+          <div><span>क्षेत्रफल</span><input type="number" step="any" id="f_4th_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input"></div>
+        </div>
       </div>
 
-      <div class="grid-5">
-        <div class="floor-label">चौतो तल्ला (Fourth Floor)</div>
-        <input type="text" id="f_4th_l" placeholder="लम्बाई" class="floor-input">
-        <input type="text" id="f_4th_w" placeholder="चौडाई" class="floor-input">
-        <input type="text" id="f_4th_h" placeholder="उचाई" class="floor-input">
-        <input type="number" step="any" id="f_4th_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input">
+      <div class="floor-card">
+        <div class="floor-label">🏢 पाँचौ तल्ला (Fifth Floor)</div>
+        <div class="floor-grid-inner">
+          <div><span>लम्बाई</span><input type="text" id="f_5th_l" placeholder="लम्बाई" class="floor-input"></div>
+          <div><span>चौडाई</span><input type="text" id="f_5th_w" placeholder="चौडाई" class="floor-input"></div>
+          <div><span>उचाई</span><input type="text" id="f_5th_h" placeholder="उचाई" class="floor-input"></div>
+          <div><span>क्षेत्रफल</span><input type="number" step="any" id="f_5th_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input"></div>
+        </div>
       </div>
 
-      <div class="grid-5">
-        <div class="floor-label">पाँचौ तल्ला (Fifth Floor)</div>
-        <input type="text" id="f_5th_l" placeholder="लम्बाई" class="floor-input">
-        <input type="text" id="f_5th_w" placeholder="चौडाई" class="floor-input">
-        <input type="text" id="f_5th_h" placeholder="उचाई" class="floor-input">
-        <input type="number" step="any" id="f_5th_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input">
+      <div class="summary-box" id="buildingSummaryBox">
+        <div class="sb-item"><div class="sb-val" id="sumFloors">0</div><div class="sb-label">भरिएका तल्ला</div></div>
+        <div class="sb-item"><div class="sb-val" id="sumTotalArea">0</div><div class="sb-label">कुल भवन क्षेत्रफल (sq.ft)</div></div>
+        <div class="sb-item"><div class="sb-val" id="sumCoverage">—</div><div class="sb-label">Ground Coverage</div></div>
+        <div class="sb-item"><div class="sb-val" id="sumFar">—</div><div class="sb-label">FAR</div></div>
       </div>
+    </div>
 
+    <!-- STEP 6: Review -->
+    <div class="wizard-step" data-step="6">
+      <div class="section-subtitle">🔎 विवरण Review गर्नुहोस्</div>
+      <div id="reviewContent"></div>
+    </div>
+
+    <!-- STEP 7: Submit -->
+    <div class="wizard-step" data-step="7">
+      <div class="section-subtitle">🚀 आवेदन पठाउनुहोस्</div>
+      <p style="color:var(--text-muted);font-size:14px;margin-bottom:18px;">
+        माथिका सबै विवरणहरू ठीक भएको सुनिश्चित गरेपछि तलको बटनबाट आवेदन गलकोट नगरपालिकामा पठाउनुहोस्।
+      </p>
       <div class="action-buttons">
         <button type="submit" id="submitBtn" class="btn btn-save">🚀 नयाँ आवेदन नगरपालिका पठाउनुहोस्</button>
         <button type="button" id="resubmitBtn" class="btn btn-resubmit" onclick="resubmitReturnedFile()">🔄 सच्याएर पुनः नगरपालिका पठाउनुहोस्</button>
         <button type="button" class="btn btn-clear" onclick="clearForm()">🧹 फारम खाली गर्नुस्</button>
       </div>
-    </form>
+    </div>
+
+    <!-- Wizard navigation -->
+    <div class="wizard-nav">
+      <button type="button" class="btn btn-outline" id="prevStepBtn" onclick="changeStep(-1)">← पछाडि</button>
+      <button type="button" class="btn btn-save" id="nextStepBtn" onclick="changeStep(1)">अगाडि →</button>
+    </div>
+  </form>
+</div>
+
+<!-- ============ RETURNED FILES SECTION ============ -->
+<div class="database-container" id="returnedSectionCard">
+  <div class="form-title" style="color: var(--danger-color);">📋 नगरपालिकाबाट संशोधन/सुधारका लागि फिर्ता (Returned) गरिएका फाइलहरू</div>
+
+  <input type="text" id="searchBar" class="search-box" placeholder="🔍 फिर्ता सूचीमा जग्गाधनीको नाम, फोन नम्बर वा नागरिकता नम्बर टाइप गरेर खोज्नुहोस्...">
+  <div class="search-result-count" id="searchResultCount" style="display:none;"></div>
+
+  <div style="overflow-x:auto;">
+    <table class="db-table">
+      <thead>
+        <tr>
+          <th>नागरिकता नं.</th>
+          <th>जग्गाधनीको नाम</th>
+          <th>फोन नम्बर</th>
+          <th>कित्ता नं.</th>
+          <th>कुल क्षेत्रफल (sq.ft)</th>
+          <th>फिर्ताको कारण (Remarks)</th>
+          <th style="width:140px;">कार्य (Action)</th>
+        </tr>
+      </thead>
+      <tbody id="databaseTableBody">
+        <tr><td colspan="7" class="text-center">⏳ विवरण लोड हुँदैछ...</td></tr>
+      </tbody>
+    </table>
   </div>
 
-  <div class="database-container" id="returnedSectionCard">
-    <div class="form-title" style="color: var(--danger-color);">📋 नगरपालिकाबाट संशोधन/सुधारका लागि फिर्ता (Returned) गरिएका फाइलहरू</div>
-    
-    <input type="text" id="searchBar" class="search-box" placeholder="🔍 फिर्ता सूचीमा जग्गाधनीको नाम, फोन नम्बर वा नागरिकता नम्बर टाइप गरेर खोज्नुहोस्...">
+  <div class="returned-cards" id="returnedCardsWrap"></div>
+</div>
 
-    <div style="overflow-x: auto;">
-      <table class="db-table">
-        <thead>
-          <tr>
-            <th>नागरिकता नं.</th>
-            <th>जग्गाधनीको नाम</th>
-            <th>फोन नम्बर</th>
-            <th>कित्ता नं.</th>
-            <th>कुल क्षेत्रफल (sq.ft)</th>
-            <th>फिर्ताको कारण (Remarks)</th>
-            <th style="width:140px;">कार्य (Action)</th>
-          </tr>
-        </thead>
-        <tbody id="databaseTableBody">
-          <tr><td colspan="7" class="text-center">डेटा लोड हुँदैछ...</td></tr>
-        </tbody>
-      </table>
+<!-- ============ MY APPLICATIONS (सबै आवेदन र अवस्था) ============ -->
+<div class="database-container" id="myApplicationsCard">
+  <div class="form-title" style="color: var(--primary-color);">📂 मेरा सबै आवेदनहरू (अवस्था हेर्नुहोस्)</div>
+
+  <div class="filter-tabs" id="myAppsFilterTabs">
+    <button type="button" class="filter-tab active" data-filter="all">सबै</button>
+    <button type="button" class="filter-tab" data-filter="Pending">⏳ Pending</button>
+    <button type="button" class="filter-tab" data-filter="Returned">🔄 संशोधन आवश्यक</button>
+    <button type="button" class="filter-tab" data-filter="other">✅ सम्पन्न / अन्य</button>
+  </div>
+
+  <div id="myAppsTableWrap" style="overflow-x:auto;">
+    <table class="db-table">
+      <thead>
+        <tr>
+          <th>मिति</th>
+          <th>नागरिकता नं.</th>
+          <th>जग्गाधनीको नाम</th>
+          <th>कित्ता नं.</th>
+          <th>कुल क्षेत्रफल</th>
+          <th>अवस्था (Status)</th>
+          <th>कैफियत</th>
+        </tr>
+      </thead>
+      <tbody id="myAppsTableBody">
+        <tr><td colspan="7" class="text-center">⏳ विवरण लोड हुँदैछ...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="app-cards" id="myAppsCardsWrap"></div>
+</div>
+
+<!-- ============ DRAFT RECOVERY MODAL ============ -->
+<div class="modal-overlay" id="draftModal">
+  <div class="modal-box">
+    <div class="mb-icon">💾</div>
+    <h3>पहिलेको अधुरो फारम भेटियो</h3>
+    <p>अघिल्लो draft जारी राख्ने?</p>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-outline" onclick="discardDraft()">नयाँ फारम</button>
+      <button type="button" class="btn btn-save" onclick="restoreDraft()">जारी राख्नुहोस्</button>
     </div>
   </div>
+</div>
 
-  <script>
-    const SUPABASE_URL = "https://lyjokogftwtvnhwszqni.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_gxEL2-GVTVy8E0WxMBZHDQ_b5TzsDI9"; 
-    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+<!-- ============ MOBILE BOTTOM NAV ============ -->
+<nav class="bottom-nav">
+  <div class="bottom-nav-inner">
+    <a href="#dashboardCards"><span>🏠</span><span>Dashboard</span></a>
+    <a href="#formTop"><span>📝</span><span>Form</span></a>
+    <a href="#returnedSectionCard"><span>🔄</span><span>Returned</span></a>
+    <a href="#myApplicationsCard"><span>📂</span><span>आवेदन</span></a>
+    <a href="javascript:void(0)" onclick="logoutUser()"><span>👤</span><span>Account</span></a>
+  </div>
+</nav>
 
-    let returnedDatabase = [];
-    const floorsList = ['base', 'semi', 'ground', '1st', '2nd', '3rd', '4th', '5th'];
+<script>
+  /* =========================================================
+     ⚠️ EXISTING SUPABASE CONFIG — DO NOT CHANGE
+     Table: g_map_branch1  |  Existing columns preserved as-is.
+     Note: This uses Supabase's publishable anon key by design;
+     protect data with Supabase Row Level Security (RLS) policies
+     on the g_map_branch1 table (e.g. restrict rows by entered_by_email).
+  ========================================================= */
+  const SUPABASE_URL = "https://lyjokogftwtvnhwszqni.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_gxEL2-GVTVy8E0WxMBZHDQ_b5TzsDI9";
+  const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // ==================== 🚪 LOGOUT र निष्क्रियता (Inactivity) पत्ता लगाउने ====================
-    const INACTIVITY_LIMIT_MS = 10 * 60 * 1000; // 10 मिनेट
-    let inactivityTimer = null;
+  let returnedDatabase = [];
+  let myApplicationsDatabase = [];
+  let currentAppsFilter = 'all';
+  const floorsList = ['base', 'semi', 'ground', '1st', '2nd', '3rd', '4th', '5th'];
+  const TOTAL_STEPS = 7;
+  let currentStep = 1;
 
-    function logoutUser(auto) {
-      localStorage.removeItem("userLoggedIn");
-      localStorage.removeItem("loggedInUserEmail");
-      localStorage.removeItem("userRole");
-      _supabase.auth.signOut().finally(() => {
-        if (auto) {
-          alert("⏱️ 10 मिनेटसम्म केही चलाइएन, सुरक्षाका लागि स्वतः लगआउट गरियो।");
-        }
-        window.location.href = "mapbranch.html";
-      });
-    }
+  // ==================== 🚪 LOGOUT र निष्क्रियता (Inactivity) ====================
+  const INACTIVITY_LIMIT_MS = 10 * 60 * 1000; // 10 मिनेट
+  let inactivityTimer = null;
 
-    function resetInactivityTimer() {
-      if (inactivityTimer) clearTimeout(inactivityTimer);
-      inactivityTimer = setTimeout(() => logoutUser(true), INACTIVITY_LIMIT_MS);
-    }
-
-    // प्रयोगकर्ताको कुनै पनि गतिविधि (माउस, टाइपिङ, स्क्रोल, टच) मा टाइमर रिसेट गर्ने
-    ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart', 'click'].forEach(evt => {
-      document.addEventListener(evt, resetInactivityTimer, { passive: true });
-    });
-    resetInactivityTimer();
-
-    document.addEventListener("DOMContentLoaded", () => {
-      setupLiveCalculations();
-      fetchReturnedFromSupabase();
-      
-      // सर्च बारको लागि इवेंट लिसनर
-      document.getElementById('searchBar').addEventListener('input', filterDatabase);
-    });
-
-    function setupLiveCalculations() {
-      floorsList.forEach(f => {
-        const lenInput = document.getElementById(`f_${f}_l`);
-        const widInput = document.getElementById(`f_${f}_w`);
-        const areaInput = document.getElementById(`f_${f}_a`);
-        
-        if (lenInput && widInput) {
-          lenInput.addEventListener('input', () => calculateSingleFloor(f));
-          widInput.addEventListener('input', () => calculateSingleFloor(f));
-        }
-        if (areaInput) {
-          areaInput.addEventListener('input', () => calculateGrandTotalFloorArea());
-        }
-      });
-    }
-
-    function calculateSingleFloor(floorKey) {
-      // यदि प्रयोगकर्ताले अक्षर (फिट/इन्च) लेखेका छन् भने parseFloat ले मात्र पहिलो अंक लिनेछ, 
-      // तर यदि शुद्ध अंक मात्र छ भने यसले स्वचालित हिसाब निकाल्नेछ।
-      const l = parseFloat(document.getElementById(`f_${floorKey}_l`).value) || 0;
-      const w = parseFloat(document.getElementById(`f_${floorKey}_w`).value) || 0;
-      
-      // यदि इनपुटमा 'इन्च' वा 'फिट' लेखिएको छ भने स्वचालित क्षेत्रफल त्रुटिपूर्ण हुन सक्ने भएकाले
-      // प्रयोगकर्तालाई हातैले क्षेत्रफल लेख्न सहज बनाउन खाली छोडिदिने व्यवस्था गरिएको छ।
-      const rawL = document.getElementById(`f_${floorKey}_l`).value;
-      const rawW = document.getElementById(`f_${floorKey}_w`).value;
-      
-      if(isNaN(rawL) || isNaN(rawW)) {
-        // अक्षर मिसिएको खण्डमा स्वचालित हिसाब नगरिकन प्रयोगकर्तालाई आफै क्षेत्रफल भर्न दिने
-        return; 
+  function logoutUser(auto) {
+    localStorage.removeItem("userLoggedIn");
+    localStorage.removeItem("loggedInUserEmail");
+    localStorage.removeItem("userRole");
+    _supabase.auth.signOut().finally(() => {
+      if (auto) {
+        showToast("warning", "⏱️ 10 मिनेटसम्म केही चलाइएन, सुरक्षाका लागि स्वतः लगआउट गरियो।");
       }
+      window.location.href = "mapbranch.html";
+    });
+  }
 
-      const area = l * w;
-      document.getElementById(`f_${floorKey}_a`).value = area > 0 ? area.toFixed(2) : "";
+  function resetInactivityTimer() {
+    if (inactivityTimer) clearTimeout(inactivityTimer);
+    inactivityTimer = setTimeout(() => logoutUser(true), INACTIVITY_LIMIT_MS);
+  }
+
+  ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart', 'click'].forEach(evt => {
+    document.addEventListener(evt, resetInactivityTimer, { passive: true });
+  });
+  resetInactivityTimer();
+
+  document.addEventListener("DOMContentLoaded", () => {
+    initHeaderUser();
+    initDarkMode();
+    setupLiveCalculations();
+    setupWizardStepper();
+    setupValidationListeners();
+    fetchAllUserRecords();
+    checkForDraft();
+    setupDraftAutosave();
+    setupAppsFilterTabs();
+
+    document.getElementById('searchBar').addEventListener('input', filterDatabase);
+  });
+
+  /* ==================== 👤 HEADER USER INFO ==================== */
+  function initHeaderUser() {
+    const name = localStorage.getItem("loggedInUserName") || localStorage.getItem("loggedInUserEmail") || "प्रयोगकर्ता";
+    const role = localStorage.getItem("userRole") || "Consultancy";
+    document.getElementById('headerUserName').innerText = name;
+    document.getElementById('headerUserRole').innerText = role;
+  }
+
+  /* ==================== 🌙 DARK MODE ==================== */
+  function initDarkMode() {
+    const saved = localStorage.getItem("themePreference");
+    const toggleBtn = document.getElementById('darkModeToggle');
+    if (saved === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      toggleBtn.innerText = '☀️';
+    }
+    toggleBtn.addEventListener('click', () => {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      if (isDark) {
+        document.documentElement.removeAttribute('data-theme');
+        localStorage.setItem("themePreference", "light");
+        toggleBtn.innerText = '🌙';
+      } else {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        localStorage.setItem("themePreference", "dark");
+        toggleBtn.innerText = '☀️';
+      }
+    });
+  }
+
+  /* ==================== 🔔 TOAST NOTIFICATIONS ==================== */
+  function showToast(type, message) {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+    toast.innerHTML = `<span>${icons[type] || 'ℹ️'}</span><span>${message}</span>`;
+    container.appendChild(toast);
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateX(30px)';
+      toast.style.transition = '.25s ease';
+      setTimeout(() => toast.remove(), 260);
+    }, 4200);
+  }
+
+  /* ==================== 🔴 RETURNED NOTIFICATION BANNER ==================== */
+  function dismissReturnedNotification() {
+    document.getElementById('returnedNotification').style.display = 'none';
+  }
+
+  function scrollToReturnedSection() {
+    document.getElementById('returnedSectionCard').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function goToFormTop() {
+    clearForm();
+    document.getElementById('formTop').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  /* ==================== 🧭 WIZARD STEPPER ==================== */
+  function setupWizardStepper() {
+    renderStepUI();
+  }
+
+  function renderStepUI() {
+    document.querySelectorAll('.wizard-step').forEach(el => {
+      el.classList.toggle('active', parseInt(el.dataset.step) === currentStep);
+    });
+    document.querySelectorAll('.stepper li').forEach(li => {
+      const s = parseInt(li.dataset.step);
+      li.classList.toggle('active', s === currentStep);
+      li.classList.toggle('done', s < currentStep);
+    });
+    document.getElementById('prevStepBtn').style.visibility = currentStep === 1 ? 'hidden' : 'visible';
+    const nextBtn = document.getElementById('nextStepBtn');
+    const wizardNav = document.querySelector('.wizard-nav');
+    if (currentStep === TOTAL_STEPS) {
+      wizardNav.style.display = 'none';
+    } else {
+      wizardNav.style.display = 'flex';
+      nextBtn.innerText = currentStep === TOTAL_STEPS - 1 ? '🔎 Review हेर्नुहोस् →' : 'अगाडि →';
+    }
+    if (currentStep === 6) {
+      buildReviewContent();
+    }
+    if (currentStep === 5) {
       calculateGrandTotalFloorArea();
     }
+  }
 
-    function calculateGrandTotalFloorArea() {
-      let total = 0;
-      floorsList.forEach(f => {
-        const val = parseFloat(document.getElementById(`f_${f}_a`).value) || 0;
-        total += val;
-      });
-      document.getElementById('tot_area').value = total > 0 ? total.toFixed(2) : "";
+  function changeStep(direction) {
+    if (direction > 0 && !validateStep(currentStep)) {
+      showToast('warning', 'कृपया आवश्यक विवरण पूरा गर्नुहोस्।');
+      return;
     }
+    const next = currentStep + direction;
+    if (next < 1 || next > TOTAL_STEPS) return;
+    currentStep = next;
+    renderStepUI();
+    document.getElementById('formTop').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 
-    async function fetchReturnedFromSupabase() {
-      try {
-        const currentUserEmail = localStorage.getItem("loggedInUserEmail") || "";
-
-        const { data, error } = await _supabase
-          .from('g_map_branch1')
-          .select('*')
-          .eq('status', 'Returned')
-          .eq('entered_by_email', currentUserEmail)
-          .order('created_at', { ascending: false });
-
-        if (error) throw error;
-        returnedDatabase = data;
-        
-        updateNotificationBanner();
-        renderDatabaseTable(returnedDatabase);
-      } catch (err) {
-        console.error("Error fetching data:", err.message);
-      }
-    }
-
-    function updateNotificationBanner() {
-      const count = returnedDatabase.length;
-      const alertBanner = document.getElementById('returnedNotification');
-      const countSpan = document.getElementById('returnedCount');
-      
-      if (count > 0) {
-        countSpan.innerText = count;
-        alertBanner.style.display = 'flex';
+  function validateStep(stepNum) {
+    const stepEl = document.querySelector(`.wizard-step[data-step="${stepNum}"]`);
+    if (!stepEl) return true;
+    let valid = true;
+    const requiredFields = stepEl.querySelectorAll('input[required], select[required]');
+    requiredFields.forEach(field => {
+      if (!field.value || !field.value.toString().trim()) {
+        valid = false;
+        markFieldError(field, true);
       } else {
-        alertBanner.style.display = 'none';
+        markFieldError(field, false);
       }
+    });
+    return valid;
+  }
+
+  function markFieldError(field, hasError) {
+    const msgEl = field.parentElement.querySelector('.field-msg');
+    if (hasError) {
+      field.classList.add('field-error');
+      field.classList.remove('field-success');
+      if (msgEl) msgEl.classList.add('show');
+    } else {
+      field.classList.remove('field-error');
+      if (field.value && field.value.toString().trim()) field.classList.add('field-success');
+      if (msgEl) msgEl.classList.remove('show');
     }
+  }
 
-    function renderDatabaseTable(dataArray) {
-      const tbody = document.getElementById('databaseTableBody');
-      tbody.innerHTML = '';
+  function setupValidationListeners() {
+    document.querySelectorAll('#masterDataForm input, #masterDataForm select').forEach(field => {
+      field.addEventListener('blur', () => {
+        if (field.hasAttribute('required')) markFieldError(field, !field.value || !field.value.toString().trim());
+      });
+      field.addEventListener('input', () => {
+        if (field.classList.contains('field-error') && field.value.toString().trim()) markFieldError(field, false);
+      });
+    });
+  }
 
-      if (dataArray.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="text-center" style="color:#2ed573; font-weight:bold;">🎉 नगरपालिकाबाट सुधारका लागि फिर्ता आएका कुनै फाइलहरू बाँकी छैनन्।</td></tr>`;
-        return;
+  function validateAllSteps() {
+    let firstInvalidStep = null;
+    for (let s = 1; s <= 5; s++) {
+      const ok = validateStep(s);
+      if (!ok && firstInvalidStep === null) firstInvalidStep = s;
+    }
+    return firstInvalidStep;
+  }
+
+  /* ==================== 🔎 REVIEW STEP ==================== */
+  function buildReviewContent() {
+    const val = id => document.getElementById(id) ? (document.getElementById(id).value || '—') : '—';
+    const container = document.getElementById('reviewContent');
+    container.innerHTML = `
+      <div class="review-block">
+        <h4>👤 जग्गाधनी</h4>
+        <div class="review-row"><span>नाम</span><span>${val('owner')}</span></div>
+        <div class="review-row"><span>फोन</span><span>${val('phone')}</span></div>
+        <div class="review-row"><span>नागरिकता नं.</span><span>${val('cit_no')}</span></div>
+        <div class="review-row"><span>बाबुको नाम</span><span>${val('father')}</span></div>
+      </div>
+      <div class="review-block">
+        <h4>🏞️ जग्गा</h4>
+        <div class="review-row"><span>वडा नं.</span><span>${document.getElementById('ward').value ? nepDigits(document.getElementById('ward').value) : '—'}</span></div>
+        <div class="review-row"><span>कित्ता नं.</span><span>${val('kitta')}</span></div>
+        <div class="review-row"><span>क्षेत्रफल</span><span>${val('area')}</span></div>
+      </div>
+      <div class="review-block">
+        <h4>🧭 चारकिल्ला</h4>
+        <div class="review-row"><span>पूर्व</span><span>${val('east')}</span></div>
+        <div class="review-row"><span>पश्चिम</span><span>${val('west')}</span></div>
+        <div class="review-row"><span>उत्तर</span><span>${val('north')}</span></div>
+        <div class="review-row"><span>दक्षिण</span><span>${val('south')}</span></div>
+      </div>
+      <div class="review-block">
+        <h4>🏢 भवन</h4>
+        <div class="review-row"><span>कुल तल्ला</span><span>${val('total_floors')}</span></div>
+        <div class="review-row"><span>कुल क्षेत्रफल</span><span>${val('tot_area')}</span></div>
+      </div>
+      <div class="review-block">
+        <h4>📐 प्राविधिक</h4>
+        <div class="review-row"><span>बाटो चौडाइ</span><span>${val('road_width')}</span></div>
+        <div class="review-row"><span>Setback</span><span>${val('setbacx')}</span></div>
+        <div class="review-row"><span>FAR</span><span>${val('far')}</span></div>
+      </div>
+      <div style="text-align:center;margin-top:8px;">
+        <button type="button" class="btn btn-outline" onclick="editFromReview()">✏️ सच्याउनुहोस्</button>
+      </div>
+    `;
+  }
+
+  function editFromReview() {
+    currentStep = 1;
+    renderStepUI();
+    document.getElementById('formTop').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  /* ==================== 🔢 नेपाली अंक ==================== */
+  function nepDigits(str) {
+    const map = { '0':'०','1':'१','2':'२','3':'३','4':'४','5':'५','6':'६','7':'७','8':'८','9':'९' };
+    return String(str).replace(/[0-9]/g, d => map[d]);
+  }
+
+  /* ==================== 📐 LIVE FLOOR CALCULATIONS ==================== */
+  function setupLiveCalculations() {
+    floorsList.forEach(f => {
+      const lenInput = document.getElementById(`f_${f}_l`);
+      const widInput = document.getElementById(`f_${f}_w`);
+      const areaInput = document.getElementById(`f_${f}_a`);
+
+      if (lenInput && widInput) {
+        lenInput.addEventListener('input', () => calculateSingleFloor(f));
+        widInput.addEventListener('input', () => calculateSingleFloor(f));
       }
-
-      dataArray.forEach(item => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td><b>${item.cit_no}</b></td>
-          <td>${item.owner}</td>
-          <td>${item.phone || '-'}</td>
-          <td>${item.kitta}</td>
-          <td><b style="color:red;">${item.tot_area || '0.00'}</b></td>
-          <td class="remarks-box">⚠️ ${item.remarks || 'कारण खुलाइएको छैन'}</td>
-          <td>
-            <button class="action-btn btn-edit" onclick="loadRecordForModify(${item.id})">✏️ Edit / सच्याउने</button>
-          </td>
-        `;
-        tbody.appendChild(row);
-      });
-    }
-
-    function filterDatabase() {
-      const query = document.getElementById('searchBar').value.toLowerCase().trim();
-      const filteredData = returnedDatabase.filter(item => {
-        return (item.owner && item.owner.toLowerCase().includes(query)) || 
-               (item.cit_no && item.cit_no.toLowerCase().includes(query)) ||
-               (item.phone && item.phone.toLowerCase().includes(query));
-      });
-      renderDatabaseTable(filteredData);
-    }
-
-    function getFormDataObject() {
-      const record = {
-        cit_no: document.getElementById('cit_no').value,
-        phone: document.getElementById('phone').value,
-        cit_date: document.getElementById('cit_date').value,
-        cit_office: document.getElementById('cit_office').value,
-        owner: document.getElementById('owner').value,
-        grandfather: document.getElementById('grandfather').value,
-        father: document.getElementById('father').value,
-        ward: document.getElementById('ward').value,
-        tole: document.getElementById('tole').value,
-        savik_gavis: document.getElementById('savik_gavis').value,
-        savik_ward: document.getElementById('savik_ward').value,
-        kitta: document.getElementById('kitta').value,
-        area: document.getElementById('area').value,
-        tot_length: document.getElementById('tot_length').value || null,
-        tot_width: document.getElementById('tot_width').value || null,
-        tot_height: document.getElementById('tot_height').value || null, // परिमार्जन: उचाईलाई पनि text ढाँचामा पठाइनेछ
-        room: document.getElementById('room').value,
-        door: document.getElementById('door').value,
-        window: document.getElementById('window').value,
-        shutter: document.getElementById('shutter').value,
-        cg: document.getElementById('cg').value,
-        total_floors: document.getElementById('total_floors').value,
-        cov_area: parseFloat(document.getElementById('cov_area').value) || null,
-        tot_area: parseFloat(document.getElementById('tot_area').value) || null,
-        east: document.getElementById('east').value,
-        west: document.getElementById('west').value,
-        north: document.getElementById('north').value,
-        south: document.getElementById('south').value,
-        road_width: document.getElementById('road_width').value,
-        roadce: document.getElementById('roadce').value,
-        roadcex: document.getElementById('roadcex').value,
-        setbac: document.getElementById('setbac').value,
-        setbacx: document.getElementById('setbacx').value,
-        river: document.getElementById('river').value,
-        riverx: document.getElementById('riverx').value,
-        land: document.getElementById('land').value,
-        landb: document.getElementById('landb').value,
-        revinuerate: document.getElementById('revinuerate').value,
-        gc: document.getElementById('gc').value,
-        far: document.getElementById('far').value
-      };
-
-      // परिमार्जन: तल्लागत लम्बाई, चौडाई र उचाईलाई सिधै text (string) को रुपमा डेटाबेस पठाइनेछ
-      floorsList.forEach(f => {
-        record[`f_${f}_l`] = document.getElementById(`f_${f}_l`).value || null;
-        record[`f_${f}_w`] = document.getElementById(`f_${f}_w`).value || null;
-        record[`f_${f}_h`] = document.getElementById(`f_${f}_h`).value || null;
-        record[`f_${f}_a`] = parseFloat(document.getElementById(`f_${f}_a`).value) || null;
-      });
-
-      return record;
-    }
-
-    document.getElementById('masterDataForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      const recordId = document.getElementById('record_id').value;
-      if(recordId) {
-        resubmitReturnedFile();
-        return;
+      if (areaInput) {
+        areaInput.addEventListener('input', () => calculateGrandTotalFloorArea());
       }
+    });
+  }
 
-      const dataToSave = getFormDataObject();
-      dataToSave.status = 'Pending';
-      dataToSave.entered_by_email = localStorage.getItem("loggedInUserEmail") || null;
-      dataToSave.entered_by_name = localStorage.getItem("loggedInUserName") || null;
+  function calculateSingleFloor(floorKey) {
+    const l = parseFloat(document.getElementById(`f_${floorKey}_l`).value) || 0;
+    const w = parseFloat(document.getElementById(`f_${floorKey}_w`).value) || 0;
 
-      try {
-        const { error } = await _supabase
-          .from('g_map_branch1')
-          .insert([dataToSave]);
+    const rawL = document.getElementById(`f_${floorKey}_l`).value;
+    const rawW = document.getElementById(`f_${floorKey}_w`).value;
 
-        if (error) throw error;
-        
-        alert("🚀 नयाँ आवेदन सफलतापूर्वक दर्ता प्रक्रियाका लागि नगरपालिका पठाइयो!");
-        clearForm();
-        fetchReturnedFromSupabase();
-      } catch (err) {
-        alert("डाटा पठाउँदा प्राविधिक समस्या आयो: " + err.message);
+    if (isNaN(rawL) || isNaN(rawW)) {
+      return;
+    }
+
+    const area = l * w;
+    document.getElementById(`f_${floorKey}_a`).value = area > 0 ? area.toFixed(2) : "";
+    calculateGrandTotalFloorArea();
+  }
+
+  function calculateGrandTotalFloorArea() {
+    let total = 0;
+    let filledFloors = 0;
+    floorsList.forEach(f => {
+      const val = parseFloat(document.getElementById(`f_${f}_a`).value) || 0;
+      if (val > 0) filledFloors++;
+      total += val;
+    });
+    document.getElementById('tot_area').value = total > 0 ? total.toFixed(2) : "";
+    updateBuildingSummary(total, filledFloors);
+  }
+
+  function updateBuildingSummary(totalArea, filledFloors) {
+    const sumFloorsEl = document.getElementById('sumFloors');
+    const sumAreaEl = document.getElementById('sumTotalArea');
+    const sumCovEl = document.getElementById('sumCoverage');
+    const sumFarEl = document.getElementById('sumFar');
+    if (!sumFloorsEl) return;
+
+    sumFloorsEl.innerText = filledFloors;
+    sumAreaEl.innerText = totalArea > 0 ? totalArea.toFixed(2) : "0";
+
+    const covAreaVal = parseFloat(document.getElementById('cov_area').value) || 0;
+    const plotAreaVal = parseFloat(document.getElementById('gc').value) || 0; // गाउँ कभरेज प्रतिशत field is user-entered already
+    if (covAreaVal > 0) {
+      sumCovEl.innerText = covAreaVal.toFixed(0) + " sq.ft";
+    } else {
+      sumCovEl.innerText = "—";
+    }
+
+    const farVal = document.getElementById('far').value;
+    sumFarEl.innerText = farVal ? farVal : "—";
+  }
+
+  /* ==================== 📥 FETCH ALL OF THE USER'S RECORDS ====================
+     Single query for everything this user has entered (any status).
+     returnedDatabase (used by the existing edit/resubmit flow) and the
+     dashboard stat cards are both derived from this same result so the
+     numbers always stay in sync with what's shown on screen. */
+  async function fetchAllUserRecords() {
+    try {
+      const currentUserEmail = localStorage.getItem("loggedInUserEmail") || "";
+
+      const { data, error } = await _supabase
+        .from('g_map_branch1')
+        .select('*')
+        .eq('entered_by_email', currentUserEmail)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      myApplicationsDatabase = data || [];
+      returnedDatabase = myApplicationsDatabase.filter(r => r.status === 'Returned');
+
+      updateNotificationBanner();
+      renderDatabaseTable(returnedDatabase);
+      updateDashboardStats();
+      renderMyApplications();
+    } catch (err) {
+      console.error("Error fetching data:", err.message);
+      showToast('error', 'डाटा तान्दा प्राविधिक समस्या आयो।');
+    }
+  }
+
+  // Backwards-compatible alias (kept in case it's called elsewhere)
+  function fetchReturnedFromSupabase() { return fetchAllUserRecords(); }
+
+  /* ==================== 📊 DASHBOARD STATS ==================== */
+  function updateDashboardStats() {
+    const total = myApplicationsDatabase.length;
+    const pending = myApplicationsDatabase.filter(r => r.status === 'Pending').length;
+    const returned = myApplicationsDatabase.filter(r => r.status === 'Returned').length;
+    const completed = myApplicationsDatabase.filter(r => r.status && r.status !== 'Pending' && r.status !== 'Returned').length;
+
+    document.getElementById('statTotal').innerText = total;
+    document.getElementById('statPending').innerText = pending;
+    document.getElementById('statReturned').innerText = returned;
+    document.getElementById('statCompleted').innerText = completed;
+  }
+
+  /* ==================== 📂 MY APPLICATIONS (सबै आवेदन + अवस्था) ==================== */
+  function setupAppsFilterTabs() {
+    document.querySelectorAll('#myAppsFilterTabs .filter-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('#myAppsFilterTabs .filter-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentAppsFilter = tab.dataset.filter;
+        renderMyApplications();
+      });
+    });
+  }
+
+  function statusBadgeClass(status) {
+    if (status === 'Pending') return 'st-pending';
+    if (status === 'Returned') return 'st-returned';
+    if (status) return 'st-done';
+    return 'st-other';
+  }
+
+  function statusLabel(status) {
+    if (status === 'Pending') return '⏳ Pending';
+    if (status === 'Returned') return '🔄 फिर्ता (Returned)';
+    if (status) return '✅ ' + status;
+    return '— अवस्था तोकिएको छैन';
+  }
+
+  function renderMyApplications() {
+    let list = myApplicationsDatabase;
+    if (currentAppsFilter === 'Pending') {
+      list = list.filter(r => r.status === 'Pending');
+    } else if (currentAppsFilter === 'Returned') {
+      list = list.filter(r => r.status === 'Returned');
+    } else if (currentAppsFilter === 'other') {
+      list = list.filter(r => r.status && r.status !== 'Pending' && r.status !== 'Returned');
+    }
+
+    const tbody = document.getElementById('myAppsTableBody');
+    const cardsWrap = document.getElementById('myAppsCardsWrap');
+    tbody.innerHTML = '';
+    cardsWrap.innerHTML = '';
+
+    if (list.length === 0) {
+      const emptyHtml = `<div class="empty-state"><div class="es-icon">📭</div><div class="es-text" style="color:var(--text-muted);">यस फिल्टरमा कुनै आवेदन भेटिएन।</div></div>`;
+      tbody.innerHTML = `<tr><td colspan="7" class="text-center">${emptyHtml}</td></tr>`;
+      cardsWrap.innerHTML = emptyHtml;
+      return;
+    }
+
+    list.forEach(item => {
+      const dateVal = item.date_reg || (item.created_at ? String(item.created_at).slice(0, 10) : '-');
+      const remarkText = item.status === 'Returned' ? (item.remarks || 'कारण खुलाइएको छैन') : '-';
+
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${dateVal}</td>
+        <td><b>${item.cit_no || '-'}</b></td>
+        <td>${item.owner || '-'}</td>
+        <td>${item.kitta || '-'}</td>
+        <td>${item.tot_area || '0.00'}</td>
+        <td><span class="status-badge ${statusBadgeClass(item.status)}">${statusLabel(item.status)}</span></td>
+        <td>${remarkText}</td>
+      `;
+      tbody.appendChild(row);
+
+      const card = document.createElement('div');
+      card.className = 'app-card';
+      card.innerHTML = `
+        <div class="ac-top">
+          <span class="status-badge ${statusBadgeClass(item.status)}">${statusLabel(item.status)}</span>
+          <span style="font-size:12px;color:var(--text-muted);font-weight:600;">${dateVal}</span>
+        </div>
+        <div class="ac-row"><span>🪪 नागरिकता</span><span>${item.cit_no || '-'}</span></div>
+        <div class="ac-row"><span>👤 नाम</span><span>${item.owner || '-'}</span></div>
+        <div class="ac-row"><span>📍 कित्ता</span><span>${item.kitta || '-'}</span></div>
+        <div class="ac-row"><span>📐 क्षेत्रफल</span><span>${item.tot_area || '0.00'}</span></div>
+        ${item.status === 'Returned' ? `<div class="ac-row"><span>⚠️ कैफियत</span><span>${remarkText}</span></div>` : ''}
+      `;
+      cardsWrap.appendChild(card);
+    });
+  }
+
+  function updateNotificationBanner() {
+    const count = returnedDatabase.length;
+    const alertBanner = document.getElementById('returnedNotification');
+    const countSpan = document.getElementById('returnedCount');
+
+    if (count > 0) {
+      countSpan.innerText = count;
+      alertBanner.style.display = 'flex';
+    } else {
+      alertBanner.style.display = 'none';
+    }
+  }
+
+  function renderDatabaseTable(dataArray) {
+    const tbody = document.getElementById('databaseTableBody');
+    const cardsWrap = document.getElementById('returnedCardsWrap');
+    tbody.innerHTML = '';
+    cardsWrap.innerHTML = '';
+
+    if (dataArray.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="7" class="text-center"><div class="empty-state"><div class="es-icon">🎉</div><div class="es-text">अहिले कुनै फाइल संशोधनका लागि फिर्ता आएको छैन।</div></div></td></tr>`;
+      cardsWrap.innerHTML = `<div class="empty-state"><div class="es-icon">🎉</div><div class="es-text">अहिले कुनै फाइल संशोधनका लागि फिर्ता आएको छैन।</div></div>`;
+      return;
+    }
+
+    dataArray.forEach(item => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td><b>${item.cit_no}</b></td>
+        <td>${item.owner}</td>
+        <td>${item.phone || '-'}</td>
+        <td>${item.kitta}</td>
+        <td><b style="color:red;">${item.tot_area || '0.00'}</b></td>
+        <td class="remarks-box">⚠️ ${item.remarks || 'कारण खुलाइएको छैन'}</td>
+        <td>
+          <button class="action-btn btn-edit" onclick="loadRecordForModify(${item.id})">✏️ Edit / सच्याउने</button>
+        </td>
+      `;
+      tbody.appendChild(row);
+
+      const card = document.createElement('div');
+      card.className = 'returned-card';
+      card.innerHTML = `
+        <span class="rc-status">🔴 Returned</span>
+        <div class="rc-row"><span>🪪 नागरिकता</span><span>${item.cit_no}</span></div>
+        <div class="rc-row"><span>👤 नाम</span><span>${item.owner}</span></div>
+        <div class="rc-row"><span>📱 फोन</span><span>${item.phone || '-'}</span></div>
+        <div class="rc-row"><span>📍 कित्ता</span><span>${item.kitta}</span></div>
+        <div class="rc-row"><span>📐 क्षेत्रफल</span><span>${item.tot_area || '0.00'}</span></div>
+        <div class="rc-remark">⚠️ ${item.remarks || 'कारण खुलाइएको छैन'}</div>
+        <button class="action-btn btn-edit rc-edit" onclick="loadRecordForModify(${item.id})">✏️ सच्याउनुहोस्</button>
+      `;
+      cardsWrap.appendChild(card);
+    });
+  }
+
+  function filterDatabase() {
+    const query = document.getElementById('searchBar').value.toLowerCase().trim();
+    const countEl = document.getElementById('searchResultCount');
+    const filteredData = returnedDatabase.filter(item => {
+      return (item.owner && item.owner.toLowerCase().includes(query)) ||
+             (item.cit_no && item.cit_no.toLowerCase().includes(query)) ||
+             (item.phone && item.phone.toLowerCase().includes(query)) ||
+             (item.kitta && item.kitta.toLowerCase().includes(query));
+    });
+    renderDatabaseTable(filteredData);
+
+    if (query) {
+      countEl.style.display = 'block';
+      countEl.innerText = `${nepDigits(filteredData.length)} वटा परिणाम भेटियो`;
+    } else {
+      countEl.style.display = 'none';
+    }
+  }
+
+  /* ==================== 📝 FORM DATA COLLECTION ==================== */
+  function getFormDataObject() {
+    const record = {
+      cit_no: document.getElementById('cit_no').value,
+      phone: document.getElementById('phone').value,
+      cit_date: document.getElementById('cit_date').value,
+      cit_office: document.getElementById('cit_office').value,
+      owner: document.getElementById('owner').value,
+      grandfather: document.getElementById('grandfather').value,
+      father: document.getElementById('father').value,
+      ward: document.getElementById('ward').value,
+      tole: document.getElementById('tole').value,
+      savik_gavis: document.getElementById('savik_gavis').value,
+      savik_ward: document.getElementById('savik_ward').value,
+      kitta: document.getElementById('kitta').value,
+      area: document.getElementById('area').value,
+      tot_length: document.getElementById('tot_length').value || null,
+      tot_width: document.getElementById('tot_width').value || null,
+      tot_height: document.getElementById('tot_height').value || null,
+      room: document.getElementById('room').value,
+      door: document.getElementById('door').value,
+      window: document.getElementById('window').value,
+      shutter: document.getElementById('shutter').value,
+      cg: document.getElementById('cg').value,
+      total_floors: document.getElementById('total_floors').value,
+      cov_area: parseFloat(document.getElementById('cov_area').value) || null,
+      tot_area: parseFloat(document.getElementById('tot_area').value) || null,
+      east: document.getElementById('east').value,
+      west: document.getElementById('west').value,
+      north: document.getElementById('north').value,
+      south: document.getElementById('south').value,
+      road_width: document.getElementById('road_width').value,
+      roadce: document.getElementById('roadce').value,
+      roadcex: document.getElementById('roadcex').value,
+      setbac: document.getElementById('setbac').value,
+      setbacx: document.getElementById('setbacx').value,
+      river: document.getElementById('river').value,
+      riverx: document.getElementById('riverx').value,
+      land: document.getElementById('land').value,
+      landb: document.getElementById('landb').value,
+      revinuerate: document.getElementById('revinuerate').value,
+      gc: document.getElementById('gc').value,
+      far: document.getElementById('far').value
+    };
+
+    floorsList.forEach(f => {
+      record[`f_${f}_l`] = document.getElementById(`f_${f}_l`).value || null;
+      record[`f_${f}_w`] = document.getElementById(`f_${f}_w`).value || null;
+      record[`f_${f}_h`] = document.getElementById(`f_${f}_h`).value || null;
+      record[`f_${f}_a`] = parseFloat(document.getElementById(`f_${f}_a`).value) || null;
+    });
+
+    return record;
+  }
+
+  document.getElementById('masterDataForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const invalidStep = validateAllSteps();
+    if (invalidStep) {
+      currentStep = invalidStep;
+      renderStepUI();
+      showToast('warning', 'आवश्यक विवरण पूरा गर्नुहोस्।');
+      return;
+    }
+
+    const recordId = document.getElementById('record_id').value;
+    if (recordId) {
+      resubmitReturnedFile();
+      return;
+    }
+
+    const submitBtn = document.getElementById('submitBtn');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '🚀 नगरपालिका पठाउँदै...';
+
+    const dataToSave = getFormDataObject();
+    dataToSave.status = 'Pending';
+    dataToSave.entered_by_email = localStorage.getItem("loggedInUserEmail") || null;
+    dataToSave.entered_by_name = localStorage.getItem("loggedInUserName") || null;
+
+    try {
+      const { error } = await _supabase
+        .from('g_map_branch1')
+        .insert([dataToSave]);
+
+      if (error) throw error;
+
+      showToast('success', 'आवेदन सफलतापूर्वक नगरपालिका पठाइयो।');
+      clearForm();
+      fetchReturnedFromSupabase();
+    } catch (err) {
+      showToast('error', 'डाटा पठाउँदा समस्या भयो: ' + err.message);
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalText;
+    }
+  });
+
+  function loadRecordForModify(id) {
+    const record = returnedDatabase.find(r => r.id === id);
+    if (!record) return;
+
+    document.getElementById('record_id').value = record.id;
+
+    Object.keys(record).forEach(key => {
+      const inputField = document.getElementById(key);
+      if (inputField) {
+        inputField.value = record[key] !== null ? record[key] : "";
       }
     });
 
-    function loadRecordForModify(id) {
-      const record = returnedDatabase.find(r => r.id === id);
-      if (!record) return;
+    floorsList.forEach(f => {
+      if (document.getElementById(`f_${f}_l`)) document.getElementById(`f_${f}_l`).value = record[`f_${f}_l`] !== null ? record[`f_${f}_l`] : "";
+      if (document.getElementById(`f_${f}_w`)) document.getElementById(`f_${f}_w`).value = record[`f_${f}_w`] !== null ? record[`f_${f}_w`] : "";
+      if (document.getElementById(`f_${f}_h`)) document.getElementById(`f_${f}_h`).value = record[`f_${f}_h`] !== null ? record[`f_${f}_h`] : "";
+      if (document.getElementById(`f_${f}_a`)) document.getElementById(`f_${f}_a`).value = record[`f_${f}_a`] !== null ? record[`f_${f}_a`] : "";
+    });
 
-      document.getElementById('record_id').value = record.id;
+    document.getElementById('returnedRemarksSection').style.display = 'block';
+    document.getElementById('remarksWrapper').style.display = 'block';
 
-      Object.keys(record).forEach(key => {
-        const inputField = document.getElementById(key);
-        if (inputField) {
-          inputField.value = record[key] !== null ? record[key] : "";
-        }
-      });
+    document.getElementById('submitBtn').style.display = 'none';
+    document.getElementById('resubmitBtn').style.display = 'flex';
+    document.getElementById('formMainTitle').innerText = "✏️ फाइल परिमार्जन मोड (Modification Mode)";
 
-      floorsList.forEach(f => {
-        if (document.getElementById(`f_${f}_l`)) document.getElementById(`f_${f}_l`).value = record[`f_${f}_l`] !== null ? record[`f_${f}_l`] : "";
-        if (document.getElementById(`f_${f}_w`)) document.getElementById(`f_${f}_w`).value = record[`f_${f}_w`] !== null ? record[`f_${f}_w`] : "";
-        if (document.getElementById(`f_${f}_h`)) document.getElementById(`f_${f}_h`).value = record[`f_${f}_h`] !== null ? record[`f_${f}_h`] : "";
-        if (document.getElementById(`f_${f}_a`)) document.getElementById(`f_${f}_a`).value = record[`f_${f}_a`] !== null ? record[`f_${f}_a`] : "";
-      });
+    currentStep = 1;
+    renderStepUI();
+    calculateGrandTotalFloorArea();
 
-      document.getElementById('returnedRemarksSection').style.display = 'block';
-      document.getElementById('remarksWrapper').style.display = 'block';
-      
-      document.getElementById('submitBtn').style.display = 'none';
-      document.getElementById('resubmitBtn').style.display = 'flex';
-      document.getElementById('formMainTitle').innerText = "✏️ फाइल परिमार्जन मोड (Modification Mode)";
+    document.getElementById('formTop').scrollIntoView({ behavior: 'smooth' });
+  }
 
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+  async function resubmitReturnedFile() {
+    const recordId = document.getElementById('record_id').value;
+    if (!recordId) return;
+
+    const invalidStep = validateAllSteps();
+    if (invalidStep) {
+      currentStep = invalidStep;
+      renderStepUI();
+      showToast('warning', 'आवश्यक विवरण पूरा गर्नुहोस्।');
+      return;
     }
 
-    async function resubmitReturnedFile() {
-      const recordId = document.getElementById('record_id').value;
-      if (!recordId) return;
+    const resubmitBtn = document.getElementById('resubmitBtn');
+    const originalText = resubmitBtn.innerHTML;
+    resubmitBtn.disabled = true;
+    resubmitBtn.innerHTML = '🚀 नगरपालिका पठाउँदै...';
 
-      const updatedData = getFormDataObject();
-      updatedData.status = 'Pending'; 
-      updatedData.remarks = '';      
+    const updatedData = getFormDataObject();
+    updatedData.status = 'Pending';
+    updatedData.remarks = '';
 
-      try {
-        const { error } = await _supabase
-          .from('g_map_branch1')
-          .update(updatedData)
-          .eq('id', recordId);
+    try {
+      const { error } = await _supabase
+        .from('g_map_branch1')
+        .update(updatedData)
+        .eq('id', recordId);
 
-        if (error) throw error;
-        
-        alert("🔄 फाइल सफलतापूर्वक थप परिमार्जन (Modify) गरी पुनः नगरपालिका पठाइयो!");
-        clearForm();
-        fetchReturnedFromSupabase();
-      } catch (err) {
-        alert("डाटा पुनः पठाउँदा समस्या आयो: " + err.message);
+      if (error) throw error;
+
+      showToast('success', 'फाइल सफलतापूर्वक थप परिमार्जन (Modify) गरी पुनः नगरपालिका पठाइयो!');
+      clearForm();
+      fetchReturnedFromSupabase();
+    } catch (err) {
+      showToast('error', 'डाटा पुनः पठाउँदा समस्या आयो: ' + err.message);
+    } finally {
+      resubmitBtn.disabled = false;
+      resubmitBtn.innerHTML = originalText;
+    }
+  }
+
+  function clearForm() {
+    document.getElementById('masterDataForm').reset();
+    document.getElementById('record_id').value = "";
+    document.getElementById('tot_area').value = "";
+
+    document.getElementById('returnedRemarksSection').style.display = 'none';
+    document.getElementById('remarksWrapper').style.display = 'none';
+
+    document.getElementById('submitBtn').style.display = 'flex';
+    document.getElementById('resubmitBtn').style.display = 'none';
+    document.getElementById('formMainTitle').innerText = "🏛️ नयाँ आवेदन / कन्सलटेन्सी डेटा प्रविष्टि";
+
+    document.querySelectorAll('#masterDataForm .field-error, #masterDataForm .field-success').forEach(el => {
+      el.classList.remove('field-error', 'field-success');
+    });
+    document.querySelectorAll('#masterDataForm .field-msg.show').forEach(el => el.classList.remove('show'));
+
+    currentStep = 1;
+    renderStepUI();
+    updateBuildingSummary(0, 0);
+    clearDraft();
+  }
+
+  /* ==================== 💾 DRAFT AUTO SAVE (localStorage only) ==================== */
+  const DRAFT_KEY = 'consultancyFormDraft_v1';
+  const DRAFT_FIELD_IDS = [
+    'owner','phone','cit_no','cit_date','cit_office','grandfather','father','ward','tole',
+    'savik_gavis','savik_ward','kitta','area','tot_length','tot_width','tot_height','total_floors',
+    'room','door','window','shutter','cg','cov_area','tot_area','east','west','north','south',
+    'road_width','roadce','roadcex','setbac','setbacx','river','riverx','land','landb',
+    'revinuerate','gc','far'
+  ].concat(floorsList.flatMap(f => [`f_${f}_l`, `f_${f}_w`, `f_${f}_h`, `f_${f}_a`]));
+
+  function setupDraftAutosave() {
+    setInterval(saveDraftToLocalStorage, 8000);
+    document.getElementById('masterDataForm').addEventListener('input', debounce(saveDraftToLocalStorage, 1500));
+  }
+
+  function debounce(fn, delay) {
+    let t;
+    return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), delay); };
+  }
+
+  function saveDraftToLocalStorage() {
+    try {
+      if (document.getElementById('record_id').value) return; // don't autosave while editing a returned record
+      const draft = {};
+      let hasData = false;
+      DRAFT_FIELD_IDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (el && el.value) { draft[id] = el.value; hasData = true; }
+      });
+      if (hasData) {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify({ savedAt: Date.now(), data: draft }));
       }
+    } catch (err) {
+      console.error('Draft save error:', err);
     }
+  }
 
-    function clearForm() {
-      document.getElementById('masterDataForm').reset();
-      document.getElementById('record_id').value = "";
-      document.getElementById('tot_area').value = "";
-      
-      document.getElementById('returnedRemarksSection').style.display = 'none';
-      document.getElementById('remarksWrapper').style.display = 'none';
-      
-      document.getElementById('submitBtn').style.display = 'flex';
-      document.getElementById('resubmitBtn').style.display = 'none'; 
-      document.getElementById('formMainTitle').innerText = "🏛️ गलकोट नगरपालिका - भूमि व्यवस्थापन (कन्सलटेन्सी मास्टर पोर्टल)";
+  function checkForDraft() {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (parsed && parsed.data && Object.keys(parsed.data).length > 0) {
+        document.getElementById('draftModal').classList.add('show');
+      }
+    } catch (err) {
+      console.error('Draft check error:', err);
     }
+  }
 
-    function scrollToReturnedSection() {
-      document.getElementById('returnedSectionCard').scrollIntoView({ behavior: 'smooth' });
+  function restoreDraft() {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        Object.keys(parsed.data || {}).forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.value = parsed.data[id];
+        });
+        calculateGrandTotalFloorArea();
+        showToast('success', 'पहिलेको draft पुनः लोड गरियो।');
+      }
+    } catch (err) {
+      console.error('Draft restore error:', err);
     }
-  </script>
+    document.getElementById('draftModal').classList.remove('show');
+  }
+
+  function discardDraft() {
+    clearDraft();
+    document.getElementById('draftModal').classList.remove('show');
+  }
+
+  function clearDraft() {
+    localStorage.removeItem(DRAFT_KEY);
+  }
+</script>
 
 </body>
 </html>
