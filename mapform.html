@@ -151,9 +151,40 @@
     .badge-pending { background-color: #ffa502; color: black; }
     .badge-approved { background-color: #2ed573; }
     .badge-returned { background-color: #ff4757; }
+
+    /* Loading Overlay */
+    #loadingOverlay {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(245, 246, 250, 0.75); z-index: 9999;
+      flex-direction: column; align-items: center; justify-content: center;
+      cursor: wait;
+    }
+    #loadingOverlay.active { display: flex; }
+    .loading-box {
+      background: var(--card-bg); padding: 25px 35px; border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15); text-align: center; min-width: 260px;
+    }
+    .loading-text { font-weight: 700; color: var(--primary-color); margin-bottom: 14px; font-size: 15px; }
+    .loading-bar-track { width: 100%; height: 10px; background: var(--border-color); border-radius: 6px; overflow: hidden; }
+    .loading-bar-fill {
+      width: 40%; height: 100%; border-radius: 6px;
+      background: linear-gradient(90deg, var(--secondary-color), var(--accent-color));
+      animation: loadingSlide 1.1s ease-in-out infinite;
+    }
+    @keyframes loadingSlide {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(250%); }
+    }
   </style>
 </head>
 <body>
+
+  <div id="loadingOverlay">
+    <div class="loading-box">
+      <div class="loading-text" id="loadingText">⏳ डाटा प्रशोधन हुँदैछ...</div>
+      <div class="loading-bar-track"><div class="loading-bar-fill"></div></div>
+    </div>
+  </div>
 
   <div id="pendingAlertBanner" class="pending-alert">
     <div>📬 कन्सल्टेन्सीबाट स्वीकृतिका लागि <b><span id="pendingCount">0</span> वटा नयाँ फाइलहरू</b> आएका छन्। कृपया रिभ्यु गरी दर्ता गर्नुहोला।</div>
@@ -355,8 +386,36 @@
 
     document.addEventListener("DOMContentLoaded", () => {
       setupLiveCalculations();
+      setupDateSync();
       fetchFromSupabase();
     });
+
+    /* ==== Loading Overlay (Supabase call हुँदा क्लिक ब्लक गर्ने) ==== */
+    let loadingCounter = 0;
+    function showLoading(msg) {
+      loadingCounter++;
+      document.getElementById('loadingText').innerText = msg || "⏳ डाटा प्रशोधन हुँदैछ...";
+      document.getElementById('loadingOverlay').classList.add('active');
+    }
+    function hideLoading() {
+      loadingCounter = Math.max(0, loadingCounter - 1);
+      if (loadingCounter === 0) {
+        document.getElementById('loadingOverlay').classList.remove('active');
+      }
+    }
+
+    /* ==== दर्ता मिति र कार्यबाही/दर्ता मिति दुबै एउटै हुने बनाउने ==== */
+    function setupDateSync() {
+      const regDateInput = document.getElementById('registrano_date');
+      const actionDateInput = document.getElementById('date_reg');
+
+      regDateInput.addEventListener('input', () => {
+        actionDateInput.value = regDateInput.value;
+      });
+      actionDateInput.addEventListener('input', () => {
+        regDateInput.value = actionDateInput.value;
+      });
+    }
 
     function parseTextToNumber(value) {
       if (!value) return 0;
@@ -402,6 +461,7 @@
     }
 
     async function fetchFromSupabase() {
+      showLoading("⏳ डाटाबेसबाट विवरण ल्याइँदैछ...");
       try {
         const { data, error } = await _supabase.from('g_map_branch1').select('*').order('created_at', { ascending: false });
         if (error) throw error;
@@ -414,6 +474,8 @@
         filterDatabase(); 
       } catch (err) {
         console.error("Error fetching data:", err.message);
+      } finally {
+        hideLoading();
       }
     }
 
@@ -517,6 +579,13 @@
         if (field) field.value = record[key] !== null ? record[key] : "";
       });
 
+      // दर्ता मिति र कार्यबाही/दर्ता मिति दुबै एउटै देखाउने
+      if (record.registrano_date) {
+        document.getElementById('date_reg').value = record.registrano_date;
+      } else if (record.date_reg) {
+        document.getElementById('registrano_date').value = record.date_reg;
+      }
+
       floorsList.forEach(f => {
         if (document.getElementById(`f_${f}_l`)) document.getElementById(`f_${f}_l`).value = record[`f_${f}_l`] !== null ? record[`f_${f}_l`] : "";
         if (document.getElementById(`f_${f}_w`)) document.getElementById(`f_${f}_w`).value = record[`f_${f}_w`] !== null ? record[`f_${f}_w`] : "";
@@ -601,12 +670,13 @@
       const dataToSave = getFormDataObject();
       dataToSave.status = dataToSave.registrano ? 'Approved' : 'Pending';
 
+      showLoading("💾 डाटाबेसमा सेभ हुँदैछ...");
       try {
         const { error } = await _supabase.from('g_map_branch1').insert([dataToSave]);
         if (error) throw error;
         alert("💾 नयाँ विवरण सफलतापूर्वक डाटाबेसमा सेभ गरियो!");
-        clearForm(); fetchFromSupabase();
-      } catch (err) { alert("त्रुटि: " + err.message); }
+        clearForm(); await fetchFromSupabase();
+      } catch (err) { alert("त्रुटि: " + err.message); } finally { hideLoading(); }
     });
 
     async function actionVerifyAndRegister() {
@@ -625,12 +695,13 @@
       updatedFields.status = 'Approved';
       updatedFields.remarks = '';
 
+      showLoading("✅ दर्ता स्वीकृत गरिँदैछ...");
       try {
         const { error } = await _supabase.from('g_map_branch1').update(updatedFields).eq('id', recordId);
         if (error) throw error;
         alert("✅ फाइल स्वीकृत भई सफलतापूर्वक दर्ता भयो।");
-        clearForm(); fetchFromSupabase();
-      } catch (err) { alert(err.message); }
+        clearForm(); await fetchFromSupabase();
+      } catch (err) { alert(err.message); } finally { hideLoading(); }
     }
 
     async function actionReturnToConsultancy() {
@@ -646,12 +717,13 @@
       const updatedFields = getFormDataObject();
       updatedFields.status = 'Returned';
 
+      showLoading("❌ कन्सल्टेन्सी फिर्ता पठाइँदैछ...");
       try {
         const { error } = await _supabase.from('g_map_branch1').update(updatedFields).eq('id', recordId);
         if (error) throw error;
         alert("❌ फाइल अस्वीकृत गरी कन्सल्टेन्सी तर्फ फिर्ता पठाइयो।");
-        clearForm(); fetchFromSupabase();
-      } catch (err) { alert(err.message); }
+        clearForm(); await fetchFromSupabase();
+      } catch (err) { alert(err.message); } finally { hideLoading(); }
     }
 
     /* परिमार्जित सुरक्षित डिलिट फङ्गसन */
@@ -667,15 +739,18 @@
 
       // अदर्ता भएका (Pending/Returned) फाइलहरू मात्र सोधेर डिलिट गर्न दिने
       if (confirm(`के तपाईं जग्गाधनी [${ownerName}] को रेकर्ड हटाउन चाहनुहुन्छ? (यो फाइल दर्ता भइसकेको छैन)`)) {
+        showLoading("🗑️ रेकर्ड हटाइँदैछ...");
         try {
           const { error } = await _supabase.from('g_map_branch1').delete().eq('id', id);
           if (error) throw error;
           
           alert("🗑️ रेकर्ड सफलतापूर्वक हटाइयो।");
-          fetchFromSupabase(); 
+          await fetchFromSupabase(); 
           clearForm();
         } catch (err) {
           alert("त्रुटि: " + err.message);
+        } finally {
+          hideLoading();
         }
       }
     }
