@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>गलकोट नगरपालिका - ७ दिने सूचना</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+
+<!-- Supabase JS SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+  :root {
+    --primary-color: #0c2461;
+    --secondary-color: #1e3799;
+    --bg-color: #f1f2f6;
+    --card-bg: #ffffff;
+    --border-color: #ced6e0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Noto Sans Devanagari', sans-serif; background: var(--bg-color); padding: 30px; color: #2f3542; }
+
+  /* ============ Search Section ============ */
+  .report-search-wrapper {
+    max-width: 800px; margin: 20px auto 30px auto; background: var(--card-bg);
+    padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    border: 2px solid var(--primary-color);
+  }
+  .system-title { text-align:center; color: var(--primary-color); font-size:22px; font-weight:bold; margin-bottom:20px; }
+  .report-search-box {
+    width:100%; padding:16px; border:2px solid var(--border-color); border-radius:8px;
+    font-size:15px; outline:none; font-weight:bold; text-align:center; color: var(--primary-color);
+  }
+  .report-search-box:focus { border-color: var(--secondary-color); box-shadow: 0 0 10px rgba(30,55,153,0.25); }
+  .search-hint { font-size:14px; color:#57606f; text-align:center; margin-top:12px; font-weight:600; }
+
+  .no-report-alert {
+    text-align:center; padding:60px 40px; color:#7f8c8d; font-size:16px; background:white;
+    max-width:800px; margin:0 auto; border-radius:12px; border:2px dashed #cbd5e1;
+  }
+
+  /* ============ ७ दिने सूचना Letter (matches scanned form) ============ */
+  .print-letter-container {
+    max-width: 800px; margin: 0 auto 40px auto; background: var(--card-bg);
+    padding: 55px 70px; border-radius: 8px; box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    border: 1px solid #ccc; position: relative; display: none; /* hidden until match found */
+  }
+
+  .letter-header-wrapper { display:grid; grid-template-columns: 100px 1fr; align-items:center; margin-bottom:6px; }
+  .logo-box { text-align:left; }
+  .logo-box img { width:95px; height:auto; }
+  .letter-header { text-align:center; font-weight:bold; color:#000; line-height:1.4; padding-right:95px; }
+  .letter-header .municipality-name { font-size:32px; font-weight:700; color: var(--primary-color); }
+  .letter-header .org-name { font-size:20px; margin:2px 0; font-weight:600; }
+  .letter-header .address-name { font-size:18px; font-weight:600; margin-top:5px; }
+  .letter-header .province-name { font-size:14px; font-weight:600; margin-top:2px; }
+
+  .meta-row-top { display:flex; justify-content:space-between; font-size:14px; font-weight:600; margin-top:14px; }
+  .meta-row-top .left-meta div { margin-bottom:6px; }
+  .meta-row-top .right-meta { text-align:right; }
+
+  .notice-title {
+    text-align:center; font-weight:bold; font-size:20px; margin:22px 0 26px 0;
+    text-decoration: underline; text-underline-offset:4px;
+  }
+
+  .fill-line { border-bottom:1px dotted #333; display:inline-block; min-width:60px; padding:0 4px; font-weight:700; text-align:center; }
+  .fill-line.short { min-width:40px; }
+  .fill-line.medium { min-width:120px; }
+  .fill-line.long { min-width:220px; }
+
+  /* सम्पादन गर्न मिल्ने (editable) पहेँलो बक्स - स्पेस/मिन-विड्थ हटाइएको */
+  .dynamic-value {
+    font-weight:700; border-bottom:1px dashed #222; padding:0 2px; display:inline;
+    outline:none; background-color:#fffde7; text-align:left; min-width:0;
+  }
+  .dynamic-value:focus { background-color:#fff9c4; border-bottom:1px solid #000; }
+  @media print {
+    .dynamic-value { border-bottom:none !important; background-color:transparent !important; padding:0 !important; }
+  }
+
+  .lead-paragraph { font-size:14.5px; line-height:2.5; margin-bottom:6px; }
+  .boundary-block { margin: 14px 0 22px 0; font-size:14.5px; line-height:2.6; }
+  .boundary-row { display:flex; gap:10px; }
+  .boundary-label { min-width:70px; font-weight:600; }
+
+  .body-paragraph { font-size:14.5px; line-height:2.3; text-align:justify; margin-bottom:26px; }
+
+  .tapsil-title { font-weight:700; font-size:15px; margin-bottom:10px; }
+  .tapsil-list { list-style:none; font-size:14.5px; line-height:2.4; }
+  .tapsil-list li { display:flex; gap:6px; }
+  .tapsil-list li .tp-label { min-width:150px; font-weight:600; }
+
+  .letter-footer-sign { text-align:right; font-weight:600; margin-top:70px; padding-right:10px; font-size:14.5px; }
+
+  .print-btn-wrapper { text-align:center; margin-top:30px; }
+  .btn-print {
+    background-color:#2ed573; color:white; border:none; padding:14px 35px; font-size:16px;
+    font-weight:bold; border-radius:6px; cursor:pointer; display:inline-flex; align-items:center;
+    gap:6px; transition:.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  }
+  .btn-print:hover { background-color:#26af5f; }
+
+  @media print {
+    body { background:#fff; padding:0; }
+    .report-search-wrapper, .print-btn-wrapper, .search-hint, .no-report-alert { display:none !important; }
+    .print-letter-container {
+      display:block !important; box-shadow:none !important; border:none !important;
+      padding:0 !important; margin:0 !important; width:100% !important; max-width:100% !important;
+    }
+    .fill-line { border-bottom: 1px dotted #333 !important; }
+    @page { size: A4; margin: 18mm 16mm; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="report-search-wrapper">
+    <div class="system-title">🏛️ गलकोट नगरपालिका - भूमि व्यवस्थापन (७ दिने सूचना खोज प्रणाली)</div>
+    <input type="text" id="reportSearchBox" class="report-search-box" placeholder="🔍 दर्ता नं. / जग्गाधनीको नाम / नागरिकता नं. टाइप गर्नुहोस्..." oninput="searchReportDatabase()">
+    <div class="search-hint">डाटाबेसमा विवरण म्याच हुनासाथ "७ दिने सूचना" पत्र मात्र यहाँ देखा पर्नेछ।</div>
+  </div>
+
+  <div id="reportNotFoundAlert" class="no-report-alert">
+    🔍 विवरण खोज्नका लागि माथिको कोठामा <b>दर्ता नं, नाम वा नागरिकता नम्बर</b> टाइप गर्नुहोस्। <br><br>
+    <span style="font-size:13px; color:#a4b0be;">(सुरक्षा र सहजताका लागि यहाँ कुनै पनि अनावश्यक विवरण वा फारम राखिएको छैन।)</span>
+  </div>
+
+  <div class="print-letter-container" id="noticeLetterPrintArea">
+
+    <div class="letter-header-wrapper">
+      <div class="logo-box">
+        <img src="Emblem_of_Nepal.svg.png" alt="गलकोट नगरपालिका लोगो">
+      </div>
+      <div class="letter-header">
+        <div class="municipality-name">गलकोट नगरपालिका</div>
+        <div class="org-name">नगर कार्यपालिकाको कार्यालय</div>
+        <div class="address-name">गलकोट, बागलुङ</div>
+        <div class="province-name">गण्डकी प्रदेश, नेपाल</div>
+      </div>
+    </div>
+
+    <div class="meta-row-top">
+      <div class="left-meta">
+        <div>पत्र संख्या : <span id="lbl_patra_sankhya" class="dynamic-value" contenteditable="true">६६</span></div>
+        <div>चलानी नं. : <span id="lbl_chalani_no" class="dynamic-value" contenteditable="true">६६</span></div>
+      </div>
+      <div class="right-meta">
+        <div>मिति : <span id="lbl_date" class="dynamic-value" contenteditable="true">२०७७÷०६÷२९</span></div>
+      </div>
+    </div>
+
+    <div class="notice-title">७ दिने सूचना</div>
+
+    <div class="body-paragraph">
+           <span id="lbl_ward1" class="dynamic-value" contenteditable="true"></span> बस्ने श्री
+      <span id="lbl_owner" class="dynamic-value" contenteditable="true"></span> ले गलकोट नगरपालिका वडा नं. <span id="lbl_ward2" class="dynamic-value" contenteditable="true"></span> को साविक
+      <span id="lbl_savik_gavis" class="dynamic-value" contenteditable="true"></span> गा.वि.स. वडा
+      नं. <span id="lbl_savik_ward" class="dynamic-value" contenteditable="true"></span> किता नं.
+      <span id="lbl_kitta" class="dynamic-value" contenteditable="true"></span> क्षेत्रफल
+      <span id="lbl_area" class="dynamic-value" contenteditable="true"></span> को
+    </div>
+
+
+    <div class="boundary-block">
+      <div class="boundary-row"><span class="boundary-label">पूर्व</span> <span id="lbl_east" class="dynamic-value" contenteditable="true"></span></div>
+      <div class="boundary-row"><span class="boundary-label">पश्चिम</span> <span id="lbl_west" class="dynamic-value" contenteditable="true"></span></div>
+      <div class="boundary-row"><span class="boundary-label">उत्तर</span> <span id="lbl_north" class="dynamic-value" contenteditable="true"></span></div>
+      <div class="boundary-row"><span class="boundary-label">दक्षिण</span> <span id="lbl_south" class="dynamic-value" contenteditable="true"></span></div>
+    </div>
+
+    <div class="body-paragraph">यति चार किल्लाभित्रको जग्गामा तपशिल बमोजिमको निर्माण भए अनुसारको घर कायम गरी पाउँ भनी मिति <span id="lbl_application_date" class="dynamic-value" contenteditable="true"></span> मा निवेदन दिनुभएको सोको लागि बनेको घरको साँध सँधियार कोही कसैलाई पिरमर्का परेको भए आफूलाई मर्का परेको सबै विवरण खुलाई यो सूचना प्रकाशित भएको मितिले ७ दिनभित्र यस नगरपालिका कार्यालयमा उजुर बाजुर गर्नुहुन यो सूचना प्रकाशित गरिएको छ । म्यादभित्र पर्न नआएका उजुर प्रति कारवाही गरिने छैन ।</div>
+
+    <div class="tapsil-title">तपशिल</div>
+    <ul class="tapsil-list">
+      <li><span class="tp-label">१) घरको किसिम :</span> <span id="lbl_house_type" class="dynamic-value" contenteditable="true"></span></li>
+      <li><span class="tp-label">२) लम्बाई :</span> <span id="lbl_house_length" class="dynamic-value" contenteditable="true"></span></li>
+      <li><span class="tp-label">३) चौडाई :</span> <span id="lbl_house_width" class="dynamic-value" contenteditable="true"></span></li>
+      <li><span class="tp-label">४) उचाई :</span> <span id="lbl_house_height" class="dynamic-value" contenteditable="true"></span></li>
+      <li><span class="tp-label">५)</span> <span id="lbl_extra" class="dynamic-value" contenteditable="true"></span></li>
+    </ul>
+
+    <div class="letter-footer-sign">
+      ......................<br>
+      (नक्सा शाखा प्रमुख)
+    </div>
+
+    <div class="print-btn-wrapper">
+      <button class="btn-print" onclick="window.print()">🖨️ यो ७ दिने सूचना पत्र प्रिन्ट गर्नुस्</button>
+    </div>
+  </div>
+
+<script>
+  // ==== Supabase Settings ====
+  const SUPABASE_URL = "https://lyjokogftwtvnhwszqni.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_gxEL2-GVTVy8E0WxMBZHDQ_b5TzsDI9";
+  const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // Uses the same ghar_kayam_applications table fields as the main data-entry form
+  const TABLE_NAME = "ghar_kayam_applications";
+
+  let recordsDb = [];
+
+  document.addEventListener("DOMContentLoaded", () => {
+    fetchFromSupabase();
+    enableEditableTrim();
+  });
+
+  // सम्पादन गर्न मिल्ने (contenteditable) सबै बक्सहरूको दायाँ-बायाँको स्पेस हटाउने
+  function enableEditableTrim() {
+    document.querySelectorAll('.dynamic-value[contenteditable="true"]').forEach(el => {
+      el.addEventListener('blur', () => { el.innerText = el.innerText.trim(); });
+    });
+  }
+
+  async function fetchFromSupabase() {
+    try {
+      const { data, error } = await _supabase
+        .from(TABLE_NAME)
+        .select('registration_no, registration_date, landowner_name, ward_no, old_vdc, old_ward_no, kitta_no, area, tole_marga, east_boundary_name, west_boundary_name, north_boundary_name, south_boundary_name, house_type, house_length, house_width, house_height, notice_7day_published_date, contact_phone');
+      if (error) throw error;
+      recordsDb = data || [];
+    } catch (err) {
+      console.error("प्रणाली लोड गर्दा समस्या आयो:", err.message);
+    }
+  }
+
+  // Convert English digits (0-9) inside a string to Nepali (Devanagari) digits (०-९)
+  function toNepaliDigits(value) {
+    const enToNe = { '0':'०','1':'१','2':'२','3':'३','4':'४','5':'५','6':'६','7':'७','8':'८','9':'९' };
+    return String(value).replace(/[0-9]/g, d => enToNe[d]);
+  }
+
+  function fillOrDots(id, value, dots) {
+    document.getElementById(id).innerText = (value !== null && value !== undefined && String(value).trim() !== "")
+      ? toNepaliDigits(value)
+      : (dots || "..........");
+  }
+
+  function searchReportDatabase() {
+    const query = document.getElementById('reportSearchBox').value.toLowerCase().trim();
+    const letterContainer = document.getElementById('noticeLetterPrintArea');
+    const alertBox = document.getElementById('reportNotFoundAlert');
+
+    if (query === "") {
+      letterContainer.style.display = "none";
+      alertBox.style.display = "block";
+      alertBox.innerHTML = `🔍 विवरण खोज्नका लागि माथिको कोठामा <b>दर्ता नं, नाम वा नागरिकता नम्बर</b> टाइप गर्नुहोस्। <br><br><span style="font-size:13px; color:#a4b0be;">(सुरक्षा र सहजताका लागि यहाँ कुनै पनि अनावश्यक विवरण वा फारम राखिएको छैन।)</span>`;
+      return;
+    }
+
+    const match = recordsDb.find(item =>
+      (item.registration_no && String(item.registration_no).toLowerCase().includes(query)) ||
+      (item.landowner_name && item.landowner_name.toLowerCase().includes(query)) ||
+      (item.contact_phone && String(item.contact_phone).toLowerCase().includes(query))
+    );
+
+    if (match) {
+      fillOrDots('lbl_ward1', match.ward_no ? ('वडा नं. ' + match.ward_no) : null);
+      fillOrDots('lbl_owner', match.landowner_name);
+      fillOrDots('lbl_ward2', match.ward_no);
+      fillOrDots('lbl_savik_gavis', match.old_vdc);
+      fillOrDots('lbl_savik_ward', match.old_ward_no);
+      fillOrDots('lbl_kitta', match.kitta_no);
+      fillOrDots('lbl_area', match.area);
+      fillOrDots('lbl_east', match.east_boundary_name);
+      fillOrDots('lbl_west', match.west_boundary_name);
+      fillOrDots('lbl_north', match.north_boundary_name);
+      fillOrDots('lbl_south', match.south_boundary_name);
+      fillOrDots('lbl_application_date', match.registration_date);
+      fillOrDots('lbl_house_type', match.house_type);
+      fillOrDots('lbl_house_length', match.house_length);
+      fillOrDots('lbl_house_width', match.house_width);
+      fillOrDots('lbl_house_height', match.house_height);
+      fillOrDots('lbl_extra', null);
+
+      alertBox.style.display = "none";
+      letterContainer.style.display = "block";
+    } else {
+      letterContainer.style.display = "none";
+      alertBox.style.display = "block";
+      alertBox.innerHTML = `❌ माफ गर्नुहोला, तपाईंले खोज्नुभएको विवरण डाटाबेसमा फेला परेन। कृपया हिज्जे वा नम्बर जाँच गर्नुहोस्।`;
+    }
+  }
+</script>
+
+</body>
+</html>
