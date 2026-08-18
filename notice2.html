@@ -272,10 +272,10 @@
       try {
         const { data, error } = await _supabase
           .from('ghar_kayam_applications')
-          .select('registrano, registrano_date, landowner_name, ward, tole, kitta, area, cit_no, se, savik_gavis, savik_ward');
+          .select('registration_no, registration_date, landowner_name, contact_phone, ward_no, tole_marga, kitta_no, area, old_vdc, old_ward_no');
 
         if (error) throw error;
-        mapDatabase = data;
+        mapDatabase = data || [];
       } catch (err) {
         console.error("प्रणाली लोड गर्दा समस्या आयो:", err.message);
       }
@@ -294,21 +294,21 @@
       }
 
       const match = mapDatabase.find(item =>
-        (item.registrano && item.registrano.toLowerCase().includes(query)) ||
-        (item.owner && item.owner.toLowerCase().includes(query)) ||
-        (item.cit_no && item.cit_no.toLowerCase().includes(query))
+        (item.registration_no && String(item.registration_no).toLowerCase().includes(query)) ||
+        (item.landowner_name && item.landowner_name.toLowerCase().includes(query)) ||
+        (item.contact_phone && String(item.contact_phone).toLowerCase().includes(query))
       );
 
       if (match) {
-        document.getElementById('lbl_ward_top').innerText = match.ward || '...........';
-        document.getElementById('lbl_ward').innerText = match.ward || '...........';
-        document.getElementById('lbl_ward2').innerText = match.ward || '...........';
-        document.getElementById('lbl_owner').innerText = match.owner || '..............................................................';
-        document.getElementById('lbl_kitta').innerText = match.kitta || '....................';
+        document.getElementById('lbl_ward_top').innerText = match.ward_no || '...........';
+        document.getElementById('lbl_ward').innerText = match.ward_no || '...........';
+        document.getElementById('lbl_ward2').innerText = match.ward_no || '...........';
+        document.getElementById('lbl_owner').innerText = match.landowner_name || '..............................................................';
+        document.getElementById('lbl_kitta').innerText = match.kitta_no || '....................';
         document.getElementById('lbl_area').innerText = match.area || '....................................';
-        document.getElementById('lbl_savik_gavis').innerText = match.savik_gavis || '....................................';
-        document.getElementById('lbl_savik_ward').innerText = match.savik_ward || '........';
-        document.getElementById('lbl_tole').innerText = match.tole || '.............................................................';
+        document.getElementById('lbl_savik_gavis').innerText = match.old_vdc || '....................................';
+        document.getElementById('lbl_savik_ward').innerText = match.old_ward_no || '........';
+        document.getElementById('lbl_tole').innerText = match.tole_marga || '.............................................................';
 
         alertBox.style.display = "none";
         letterContainer.style.display = "block";
