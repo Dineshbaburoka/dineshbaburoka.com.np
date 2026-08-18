@@ -271,8 +271,8 @@
     async function fetchFromSupabase() {
       try {
         const { data, error } = await _supabase
-          .from('g_map_branch1')
-          .select('registrano, registrano_date, owner, ward, tole, kitta, area, cit_no, se, savik_gavis, savik_ward');
+          .from('ghar_kayam_applications')
+          .select('registrano, registrano_date, landowner_name, ward, tole, kitta, area, cit_no, se, savik_gavis, savik_ward');
 
         if (error) throw error;
         mapDatabase = data;
