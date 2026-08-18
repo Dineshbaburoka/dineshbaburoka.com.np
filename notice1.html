@@ -1,1630 +1,324 @@
 <!DOCTYPE html>
 <html lang="ne">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>घर कायम आवेदन फारम</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<style>
-  :root {
-    --primary-color: #185fa5;
-    --secondary-color: #0c447c;
-    --accent-color: #cf1b1b;
-    --success-color: #2ed573;
-    --danger-color: #ff4757;
-    --warning-color: #ffa502;
-    --bg-color: #f1efe8;
-    --card-bg: #ffffff;
-    --border-color: #d3d1c7;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'Noto Sans', Arial, sans-serif;
-    background: var(--bg-color);
-    padding: 20px;
-    color: #2c2c2a;
-  }
-  h1 { font-size: 20px; font-weight: 700; text-align: center; margin-bottom: 4px; color: var(--primary-color); }
-  .sub { text-align: center; color: #5f5e5a; font-size: 13px; margin-bottom: 20px; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>गलकोट नगरपालिका - ७ दिने सूचना पत्र खोज प्रणाली</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
 
-  .pending-alert {
-    max-width: 1200px; margin: 0 auto 20px auto; background: linear-gradient(135deg, #ffeaa7, #eccc68);
-    border-left: 6px solid var(--warning-color); padding: 15px 20px; border-radius: 8px;
-    font-weight: bold; font-size: 15px; color: #5d4037; display: none;
-    align-items: center; justify-content: space-between; gap: 10px;
-    box-shadow: 0 4px 15px rgba(236, 204, 104, 0.3);
-    animation: pulse 2s infinite;
-  }
-  @keyframes pulse { 0%{transform:scale(1);} 50%{transform:scale(1.01);} 100%{transform:scale(1);} }
+  <!-- Supabase JS SDK Link -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  .legend-bar { max-width:1200px; margin:0 auto 18px auto; display:flex; flex-wrap:wrap; gap:18px; background:#eef1f8; border:1px solid var(--border-color); border-radius:10px; padding:12px 18px; font-size:13px; font-weight:600; color:#33415c; }
-  .legend-bar span { display:flex; align-items:center; gap:6px; }
+  <style>
+    :root {
+      --primary-color: #0c2461;
+      --secondary-color: #1e3799;
+      --bg-color: #f1f2f6;
+      --card-bg: #ffffff;
+      --border-color: #ced6e0;
+    }
 
-  .progress-track { max-width:1200px; margin:0 auto 20px auto; display:flex; flex-wrap:wrap; gap:8px; background:#fff; border:1px solid var(--border-color); border-radius:12px; padding:14px 18px; }
-  .progress-step { display:flex; align-items:center; gap:6px; font-size:12.5px; font-weight:700; padding:6px 10px; border-radius:20px; background:#f1f2f6; color:#57606f; white-space:nowrap; }
-  .progress-step.status-done { background:#e3fbea; color:#1e8a4c; }
-  .progress-step.status-partial { background:#fff4e0; color:#b3690a; }
-  .progress-step.status-error { background:#ffe3e6; color:#c0392b; }
-  .progress-arrow { color:#a4b0be; font-weight:400; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'kalimati', sans-serif; background: var(--bg-color); padding: 30px; color: #2f3542; }
 
-  .stepper { display:flex; align-items:center; justify-content:space-between; list-style:none; margin:0 auto 26px auto; max-width:1200px; overflow-x:auto; padding:0 18px 6px 18px; }
-  .stepper li { flex:1; min-width:78px; display:flex; flex-direction:column; align-items:center; gap:6px; position:relative; font-size:11px; color:#747d8c; font-weight:700; text-align:center; cursor:pointer; }
-  .stepper li::before { content:""; position:absolute; top:16px; left:-50%; width:100%; height:3px; background:var(--border-color); z-index:0; }
-  .stepper li:first-child::before { content:none; }
-  .stepper li.done::before { background: var(--success-color); }
-  .step-circle { width:32px; height:32px; border-radius:50%; background:#f1f2f6; border:2px solid var(--border-color); display:flex; align-items:center; justify-content:center; font-weight:800; color:#747d8c; z-index:1; font-size:13px; transition:.2s; }
-  .stepper li.active .step-circle { background: var(--primary-color); border-color: var(--primary-color); color:#fff; }
-  .stepper li.active { color: var(--primary-color); }
-  .stepper li.done .step-circle { background: var(--success-color); border-color: var(--success-color); color:#fff; }
-  .stepper li.error .step-circle { background: var(--danger-color); border-color: var(--danger-color); color:#fff; }
+    /* Search Section Styling */
+    .report-search-wrapper {
+      max-width: 800px;
+      margin: 20px auto 30px auto;
+      background: var(--card-bg);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      border: 2px solid var(--primary-color);
+    }
+    .system-title {
+      text-align: center;
+      color: var(--primary-color);
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+    .report-search-box {
+      width: 100%;
+      padding: 16px;
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 15px;
+      outline: none;
+      font-weight: bold;
+      text-align: center;
+      color: var(--primary-color);
+    }
+    .report-search-box:focus {
+      border-color: var(--secondary-color);
+      box-shadow: 0 0 10px rgba(30,55,153,0.25);
+    }
+    .search-hint {
+      font-size: 14px;
+      color: #57606f;
+      text-align: center;
+      margin-top: 12px;
+      font-weight: 600;
+    }
 
-  .wizard-step { display:none; animation: fadeInStep .25s ease; }
-  .wizard-step.active { display:block; }
-  @keyframes fadeInStep { from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
-  .wizard-nav { display:flex; justify-content:space-between; gap:12px; margin:14px 0 5px 0; flex-wrap:wrap; }
-  .wizard-nav .btn { min-width:150px; }
-  .btn-prev-step { background:#747d8c; }
-  .btn-prev-step:hover { background:#57606f; }
-  .btn-next-step { background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); }
-  .btn-next-step:hover { background: linear-gradient(135deg, var(--secondary-color), #0c2461); }
+    /* Exclusive 7-Day Notice Letter Layout (same system as order.html) */
+    .print-letter-container {
+      max-width: 800px;
+      margin: 0 auto 40px auto;
+      background: var(--card-bg);
+      padding: 50px 75px;
+      border-radius: 8px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+      border: 1px solid #ccc;
+      position: relative;
+      line-height: 2.2;
+      font-size: 18px;
+      display: none; /* Hidden by default */
+    }
 
-  .container, .master-form-container, .database-container {
-    max-width: 1200px; margin: 0 auto 30px auto; background: var(--card-bg);
-    padding: 30px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-    border-top: 8px solid var(--primary-color);
-    transition: all 0.4s ease;
-  }
-  .master-form-container.review-mode-active { background:#fffdf3; border-top-color: var(--warning-color); box-shadow:0 10px 35px rgba(255,165,2,0.15); }
-  .database-container { border-top-color: var(--success-color); }
+    /* Header Main Layout */
+    .letter-header-wrapper {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .logo-box {
+      text-align: left;
+    }
+    .logo-box img {
+      width: 110px;
+      height: auto;
+    }
+    .letter-header {
+      text-align: center;
+      font-weight: bold;
+      color: #000000;
+      line-height: 1.4;
+      padding-right: 110px; /* Logo सँग सन्तुलन मिलाउन */
+    }
+    .letter-header .municipality-name { font-size: 26px; }
+    .letter-header .org-name { font-size: 22px; margin: 2px 0; }
+    .letter-header .address-name { font-size: 19px; }
+    .letter-header .office-name { font-size: 18px; margin-top: 2px; font-weight: normal; }
 
-  .form-header-container { display:flex; justify-content:space-between; align-items:center; margin-bottom:22px; border-bottom:3px double var(--border-color); padding-bottom:14px; flex-wrap:wrap; gap:12px; }
-  .form-title { color: var(--primary-color); font-size:19px; font-weight:700; }
+    /* Meta Layout */
+    .meta-row-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      font-weight: 600;
+      font-size: 18px;
+      padding-bottom: 4px;
+    }
+    .meta-row-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      font-weight: 600;
+      font-size: 18px;
+      padding-top: 6px;
+      margin-bottom: 25px;
+    }
+    /* बिचको कालो धर्को */
+    .header-separator-line {
+      border-top: 2px solid #000000;
+      width: 100%;
+      margin: 0;
+    }
 
-  #submittedByBanner { display:none; background:#eaf0ff; border-left:5px solid var(--primary-color); border-radius:8px; padding:12px 16px; margin-bottom:18px; font-size:13.5px; font-weight:600; color:var(--primary-color); }
+    .letter-subject { text-align: center; font-weight: bold; margin-bottom: 35px; text-decoration: underline; font-size: 14px; }
+    .letter-receiver { font-weight: bold; margin-bottom: 20px; font-size: 14px; }
+    .letter-body { text-indent: 50px; text-align: justify; margin-bottom: 40px; line-height: 2; font-size: 14px; }
 
-  fieldset, .form-section-card {
-    background: #fff; border: 1px solid var(--border-color); border-radius: 12px;
-    padding: 20px 22px; margin-bottom: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-  }
-  legend, .section-subtitle { font-weight:700; font-size:15px; color: var(--primary-color); margin-bottom:14px; display:flex; align-items:center; justify-content:space-between; gap:8px; border-bottom:2px solid var(--border-color); padding-bottom:8px; }
+    /* हाइलाइट गरिएका भ्यालुहरू */
+    .dynamic-value {
+      font-weight: bold;
+      color: #000000;
+      border-bottom: 1px dashed #222;
+      padding: 0 5px;
+    }
 
-  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px 18px; }
-  .grid-3 { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
-  .row-title { font-size: 13px; font-weight: 700; margin: 10px 0 4px; color: #444441; }
+    .letter-footer { text-align: right; font-weight: bold; margin-top: 60px; padding-right: 20px; font-size: 18px; }
 
-  .field { display: flex; flex-direction: column; }
-  .field label { font-size: 12.5px; font-weight:600; color: #5f5e5a; margin-bottom: 5px; }
-  .field label.required::after { content: " *"; color: var(--accent-color); }
-  input, select, textarea {
-    height: 38px; padding: 8px 10px; border: 2px solid var(--border-color); border-radius: 8px;
-    font-size: 13.5px; background: #fdfdfd; font-family: inherit; outline:none;
-    transition: all .2s;
-  }
-  input:focus, select:focus, textarea:focus { border-color: var(--secondary-color); background:#fff; box-shadow:0 0 0 4px rgba(24,95,165,0.12); }
-  textarea { height: auto; min-height: 60px; resize: vertical; }
+    /* Print Button */
+    .print-btn-wrapper { text-align: center; margin-top: 30px; }
+    .btn-print {
+      background-color: #2ed573;
+      color: white;
+      border: none;
+      padding: 14px 35px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: 0.3s;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .btn-print:hover { background-color: #26af5f; }
 
-  .field.field-valid input, .field.field-valid select { border-color: var(--success-color) !important; background-color:#f6fffa; }
-  .field.field-invalid input, .field.field-invalid select { border-color: var(--danger-color) !important; background-color:#fff6f6; }
-  .field.field-warning input, .field.field-warning select { border-color: var(--warning-color) !important; background-color:#fffaf0; }
-  .field.field-changed input, .field.field-changed select { border-color:#8e44ad !important; box-shadow:0 0 0 3px rgba(142,68,173,0.15) !important; }
-  .field-msg { font-size:12px; margin-top:5px; font-weight:600; display:none; align-items:center; gap:5px; }
-  .field.field-invalid .field-msg.msg-error { display:flex; color: var(--danger-color); }
-  .field.field-warning .field-msg.msg-warning { display:flex; color:#b3690a; }
-  .field.field-valid .field-msg.msg-success { display:flex; color:#1e8a4c; }
-  .field-preview { font-size:12px; margin-top:4px; font-weight:700; color: var(--secondary-color); display:none; }
-  .field-preview.show { display:block; }
-  .field-unit { font-size:11.5px; color:#747d8c; font-weight:600; margin-top:2px; }
+    /* Informative Placeholder Messages */
+    .no-report-alert {
+      text-align: center;
+      padding: 60px 40px;
+      color: #7f8c8d;
+      font-size: 16px;
+      background: white;
+      max-width: 800px;
+      margin: 0 auto;
+      border-radius: 12px;
+      border: 2px dashed #cbd5e1;
+    }
 
-  .section-status-badge { font-size:12px; font-weight:700; padding:4px 10px; border-radius:14px; background:#f1f2f6; color:#57606f; }
-  .section-status-badge.status-done { background:#e3fbea; color:#1e8a4c; }
-  .section-status-badge.status-partial { background:#fff4e0; color:#b3690a; }
-  .section-status-badge.status-error { background:#ffe3e6; color:#c0392b; }
-
-  .floor-block { background:#f8f9fa; border:1px dashed #a4b0be; border-radius:10px; padding:14px 16px; margin-bottom:12px; }
-  .floor-total-summary { margin-top:12px; background:#eaf4ff; border:1px solid #b6d8f7; border-radius:10px; padding:14px 18px; font-weight:700; color: var(--primary-color); font-size:14.5px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; }
-
-  button.btn, button#submitBtn {
-    display:flex; align-items:center; justify-content:center; gap:8px;
-    height: 46px; color: #fff; border: none; border-radius: 8px;
-    font-size: 14.5px; font-weight: 700; cursor: pointer; text-align:center;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.06); transition:.2s;
-  }
-  .btn:active { transform: scale(0.98); }
-  #submitBtn, .btn-save { background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); width:100%; }
-  #submitBtn:hover, .btn-save:hover { background: linear-gradient(135deg, var(--secondary-color), #0c2461); }
-  #submitBtn:disabled { background:#b4b2a9; cursor:not-allowed; }
-  .btn-verify { background: linear-gradient(135deg, #2ed573, #26af5f); display:none; }
-  .btn-return { background: linear-gradient(135deg, #ff4757, #cf1b1b); display:none; }
-  .btn-clear { background: #747d8c; }
-  .btn-clear:hover { background:#57606f; }
-  .btn-excel { background: #1f7343; }
-  .btn-excel:hover { background:#15522f; }
-  .action-buttons { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:12px; margin-top:14px; }
-  .report-buttons { display:flex; gap:10px; margin-left:auto; }
-
-  .dashboard-grid { max-width:1200px; margin:0 auto 20px auto; display:grid; grid-template-columns:repeat(5,1fr); gap:14px; }
-  .dash-card { background:#fff; border-radius:12px; padding:16px 18px; box-shadow:0 4px 16px rgba(12,36,97,0.06); border:1px solid var(--border-color); display:flex; flex-direction:column; gap:6px; }
-  .dash-card .dc-icon { font-size:22px; }
-  .dash-card .dc-value { font-size:22px; font-weight:800; color: var(--primary-color); }
-  .dash-card .dc-label { font-size:12px; font-weight:600; color:#747d8c; }
-  .dash-card.total { border-top:4px solid var(--secondary-color); }
-  .dash-card.approved { border-top:4px solid var(--success-color); }
-  .dash-card.pending { border-top:4px solid var(--warning-color); }
-  .dash-card.rejected { border-top:4px solid var(--danger-color); }
-  .dash-card.shown { border-top:4px solid var(--primary-color); }
-  @media (max-width:900px) { .dashboard-grid { grid-template-columns:repeat(2,1fr); } }
-
-  .filter-wrapper { display:flex; gap:15px; margin-bottom:20px; flex-wrap:wrap; align-items:center; background:#f1f2f6; padding:14px 18px; border-radius:10px; border:1px solid var(--border-color); }
-  .filter-select { padding:11px; border:2px solid var(--success-color); border-radius:8px; font-size:14px; font-weight:700; background:#fff; cursor:pointer; min-width:220px; }
-  .search-box-mod { flex:1; padding:11px; border:2px solid var(--success-color); border-radius:8px; font-size:14px; font-weight:600; min-width:250px; }
-
-  .db-table { width:100%; border-collapse:collapse; margin-top:14px; font-size:13.5px; border-radius:8px; overflow:hidden; }
-  .db-table th, .db-table td { border:1px solid var(--border-color); padding:12px; text-align:left; }
-  .db-table th { background:#f1f2f6; color:var(--primary-color); font-weight:700; font-size:12.5px; text-transform:uppercase; letter-spacing:.4px; }
-  .db-table tr:hover { background:#f7f8fb; }
-  .text-center { text-align:center !important; }
-  .action-btn { padding:7px 12px; border:none; border-radius:6px; cursor:pointer; font-weight:700; font-size:12.5px; margin-right:5px; color:#fff; }
-  .btn-edit { background: var(--warning-color); color:#000; }
-  .btn-delete { background: var(--accent-color); }
-
-  .badge { padding:5px 10px; border-radius:20px; font-weight:700; font-size:12px; color:#fff; display:inline-block; }
-  .badge-pending { background:#ffa502; color:#000; }
-  .badge-approved { background:#2ed573; }
-  .badge-rejected { background:#ff4757; }
-
-  #loadingOverlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(241,239,232,0.75); z-index:9999; align-items:center; justify-content:center; flex-direction:column; cursor:wait; }
-  #loadingOverlay.active { display:flex; }
-  .loading-box { background:#fff; padding:22px 32px; border-radius:14px; box-shadow:0 10px 30px rgba(0,0,0,0.15); text-align:center; min-width:250px; }
-  .loading-text { font-weight:700; color:var(--primary-color); margin-bottom:12px; font-size:14px; }
-  .loading-bar-track { width:100%; height:9px; background:var(--border-color); border-radius:6px; overflow:hidden; }
-  .loading-bar-fill { width:40%; height:100%; border-radius:6px; background:linear-gradient(90deg, var(--secondary-color), var(--accent-color)); animation: loadingSlide 1.1s ease-in-out infinite; }
-  @keyframes loadingSlide { 0%{transform:translateX(-100%);} 100%{transform:translateX(250%);} }
-
-  .app-modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,20,35,0.55); z-index:10000; align-items:center; justify-content:center; padding:20px; }
-  .app-modal-overlay.active { display:flex; }
-  .app-modal-box { background:#fff; border-radius:14px; max-width:640px; width:100%; max-height:85vh; overflow-y:auto; padding:26px; box-shadow:0 20px 50px rgba(0,0,0,0.3); }
-  .app-modal-title { font-size:18px; font-weight:800; color:var(--primary-color); margin-bottom:14px; }
-  .app-modal-box h4 { font-size:14px; color:var(--secondary-color); margin:14px 0 6px 0; border-bottom:1px solid var(--border-color); padding-bottom:4px; }
-  .app-modal-box table { width:100%; border-collapse:collapse; font-size:13.5px; }
-  .app-modal-box table td { padding:4px 6px; vertical-align:top; }
-  .app-modal-box table td:first-child { color:#747d8c; font-weight:600; width:45%; }
-  .app-modal-actions { margin-top:18px; display:flex; gap:12px; flex-wrap:wrap; justify-content:flex-end; }
-  .app-modal-actions .btn { flex:none; padding:0 20px; }
-  .duplicate-note { background:#fff4e0; border-left:4px solid var(--warning-color); padding:12px 16px; border-radius:8px; font-size:13.5px; margin-bottom:10px; }
-  #msg { text-align:center; margin-top:12px; font-size:14px; padding:10px; border-radius:6px; display:none; }
-  .msg-ok { background:#eaf3de; color:#27500a; display:block !important; }
-  .msg-err { background:#fcebeb; color:#791f1f; display:block !important; }
-  :focus-visible { outline:3px solid var(--primary-color) !important; outline-offset:2px; }
-
-  /* ============ PRINT LAYOUT ============ */
-  @media print {
-    body { background:#fff; padding:0; }
-    .pending-alert, .legend-bar, .progress-track, .stepper, #loadingOverlay,
-    .wizard-nav, .action-buttons, #msg, #submittedByBanner,
-    .dashboard-grid, .database-container, .app-modal-overlay { display:none !important; }
-    .wizard-step { display:none !important; }
-    .wizard-step[data-step="6"] { display:block !important; }
-    .master-form-container { box-shadow:none; border:none; padding:0; }
-    .form-header-container::before { content:"घर कायम आवेदन फारम — कार्यालय प्रति"; display:block; font-weight:800; font-size:16px; text-align:center; margin-bottom:10px; }
-    .review-panel table { width:100%; border-collapse:collapse; margin-bottom:10px; }
-    .review-panel td { border:1px solid #999; padding:5px 8px; font-size:12px; }
-    .review-panel h4 { margin-top:10px; }
-    .print-signature-area { display:flex !important; justify-content:space-between; margin-top:60px; font-size:13px; }
-  }
-</style>
+    /* PRINT RULES */
+    @media print {
+      body { background: #fff; padding: 0; }
+      .report-search-wrapper, .print-btn-wrapper, .search-hint, .no-report-alert { display: none !important; }
+      .print-letter-container {
+        display: block !important;
+        box-shadow: none !important;
+        border: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+      .dynamic-value { border-bottom: none !important; }
+      @page { size: A4; margin: 18mm 16mm; }
+    }
+  </style>
 </head>
 <body>
 
-<div id="loadingOverlay">
-  <div class="loading-box">
-    <div class="loading-text" id="loadingText">⏳ डाटा प्रशोधन हुँदैछ...</div>
-    <div class="loading-bar-track"><div class="loading-bar-fill"></div></div>
-  </div>
-</div>
-
-<h1>घर कायम आवेदन फारम</h1>
-<div class="sub">Ghar Kayam Application — Data Entry</div>
-
-<div id="pendingAlertBanner" class="pending-alert">
-  <div>📬 <b><span id="pendingCount">0</span> वटा विचाराधीन आवेदनहरू</b> छन्। कृपया रुजु गरी दर्ता गर्नुहोला।</div>
-</div>
-
-<div class="legend-bar">
-  <span>🔴 * = अनिवार्य field</span>
-  <span>⚪ = वैकल्पिक (Optional)</span>
-  <span>🟢 ✓ = सही data</span>
-  <span>⚠️ = जाँच आवश्यक</span>
-</div>
-
-<div class="progress-track" id="progressTrack" style="display:none;"></div>
-
-<ol class="stepper" id="stepperNav">
-  <li class="step-item active" data-step="1"><div class="step-circle">①</div><span>कर्मचारी निर्णय</span></li>
-  <li class="step-item" data-step="2"><div class="step-circle">②</div><span>जग्गाधनी विवरण</span></li>
-  <li class="step-item" data-step="3"><div class="step-circle">③</div><span>चार किल्ला</span></li>
-  <li class="step-item" data-step="4"><div class="step-circle">④</div><span>घर/दर विवरण</span></li>
-  <li class="step-item" data-step="5"><div class="step-circle">⑤</div><span>तला/रकम विवरण</span></li>
-  <li class="step-item" data-step="6"><div class="step-circle">⑥</div><span>Review & Save</span></li>
-</ol>
-
-<div class="master-form-container" id="mainFormContainer">
-  <div class="form-header-container">
-    <div class="form-title" id="formHeaderTitle">🏛️ घर कायम आवेदन — कार्यालय कर्मचारी कार्यप्रणाली</div>
+  <div class="report-search-wrapper">
+    <div class="system-title">🏛️ गलकोट नगरपालिका - भूमि व्यवस्थापन (७ दिने सूचना पत्र खोज प्रणाली)</div>
+    <input type="text" id="reportSearchBox" class="report-search-box" placeholder="🔍 दर्ता न. / जग्गाधनीको नाम / नागरिकता नं. टाइप गर्नुहोस्..." oninput="searchReportDatabase()">
+    <div class="search-hint">डाटाबेसमा विवरण म्याच हुनासाथ "७ दिने सूचना टाँस" पत्र मात्र यहाँ देखा पर्नेछ।</div>
   </div>
 
-  <div id="submittedByBanner">👤 यो रेकर्डको हालको स्थिति परिवर्तन गर्दै हुनुहुन्छ।</div>
+  <div id="reportNotFoundAlert" class="no-report-alert">
+    🔍 विवरण खोज्नका लागि माथिको कोठामा <b>दर्ता नं, नाम वा नागरिकता नम्बर</b> टाइप गर्नुहोस्। <br><br>
+    <span style="font-size: 13px; color: #a4b0be;">(सुरक्षा र सहजताका लागि यहाँ कुनै पनि अनावश्यक विवरण वा फारम राखिएको छैन।)</span>
+  </div>
 
-  <form id="ghForm">
-    <input type="hidden" id="record_id" value="">
+  <div class="print-letter-container" id="noticeLetterPrintArea">
 
-    <div class="wizard-step active" data-step="1">
-      <div class="form-section-card">
-        <div class="section-subtitle">✍️ कार्यालय कर्मचारी निर्णय (Office Staff Action)</div>
-        <div class="grid">
-          <div class="field">
-            <label>स्थिति</label>
-            <select name="status" id="status">
-              <option value="">-- छान्नुहोस् --</option>
-              <option value="pending">विचाराधीन</option>
-              <option value="approved">स्वीकृत</option>
-              <option value="rejected">अस्वीकृत</option>
-            </select>
-          </div>
-          <div class="field" style="grid-column:1/-1;">
-            <label>कैफियत</label>
-            <textarea name="remarks" id="remarks" placeholder="अस्वीकृत गर्ने भएमा कारण यहाँ लेख्नुहोस्।"></textarea>
-          </div>
-        </div>
+    <div class="letter-header-wrapper">
+      <div class="logo-box">
+        <!-- थपिएको नयाँ आधिकारिक लोगो फाइल नाम -->
+        <img src="Emblem_of_Nepal.svg.png" alt="नेपाल सरकार लोगो">
       </div>
-      <div class="wizard-nav"><span></span><button type="button" class="btn btn-next-step" onclick="wizardNext()">अगाडि (जग्गाधनी विवरण) →</button></div>
-    </div>
-
-    <div class="wizard-step" data-step="2">
-      <div class="form-section-card">
-        <div class="section-subtitle">जग्गा र जग्गाधनीको विवरण</div>
-        <div class="grid grid-3">
-          <div class="field"><label class="required">जग्गाधनीको नाम</label><input required name="landowner_name" id="landowner_name"></div>
-          <div class="field"><label class="required">सम्पर्क फोन</label><input required name="contact_phone" id="contact_phone" placeholder="९८XXXXXXXX"></div>
-          <div class="field"><label>प्रतिनिधिको नाम</label><input name="representative_name" id="representative_name"></div>
-          <div class="field">
-            <label class="required">वडा नं.</label>
-            <select required name="ward_no" id="ward_no">
-              <option value="" disabled selected>वडा नं. छान्नुहोस्</option>
-              <option value="1">१</option><option value="2">२</option><option value="3">३</option>
-              <option value="4">४</option><option value="5">५</option><option value="6">६</option>
-              <option value="7">७</option><option value="8">८</option><option value="9">९</option>
-              <option value="10">१०</option><option value="11">११</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>साबिक गा.वि.स.</label>
-            <select name="old_vdc" id="old_vdc">
-              <option value="" disabled selected>साविक गाविस छान्नुहोस्</option>
-              <option value="दुदिलाभाटी">दुदिलाभाटी</option><option value="नरेठाँटी">नरेठाँटी</option>
-              <option value="हटिया">हटिया</option><option value="हरिचौँर">हरिचौँर</option>
-              <option value="मल्म">मल्म</option><option value="काँडेवास">काँडेवास</option>
-              <option value="पाण्डवखानी">पाण्डवखानी</option><option value="रिघा">रिघा</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>साबिक वडा नं.</label>
-            <select name="old_ward_no" id="old_ward_no">
-              <option value="" disabled selected>वडा नं. छान्नुहोस्</option>
-              <option value="1">१</option><option value="2">२</option><option value="3">३</option>
-              <option value="4">४</option><option value="5">५</option><option value="6">६</option>
-              <option value="7">७</option><option value="8">८</option><option value="9">९</option>
-            </select>
-          </div>
-          <div class="field"><label>टोल / मार्ग</label><input name="tole_marga" id="tole_marga"></div>
-          <div class="field"><label class="required">कित्ता नं.</label><input required name="kitta_no" id="kitta_no"></div>
-          <div class="field"><label class="required">क्षेत्रफल</label><input required name="area" id="area"></div>
-          <div class="field"><label class="required">दर्ता मिति</label><input required name="registration_date" id="registration_date" placeholder="YYYY-MM-DD"></div>
-        </div>
-      </div>
-      <div class="wizard-nav">
-        <button type="button" class="btn btn-prev-step" onclick="wizardPrev()">← पछाडि</button>
-        <button type="button" class="btn btn-next-step" onclick="wizardNext()">अगाडि (चार किल्ला) →</button>
+      <div class="letter-header">
+        <div class="municipality-name">गलकोट नगरपालिका</div>
+        <div class="org-name">नगर कार्यपालिकाको कार्यालय</div>
+        <div class="address-name">गलकोट, बागलुङ</div>
       </div>
     </div>
 
-    <div class="wizard-step" data-step="3">
-      <div class="form-section-card">
-        <div class="section-subtitle">चार किल्ला</div>
-        <div class="grid grid-3">
-          <div class="field"><label>पूर्व</label><input name="east_boundary_name" id="east_boundary_name"></div>
-          <div class="field"><label>पश्चिम</label><input name="west_boundary_name" id="west_boundary_name"></div>
-          <div class="field"><label>उत्तर</label><input name="north_boundary_name" id="north_boundary_name"></div>
-          <div class="field"><label>दक्षिण</label><input name="south_boundary_name" id="south_boundary_name"></div>
-        </div>
-      </div>
-      <div class="wizard-nav">
-        <button type="button" class="btn btn-prev-step" onclick="wizardPrev()">← पछाडि</button>
-        <button type="button" class="btn btn-next-step" onclick="wizardNext()">अगाडि (घर/दर विवरण) →</button>
-      </div>
+    <div class="meta-row-top">
+      <div>पत्र संख्या:- .....</div>
+      <div>गण्डकी प्रदेश, नेपाल</div>
     </div>
 
-    <div class="wizard-step" data-step="4">
-      <div class="form-section-card">
-        <div class="section-subtitle">घर विवरण</div>
-        <div class="grid">
-          <div class="field"><label>घरको लम्बाई</label><input name="house_length" id="house_length"></div>
-          <div class="field"><label>घरको चौडाई</label><input name="house_width" id="house_width"></div>
-          <div class="field"><label>घरको उचाइ</label><input name="house_height" id="house_height"></div>
-          <div class="field"><label>घरको प्रकार</label><input name="house_type" id="house_type"></div>
-          <div class="field"><label>तला संख्या</label><input type="number" step="any" name="number_of_floors" id="number_of_floors"></div>
-          <div class="field"><label>निर्माण सम्पन्न मिति</label><input name="construction_completion_date" id="construction_completion_date" placeholder="YYYY-MM-DD"></div>
-          <div class="field"><label>सम्पन्न वर्ष</label><input type="number" name="completion_year" id="completion_year"></div>
-        </div>
-      </div>
+    <hr class="header-separator-line">
 
-      <div class="form-section-card">
-        <div class="section-subtitle">सूचना / मुचुल्का</div>
-        <div class="grid">
-          <div class="field"><label>७ दिने सूचना प्रकाशित मिति</label><input name="notice_7day_published_date" id="notice_7day_published_date" placeholder="YYYY-MM-DD"></div>
-          <div class="field"><label>सर्जमिन मुचुल्का</label><input name="sarjamin_muchulka" id="sarjamin_muchulka"></div>
-        </div>
-      </div>
-
-      <div class="form-section-card">
-        <div class="section-subtitle">दर / मापदण्ड</div>
-        <div class="grid">
-          <div class="field"><label>प्रति वर्ग फिट दर</label><input type="number" step="any" name="rate_per_sqft" id="rate_per_sqft"></div>
-          <div class="field"><label>ग्राउन्ड कभरेज १</label><input type="number" step="any" name="ground_coverage_1" id="ground_coverage_1"></div>
-          <div class="field"><label>रो १</label><input type="number" step="any" name="row_1" id="row_1"></div>
-          <div class="field"><label>सेटब्याक १</label><input type="number" step="any" name="setback_1" id="setback_1"></div>
-          <div class="field"><label>बिजुली लाइन १</label><input type="number" step="any" name="electric_line_1" id="electric_line_1"></div>
-          <div class="field"><label>नदी किनार १</label><input type="number" step="any" name="river_bank_1" id="river_bank_1"></div>
-          <div class="field"><label>ग्राउन्ड कभरेज २</label><input type="number" step="any" name="ground_coverage_2" id="ground_coverage_2"></div>
-          <div class="field"><label>रो २</label><input type="number" step="any" name="row_2" id="row_2"></div>
-          <div class="field"><label>सेटब्याक २</label><input type="number" step="any" name="setback_2" id="setback_2"></div>
-          <div class="field"><label>बिजुली लाइन २</label><input type="number" step="any" name="electric_line_2" id="electric_line_2"></div>
-          <div class="field"><label>नदी किनार २</label><input type="number" step="any" name="river_bank_2" id="river_bank_2"></div>
-        </div>
-      </div>
-      <div class="wizard-nav">
-        <button type="button" class="btn btn-prev-step" onclick="wizardPrev()">← पछाडि</button>
-        <button type="button" class="btn btn-next-step" onclick="wizardNext()">अगाडि (तला/रकम विवरण) →</button>
-      </div>
+    <div class="meta-row-bottom">
+      <div>च.न.:- ....</div>
+      <div>मिति:- २०...../..../....</div>
     </div>
 
-    <div class="wizard-step" data-step="5">
-      <div class="form-section-card">
-        <div class="section-subtitle">तला विवरण (Floor-wise)</div>
-        <div id="floors"></div>
-        <div class="floor-total-summary" id="floorTotalSummary">
-          <span>🧮 <span id="floorSumBreakdown">कुनै तला क्षेत्रफल भरिएको छैन</span></span>
-          <span>🏢 कुल जोड = <span id="floorSumTotal">0</span></span>
-        </div>
-      </div>
+    <div class="letter-subject">विषय : ७ दिने सूचना टाँस सम्बन्धमा ।</div>
 
-      <div class="form-section-card">
-        <div class="section-subtitle">बेसमेन्ट</div>
-        <div class="grid">
-          <div class="field"><label>लम्बाई</label><input name="basement_length" id="basement_length"></div>
-          <div class="field"><label>चौडाई</label><input name="basement_width" id="basement_width"></div>
-          <div class="field"><label>उचाइ</label><input name="basement_height" id="basement_height"></div>
-          <div class="field"><label>क्षेत्रफल</label><input type="number" step="any" name="basement_area" id="basement_area"></div>
-        </div>
-      </div>
-
-      <div class="form-section-card">
-        <div class="section-subtitle">रकम विवरण</div>
-        <div class="grid">
-          <div class="field"><label>जम्मा रकम</label><input type="number" step="any" name="total_amount" id="total_amount"></div>
-          <div class="field"><label>छुट प्रतिशत</label><input type="number" step="any" name="discount_percent" id="discount_percent"></div>
-          <div class="field"><label>जरिवाना प्रतिशत</label><input type="number" step="any" name="penalty_percent" id="penalty_percent"></div>
-          <div class="field" style="grid-column:1/-1"><label>रकम अक्षरमा</label><input name="amount_in_words" id="amount_in_words"></div>
-        </div>
-      </div>
-      <div class="wizard-nav">
-        <button type="button" class="btn btn-prev-step" onclick="wizardPrev()">← पछाडि</button>
-        <button type="button" class="btn btn-next-step" onclick="wizardNext()">🔎 Review हेर्नुहोस् →</button>
-      </div>
+    <div class="letter-receiver">
+      श्री वडा समितिको कार्यालय<br>
+      गलकोट न.पा. वडा नं. <span id="lbl_ward_top" class="dynamic-value"></span>
     </div>
 
-    <div class="wizard-step" data-step="6">
-      <div class="form-section-card">
-        <div class="section-subtitle">✅ Review & Save — भरिएको विवरण जाँच गर्नुहोस्</div>
-        <div class="review-panel" id="wizardReviewPanel"></div>
-        <div class="print-signature-area" style="display:none;">
-          <div>कर्मचारीको दस्तखत: ___________________</div>
-          <div>मिति: ___________________</div>
-          <div>कार्यालय छाप</div>
-        </div>
-      </div>
-      <div class="wizard-nav" style="margin-bottom:10px;">
-        <button type="button" class="btn btn-prev-step" onclick="wizardPrev()">← फेरि सच्याउने</button>
-        <span></span>
-      </div>
-      <div class="action-buttons">
-        <button type="submit" id="submitBtn" class="btn btn-save">💾 आवेदन दर्ता गर्नुहोस्</button>
-        <button type="button" id="verifyBtn" class="btn btn-verify" onclick="actionVerify()">✅ स्वीकृत गर्ने</button>
-        <button type="button" id="returnBtn" class="btn btn-return" onclick="actionReject()">❌ अस्वीकृत गर्ने</button>
-        <button type="button" class="btn btn-excel" onclick="printCurrentApplication()">🖨️ प्रिन्ट गर्नुहोस्</button>
-        <button type="button" class="btn btn-clear" onclick="clearForm()">🧹 फारम खाली गर्नुस्</button>
-      </div>
-      <div id="msg"></div>
+    <div class="letter-body">
+      यस गलकोट न.पा. वडा नं. <span id="lbl_ward" class="dynamic-value"></span> बस्ने श्री
+      <span id="lbl_owner" class="dynamic-value"></span> ले ऐ., वडा नं. <span id="lbl_ward2" class="dynamic-value"></span>
+      किता नं. <span id="lbl_kitta" class="dynamic-value"></span> क्षेत्रफल <span id="lbl_area" class="dynamic-value"></span> भएको
+      साविक <span id="lbl_savik_gavis" class="dynamic-value"></span> गाविस वडा नं. <span id="lbl_savik_ward" class="dynamic-value"></span> मा रहेको घर
+      नगरपालिका हुनुपूर्व बनेको र हाल घर कायमको लागि दरखास्त पर्न नएकोले सो सम्बन्धी प्रकाशित ७ दिने सूचना यसै साथ संलग्न छ ।
+      उक्त सूचना त्यस वडा समितिको कार्यालय र घर भएको स्थल <span id="lbl_tole" class="dynamic-value"></span> मा टाँस गरी मुचुल्का पठाईदिनुहुन अनुरोध गर्दछु ।
     </div>
-  </form>
-</div>
 
-<div class="dashboard-grid" id="dashboardCards">
-  <div class="dash-card total"><div class="dc-icon">🗄️</div><div class="dc-value" id="dcTotal">0</div><div class="dc-label">कुल रेकर्ड</div></div>
-  <div class="dash-card approved"><div class="dc-icon">✅</div><div class="dc-value" id="dcApproved">0</div><div class="dc-label">स्वीकृत</div></div>
-  <div class="dash-card pending"><div class="dc-icon">⏳</div><div class="dc-value" id="dcPending">0</div><div class="dc-label">विचाराधीन</div></div>
-  <div class="dash-card rejected"><div class="dc-icon">❌</div><div class="dc-value" id="dcRejected">0</div><div class="dc-label">अस्वीकृत</div></div>
-  <div class="dash-card shown"><div class="dc-icon">🔍</div><div class="dc-value" id="dcShown">0</div><div class="dc-label">हाल देखिएका (Filtered)</div></div>
-</div>
+    <div class="letter-footer">
+      ......................<br>
+      (नक्सा शाखा प्रमुख)
+    </div>
 
-<div class="database-container">
-  <div class="form-header-container">
-    <div class="form-title">🗄️ घर कायम आवेदन डाटाबेस र रिपोर्ट प्रणाली</div>
-    <div class="report-buttons">
-      <button class="btn btn-excel" onclick="exportToExcel()">📊 Excel रिपोर्ट डाउनलोड</button>
+    <div class="print-btn-wrapper">
+      <button class="btn-print" onclick="window.print()">🖨️ यो ७ दिने सूचना पत्र प्रिन्ट गर्नुस्</button>
     </div>
   </div>
 
-  <div class="filter-wrapper">
-    <div>
-      <select id="statusFilter" class="filter-select" onchange="filterDatabase()">
-        <option value="ALL">🔍 सबै आवेदनहरू हेर्नुहोस्</option>
-        <option value="approved">🟢 स्वीकृत</option>
-        <option value="pending">🟡 विचाराधीन</option>
-        <option value="rejected">🔴 अस्वीकृत</option>
-      </select>
-    </div>
-    <input type="text" id="searchBar" class="search-box-mod" placeholder="🔍 दर्ता नं., नाम, फोन, वडा, कित्ता, टोल आदिले खोज्नुहोस्..." oninput="filterDatabase()">
-    <div class="field" style="margin:0;"><label style="margin-bottom:3px;">मिति देखि</label><input type="text" id="dateFrom" placeholder="YYYY-MM-DD" oninput="filterDatabase()" style="height:38px;"></div>
-    <div class="field" style="margin:0;"><label style="margin-bottom:3px;">मिति सम्म</label><input type="text" id="dateTo" placeholder="YYYY-MM-DD" oninput="filterDatabase()" style="height:38px;"></div>
-    <div>
-      <select id="pageSizeSelect" class="filter-select" style="min-width:140px;" onchange="currentPage=1; filterDatabase();">
-        <option value="25">२५ / पृष्ठ</option>
-        <option value="50">५० / पृष्ठ</option>
-        <option value="100">१०० / पृष्ठ</option>
-      </select>
-    </div>
-  </div>
+  <script>
+    // Supabase Settings Connect
+    const SUPABASE_URL = "https://lyjokogftwtvnhwszqni.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_gxEL2-GVTVy8E0WxMBZHDQ_b5TzsDI9";
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  <div style="overflow-x:auto;">
-    <table class="db-table" id="reportTable">
-      <thead>
-        <tr>
-          <th>दर्ता नं.</th>
-          <th>जग्गाधनीको नाम</th>
-          <th>📞 सम्पर्क फोन</th>
-          <th>वडा नं.</th>
-          <th>कित्ता नं.</th>
-          <th>क्षेत्रफल</th>
-          <th>अवस्था</th>
-          <th style="width:180px;">कार्यहरू</th>
-        </tr>
-      </thead>
-      <tbody id="databaseTableBody">
-        <tr><td colspan="8" class="text-center">डेटा लोड हुँदैछ...</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <div id="pagerControls" style="display:flex; align-items:center; justify-content:center; gap:14px; margin-top:14px; font-size:13.5px; font-weight:700; color:#57606f;"></div>
-</div>
+    let mapDatabase = [];
 
-<!-- ===== Review Summary Modal ===== -->
-<div class="app-modal-overlay" id="reviewModalOverlay">
-  <div class="app-modal-box">
-    <div class="app-modal-title">✅ डाटा जाँच पूरा भयो</div>
-    <div id="reviewModalBody"></div>
-    <div class="app-modal-actions">
-      <button type="button" class="btn btn-clear" id="reviewEditBtn">✏️ फेरि सच्याउने</button>
-      <button type="button" class="btn btn-save" id="reviewConfirmBtn">✅ सबै ठीक छ, Save गर्ने</button>
-    </div>
-  </div>
-</div>
-
-<!-- ===== Duplicate Warning Modal ===== -->
-<div class="app-modal-overlay" id="duplicateModalOverlay">
-  <div class="app-modal-box">
-    <div class="app-modal-title">⚠️ सम्भावित Duplicate आवेदन</div>
-    <div class="duplicate-note" id="duplicateModalBody"></div>
-    <p style="font-size:13.5px; color:#57606f;">यो विवरणसँग मिल्दोजुल्दो रेकर्ड पहिले नै database मा भेटियो। कृपया जाँच गर्नुहोस्।</p>
-    <div class="app-modal-actions">
-      <button type="button" class="btn btn-clear" id="duplicateRecheckBtn">🔍 फेरि जाँच गर्छु</button>
-      <button type="button" class="btn btn-save" id="duplicateProceedBtn">➡️ यथावत Save गर्छु</button>
-    </div>
-  </div>
-</div>
-
-<!-- ===== Draft Restore Modal ===== -->
-<div class="app-modal-overlay" id="draftModalOverlay">
-  <div class="app-modal-box">
-    <div class="app-modal-title">📝 अघिल्लो अधुरो फारम भेटियो</div>
-    <p style="font-size:13.5px; color:#57606f;">तपाईंले पहिले भर्न थालेको तर सेभ नभएको डाटा भेटियो। पुनः restore गर्ने?</p>
-    <div class="app-modal-actions">
-      <button type="button" class="btn btn-clear" id="draftDiscardBtn">🗑️ Discard</button>
-      <button type="button" class="btn btn-save" id="draftRestoreBtn">♻️ Restore</button>
-    </div>
-  </div>
-</div>
-
-<script>
-const SUPABASE_URL = "https://lyjokogftwtvnhwszqni.supabase.co";
-const SUPABASE_KEY = "sb_publishable_gxEL2-GVTVy8E0WxMBZHDQ_b5TzsDI9";
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-const TABLE_NAME = "ghar_kayam_applications";
-
-const floorNames = [
-  ["ground_floor", "ग्राउन्ड फ्लोर"],
-  ["first_floor", "पहिलो तला"],
-  ["second_floor", "दोस्रो तला"],
-  ["third_floor", "तेस्रो तला"],
-  ["fourth_floor", "चौथो तला"]
-];
-
-const numericFields = new Set([
-  "ward_no","old_ward_no","rate_per_sqft","ground_coverage_1","row_1","setback_1",
-  "electric_line_1","river_bank_1","ground_coverage_2","row_2","setback_2",
-  "electric_line_2","river_bank_2","ground_floor_area","first_floor_area",
-  "second_floor_area","third_floor_area","fourth_floor_area","basement_area",
-  "total_amount","completion_year","discount_percent","penalty_percent","number_of_floors"
-]);
-
-// All field ids present on the form, in a stable order (excludes hidden record_id)
-const ALL_FIELD_IDS = [
-  "status","remarks",
-  "landowner_name","contact_phone","representative_name","ward_no","old_vdc","old_ward_no",
-  "tole_marga","kitta_no","area","registration_date",
-  "east_boundary_name","west_boundary_name","north_boundary_name","south_boundary_name",
-  "house_length","house_width","house_height","house_type","number_of_floors",
-  "construction_completion_date","completion_year",
-  "notice_7day_published_date","sarjamin_muchulka",
-  "rate_per_sqft","ground_coverage_1","row_1","setback_1","electric_line_1","river_bank_1",
-  "ground_coverage_2","row_2","setback_2","electric_line_2","river_bank_2",
-  "basement_length","basement_width","basement_height","basement_area",
-  "total_amount","discount_percent","penalty_percent","amount_in_words"
-];
-floorNames.forEach(([prefix]) => {
-  ALL_FIELD_IDS.push(`${prefix}_length`, `${prefix}_width`, `${prefix}_height`, `${prefix}_area`);
-});
-
-const REQUIRED_IDS = ["landowner_name","contact_phone","ward_no","kitta_no","area","registration_date"];
-
-/* ================== CORE UTILITIES ================== */
-/* Nepali(Devanagari) <-> English digit conversion, loose number parsing,
-   date validation and Nepali money-in-words. Used everywhere so both
-   ९८४१२३४५६७ and 9841234567 style input work identically. */
-const NE_DIGITS = "०१२३४५६७८९";
-function toEnglishDigits(str) {
-  if (str === null || str === undefined) return "";
-  return String(str).replace(/[०-९]/g, d => String(NE_DIGITS.indexOf(d)));
-}
-function toNepaliDigits(str) {
-  if (str === null || str === undefined) return "";
-  return String(str).replace(/[0-9]/g, d => NE_DIGITS[Number(d)]);
-}
-/* Loose numeric parse: accepts Nepali/English digits, commas, spaces. Returns NaN if not a number. */
-function parseNumberLoose(value) {
-  if (value === null || value === undefined || value === "") return NaN;
-  const cleaned = toEnglishDigits(value).replace(/,/g, "").replace(/\s/g, "").trim();
-  if (cleaned === "" || cleaned === "-" ) return NaN;
-  if (!/^-?\d+(\.\d+)?$/.test(cleaned)) return NaN;
-  return parseFloat(cleaned);
-}
-/* Format a number with comma grouping (Indian/Nepali style: last 3, then groups of 2) for display only. */
-function formatMoneyDisplay(n) {
-  if (n === null || n === undefined || isNaN(n)) return "";
-  const num = Number(n);
-  const parts = num.toFixed(2).split(".");
-  let intPart = parts[0].replace("-", "");
-  const sign = num < 0 ? "-" : "";
-  let last3 = intPart.slice(-3);
-  let other = intPart.slice(0, -3);
-  if (other !== "") last3 = "," + last3;
-  const formattedOther = other.replace(/\B(?=(\d{2})+(?!\d))/g, ",");
-  const decPart = parts[1] === "00" ? "" : "." + parts[1];
-  return `${sign}${formattedOther}${last3}${decPart}`;
-}
-/* Real (Gregorian-format) date validity check: rejects impossible dates like 2025-02-30. */
-function isRealDate(y, m, d) {
-  if (!y || !m || !d) return false;
-  const dt = new Date(y, m - 1, d);
-  return dt.getFullYear() === y && dt.getMonth() === m - 1 && dt.getDate() === d;
-}
-function parseDateStrict(value) {
-  const v = toEnglishDigits(value || "").trim();
-  const m = v.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
-  if (!m) return null;
-  const y = parseInt(m[1], 10), mo = parseInt(m[2], 10), d = parseInt(m[3], 10);
-  if (!isRealDate(y, mo, d)) return null;
-  return new Date(y, mo - 1, d);
-}
-/* Nepali number-to-words (रुपैयाँ अक्षरमा), supports up to करोड. */
-const NE_ONES = ["","एक","दुई","तीन","चार","पाँच","छ","सात","आठ","नौ","दश",
-  "एघार","बाह्र","तेह्र","चौध","पन्ध्र","सोह्र","सत्र","अठार","उन्नाइस","बीस",
-  "एक्काइस","बाइस","तेइस","चौबिस","पच्चिस","छब्बिस","सत्ताइस","अठ्ठाइस","उनन्तीस","तीस",
-  "एकतीस","बत्तीस","तेत्तीस","चौँतीस","पैँतीस","छत्तीस","सैँतीस","अठतीस","उनन्चालीस","चालीस",
-  "एकचालीस","बयालीस","त्रिचालीस","चवालीस","पैँतालीस","छयालीस","सतचालीस","अठचालीस","उनन्चास","पचास",
-  "एकाउन्न","बाउन्न","त्रिपन्न","चवन्न","पचपन्न","छपन्न","सन्ताउन्न","अन्ठाउन्न","उनन्साठी","साठी",
-  "एकसाठी","बयसठ्ठी","त्रिसठ्ठी","चौंसठ्ठी","पैंसठ्ठी","छैंसठ्ठी","सतसठ्ठी","अठसठ्ठी","उनन्सत्तरी","सत्तरी",
-  "एकहत्तर","बहत्तर","त्रिहत्तर","चौहत्तर","पचहत्तर","छहत्तर","सतहत्तर","अठहत्तर","उनासी","असी",
-  "एकासी","बयासी","त्रियासी","चौरासी","पचासी","छयासी","सतासी","अठासी","उनान्नब्बे","नब्बे",
-  "एकानब्बे","बयानब्बे","त्रियानब्बे","चौरानब्बे","पन्चानब्बे","छयानब्बे","सन्तानब्बे","अन्ठानब्बे","उनान्सय"];
-function numberToNepaliWords(num) {
-  num = Math.round(Math.abs(Number(num) || 0));
-  if (num === 0) return "शून्य";
-  const units = [[10000000,"करोड"],[100000,"लाख"],[1000,"हजार"],[100,"सय"]];
-  let words = "";
-  let remainder = num;
-  for (const [value, label] of units) {
-    if (remainder >= value) {
-      const count = Math.floor(remainder / value);
-      words += (count < 100 ? NE_ONES[count] : numberToNepaliWords(count)) + " " + label + " ";
-      remainder %= value;
-    }
-  }
-  if (remainder > 0) words += (NE_ONES[remainder] || remainder) + " ";
-  return words.trim();
-}
-function updateAmountInWords() {
-  const amtField = document.getElementById('total_amount');
-  const wordsField = document.getElementById('amount_in_words');
-  if (!amtField || !wordsField) return;
-  const n = parseNumberLoose(amtField.value);
-  if (isNaN(n) || n <= 0) return;
-  wordsField.value = numberToNepaliWords(n) + " रुपैयाँ मात्र";
-}
-
-let appDatabase = [];
-let displayedData = [];
-let originalRecordSnapshot = null;
-const DRAFT_KEY = "ghar_kayam_mapform1_draft_v1";
-
-/* ---------- Build floor-wise inputs ---------- */
-const floorsDiv = document.getElementById("floors");
-floorNames.forEach(([prefix, label]) => {
-  const wrap = document.createElement("div");
-  wrap.className = "floor-block";
-  wrap.innerHTML = `
-    <div class="row-title">${label}</div>
-    <div class="grid">
-      <div class="field"><label>लम्बाई</label><input name="${prefix}_length" id="${prefix}_length"></div>
-      <div class="field"><label>चौडाई</label><input name="${prefix}_width" id="${prefix}_width"></div>
-      <div class="field"><label>उचाइ</label><input name="${prefix}_height" id="${prefix}_height"></div>
-      <div class="field"><label>क्षेत्रफल</label><input type="number" step="any" name="${prefix}_area" id="${prefix}_area" class="area-auto"></div>
-    </div>`;
-  floorsDiv.appendChild(wrap);
-});
-
-const form = document.getElementById("ghForm");
-const msg = document.getElementById("msg");
-const btn = document.getElementById("submitBtn");
-
-/* ================== Init ================== */
-document.addEventListener("DOMContentLoaded", () => {
-  injectFieldMessageContainers();
-  setupLiveFloorAreaCalc();
-  setupKeyboardNavigation();
-  setupRequiredLiveValidation();
-  setupMoneyAutoWords();
-  setupFloorVisibilityToggle();
-  fetchAllRecords();
-  initWizard();
-  checkForSavedDraft();
-  document.querySelectorAll('#ghForm input, #ghForm select, #ghForm textarea').forEach(el => {
-    el.addEventListener('input', () => { markDraftDirty(); if (originalRecordSnapshot) markChangedIfDifferent(el.id); updateProgressAndSectionStatus(); });
-  });
-  updateProgressAndSectionStatus();
-});
-
-/* ================== Auto amount-in-words ================== */
-function setupMoneyAutoWords() {
-  const amtField = document.getElementById('total_amount');
-  if (!amtField) return;
-  amtField.addEventListener('blur', updateAmountInWords);
-  ['total_amount','rate_per_sqft'].forEach(id => {
-    const f = document.getElementById(id);
-    if (!f) return;
-    f.addEventListener('blur', () => {
-      const n = parseNumberLoose(f.value);
-      if (!isNaN(n)) f.value = formatMoneyDisplay(n);
-    });
-    f.addEventListener('focus', () => {
-      const n = parseNumberLoose(f.value);
-      if (!isNaN(n)) f.value = n; // plain number for easy editing
-    });
-  });
-}
-
-/* ================== Floor visibility (show only relevant floors) ================== */
-function setupFloorVisibilityToggle() {
-  const nField = document.getElementById('number_of_floors');
-  if (!nField) return;
-  nField.addEventListener('input', applyFloorVisibility);
-  nField.addEventListener('blur', applyFloorVisibility);
-  applyFloorVisibility();
-}
-function applyFloorVisibility() {
-  const nField = document.getElementById('number_of_floors');
-  if (!nField) return;
-  const raw = parseNumberLoose(nField.value);
-  const n = isNaN(raw) ? null : Math.max(0, Math.round(raw));
-  const blocks = document.querySelectorAll('#floors .floor-block');
-  blocks.forEach((block, idx) => {
-    // idx 0 = ground floor, always relevant once any floor count is set (or unset = show all, staff not yet decided)
-    if (n === null) { block.style.display = ''; return; }
-    block.style.display = idx < n ? '' : (idx === 0 ? '' : 'none');
-  });
-  updateFloorTotalSummary();
-}
-
-/* ================== Loading Overlay ================== */
-let loadingCounter = 0;
-function showLoading(text) {
-  loadingCounter++;
-  document.getElementById('loadingText').innerText = text || "⏳ डाटा प्रशोधन हुँदैछ...";
-  document.getElementById('loadingOverlay').classList.add('active');
-}
-function hideLoading() {
-  loadingCounter = Math.max(0, loadingCounter - 1);
-  if (loadingCounter === 0) document.getElementById('loadingOverlay').classList.remove('active');
-}
-
-/* ================== Wizard Navigation ================== */
-const TOTAL_WIZARD_STEPS = 6;
-let currentWizardStep = 1;
-
-function initWizard() {
-  document.querySelectorAll('#stepperNav .step-item').forEach(li => {
-    li.addEventListener('click', () => {
-      const target = parseInt(li.getAttribute('data-step'), 10);
-      if (target < currentWizardStep) goToWizardStep(target);
-    });
-  });
-  goToWizardStep(1);
-}
-
-function getStepRequiredFields(stepNumber) {
-  const stepEl = document.querySelector(`.wizard-step[data-step="${stepNumber}"]`);
-  if (!stepEl) return [];
-  return Array.from(stepEl.querySelectorAll('input[required], select[required]'));
-}
-
-function validateWizardStep(stepNumber) {
-  const fields = getStepRequiredFields(stepNumber);
-  let firstInvalid = null;
-  let allValid = true;
-  fields.forEach(field => {
-    const isEmpty = !field.value || !field.value.toString().trim();
-    const wrapper = field.closest('.field');
-    if (isEmpty) {
-      allValid = false;
-      if (wrapper) { wrapper.classList.remove('field-valid'); wrapper.classList.add('field-invalid'); }
-      if (!firstInvalid) firstInvalid = field;
-    } else if (wrapper) {
-      wrapper.classList.remove('field-invalid');
-      wrapper.classList.add('field-valid');
-    }
-  });
-  if (!allValid) {
-    if (firstInvalid) firstInvalid.focus();
-    alert('⚠️ कृपया यो चरणका अनिवार्य (*) फिल्डहरू भर्नुहोस्।');
-  }
-  return allValid;
-}
-
-function goToWizardStep(stepNumber) {
-  if (stepNumber < 1) stepNumber = 1;
-  if (stepNumber > TOTAL_WIZARD_STEPS) stepNumber = TOTAL_WIZARD_STEPS;
-
-  document.querySelectorAll('.wizard-step').forEach(el => {
-    el.classList.toggle('active', parseInt(el.getAttribute('data-step'), 10) === stepNumber);
-  });
-  document.querySelectorAll('#stepperNav .step-item').forEach(li => {
-    const liStep = parseInt(li.getAttribute('data-step'), 10);
-    li.classList.remove('active','done','error');
-    if (liStep < stepNumber) li.classList.add('done');
-    else if (liStep === stepNumber) li.classList.add('active');
-  });
-  currentWizardStep = stepNumber;
-  if (stepNumber === TOTAL_WIZARD_STEPS) buildWizardReview();
-  document.getElementById('mainFormContainer').scrollIntoView({ behavior:'smooth', block:'start' });
-}
-
-function wizardNext() {
-  if (!validateWizardStep(currentWizardStep)) return;
-  goToWizardStep(currentWizardStep + 1);
-}
-function wizardPrev() { goToWizardStep(currentWizardStep - 1); }
-
-function buildWizardReview() {
-  const panel = document.getElementById('wizardReviewPanel');
-  if (!panel) return;
-  let html = '';
-  for (let s = 1; s <= 5; s++) {
-    const stepEl = document.querySelector(`.wizard-step[data-step="${s}"]`);
-    if (!stepEl) continue;
-    const titleEls = stepEl.querySelectorAll('.section-subtitle');
-    const fieldsPerCard = stepEl.querySelectorAll('.form-section-card');
-    fieldsPerCard.forEach(card => {
-      const titleEl = card.querySelector('.section-subtitle');
-      const title = titleEl ? titleEl.textContent.trim() : `चरण ${s}`;
-      const fields = Array.from(card.querySelectorAll('input, select, textarea')).filter(f => f.id);
-      if (!fields.length) return;
-      html += `<h4>${escapeHtml(title)}</h4><table>`;
-      fields.forEach(f => {
-        const label = f.closest('.field') ? f.closest('.field').querySelector('label') : null;
-        const labelText = label ? label.textContent.replace('*','').trim() : f.id;
-        const val = (f.value || '').toString().trim();
-        if (!labelText) return;
-        html += `<tr><td>${escapeHtml(labelText)}</td><td>${val ? escapeHtml(val) : '<span style="color:#a4b0be;">—</span>'}</td></tr>`;
-      });
-      html += `</table>`;
-    });
-  }
-  panel.innerHTML = html || '<p>कुनै विवरण भरिएको छैन।</p>';
-}
-
-/* ================== Live Floor Area Calculation ================== */
-function parseTextToNumber(value) {
-  const n = parseNumberLoose(value);
-  return isNaN(n) ? 0 : n;
-}
-
-function setupLiveFloorAreaCalc() {
-  floorNames.forEach(([prefix]) => {
-    const l = document.getElementById(`${prefix}_length`);
-    const w = document.getElementById(`${prefix}_width`);
-    const a = document.getElementById(`${prefix}_area`);
-    const recalc = () => {
-      const lv = parseTextToNumber(l.value), wv = parseTextToNumber(w.value);
-      if (lv > 0 && wv > 0) a.value = (lv * wv).toFixed(2);
-      updateFloorTotalSummary();
-    };
-    if (l) l.addEventListener('input', recalc);
-    if (w) w.addEventListener('input', recalc);
-    if (a) a.addEventListener('input', updateFloorTotalSummary);
-  });
-  const bl = document.getElementById('basement_length'), bw = document.getElementById('basement_width'), ba = document.getElementById('basement_area');
-  const recalcBasement = () => {
-    const lv = parseTextToNumber(bl.value), wv = parseTextToNumber(bw.value);
-    if (lv > 0 && wv > 0) ba.value = (lv * wv).toFixed(2);
-  };
-  if (bl) bl.addEventListener('input', recalcBasement);
-  if (bw) bw.addEventListener('input', recalcBasement);
-  updateFloorTotalSummary();
-}
-
-function updateFloorTotalSummary() {
-  const labels = { ground_floor:'ग्राउन्ड', first_floor:'पहिलो', second_floor:'दोस्रो', third_floor:'तेस्रो', fourth_floor:'चौथो' };
-  let total = 0; const parts = [];
-  floorNames.forEach(([prefix]) => {
-    const v = parseFloat(document.getElementById(`${prefix}_area`).value) || 0;
-    if (v > 0) { total += v; parts.push(`${labels[prefix]}: ${v}`); }
-  });
-  const breakdownEl = document.getElementById('floorSumBreakdown');
-  const totalEl = document.getElementById('floorSumTotal');
-  if (breakdownEl) breakdownEl.textContent = parts.length ? parts.join(' + ') + ` = ${total.toFixed(2)}` : 'कुनै तला क्षेत्रफल भरिएको छैन';
-  if (totalEl) totalEl.textContent = total.toFixed(2);
-}
-
-/* ================== Field validation ================== */
-const FIELD_TYPES = {
-  contact_phone: 'phone',
-  kitta_no: 'kitta',
-  area: 'area_positive',
-  registration_date: 'date', construction_completion_date: 'date', notice_7day_published_date: 'date',
-  rate_per_sqft: 'money', total_amount: 'money',
-  discount_percent: 'percent', penalty_percent: 'percent',
-  completion_year: 'year', number_of_floors: 'floors',
-  ground_coverage_1: 'numeric', row_1: 'numeric', setback_1: 'numeric', electric_line_1: 'numeric', river_bank_1: 'numeric',
-  ground_coverage_2: 'numeric', row_2: 'numeric', setback_2: 'numeric', electric_line_2: 'numeric', river_bank_2: 'numeric',
-  house_length: 'numeric', house_width: 'numeric', house_height: 'numeric',
-  basement_length: 'numeric', basement_width: 'numeric', basement_height: 'numeric', basement_area: 'area_nonneg'
-};
-floorNames.forEach(([prefix]) => {
-  FIELD_TYPES[`${prefix}_length`] = 'numeric';
-  FIELD_TYPES[`${prefix}_width`] = 'numeric';
-  FIELD_TYPES[`${prefix}_height`] = 'numeric';
-  FIELD_TYPES[`${prefix}_area`] = 'area_nonneg';
-});
-
-function injectFieldMessageContainers() {
-  document.querySelectorAll('#ghForm .field').forEach(fieldWrap => {
-    if (fieldWrap.querySelector('.field-msg')) return;
-    const msgErr = document.createElement('div');
-    msgErr.className = 'field-msg msg-error';
-    msgErr.innerHTML = `<span>❌</span><span class="msg-text"></span>`;
-    const msgWarn = document.createElement('div');
-    msgWarn.className = 'field-msg msg-warning';
-    msgWarn.innerHTML = `<span>⚠️</span><span class="msg-text"></span>`;
-    const msgOk = document.createElement('div');
-    msgOk.className = 'field-msg msg-success';
-    msgOk.innerHTML = `<span>✓</span><span class="msg-text">ठीक छ</span>`;
-    fieldWrap.appendChild(msgErr); fieldWrap.appendChild(msgWarn); fieldWrap.appendChild(msgOk);
-  });
-}
-
-function setFieldState(id, state, message) {
-  const input = document.getElementById(id);
-  if (!input) return;
-  const fieldWrap = input.closest('.field');
-  if (!fieldWrap) return;
-  fieldWrap.classList.remove('field-valid','field-invalid','field-warning');
-  if (state) fieldWrap.classList.add('field-' + state);
-  const target = fieldWrap.querySelector(state === 'invalid' ? '.msg-error .msg-text' : state === 'warning' ? '.msg-warning .msg-text' : null);
-  if (target && message) target.textContent = message;
-}
-
-function clearAllFieldStates() {
-  document.querySelectorAll('#ghForm .field').forEach(f => f.classList.remove('field-valid','field-invalid','field-warning','field-changed'));
-}
-
-function validateField(id, opts) {
-  opts = opts || {};
-  const input = document.getElementById(id);
-  if (!input) return true;
-  const type = FIELD_TYPES[id];
-  const rawValue = (input.value || '').trim();
-  const isRequired = REQUIRED_IDS.includes(id);
-
-  if (!rawValue) {
-    if (isRequired && !opts.silentIfEmpty) { setFieldState(id, 'invalid', 'यो फिल्ड अनिवार्य छ।'); return false; }
-    setFieldState(id, null); return !isRequired;
-  }
-
-  // Normalize Nepali digits to English for any digit-bearing field (display stays as typed).
-  const normalized = toEnglishDigits(rawValue);
-
-  if (type === 'phone') {
-    const digitsOnly = normalized.replace(/[^\d]/g, '');
-    const ok = /^(97|98)\d{8}$/.test(digitsOnly);
-    if (!ok) { setFieldState(id, 'invalid', 'मोबाइल नम्बर १० अंकको हुनुपर्छ र ९७/९८ बाट सुरु हुनुपर्छ।'); return false; }
-    setFieldState(id, 'valid'); return true;
-  }
-  if (type === 'kitta') {
-    const ok = /^[0-9०-९a-zA-Zक-ह\/\-\.\s]{1,40}$/.test(rawValue);
-    if (!ok) { setFieldState(id, 'invalid', 'कित्ता नं. मा अनावश्यक विशेष चिन्ह प्रयोग नगर्नुहोस्।'); return false; }
-    setFieldState(id, 'valid'); return true;
-  }
-  if (type === 'date') {
-    const dt = parseDateStrict(normalized);
-    if (!dt) { setFieldState(id, 'invalid', 'मिति अमान्य छ। सही format: YYYY-MM-DD (उदाहरण: 2082-03-15)'); return false; }
-    // Logical cross-field date checks (non-blocking warnings only, since exact rule depends on office policy).
-    if (id === 'construction_completion_date' && dt > new Date()) {
-      setFieldState(id, 'warning', 'निर्माण सम्पन्न मिति भविष्यको देखियो, जाँच गर्नुहोस्।'); return true;
-    }
-    setFieldState(id, 'valid'); return true;
-  }
-  if (type === 'numeric') {
-    const n = parseNumberLoose(normalized);
-    if (isNaN(n) || n < 0) { setFieldState(id, 'invalid', 'मान्य (ऋणात्मक नभएको) संख्या लेख्नुहोस्।'); return false; }
-    setFieldState(id, 'valid'); return true;
-  }
-  if (type === 'area_positive') {
-    const n = parseNumberLoose(normalized);
-    if (isNaN(n) || n <= 0) { setFieldState(id, 'invalid', 'क्षेत्रफल शून्य वा ऋणात्मक हुन सक्दैन।'); return false; }
-    setFieldState(id, 'valid'); return true;
-  }
-  if (type === 'area_nonneg') {
-    const n = parseNumberLoose(normalized);
-    if (isNaN(n) || n < 0) { setFieldState(id, 'invalid', 'क्षेत्रफल ऋणात्मक हुन सक्दैन।'); return false; }
-    setFieldState(id, 'valid'); return true;
-  }
-  if (type === 'percent') {
-    const n = parseNumberLoose(normalized);
-    if (isNaN(n) || n < 0 || n > 100) { setFieldState(id, 'invalid', 'प्रतिशत ० देखि १०० को बीचमा मात्र हुन सक्छ।'); return false; }
-    setFieldState(id, 'valid'); return true;
-  }
-  if (type === 'money') {
-    const n = parseNumberLoose(normalized);
-    if (isNaN(n) || n < 0) { setFieldState(id, 'invalid', 'रकम मान्य र ऋणात्मक नभएको हुनुपर्छ।'); return false; }
-    setFieldState(id, 'valid'); return true;
-  }
-  if (type === 'year') {
-    const n = parseNumberLoose(normalized);
-    const currentYear = new Date().getFullYear() + 60; // rough allowance for BS/AD year systems
-    if (isNaN(n) || n < 1950 || n > currentYear) { setFieldState(id, 'invalid', 'वर्ष मान्य दायरा भित्र हुनुपर्छ।'); return false; }
-    setFieldState(id, 'valid'); return true;
-  }
-  if (type === 'floors') {
-    const n = parseNumberLoose(normalized);
-    const maxFloors = floorNames.length; // number of floor blocks available below (ground..fourth)
-    if (isNaN(n) || n < 0) { setFieldState(id, 'invalid', 'तला संख्या ऋणात्मक हुन सक्दैन।'); return false; }
-    if (n > maxFloors) { setFieldState(id, 'warning', `हाल फारममा बढीमा ${maxFloors} तला (ग्राउन्ड + ${maxFloors-1}) सम्मको विवरण राख्न मिल्छ।`); return true; }
-    setFieldState(id, 'valid'); return true;
-  }
-  setFieldState(id, 'valid');
-  return true;
-}
-
-function setupRequiredLiveValidation() {
-  ALL_FIELD_IDS.forEach(id => {
-    const input = document.getElementById(id);
-    if (!input) return;
-    input.addEventListener('input', () => validateField(id, { silentIfEmpty: true }));
-    input.addEventListener('blur', () => validateField(id));
-  });
-  // Phone field: normalize Nepali digits to English on blur for a clean, consistent display.
-  const phoneField = document.getElementById('contact_phone');
-  if (phoneField) {
-    phoneField.addEventListener('blur', () => {
-      phoneField.value = toEnglishDigits(phoneField.value).replace(/[^\d]/g, '');
-    });
-  }
-}
-
-function validateAllFields() {
-  let ok = true, firstInvalidId = null;
-  // Required fields first (empty check + format), then every other field that has format rules.
-  const idsToCheck = ALL_FIELD_IDS.filter(id => document.getElementById(id));
-  idsToCheck.forEach(id => {
-    const valid = validateField(id);
-    if (!valid) { ok = false; if (!firstInvalidId) firstInvalidId = id; }
-  });
-  return { ok, firstInvalidId };
-}
-
-function focusAndScrollToField(id) {
-  const input = document.getElementById(id);
-  if (!input) return;
-  const card = input.closest('.form-section-card');
-  if (card) card.scrollIntoView({ behavior:'smooth', block:'center' });
-  setTimeout(() => input.focus(), 300);
-}
-
-function markChangedIfDifferent(id) {
-  if (!originalRecordSnapshot) return;
-  const input = document.getElementById(id);
-  const fieldWrap = input && input.closest('.field');
-  if (!fieldWrap) return;
-  const currentVal = (input.value || '').toString();
-  const originalVal = (originalRecordSnapshot[id] !== undefined && originalRecordSnapshot[id] !== null) ? originalRecordSnapshot[id].toString() : '';
-  fieldWrap.classList.toggle('field-changed', currentVal !== originalVal);
-}
-
-function setupKeyboardNavigation() {
-  const focusables = () => Array.from(document.querySelectorAll('#ghForm input, #ghForm select'));
-  form.addEventListener('keydown', (e) => {
-    if (e.key !== 'Enter') return;
-    if (e.target.tagName === 'TEXTAREA') return;
-    e.preventDefault();
-    const list = focusables();
-    const idx = list.indexOf(e.target);
-    if (idx > -1 && idx < list.length - 1) list[idx + 1].focus();
-  });
-}
-
-/* ================== Form Progress / Section Status ================== */
-function computeSectionStatus(card) {
-  const requiredInputs = Array.from(card.querySelectorAll('input[required], select[required]'));
-  if (requiredInputs.length === 0) return { status:'done', filled:0, total:0 };
-  let filled = 0, invalid = 0;
-  requiredInputs.forEach(inp => {
-    if ((inp.value || '').trim()) filled++;
-    if (inp.closest('.field') && inp.closest('.field').classList.contains('field-invalid')) invalid++;
-  });
-  let status = 'error';
-  if (invalid === 0 && filled === requiredInputs.length) status = 'done';
-  else if (invalid > 0) status = 'error';
-  else if (filled > 0) status = 'partial';
-  return { status, filled, total: requiredInputs.length, invalid };
-}
-
-function updateProgressAndSectionStatus() {
-  document.querySelectorAll('.form-section-card').forEach(card => {
-    const titleEl = card.querySelector('.section-subtitle');
-    if (!titleEl) return;
-    let badge = titleEl.querySelector('.section-status-badge');
-    if (!badge) { badge = document.createElement('span'); badge.className = 'section-status-badge'; titleEl.appendChild(badge); }
-    const s = computeSectionStatus(card);
-    badge.classList.remove('status-done','status-partial','status-error');
-    if (s.total === 0) { badge.classList.add('status-done'); badge.textContent = '🟢 वैकल्पिक'; }
-    else {
-      badge.classList.add('status-' + s.status);
-      const icon = s.status === 'done' ? '🟢' : s.status === 'partial' ? '🟠' : '🔴';
-      badge.textContent = s.invalid ? `${icon} ${s.invalid} समस्या` : `${icon} ${s.filled}/${s.total} पूरा`;
-    }
-  });
-
-  const track = document.getElementById('progressTrack');
-  if (!track) return;
-  const wizardSteps = [1,2,3,4,5];
-  const statuses = wizardSteps.map(s => {
-    const stepEl = document.querySelector(`.wizard-step[data-step="${s}"]`);
-    const cards = stepEl ? Array.from(stepEl.querySelectorAll('.form-section-card')) : [];
-    const cardStatuses = cards.map(computeSectionStatus);
-    if (cardStatuses.every(cs => cs.total === 0)) return 'done';
-    if (cardStatuses.some(cs => cs.status === 'error' && cs.invalid > 0)) return 'error';
-    if (cardStatuses.every(cs => cs.total === 0 || cs.status === 'done')) return 'done';
-    if (cardStatuses.some(cs => cs.status === 'partial' || cs.status === 'done')) return 'partial';
-    return 'error';
-  });
-  const overallOk = statuses.every(s => s === 'done');
-  statuses.push(overallOk ? 'partial' : 'error');
-
-  track.innerHTML = '';
-  const labels = ['✍️ कर्मचारी निर्णय','👤 जग्गाधनी विवरण','🧭 चार किल्ला','🏠 घर/दर विवरण','🏢 तला/रकम विवरण','✅ Review & Save'];
-  labels.forEach((label, i) => {
-    const st = statuses[i] || 'error';
-    const el = document.createElement('div');
-    el.className = 'progress-step status-' + st;
-    const icon = st === 'done' ? '🟢' : st === 'partial' ? '🟠' : '🔴';
-    el.textContent = `${icon} ${label}`;
-    track.appendChild(el);
-    if (i < labels.length - 1) {
-      const arrow = document.createElement('span');
-      arrow.className = 'progress-arrow'; arrow.textContent = '→';
-      track.appendChild(arrow);
-    }
-  });
-}
-
-let progressDebounceTimer = null;
-function debouncedProgressUpdate() {
-  clearTimeout(progressDebounceTimer);
-  progressDebounceTimer = setTimeout(updateProgressAndSectionStatus, 250);
-}
-
-/* ================== Draft / Unsaved data protection ================== */
-function isFormDirty() {
-  return ALL_FIELD_IDS.some(id => {
-    const el = document.getElementById(id);
-    return el && (el.value || '').trim() !== '';
-  });
-}
-let draftSaveTimer = null;
-function markDraftDirty() {
-  clearTimeout(draftSaveTimer);
-  draftSaveTimer = setTimeout(saveDraftToLocalStorage, 600);
-}
-function getFormDataObject() {
-  const record = {};
-  ALL_FIELD_IDS.forEach(id => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    const val = el.value;
-    if (val === '' || val === null || val === undefined) { record[id] = null; return; }
-    if (numericFields.has(id)) {
-      const n = parseNumberLoose(val);
-      record[id] = isNaN(n) ? null : n;
-    } else {
-      record[id] = toEnglishDigits(val); // normalize any Nepali digits inside text/date fields before saving
-    }
-  });
-  return record;
-}
-function saveDraftToLocalStorage() {
-  try {
-    if (document.getElementById('record_id').value) return;
-    if (!isFormDirty()) { clearDraftStorage(); return; }
-    localStorage.setItem(DRAFT_KEY, JSON.stringify(getFormDataObject()));
-  } catch (e) {}
-}
-function clearDraftStorage() { try { localStorage.removeItem(DRAFT_KEY); } catch (e) {} }
-function checkForSavedDraft() {
-  let draft = null;
-  try { draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); } catch (e) {}
-  if (!draft) return;
-  const overlay = document.getElementById('draftModalOverlay');
-  overlay.classList.add('active');
-  document.getElementById('draftDiscardBtn').onclick = () => { clearDraftStorage(); overlay.classList.remove('active'); };
-  document.getElementById('draftRestoreBtn').onclick = () => {
-    Object.keys(draft).forEach(key => {
-      const field = document.getElementById(key);
-      if (field && draft[key] !== null && draft[key] !== undefined) field.value = draft[key];
-    });
-    updateFloorTotalSummary();
-    updateProgressAndSectionStatus();
-    overlay.classList.remove('active');
-  };
-}
-window.addEventListener('beforeunload', (e) => {
-  if (isFormDirty() && !document.getElementById('record_id').value) { e.preventDefault(); e.returnValue = ''; }
-});
-
-/* ================== Duplicate detection ================== */
-function findPossibleDuplicates() {
-  const currentId = (document.getElementById('record_id').value || '').trim();
-  const name = toEnglishDigits(document.getElementById('landowner_name').value || '').trim().toLowerCase();
-  const phone = toEnglishDigits(document.getElementById('contact_phone').value || '').replace(/[^\d]/g,'').trim();
-  const kitta = toEnglishDigits(document.getElementById('kitta_no').value || '').trim().toLowerCase();
-  const ward = (document.getElementById('ward_no').value || '').trim();
-  if (!name && !phone && !kitta) return [];
-  return (appDatabase || []).filter(r => {
-    if (currentId && String(r.id) === currentId) return false; // don't flag the record being edited against itself
-    const rName = (r.landowner_name || '').trim().toLowerCase();
-    const rPhone = (r.contact_phone || '').trim().replace(/[^\d]/g,'');
-    const rKitta = (r.kitta_no || '').trim().toLowerCase();
-    const rWard = (r.ward_no != null ? String(r.ward_no) : '').trim();
-    const strongMatch = ward && kitta && rWard === ward && rKitta === kitta; // same plot registered twice
-    const phoneMatch = phone && phone.length >= 10 && rPhone === phone;
-    const nameKittaMatch = name && kitta && rName === name && rKitta === kitta;
-    return strongMatch || phoneMatch || nameKittaMatch;
-  });
-}
-function showDuplicateModal(dupes) {
-  return new Promise((resolve) => {
-    const body = document.getElementById('duplicateModalBody');
-    const statusLabel = (s) => s === 'approved' ? '✅ स्वीकृत' : s === 'rejected' ? '❌ अस्वीकृत' : '⏳ विचाराधीन';
-    body.innerHTML = dupes.slice(0,5).map(d => `
-      <table style="width:100%; font-size:13px;">
-        <tr><td style="color:#747d8c;">दर्ता नं.</td><td><b>${escapeHtml(d.registration_no || '-')}</b></td></tr>
-        <tr><td style="color:#747d8c;">जग्गाधनी</td><td><b>${escapeHtml(d.landowner_name || '-')}</b></td></tr>
-        <tr><td style="color:#747d8c;">सम्पर्क फोन</td><td>${escapeHtml(d.contact_phone || '-')}</td></tr>
-        <tr><td style="color:#747d8c;">वडा नं.</td><td>${escapeHtml(d.ward_no != null ? String(d.ward_no) : '-')}</td></tr>
-        <tr><td style="color:#747d8c;">कित्ता नं.</td><td>${escapeHtml(d.kitta_no || '-')}</td></tr>
-        <tr><td style="color:#747d8c;">क्षेत्रफल</td><td>${escapeHtml(d.area || '-')}</td></tr>
-        <tr><td style="color:#747d8c;">दर्ता मिति</td><td>${escapeHtml(d.registration_date || '-')}</td></tr>
-        <tr><td style="color:#747d8c;">स्थिति</td><td>${statusLabel(d.status)}</td></tr>
-      </table>
-    `).join('<hr style="margin:8px 0; border:none; border-top:1px dashed #e0b060;">');
-    const overlay = document.getElementById('duplicateModalOverlay');
-    overlay.classList.add('active');
-    const recheckBtn = document.getElementById('duplicateRecheckBtn');
-    const proceedBtn = document.getElementById('duplicateProceedBtn');
-    const cleanup = () => { overlay.classList.remove('active'); recheckBtn.onclick = null; proceedBtn.onclick = null; };
-    recheckBtn.onclick = () => { cleanup(); resolve(false); };
-    proceedBtn.onclick = () => { cleanup(); resolve(true); };
-  });
-}
-
-/* ================== Review Summary Modal ================== */
-function buildReviewSummaryHTML() {
-  const d = getFormDataObject();
-  return `
-    <h4>👤 जग्गाधनी</h4>
-    <table><tr><td>नाम</td><td>${escapeHtml(d.landowner_name||'-')}</td></tr>
-    <tr><td>फोन</td><td>${escapeHtml(d.contact_phone||'-')}</td></tr></table>
-    <h4>🏘️ जग्गा</h4>
-    <table><tr><td>वडा</td><td>${escapeHtml(d.ward_no||'-')}</td></tr>
-    <tr><td>कित्ता</td><td>${escapeHtml(d.kitta_no||'-')}</td></tr>
-    <tr><td>क्षेत्रफल</td><td>${escapeHtml(d.area||'-')}</td></tr></table>
-    <h4>🏠 घर</h4>
-    <table><tr><td>प्रकार</td><td>${escapeHtml(d.house_type||'-')}</td></tr>
-    <tr><td>तला संख्या</td><td>${escapeHtml(d.number_of_floors!=null?String(d.number_of_floors):'-')}</td></tr></table>
-    <h4>💰 रकम</h4>
-    <table><tr><td>जम्मा रकम</td><td>${escapeHtml(d.total_amount!=null?String(d.total_amount):'-')}</td></tr></table>
-  `;
-}
-function showReviewModal() {
-  return new Promise((resolve) => {
-    document.getElementById('reviewModalBody').innerHTML = buildReviewSummaryHTML();
-    const overlay = document.getElementById('reviewModalOverlay');
-    overlay.classList.add('active');
-    const editBtn = document.getElementById('reviewEditBtn');
-    const confirmBtn = document.getElementById('reviewConfirmBtn');
-    const cleanup = () => { overlay.classList.remove('active'); editBtn.onclick = null; confirmBtn.onclick = null; };
-    editBtn.onclick = () => { cleanup(); resolve(false); };
-    confirmBtn.onclick = () => { cleanup(); resolve(true); };
-  });
-}
-
-/* ================== Supabase: fetch / render / filter ================== */
-async function fetchAllRecords() {
-  showLoading("⏳ डाटाबेसबाट विवरण ल्याइँदैछ...");
-  try {
-    const { data, error } = await supabaseClient.from(TABLE_NAME).select('*').order('created_at', { ascending: false });
-    if (error) throw error;
-    appDatabase = data || [];
-    const pendingCount = appDatabase.filter(item => item.status === 'pending' || !item.status).length;
-    document.getElementById('pendingAlertBanner').style.display = pendingCount > 0 ? 'flex' : 'none';
-    if (pendingCount > 0) document.getElementById('pendingCount').innerText = pendingCount;
-    updateDashboardCards();
-    filterDatabase();
-  } catch (err) {
-    console.error("Error fetching data:", err.message);
-  } finally {
-    hideLoading();
-  }
-}
-
-let currentPage = 1;
-function filterDatabase() {
-  const filterValue = document.getElementById('statusFilter').value;
-  const searchQuery = toEnglishDigits(document.getElementById('searchBar').value || '').toLowerCase().trim();
-  const dateFromEl = document.getElementById('dateFrom');
-  const dateToEl = document.getElementById('dateTo');
-  const dateFrom = dateFromEl ? parseDateStrict(toEnglishDigits(dateFromEl.value)) : null;
-  const dateTo = dateToEl ? parseDateStrict(toEnglishDigits(dateToEl.value)) : null;
-
-  const searchableFields = ['registration_no','landowner_name','contact_phone','ward_no','kitta_no','old_vdc','old_ward_no','tole_marga'];
-
-  displayedData = appDatabase.filter(item => {
-    const status = item.status || 'pending';
-    let matchStatus = true;
-    if (filterValue !== 'ALL') matchStatus = (status === filterValue);
-
-    const matchSearch = !searchQuery || searchableFields.some(f => {
-      const v = item[f];
-      return v !== null && v !== undefined && String(v).toLowerCase().includes(searchQuery);
+    document.addEventListener("DOMContentLoaded", () => {
+      fetchFromSupabase();
     });
 
-    let matchDate = true;
-    if ((dateFrom || dateTo) && item.registration_date) {
-      const itemDt = parseDateStrict(item.registration_date);
-      if (itemDt) {
-        if (dateFrom && itemDt < dateFrom) matchDate = false;
-        if (dateTo && itemDt > dateTo) matchDate = false;
+    async function fetchFromSupabase() {
+      try {
+        const { data, error } = await _supabase
+          .from('g_map_branch1')
+          .select('registrano, registrano_date, owner, ward, tole, kitta, area, cit_no, se, savik_gavis, savik_ward');
+
+        if (error) throw error;
+        mapDatabase = data;
+      } catch (err) {
+        console.error("प्रणाली लोड गर्दा समस्या आयो:", err.message);
       }
     }
-    return matchStatus && matchSearch && matchDate;
-  });
 
-  renderDatabaseTable(displayedData);
-  const dcShown = document.getElementById('dcShown');
-  if (dcShown) dcShown.textContent = displayedData.length;
-}
+    function searchReportDatabase() {
+      const query = document.getElementById('reportSearchBox').value.toLowerCase().trim();
+      const letterContainer = document.getElementById('noticeLetterPrintArea');
+      const alertBox = document.getElementById('reportNotFoundAlert');
 
-function updateDashboardCards() {
-  const total = appDatabase.length;
-  const approved = appDatabase.filter(r => r.status === 'approved').length;
-  const pending = appDatabase.filter(r => r.status === 'pending' || !r.status).length;
-  const rejected = appDatabase.filter(r => r.status === 'rejected').length;
-  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
-  set('dcTotal', total); set('dcApproved', approved); set('dcPending', pending); set('dcRejected', rejected);
-}
+      if (query === "") {
+        letterContainer.style.display = "none";
+        alertBox.style.display = "block";
+        alertBox.innerHTML = `🔍 विवरण खोज्नका लागि माथिको कोठामा <b>दर्ता नं, नाम वा नागरिकता नम्बर</b> टाइप गर्नुहोस्। <br><br><span style="font-size: 13px; color: #a4b0be;">(सुरक्षा र सहजताका लागि यहाँ कुनै पनि अनावश्यक विवरण वा फारम राखिएको छैन।)</span>`;
+        return;
+      }
 
-function renderDatabaseTable(dataArray) {
-  const tbody = document.getElementById('databaseTableBody');
-  tbody.innerHTML = '';
-  if (dataArray.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="8" class="text-center" style="color:#999; padding:20px;">फिल्टर बमोजिमको कुनै डाटा फेला परेन।</td></tr>`;
-    renderPagerControls(0, 0, 0);
-    return;
-  }
-  const pageSizeEl = document.getElementById('pageSizeSelect');
-  const pageSize = pageSizeEl ? parseInt(pageSizeEl.value, 10) : 25;
-  const totalPages = Math.max(1, Math.ceil(dataArray.length / pageSize));
-  if (currentPage > totalPages) currentPage = totalPages;
-  if (currentPage < 1) currentPage = 1;
-  const start = (currentPage - 1) * pageSize;
-  const pageData = dataArray.slice(start, start + pageSize);
-  renderPagerControls(currentPage, totalPages, dataArray.length);
-  pageData.forEach(item => {
-    const status = item.status || 'pending';
-    let statusBadge = `<span class="badge badge-pending">⏳ विचाराधीन</span>`;
-    if (status === 'approved') statusBadge = `<span class="badge badge-approved">✅ स्वीकृत</span>`;
-    else if (status === 'rejected') statusBadge = `<span class="badge badge-rejected">❌ अस्वीकृत</span>`;
+      const match = mapDatabase.find(item =>
+        (item.registrano && item.registrano.toLowerCase().includes(query)) ||
+        (item.owner && item.owner.toLowerCase().includes(query)) ||
+        (item.cit_no && item.cit_no.toLowerCase().includes(query))
+      );
 
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td><b>${escapeHtml(item.registration_no || '-')}</b></td>
-      <td><b>${escapeHtml(item.landowner_name || '-')}</b></td>
-      <td>${escapeHtml(item.contact_phone || '-')}</td>
-      <td>${escapeHtml(item.ward_no != null ? String(item.ward_no) : '-')}</td>
-      <td>${escapeHtml(item.kitta_no || '-')}</td>
-      <td>${escapeHtml(item.area || '-')}</td>
-      <td>${statusBadge}</td>
-      <td>
-        <button type="button" class="action-btn btn-edit" data-review-id="${item.id}">✏️ Review</button>
-        <button type="button" class="action-btn btn-delete" data-delete-id="${item.id}" data-delete-owner="${escapeHtml(item.landowner_name || '')}">❌</button>
-      </td>
-    `;
-    tbody.appendChild(row);
-  });
-}
+      if (match) {
+        document.getElementById('lbl_ward_top').innerText = match.ward || '...........';
+        document.getElementById('lbl_ward').innerText = match.ward || '...........';
+        document.getElementById('lbl_ward2').innerText = match.ward || '...........';
+        document.getElementById('lbl_owner').innerText = match.owner || '..............................................................';
+        document.getElementById('lbl_kitta').innerText = match.kitta || '....................';
+        document.getElementById('lbl_area').innerText = match.area || '....................................';
+        document.getElementById('lbl_savik_gavis').innerText = match.savik_gavis || '....................................';
+        document.getElementById('lbl_savik_ward').innerText = match.savik_ward || '........';
+        document.getElementById('lbl_tole').innerText = match.tole || '.............................................................';
 
-function renderPagerControls(page, totalPages, totalRecords) {
-  const el = document.getElementById('pagerControls');
-  if (!el) return;
-  if (totalRecords === 0) { el.innerHTML = ''; return; }
-  el.innerHTML = `
-    <button type="button" class="btn btn-clear" style="height:34px; min-width:90px;" ${page <= 1 ? 'disabled' : ''} id="pagerPrevBtn">← अघिल्लो</button>
-    <span>पृष्ठ ${toNepaliDigits(page)} / ${toNepaliDigits(totalPages)} &nbsp;(कुल ${toNepaliDigits(totalRecords)} रेकर्ड)</span>
-    <button type="button" class="btn btn-clear" style="height:34px; min-width:90px;" ${page >= totalPages ? 'disabled' : ''} id="pagerNextBtn">अर्को →</button>
-  `;
-  const prevBtn = document.getElementById('pagerPrevBtn');
-  const nextBtn = document.getElementById('pagerNextBtn');
-  if (prevBtn) prevBtn.onclick = () => { currentPage--; renderDatabaseTable(displayedData); };
-  if (nextBtn) nextBtn.onclick = () => { currentPage++; renderDatabaseTable(displayedData); };
-}
-
-document.getElementById('databaseTableBody').addEventListener('click', (e) => {
-  const reviewBtn = e.target.closest('[data-review-id]');
-  if (reviewBtn) { loadRecordForStaff(reviewBtn.dataset.reviewId); return; }
-  const delBtn = e.target.closest('[data-delete-id]');
-  if (delBtn) { deleteRecord(delBtn.dataset.deleteId, delBtn.dataset.deleteOwner); return; }
-});
-
-function exportToExcel() {
-  if (displayedData.length === 0) { alert("डाउनलोड गर्नका लागि तालिकामा डाटाहरू उपलब्ध छैनन्।"); return; }
-  const rows = displayedData.map((item, index) => {
-    let statusText = "विचाराधीन";
-    if (item.status === 'approved') statusText = "स्वीकृत";
-    if (item.status === 'rejected') statusText = "अस्वीकृत";
-    return {
-      "क्र.सं.": index + 1,
-      "दर्ता नं.": item.registration_no || '-',
-      "दर्ता मिति": item.registration_date || '-',
-      "जग्गाधनीको नाम": item.landowner_name || '-',
-      "सम्पर्क फोन": item.contact_phone || '-',
-      "वडा नं.": item.ward_no || '-',
-      "कित्ता नं.": item.kitta_no || '-',
-      "क्षेत्रफल": item.area || '-',
-      "जम्मा रकम": item.total_amount || 0,
-      "अवस्था": statusText
-    };
-  });
-  const worksheet = XLSX.utils.json_to_sheet(rows);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Ghar_Kayam_Report");
-  XLSX.writeFile(workbook, `Ghar_Kayam_Report_${new Date().toISOString().slice(0,10)}.xlsx`);
-}
-
-function loadRecordForStaff(id) {
-  const record = appDatabase.find(r => String(r.id) === String(id));
-  if (!record) return;
-  document.getElementById('record_id').value = record.id;
-  ALL_FIELD_IDS.forEach(key => {
-    const field = document.getElementById(key);
-    if (field) field.value = (record[key] !== null && record[key] !== undefined) ? record[key] : "";
-  });
-
-  const isApproved = record.status === 'approved';
-  document.getElementById('submitBtn').style.display = 'none';
-  document.getElementById('verifyBtn').style.display = isApproved ? 'none' : 'flex';
-  document.getElementById('returnBtn').style.display = isApproved ? 'none' : 'flex';
-  document.getElementById('formHeaderTitle').innerText = isApproved
-    ? "🔒 स्वीकृत आवेदन (हेर्ने मात्र — सम्पादन गर्न मिल्दैन)"
-    : "🔎 आवेदन पुनरावलोकन तथा प्रमाणीकरण मोड (Review Mode)";
-  document.getElementById('submittedByBanner').style.display = 'block';
-  document.getElementById('submittedByBanner').innerText = isApproved
-    ? "🔒 यो आवेदन पहिले नै स्वीकृत भइसकेको छ। सुधार आवश्यक भए Admin मार्फत मात्र सम्भव छ।"
-    : "👤 यो रेकर्डको हालको स्थिति परिवर्तन गर्दै हुनुहुन्छ।";
-  document.getElementById('mainFormContainer').classList.add('review-mode-active');
-
-  setFormFieldsDisabled(isApproved);
-
-  originalRecordSnapshot = getFormDataObject();
-  clearAllFieldStates();
-  updateFloorTotalSummary();
-  updateProgressAndSectionStatus();
-  goToWizardStep(1);
-  window.scrollTo({ top:0, behavior:'smooth' });
-}
-
-function setFormFieldsDisabled(disabled) {
-  ALL_FIELD_IDS.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.disabled = disabled;
-  });
-}
-
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  msg.className = ""; msg.style.display = "none";
-
-  const isEditingExisting = !!document.getElementById('record_id').value;
-  if (!isEditingExisting) {
-    const validation = validateAllFields();
-    if (!validation.ok) { focusAndScrollToField(validation.firstInvalidId); goToStepOfField(validation.firstInvalidId); return; }
-
-    const dupes = findPossibleDuplicates();
-    if (dupes.length > 0) {
-      const proceed = await showDuplicateModal(dupes);
-      if (!proceed) return;
+        alertBox.style.display = "none";
+        letterContainer.style.display = "block";
+      } else {
+        letterContainer.style.display = "none";
+        alertBox.style.display = "block";
+        alertBox.innerHTML = `❌ माफ गर्नुहोला, तपाईंले खोज्नुभएको विवरण डाटाबेसमा फेला परेन। कृपया हिज्जे वा नम्बर जाँच गर्नुहोस्।`;
+      }
     }
-    const confirmed = await showReviewModal();
-    if (!confirmed) return;
-  }
+  </script>
 
-  await actuallySaveNewRecord();
-});
-
-function goToStepOfField(id) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  const stepEl = el.closest('.wizard-step');
-  if (stepEl) goToWizardStep(parseInt(stepEl.getAttribute('data-step'), 10));
-}
-
-async function actuallySaveNewRecord() {
-  const dataToSave = getFormDataObject();
-  if (!dataToSave.status) dataToSave.status = 'pending';
-
-  btn.disabled = true; btn.textContent = "पेश गर्दै...";
-  showLoading("💾 डाटाबेसमा सेभ हुँदैछ...");
-  try {
-    const { data, error } = await supabaseClient.from(TABLE_NAME).insert([dataToSave]).select();
-    if (error) throw error;
-    msg.textContent = `आवेदन सफलतापूर्वक दर्ता भयो। दर्ता नं.: ${data && data[0] ? (data[0].registration_no ?? "-") : "-"}`;
-    msg.className = "msg-ok";
-    clearDraftStorage();
-    clearFormInternal();
-    await fetchAllRecords();
-  } catch (err) {
-    msg.textContent = "त्रुटि: " + (err.message || "आवेदन दर्ता गर्न सकिएन।");
-    msg.className = "msg-err";
-  } finally {
-    btn.disabled = false; btn.textContent = "💾 आवेदन दर्ता गर्नुहोस्";
-    hideLoading();
-  }
-}
-
-async function actionVerify() {
-  const recordId = document.getElementById('record_id').value;
-  if (!recordId) return;
-  const updatedFields = getFormDataObject();
-  updatedFields.status = 'approved';
-
-  showLoading("✅ स्वीकृत गरिँदैछ...");
-  try {
-    const { error } = await supabaseClient.from(TABLE_NAME).update(updatedFields).eq('id', recordId);
-    if (error) throw error;
-    alert("✅ आवेदन सफलतापूर्वक स्वीकृत भयो।");
-    clearForm(); await fetchAllRecords();
-  } catch (err) { alert(err.message); } finally { hideLoading(); }
-}
-
-async function actionReject() {
-  const recordId = document.getElementById('record_id').value;
-  if (!recordId) return;
-  const remarksVal = (document.getElementById('remarks').value || '').trim();
-  if (!remarksVal) { alert("⚠️ अस्वीकृत गर्नु अघि 'कैफियत' अनिवार्य लेख्नुहोस्!"); goToWizardStep(1); return; }
-
-  const updatedFields = getFormDataObject();
-  updatedFields.status = 'rejected';
-
-  showLoading("❌ अस्वीकृत गरिँदैछ...");
-  try {
-    const { error } = await supabaseClient.from(TABLE_NAME).update(updatedFields).eq('id', recordId);
-    if (error) throw error;
-    alert("❌ आवेदन अस्वीकृत गरियो।");
-    clearForm(); await fetchAllRecords();
-  } catch (err) { alert(err.message); } finally { hideLoading(); }
-}
-
-async function deleteRecord(id, ownerName) {
-  const record = appDatabase.find(r => String(r.id) === String(id));
-  if (!record) return;
-  if (record.status === 'approved') {
-    alert(`⚠️ सुरक्षा चेतावनी: जग्गाधनी [${ownerName}] को आवेदन स्वीकृत भइसकेको हुनाले यसलाई डिलिट गर्न मिल्दैन!`);
-    return;
-  }
-  if (confirm(`के तपाईं जग्गाधनी [${ownerName}] को रेकर्ड हटाउन चाहनुहुन्छ?`)) {
-    showLoading("🗑️ रेकर्ड हटाइँदैछ...");
-    try {
-      const { error } = await supabaseClient.from(TABLE_NAME).delete().eq('id', id);
-      if (error) throw error;
-      alert("🗑️ रेकर्ड सफलतापूर्वक हटाइयो।");
-      await fetchAllRecords();
-      clearForm();
-    } catch (err) { alert("त्रुटि: " + err.message); } finally { hideLoading(); }
-  }
-}
-
-function clearFormInternal() {
-  form.reset();
-  setFormFieldsDisabled(false);
-  document.getElementById('record_id').value = "";
-  document.getElementById('submitBtn').style.display = 'flex';
-  document.getElementById('verifyBtn').style.display = 'none';
-  document.getElementById('returnBtn').style.display = 'none';
-  document.getElementById('formHeaderTitle').innerText = "🏛️ घर कायम आवेदन — कार्यालय कर्मचारी कार्यप्रणाली";
-  document.getElementById('submittedByBanner').style.display = 'none';
-  document.getElementById('mainFormContainer').classList.remove('review-mode-active');
-  originalRecordSnapshot = null;
-  clearAllFieldStates();
-  updateFloorTotalSummary();
-  updateProgressAndSectionStatus();
-  goToWizardStep(1);
-}
-
-function clearForm() {
-  if (isFormDirty()) {
-    if (!confirm("के तपाईं वास्तवमै फारम खाली गर्न चाहनुहुन्छ? भरिएको सबै डाटा हराउनेछ।")) return;
-  }
-  clearDraftStorage();
-  clearFormInternal();
-}
-
-/* ================== Print ================== */
-function printCurrentApplication() {
-  buildWizardReview(); // ensure review panel (used as print source) is fresh
-  window.print();
-}
-
-function escapeHtml(str) {
-  return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-}
-</script>
 </body>
 </html>
