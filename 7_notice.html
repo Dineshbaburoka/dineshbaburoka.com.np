@@ -75,6 +75,9 @@
     outline:none; background-color:#fffde7; text-align:left; min-width:0;
   }
   .dynamic-value:focus { background-color:#fff9c4; border-bottom:1px solid #000; }
+  .dynamic-value.saving-field { background-color:#dfe4ea; }
+  .dynamic-value.saved-field { background-color:#c8f7d0; transition: background-color .3s; }
+  .dynamic-value.save-error-field { background-color:#ffd1d1; transition: background-color .3s; }
   @media print {
     .dynamic-value { border-bottom:none !important; background-color:transparent !important; padding:0 !important; }
   }
@@ -200,24 +203,80 @@
   const TABLE_NAME = "ghar_kayam_applications";
 
   let recordsDb = [];
+  let currentRecordId = null; // हाल देखिइरहेको सूचनाको database record id
+
+  // ७ दिने सूचना पत्रका कुन contenteditable id ले database को कुन column लाई represent गर्छ
+  const FIELD_TO_COLUMN = {
+    lbl_owner: 'landowner_name',
+    lbl_ward2: 'ward_no',
+    lbl_savik_gavis: 'old_vdc',
+    lbl_savik_ward: 'old_ward_no',
+    lbl_kitta: 'kitta_no',
+    lbl_area: 'area',
+    lbl_east: 'east_boundary_name',
+    lbl_west: 'west_boundary_name',
+    lbl_north: 'north_boundary_name',
+    lbl_south: 'south_boundary_name',
+    lbl_application_date: 'registration_date',
+    lbl_house_type: 'house_type',
+    lbl_house_length: 'house_length',
+    lbl_house_width: 'house_width',
+    lbl_house_height: 'house_height'
+  };
 
   document.addEventListener("DOMContentLoaded", () => {
     fetchFromSupabase();
     enableEditableTrim();
   });
 
-  // सम्पादन गर्न मिल्ने (contenteditable) सबै बक्सहरूको दायाँ-बायाँको स्पेस हटाउने
+  // सम्पादन गर्न मिल्ने (contenteditable) सबै बक्सहरूको दायाँ-बायाँको स्पेस हटाउने अनि database मा auto-save गर्ने
   function enableEditableTrim() {
     document.querySelectorAll('.dynamic-value[contenteditable="true"]').forEach(el => {
-      el.addEventListener('blur', () => { el.innerText = el.innerText.trim(); });
+      el.addEventListener('blur', () => {
+        el.innerText = el.innerText.trim();
+        const column = FIELD_TO_COLUMN[el.id];
+        if (column) {
+          saveFieldToSupabase(el, column);
+        }
+      });
     });
+  }
+
+  // एउटा field मा भएको edit लाई Supabase database मा update गर्ने
+  async function saveFieldToSupabase(el, column) {
+    if (!currentRecordId) return; // अझै कुनै रेकर्ड सर्च गरी देखाइएको छैन भने केही नगर्ने
+
+    const newValue = el.innerText.trim();
+    el.classList.add('saving-field');
+
+    try {
+      const { error } = await _supabase
+        .from(TABLE_NAME)
+        .update({ [column]: newValue })
+        .eq('id', currentRecordId);
+
+      if (error) throw error;
+
+      // local cache पनि अद्यावधिक गर्ने ताकि पछि फेरि सर्च गर्दा पुरानो डाटा नदेखियोस्
+      const rec = recordsDb.find(r => r.id === currentRecordId);
+      if (rec) rec[column] = newValue;
+
+      el.classList.remove('saving-field');
+      el.classList.add('saved-field');
+      setTimeout(() => el.classList.remove('saved-field'), 1200);
+    } catch (err) {
+      console.error('अद्यावधिक गर्दा त्रुटि आयो:', err.message);
+      el.classList.remove('saving-field');
+      el.classList.add('save-error-field');
+      setTimeout(() => el.classList.remove('save-error-field'), 2000);
+    }
   }
 
   async function fetchFromSupabase() {
     try {
       const { data, error } = await _supabase
         .from(TABLE_NAME)
-        .select('registration_no, registration_date, landowner_name, ward_no, old_vdc, old_ward_no, kitta_no, area, tole_marga, east_boundary_name, west_boundary_name, north_boundary_name, south_boundary_name, house_type, house_length, house_width, house_height, notice_7day_published_date, contact_phone');
+        .select('id, registration_no, registration_date, landowner_name, ward_no, old_vdc, old_ward_no, kitta_no, area, tole_marga, east_boundary_name, west_boundary_name, north_boundary_name, south_boundary_name, house_type, house_length, house_width, house_height, notice_7day_published_date, contact_phone');
       if (error) throw error;
       recordsDb = data || [];
     } catch (err) {
@@ -256,6 +315,7 @@
     );
 
     if (match) {
+      currentRecordId = match.id;
       fillOrDots('lbl_ward1', match.ward_no ? ('वडा नं. ' + match.ward_no) : null);
       fillOrDots('lbl_owner', match.landowner_name);
       fillOrDots('lbl_ward2', match.ward_no);
@@ -277,6 +337,7 @@
       alertBox.style.display = "none";
       letterContainer.style.display = "block";
     } else {
+      currentRecordId = null;
       letterContainer.style.display = "none";
       alertBox.style.display = "block";
       alertBox.innerHTML = `❌ माफ गर्नुहोला, तपाईंले खोज्नुभएको विवरण डाटाबेसमा फेला परेन। कृपया हिज्जे वा नम्बर जाँच गर्नुहोस्।`;
