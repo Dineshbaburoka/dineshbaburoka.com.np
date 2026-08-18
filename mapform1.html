@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>घर कायम आवेदन फारम</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Noto Sans', Arial, sans-serif;
+    background: #f1efe8;
+    margin: 0;
+    padding: 20px;
+    color: #2c2c2a;
+  }
+  .container { max-width: 950px; margin: 0 auto; }
+  h1 { font-size: 20px; font-weight: 600; text-align: center; margin-bottom: 4px; }
+  .sub { text-align: center; color: #5f5e5a; font-size: 13px; margin-bottom: 20px; }
+  fieldset {
+    background: #fff;
+    border: 0.5px solid #d3d1c7;
+    border-radius: 10px;
+    padding: 14px 18px 18px;
+    margin-bottom: 16px;
+  }
+  legend {
+    font-weight: 600;
+    font-size: 14px;
+    padding: 0 8px;
+    color: #185fa5;
+  }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px 16px; }
+  .grid-3 { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px 18px; }
+  .field { display: flex; flex-direction: column; }
+  label { font-size: 12.5px; color: #5f5e5a; margin-bottom: 3px; }
+  input, select, textarea {
+    height: 34px;
+    padding: 6px 8px;
+    border: 0.5px solid #b4b2a9;
+    border-radius: 6px;
+    font-size: 13.5px;
+    background: #fff;
+    font-family: inherit;
+  }
+  textarea { height: auto; min-height: 50px; resize: vertical; }
+  .row-title { font-size: 12.5px; font-weight: 600; margin: 10px 0 4px; color: #444441; }
+  button#submitBtn {
+    display: block;
+    width: 100%;
+    height: 44px;
+    background: #185fa5;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 6px;
+  }
+  button#submitBtn:hover { background: #0c447c; }
+  button#submitBtn:disabled { background: #b4b2a9; cursor: not-allowed; }
+  #msg {
+    text-align: center;
+    margin-top: 12px;
+    font-size: 14px;
+    padding: 10px;
+    border-radius: 6px;
+    display: none;
+  }
+  .msg-ok { background: #eaf3de; color: #27500a; display: block !important; }
+  .msg-err { background: #fcebeb; color: #791f1f; display: block !important; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>घर कायम आवेदन फारम</h1>
+  <div class="sub">Ghar Kayam Application — Data Entry</div>
+
+  <form id="ghForm">
+
+    <fieldset>
+      <legend>जग्गा र जग्गाधनीको विवरण</legend>
+      <div class="grid grid-3">
+        <div class="field"><label>जग्गाधनीको नाम</label><input name="landowner_name"></div>
+        <div class="field"><label>सम्पर्क फोन</label><input name="contact_phone"></div>
+        <div class="field"><label>प्रतिनिधिको नाम</label><input name="representative_name"></div>
+        <div class="field">
+          <label>वडा नं.</label>
+          <select name="ward_no">
+            <option value="" disabled selected>वडा नं. छान्नुहोस्</option>
+            <option value="1">१</option><option value="2">२</option><option value="3">३</option>
+            <option value="4">४</option><option value="5">५</option><option value="6">६</option>
+            <option value="7">७</option><option value="8">८</option><option value="9">९</option>
+            <option value="10">१०</option><option value="11">११</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>साबिक गा.वि.स.</label>
+          <select name="old_vdc">
+            <option value="" disabled selected>साविक गाविस छान्नुहोस्</option>
+            <option value="दुदिलाभाटी">दुदिलाभाटी</option><option value="नरेठाँटी">नरेठाँटी</option>
+            <option value="हटिया">हटिया</option><option value="हरिचौँर">हरिचौँर</option>
+            <option value="मल्म">मल्म</option><option value="काँडेवास">काँडेवास</option>
+            <option value="पाण्डवखानी">पाण्डवखानी</option><option value="रिघा">रिघा</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>साबिक वडा नं.</label>
+          <select name="old_ward_no">
+            <option value="" disabled selected>वडा नं. छान्नुहोस्</option>
+            <option value="1">१</option><option value="2">२</option><option value="3">३</option>
+            <option value="4">४</option><option value="5">५</option><option value="6">६</option>
+            <option value="7">७</option><option value="8">८</option><option value="9">९</option>
+          </select>
+        </div>
+        <div class="field"><label>टोल / मार्ग</label><input name="tole_marga"></div>
+        <div class="field"><label>कित्ता नं.</label><input name="kitta_no"></div>
+        <div class="field"><label>क्षेत्रफल</label><input name="area"></div>
+        <div class="field"><label>दर्ता मिति</label><input name="registration_date" placeholder="YYYY-MM-DD"></div>
+      </div>
+      <div class="row-title">चार किल्ला</div>
+      <div class="grid grid-3">
+        <div class="field"><label>पूर्व</label><input name="east_boundary_name"></div>
+        <div class="field"><label>पश्चिम</label><input name="west_boundary_name"></div>
+        <div class="field"><label>उत्तर</label><input name="north_boundary_name"></div>
+        <div class="field"><label>दक्षिण</label><input name="south_boundary_name"></div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>घर विवरण</legend>
+      <div class="grid">
+        <div class="field"><label>घरको लम्बाई</label><input name="house_length"></div>
+        <div class="field"><label>घरको चौडाई</label><input name="house_width"></div>
+        <div class="field"><label>घरको उचाइ</label><input name="house_height"></div>
+        <div class="field"><label>घरको प्रकार</label><input name="house_type"></div>
+        <div class="field"><label>तला संख्या</label><input type="number" step="any" name="number_of_floors"></div>
+        <div class="field"><label>निर्माण सम्पन्न मिति</label><input name="construction_completion_date" placeholder="YYYY-MM-DD"></div>
+        <div class="field"><label>सम्पन्न वर्ष</label><input type="number" name="completion_year"></div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>सूचना / मुचुल्का</legend>
+      <div class="grid">
+        <div class="field"><label>७ दिने सूचना प्रकाशित मिति</label><input name="notice_7day_published_date" placeholder="YYYY-MM-DD"></div>
+        <div class="field"><label>सर्जमिन मुचुल्का</label><input name="sarjamin_muchulka"></div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>दर / मापदण्ड</legend>
+      <div class="grid">
+        <div class="field"><label>प्रति वर्ग फिट दर</label><input type="number" step="any" name="rate_per_sqft"></div>
+        <div class="field"><label>ग्राउन्ड कभरेज १</label><input type="number" step="any" name="ground_coverage_1"></div>
+        <div class="field"><label>रो १</label><input type="number" step="any" name="row_1"></div>
+        <div class="field"><label>सेटब्याक १</label><input type="number" step="any" name="setback_1"></div>
+        <div class="field"><label>बिजुली लाइन १</label><input type="number" step="any" name="electric_line_1"></div>
+        <div class="field"><label>नदी किनार १</label><input type="number" step="any" name="river_bank_1"></div>
+        <div class="field"><label>ग्राउन्ड कभरेज २</label><input type="number" step="any" name="ground_coverage_2"></div>
+        <div class="field"><label>रो २</label><input type="number" step="any" name="row_2"></div>
+        <div class="field"><label>सेटब्याक २</label><input type="number" step="any" name="setback_2"></div>
+        <div class="field"><label>बिजुली लाइन २</label><input type="number" step="any" name="electric_line_2"></div>
+        <div class="field"><label>नदी किनार २</label><input type="number" step="any" name="river_bank_2"></div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>तला विवरण (Floor-wise)</legend>
+      <div id="floors"></div>
+    </fieldset>
+
+    <fieldset>
+      <legend>बेसमेन्ट</legend>
+      <div class="grid">
+        <div class="field"><label>लम्बाई</label><input name="basement_length"></div>
+        <div class="field"><label>चौडाई</label><input name="basement_width"></div>
+        <div class="field"><label>उचाइ</label><input name="basement_height"></div>
+        <div class="field"><label>क्षेत्रफल</label><input type="number" step="any" name="basement_area"></div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>रकम विवरण</legend>
+      <div class="grid">
+        <div class="field"><label>जम्मा रकम</label><input type="number" step="any" name="total_amount"></div>
+        <div class="field"><label>छुट प्रतिशत</label><input type="number" step="any" name="discount_percent"></div>
+        <div class="field"><label>जरिवाना प्रतिशत</label><input type="number" step="any" name="penalty_percent"></div>
+        <div class="field" style="grid-column:1/-1"><label>रकम अक्षरमा</label><input name="amount_in_words"></div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>अन्य</legend>
+      <div class="grid">
+        <div class="field">
+          <label>स्थिति</label>
+          <select name="status">
+            <option value="">-- छान्नुहोस् --</option>
+            <option value="pending">विचाराधीन</option>
+            <option value="approved">स्वीकृत</option>
+            <option value="rejected">अस्वीकृत</option>
+          </select>
+        </div>
+        <div class="field" style="grid-column: span 3"><label>कैफियत</label><textarea name="remarks"></textarea></div>
+      </div>
+    </fieldset>
+
+    <button type="submit" id="submitBtn">आवेदन दर्ता गर्नुहोस्</button>
+    <div id="msg"></div>
+  </form>
+</div>
+
+<script>
+const SUPABASE_URL = "https://lyjokogftwtvnhwszqni.supabase.co";
+const SUPABASE_KEY = "sb_publishable_gxEL2-GVTVy8E0WxMBZHDQ_b5TzsDI9";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const floorNames = [
+  ["ground_floor", "ग्राउन्ड फ्लोर"],
+  ["first_floor", "पहिलो तला"],
+  ["second_floor", "दोस्रो तला"],
+  ["third_floor", "तेस्रो तला"],
+  ["fourth_floor", "चौथो तला"]
+];
+const floorsDiv = document.getElementById("floors");
+floorNames.forEach(([prefix, label]) => {
+  const wrap = document.createElement("div");
+  wrap.innerHTML = `
+    <div class="row-title">${label}</div>
+    <div class="grid" style="margin-bottom:10px;">
+      <div class="field"><label>लम्बाई</label><input name="${prefix}_length"></div>
+      <div class="field"><label>चौडाई</label><input name="${prefix}_width"></div>
+      <div class="field"><label>उचाइ</label><input name="${prefix}_height"></div>
+      <div class="field"><label>क्षेत्रफल</label><input type="number" step="any" name="${prefix}_area"></div>
+    </div>`;
+  floorsDiv.appendChild(wrap);
+});
+
+const form = document.getElementById("ghForm");
+const msg = document.getElementById("msg");
+const btn = document.getElementById("submitBtn");
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  msg.className = "";
+  msg.style.display = "none";
+  btn.disabled = true;
+  btn.textContent = "पेश गर्दै...";
+
+  const formData = new FormData(form);
+  const numericFields = new Set([
+    "ward_no","old_ward_no","rate_per_sqft","ground_coverage_1","row_1","setback_1",
+    "electric_line_1","river_bank_1","ground_coverage_2","row_2","setback_2",
+    "electric_line_2","river_bank_2","ground_floor_area","first_floor_area",
+    "second_floor_area","third_floor_area","fourth_floor_area","basement_area",
+    "total_amount","completion_year","discount_percent","penalty_percent","number_of_floors"
+  ]);
+
+  const payload = {};
+  for (const [key, value] of formData.entries()) {
+    if (value === "") continue;
+    payload[key] = numericFields.has(key) ? Number(value) : value;
+  }
+
+  try {
+    const { data, error } = await supabaseClient
+      .from("ghar_kayam_applications")
+      .insert([payload])
+      .select();
+
+    if (error) throw error;
+
+    msg.textContent = `आवेदन सफलतापूर्वक दर्ता भयो। दर्ता नं.: ${data[0].registration_no ?? "-"}`;
+    msg.className = "msg-ok";
+    form.reset();
+  } catch (err) {
+    msg.textContent = "त्रुटि: " + (err.message || "आवेदन दर्ता गर्न सकिएन।");
+    msg.className = "msg-err";
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "आवेदन दर्ता गर्नुहोस्";
+  }
+});
+</script>
+</body>
+</html>
