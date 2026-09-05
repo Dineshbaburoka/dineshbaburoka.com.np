@@ -722,168 +722,11 @@ body.dark .conv-tab.active { background: var(--brass); color: var(--ink); border
 }
 
 /* =========================================================
-   TESTIMONIALS
-   ========================================================= */
-.testimonial-section { padding: 60px 0; background: var(--paper-2); }
-.testi-slider { max-width: 760px; margin: 0 auto; position: relative; overflow: hidden; }
-.testi-track { display: flex; transition: transform 0.6s cubic-bezier(.4,0,.2,1); }
-.testi-card {
-  flex: 0 0 100%; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 40px; text-align: center; box-shadow: var(--shadow);
-}
-.testi-card p { font-family: var(--font-display); font-size: 1.2rem; line-height: 1.6; color: var(--ink-text); font-style: italic; }
-.testi-author { margin-top: 20px; }
-.testi-author strong { display: block; font-size: 0.95rem; }
-.testi-author span { color: var(--brass); font-family: var(--font-mono); font-size: 0.75rem; }
-.testi-dots { display: flex; justify-content: center; gap: 8px; margin-top: 22px; }
-.testi-dots .dot { background: var(--border); }
-.testi-dots .dot.active { background: var(--brass); transform: scale(1.3); }
-
-/* =========================================================
-   FAQ ACCORDION
-   ========================================================= */
-.faq-section { padding: 60px 0; }
-.faq-list { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
-.faq-item { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
-.faq-question {
-  width: 100%; text-align: left; background: none; border: none; padding: 20px 22px;
-  font-family: var(--font-body); font-weight: 700; font-size: 0.95rem; color: var(--ink-text);
-  display: flex; justify-content: space-between; align-items: center; cursor: pointer;
-}
-.faq-question i { color: var(--brass); transition: transform 0.3s ease; }
-.faq-item.open .faq-question i { transform: rotate(45deg); }
-.faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
-.faq-answer p { padding: 0 22px 20px; color: var(--muted); line-height: 1.6; font-size: 0.9rem; }
-
-/* =========================================================
-   BLOG / NEWS
-   ========================================================= */
-.blog-section { padding: 60px 0; }
-.blog-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-.blog-card {
-  display: flex; gap: 18px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 22px; box-shadow: var(--shadow); opacity: 0; transform: translateY(24px);
-}
-.blog-card.in-view { opacity: 1; transform: translateY(0); transition: var(--transition); }
-.blog-date {
-  flex-shrink: 0; width: 56px; height: 56px; background: var(--paper-2); border: 1px solid var(--border);
-  border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center;
-}
-.blog-date span { font-family: var(--font-display); font-weight: 700; font-size: 1.2rem; color: var(--brass); line-height: 1; }
-.blog-date small { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; }
-.blog-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 6px; font-family: var(--font-display); }
-.blog-card p { font-size: 0.85rem; color: var(--muted); line-height: 1.5; }
-
-/* =========================================================
-   TOAST NOTIFICATIONS
-   ========================================================= */
-.toast-container { position: fixed; top: 24px; right: 24px; z-index: 10010; display: flex; flex-direction: column; gap: 10px; }
-.toast {
-  background: var(--ink); color: var(--paper); padding: 14px 20px; border-radius: 8px; box-shadow: var(--shadow);
-  display: flex; align-items: center; gap: 10px; font-size: 0.88rem; min-width: 240px;
-  transform: translateX(120%); opacity: 0; transition: transform 0.4s cubic-bezier(.4,0,.2,1), opacity 0.4s;
-  border-left: 3px solid var(--brass);
-}
-.toast.show { transform: translateX(0); opacity: 1; }
-.toast i { color: var(--brass-bright); }
-
-/* =========================================================
-   COOKIE CONSENT BANNER
-   ========================================================= */
-.cookie-banner {
-  position: fixed; left: 24px; bottom: 24px; right: 24px; max-width: 460px;
-  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
-  box-shadow: var(--shadow); padding: 20px; z-index: 10001;
-  display: flex; flex-direction: column; gap: 14px;
-  transform: translateY(140%); transition: transform 0.5s cubic-bezier(.4,0,.2,1);
-}
-.cookie-banner.show { transform: translateY(0); }
-.cookie-banner p { font-size: 0.85rem; color: var(--muted); line-height: 1.5; }
-.cookie-actions { display: flex; gap: 10px; }
-.cookie-actions .btn { padding: 9px 16px; font-size: 0.8rem; flex: 1; }
-
-/* =========================================================
-   APPS SECTION
-   ========================================================= */
-.apps-section { padding: 60px 0; }
-.apps-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 24px;
-  margin-top: 30px;
-}
-.app-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 28px 24px;
-  box-shadow: var(--shadow);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 16px;
-  transition: var(--transition);
-  opacity: 0;
-  transform: translateY(30px);
-  position: relative;
-  overflow: hidden;
-}
-.app-card.in-view { opacity: 1; transform: translateY(0); transition: var(--transition); }
-.app-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(185,139,62,0.06) 0%, transparent 60%);
-  pointer-events: none;
-}
-.app-card:hover { border-color: var(--brass); transform: translateY(-4px); box-shadow: 0 16px 40px rgba(16,27,22,0.14); }
-.app-icon-wrap {
-  width: 72px; height: 72px;
-  background: linear-gradient(135deg, var(--ink) 0%, var(--contour) 100%);
-  border-radius: 18px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 2rem; color: var(--paper);
-  box-shadow: 0 8px 20px rgba(16,27,22,0.2);
-  flex-shrink: 0;
-}
-.app-card h3 { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: var(--ink-text); line-height: 1.3; }
-.app-card p { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
-.app-meta { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: center; }
-.app-meta span {
-  font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.5px;
-  color: var(--muted); background: var(--paper-2); border: 1px solid var(--border);
-  padding: 3px 10px; border-radius: 20px;
-}
-.app-download-btn {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: linear-gradient(135deg, var(--contour), var(--ink));
-  color: var(--paper); padding: 12px 24px; border-radius: 30px;
-  font-weight: 700; font-size: 0.88rem; text-decoration: none;
-  border: none; cursor: pointer; font-family: var(--font-body);
-  transition: var(--transition); box-shadow: 0 4px 14px rgba(76,122,88,0.35);
-  width: 100%;
-  justify-content: center;
-}
-.app-download-btn:hover { background: linear-gradient(135deg, var(--brass), var(--contour)); transform: scale(1.03); box-shadow: 0 6px 20px rgba(185,139,62,0.4); }
-.app-download-btn i { font-size: 1rem; }
-.app-badge {
-  position: absolute; top: 14px; right: 14px;
-  background: var(--brass); color: var(--ink);
-  font-family: var(--font-mono); font-size: 0.65rem; font-weight: 700;
-  padding: 3px 9px; border-radius: 20px; letter-spacing: 0.5px;
-  text-transform: uppercase;
-}
-.app-coming { opacity: 0.55; }
-.app-coming .app-download-btn { background: var(--paper-2); color: var(--muted); box-shadow: none; cursor: default; }
-.app-coming .app-badge { background: var(--muted); color: var(--paper); }
-
-/* =========================================================
    PRINT STYLES
    ========================================================= */
 @media print {
   .float-buttons, #backToTop, .crosshair, .crosshair-dot, .grain, #scrollProgress,
-  #preloader, .cookie-banner, .toast-container, .lightbox, .marquee-strip, header { display: none !important; }
+  #preloader, .lightbox, .marquee-strip, header { display: none !important; }
   body { background: #fff; color: #000; }
   .service-card, .contact-card, .timeline-card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; }
 }
@@ -997,17 +840,6 @@ body.dark .conv-tab.active { background: var(--brass); color: var(--ink); border
 .gw-choice strong { font-size: 1rem; font-weight: 700; }
 .gw-choice span { font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.06em; color: var(--muted); text-transform: uppercase; }
 
-/* It's Me panel */
-.gw-me { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px; padding: 10px 0 4px; }
-.gw-me img {
-  width: 84px; height: 84px; border-radius: 50%; object-fit: cover;
-  border: 3px solid var(--brass); box-shadow: var(--shadow);
-}
-.gw-me h4 { font-family: var(--font-display); font-size: 1.2rem; color: var(--ink-text); margin: 0; }
-.gw-me span { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.08em; color: var(--contour); text-transform: uppercase; }
-.gw-me p { color: var(--muted); font-size: 0.88rem; max-width: 420px; line-height: 1.6; margin: 0; }
-.gw-me .btn { margin-top: 6px; }
-
 .gw-back {
   display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
   background: none; border: none; color: var(--muted); font-family: var(--font-body);
@@ -1044,7 +876,6 @@ body.dark .conv-tab.active { background: var(--brass); color: var(--ink); border
 @media (max-width: 560px) {
   .gw-head { padding: 22px 18px 0; }
   .gw-body { padding: 18px 16px 22px; }
-  .gw-tabs { padding: 0 12px; }
 }
 </style>
 </head>
@@ -1182,16 +1013,15 @@ body.dark .conv-tab.active { background: var(--brass); color: var(--ink); border
     </div>
 
     <nav class="nav-links" id="navLinks" aria-label="Main Navigation">
+      <a href="d_research.html">Research Article</a>
       <a href="#home" class="active">गृहपृष्ठ</a>
       <a href="#services">सेवाहरू</a>
       <a href="#converter">क्यालकुलेटर</a>
       <a href="#gallery">ग्यालरी</a>
-      <a href="#faq">FAQ</a>
       <a href="#experience">अनुभव</a>
       <a href="#contact">सम्पर्क</a>
       <a href="gyankunja.html"><i class="fa-solid fa-book"></i> ज्ञानकुञ्ज</a>
       <a href="cv.html" download>CV</a>
-      <a href="#apps"><i class="fa-solid fa-mobile-screen-button"></i> Apps</a>
     </nav>
 
     <div class="menu-btn" id="menuBtn" role="button" aria-label="Toggle Navigation Menu">
@@ -1501,67 +1331,6 @@ body.dark .conv-tab.active { background: var(--brass); color: var(--ink); border
   <button class="lightbox-nav lightbox-next" id="lightboxNext" aria-label="Next"><i class="fa fa-chevron-right"></i></button>
 </div>
 
-<section class="testimonial-section" id="testimonials">
-  <div class="container">
-    <div class="section-title" data-reveal>
-      <span class="field-tag">TESTIMONIALS · प्रतिक्रिया</span>
-      <h2>नागरिकहरूको अनुभव</h2>
-    </div>
-    <div class="testi-slider" id="testiSlider">
-      <div class="testi-track" id="testiTrack">
-        <div class="testi-card">
-          <p>"दिनेश सरले हाम्रो जग्गा नापजाँच छिटो र सफा तरिकाले गरिदिनुभयो। कागजात प्रक्रिया पनि धेरै सजिलो भयो।"</p>
-          <div class="testi-author"><strong>राम बहादुर थापा</strong><span>स्थानीय बासिन्दा, गलकोट</span></div>
-        </div>
-        <div class="testi-card">
-          <p>"सम्पत्तिकर हिसाब गर्न ल्याप्चे लगाउनुपर्ने झन्झट हटेको छ। अनलाइन प्रणालीले धेरै समय बचायो।"</p>
-          <div class="testi-author"><strong>सीता गुरुङ</strong><span>घर धनी, बागलुङ</span></div>
-        </div>
-        <div class="testi-card">
-          <p>"नक्सा पास प्रक्रियाका बारे स्पष्ट जानकारी पाइयो। प्राविधिक सरको सहयोग धेरै राम्रो थियो।"</p>
-          <div class="testi-author"><strong>कृष्ण प्रसाद पौडेल</strong><span>घर निर्माणकर्ता</span></div>
-        </div>
-        <div class="testi-card">
-          <p>"जग्गा वर्गीकरण सम्बन्धी सिफारिस पत्र समयमै र सही तरिकाले तयार गरिदिनुभयो। धन्यवाद!"</p>
-          <div class="testi-author"><strong>गीता शर्मा</strong><span>व्यवसायी</span></div>
-        </div>
-      </div>
-      <div class="testi-dots" id="testiDots"></div>
-    </div>
-  </div>
-</section>
-
-<section class="faq-section" id="faq">
-  <div class="container">
-    <div class="section-title" data-reveal>
-      <span class="field-tag">FAQ · बारम्बार सोधिने प्रश्न</span>
-      <h2>जिज्ञासाहरू</h2>
-    </div>
-    <div class="faq-list" id="faqList">
-      <div class="faq-item">
-        <button class="faq-question">जग्गा नापजाँचका लागि कुन-कुन कागजात चाहिन्छ? <i class="fa fa-plus"></i></button>
-        <div class="faq-answer"><p>जग्गाधनी प्रमाण पूर्जा, नागरिकता प्रमाणपत्र, हालसालैको मालपोत तिरेको रसिद, र चालु आ.व.को नक्सा प्रतिलिपि आवश्यक पर्दछ। थप जानकारीका लागि नागरिक बडापत्र हेर्नुहोस्।</p></div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-question">क्षेत्रफल रूपान्तरण कति भरपर्दो छ? <i class="fa fa-plus"></i></button>
-        <div class="faq-answer"><p>माथिको क्यालकुलेटरले नेपाल सरकारले तोकेको आधिकारिक रूपान्तरण दरमा आधारित गणना गर्दछ, तर कानुनी प्रयोजनका लागि सधैं नापी कार्यालयबाट प्रमाणित कागजात लिनुहोस्।</p></div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-question">सम्पत्तिकर कहिले र कसरी बुझाउने? <i class="fa fa-plus"></i></button>
-        <div class="faq-answer"><p>नेपाली आर्थिक वर्ष अनुसार हरेक वर्ष श्रावण देखि आषाढसम्म सम्पत्तिकर बुझाउन सकिन्छ। नगरपालिकाको राजस्व शाखा वा अनलाइन प्रणाली मार्फत भुक्तानी गर्न सकिन्छ।</p></div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-question">नक्सा पास गर्न कति समय लाग्छ? <i class="fa fa-plus"></i></button>
-        <div class="faq-answer"><p>सामान्यतया पूर्ण कागजात बुझाएपछि प्राविधिक जाँच र स्वीकृतिका लागि ७-१५ कार्यदिन लाग्ने गर्दछ, तर जग्गाको प्रकृति अनुसार समय फरक हुन सक्छ।</p></div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-question">GIS म्यापिङ सेवा कसका लागि हो? <i class="fa fa-plus"></i></button>
-        <div class="faq-answer"><p>यो सेवा नगरपालिका, व्यक्तिगत जग्गाधनी, विकास आयोजना, र भूउपयोग योजना तयार गर्ने सबैका लागि उपयोगी छ।</p></div>
-      </div>
-    </div>
-  </div>
-</section>
-
 <section class="container" id="experience">
   <div class="section-title" data-reveal>
     <span class="field-tag">कार्य विवरण</span>
@@ -1628,111 +1397,6 @@ body.dark .conv-tab.active { background: var(--brass); color: var(--ink); border
     </div>
   </div>
 </section>
-
-<section class="blog-section" id="blog">
-  <div class="container">
-    <div class="section-title" data-reveal>
-      <span class="field-tag">NEWS · सूचना तथा जानकारी</span>
-      <h2>ताजा अपडेट</h2>
-    </div>
-    <div class="blog-grid">
-      <article class="blog-card" data-reveal>
-        <div class="blog-date"><span>१५</span><small>असार</small></div>
-        <div>
-          <h3>चालु आ.व.को सम्पत्तिकर बुझाउने अन्तिम मिति सार्वजनिक</h3>
-          <p>गलकोट नगरपालिकाले चालु आर्थिक वर्षको सम्पत्तिकर बुझाउने अन्तिम मिति सार्वजनिक गरेको छ। समयमै बुझाएमा छुट पाइनेछ।</p>
-        </div>
-      </article>
-      <article class="blog-card" data-reveal>
-        <div class="blog-date"><span>०२</span><small>असार</small></div>
-        <div>
-          <h3>डिजिटल नक्सा पास प्रणाली सञ्चालनमा</h3>
-          <p>अब नक्सा पासका लागि अनलाइन नै निवेदन दिन सकिने भएको छ, जसले प्रक्रिया छिटो र पारदर्शी बनाउनेछ।</p>
-        </div>
-      </article>
-      <article class="blog-card" data-reveal>
-        <div class="blog-date"><span>१८</span><small>जेठ</small></div>
-        <div>
-          <h3>जग्गा वर्गीकरण अद्यावधिक कार्यक्रम</h3>
-          <p>वडा नं. १ देखि ९ सम्मको जग्गा वर्गीकरण अद्यावधिक गर्ने कार्यक्रम शुरू भएको छ। सम्बन्धित वडाका बासिन्दालाई सूचित गरिन्छ।</p>
-        </div>
-      </article>
-    </div>
-  </div>
-</section>
-<!-- =========================================================
-     APPS SECTION
-     ========================================================= -->
-<section class="apps-section" id="apps">
-  <div class="container">
-    <div class="section-title" data-reveal>
-      <span class="field-tag">MOBILE APPS · डिजिटल उपकरण</span>
-      <h2>गलकोट नगरपालिका एप्स</h2>
-      <p class="section-sub">नगरपालिकाको डिजिटल सेवाहरू तपाईंको मोबाइलमा — Android एप्स डाउनलोड गर्नुहोस्।</p>
-    </div>
-
-    <div class="apps-grid">
-
-      <!-- App 1: कर्मचारी व्यवस्थापन — DOWNLOADABLE -->
-      <div class="app-card" data-reveal>
-        <div class="app-badge">नयाँ</div>
-        <div class="app-icon-wrap">
-          <i class="fa-solid fa-users-gear"></i>
-        </div>
-        <h3>गलकोट नगरपालिका कर्मचारी व्यवस्थापन</h3>
-        <p>नगरपालिकाका कर्मचारीहरूको विवरण, हाजिरी, पद र शाखा व्यवस्थापनका लागि आधिकारिक Android एप।</p>
-        <div class="app-meta">
-          <span><i class="fab fa-android"></i> Android</span>
-          <span>v1.0</span>
-          <span>गलकोट न.पा.</span>
-        </div>
-        <a class="app-download-btn" href="https://drive.google.com/uc?export=download&id=1ihb3UKHFBAzGJXu3ZkglWWbGvjDflNPq" target="_blank" rel="noopener noreferrer">
-          <i class="fa-solid fa-download"></i> APK डाउनलोड गर्नुहोस्
-        </a>
-      </div>
-
-      <!-- App 2: Coming Soon -->
-      <div class="app-card app-coming" data-reveal>
-        <div class="app-badge">छिटै</div>
-        <div class="app-icon-wrap" style="background: linear-gradient(135deg, var(--blueprint), var(--contour-soft));">
-          <i class="fa-solid fa-map-location-dot"></i>
-        </div>
-        <h3>जग्गा नापजाँच ट्र्याकर</h3>
-        <p>जग्गा नापजाँचको आवेदन अवस्था, नम्बर ट्र्याकिङ र नापी कार्यालयसँग सम्पर्कका लागि एप।</p>
-        <div class="app-meta">
-          <span><i class="fab fa-android"></i> Android</span>
-          <span>छिटै आउँदैछ</span>
-        </div>
-        <a class="app-download-btn">
-          <i class="fa-solid fa-clock"></i> छिटै उपलब्ध हुनेछ
-        </a>
-      </div>
-
-      <!-- App 3: Coming Soon -->
-      <div class="app-card app-coming" data-reveal>
-        <div class="app-badge">छिटै</div>
-        <div class="app-icon-wrap" style="background: linear-gradient(135deg, var(--blueprint), #2a5a7a);">
-          <i class="fa-solid fa-file-invoice-dollar"></i>
-        </div>
-        <h3>सम्पत्तिकर भुक्तानी</h3>
-        <p>घर तथा जग्गाको सम्पत्तिकर हिसाब, रसिद र अनलाइन भुक्तानीका लागि नगरपालिका एप।</p>
-        <div class="app-meta">
-          <span><i class="fab fa-android"></i> Android</span>
-          <span>छिटै आउँदैछ</span>
-        </div>
-        <a class="app-download-btn">
-          <i class="fa-solid fa-clock"></i> छिटै उपलब्ध हुनेछ
-        </a>
-      </div>
-
-    </div>
-
-    <p style="text-align:center; margin-top:24px; font-size:0.82rem; color:var(--muted); font-family:var(--font-mono);">
-      <i class="fa-solid fa-circle-info"></i> APK डाउनलोड गर्नुअघि Android सेटिङमा "Unknown sources" सक्षम गर्नुहोस्।
-    </p>
-  </div>
-</section>
-
 <footer>
   <div class="container footer-content">
     <div>
@@ -1748,16 +1412,6 @@ body.dark .conv-tab.active { background: var(--brass); color: var(--ink); border
     © 2026 Dinesh Babu Roka — सर्वाधिकार सुरक्षित
   </div>
 </footer>
-
-<div class="toast-container" id="toastContainer"></div>
-
-<div class="cookie-banner" id="cookieBanner">
-  <p><i class="fa-solid fa-cookie-bite"></i> यो वेबसाइटले तपाईंको अनुभव सुधार गर्न कुकीज प्रयोग गर्दछ।</p>
-  <div class="cookie-actions">
-    <button class="btn btn-outline" id="cookieDecline">अस्वीकार</button>
-    <button class="btn btn-primary" id="cookieAccept">स्वीकार गर्नुहोस्</button>
-  </div>
-</div>
 
 <button id="backToTop" title="Back to top" aria-label="Back to top"><i class="fa fa-arrow-up"></i></button>
 
@@ -1791,7 +1445,6 @@ gsap.to(pctObj, {
   },
   onComplete: hidePreloader
 });
-window.addEventListener('load', () => { hidePreloader(); });
 setTimeout(() => { hidePreloader(); }, 1800);
 
 function hidePreloader() {
@@ -2092,9 +1745,9 @@ window.addEventListener('scroll', () => {
 
 /* =========================================================
    SCROLL REVEAL — IntersectionObserver drives .in-view for
-   every [data-reveal] element plus gallery/converter/blog cards
+   every [data-reveal] element plus gallery/converter cards
    ========================================================= */
-const revealTargets = document.querySelectorAll('[data-reveal], .converter-card, .gallery-item, .blog-card, .app-card');
+const revealTargets = document.querySelectorAll('[data-reveal], .converter-card, .gallery-item');
 const revealObserver = new IntersectionObserver((entries) => {
   entries.forEach((entry, i) => {
     if(entry.isIntersecting) {
@@ -2169,6 +1822,49 @@ revealTargets.forEach(el => revealObserver.observe(el));
     if(e.key === 'Escape') closeLightbox();
     if(e.key === 'ArrowRight') nextSlide();
     if(e.key === 'ArrowLeft') prevSlide();
+  });
+})();
+
+/* =========================================================
+   LAND UNIT CONVERTER — Ropani-Aana-Paisa-Daam (hilly) and
+   Bigha-Kattha-Dhur (terai), based on the official standard:
+   1 Ropani = 5476 sq.ft | 1 Bigha = 72900 sq.ft
+   ========================================================= */
+(function(){
+  const SQFT_PER_SQM = 10.7639104167;
+  const HILLY = { ropani: 5476, aana: 342.25, paisa: 85.5625, daam: 21.390625 };
+  const TERAI = { bigha: 72900, kattha: 3645, dhur: 182.25 };
+
+  const convTabs = document.querySelectorAll('.conv-tab');
+  const convPanels = document.querySelectorAll('.converter-panel');
+  convTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      convTabs.forEach(t => t.classList.remove('active'));
+      convPanels.forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+    });
+  });
+
+  function fieldVal(id) { return parseFloat(document.getElementById(id).value) || 0; }
+  function fmt(n) { return n.toLocaleString('en-IN', { maximumFractionDigits: 2 }); }
+
+  const calcHillyBtn = document.getElementById('calcHilly');
+  if(calcHillyBtn) calcHillyBtn.addEventListener('click', () => {
+    const sqft = fieldVal('ropani') * HILLY.ropani + fieldVal('aana') * HILLY.aana +
+                 fieldVal('paisa') * HILLY.paisa + fieldVal('daam') * HILLY.daam;
+    document.getElementById('resSqFt').textContent = fmt(sqft);
+    document.getElementById('resSqM').textContent = fmt(sqft / SQFT_PER_SQM);
+    document.getElementById('resAana').textContent = fmt(sqft / HILLY.aana);
+  });
+
+  const calcTeraiBtn = document.getElementById('calcTerai');
+  if(calcTeraiBtn) calcTeraiBtn.addEventListener('click', () => {
+    const sqft = fieldVal('bigha') * TERAI.bigha + fieldVal('kattha') * TERAI.kattha +
+                 fieldVal('dhur') * TERAI.dhur;
+    document.getElementById('resSqFtT').textContent = fmt(sqft);
+    document.getElementById('resSqMT').textContent = fmt(sqft / SQFT_PER_SQM);
+    document.getElementById('resBigha').textContent = fmt(sqft / TERAI.bigha);
   });
 })();
 
