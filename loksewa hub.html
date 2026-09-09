@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loksewa Hub - Live Quiz</title>
+
+    <!-- TAILWIND CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#04060f',
+                            panel: '#0a0f24',
+                            input: '#02040a',
+                            neonCyan: '#06b6d4',
+                            neonPurple: '#a855f7',
+                            neonGreen: '#10b981',
+                            gold: '#ffbc00'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- SUPABASE (used to load the question bank for the host) -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2.39.8/dist/umd/supabase.js"></script>
+
+    <!-- NEPALI DEVANAGARI FONT -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        body, textarea, input, select, button {
+            font-family: 'Noto Sans Devanagari', 'Mukta', system-ui, sans-serif;
+        }
+        .bg-studio-overlay {
+            background-image: linear-gradient(to bottom, rgba(4, 6, 15, 0.88), rgba(10, 15, 36, 0.96)), url('https://images.unsplash.com/photo-1506880018603-83d5b814b5a6?q=45&w=800');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+    </style>
+</head>
+<body class="bg-brand-dark bg-studio-overlay min-h-screen text-slate-200 font-sans antialiased selection:bg-cyan-500 selection:text-black">
+
+<!-- GLOBAL NEON BACKGROUND DECORATIONS -->
+<div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -left-40 w-96 h-96 bg-cyan-500/10 rounded-full blur-[120px]"></div>
+    <div class="absolute top-1/2 left-1/3 w-80 h-80 bg-purple-500/5 rounded-full blur-[100px]"></div>
+    <div class="absolute -bottom-40 -right-40 w-96 h-96 bg-emerald-500/10 rounded-full blur-[120px]"></div>
+</div>
+
+<!-- ==================================================================== -->
+<!-- LIVE QUIZ MODULE (only feature kept)                                 -->
+<!-- ==================================================================== -->
+<div id="quiz-live-overlay" class="relative z-10 min-h-screen">
+    <div class="max-w-2xl mx-auto p-4 sm:p-8 min-h-screen flex flex-col justify-center">
+
+        <div class="flex items-center justify-center gap-3 border-b border-slate-800 pb-4 mb-6">
+            <span class="h-3 w-3 rounded-full bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,1)] animate-pulse"></span>
+            <h2 class="text-xl font-black tracking-tight bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">LIVE QUIZ ARENA</h2>
+        </div>
+
+        <!-- ROLE SELECT -->
+        <div id="qz-view-role" class="bg-brand-panel/70 border border-slate-800 p-6 rounded-3xl space-y-4">
+            <h3 class="text-sm font-black text-cyan-400 uppercase tracking-wider">तपाईं को हुनुहुन्छ?</h3>
+            <p class="text-xs text-slate-400">होस्टले प्रश्न बैंकबाट क्विज बनाएर स्टार्ट गर्नुहुन्छ। खेलाडीले कोड हालेर सामेल हुनुहुन्छ।</p>
+            <div class="flex gap-3 pt-2">
+                <button onclick="qzGoHost()" class="flex-1 bg-gradient-to-r from-cyan-600 to-purple-600 text-white py-3 rounded-xl font-black text-xs uppercase tracking-wider">म होस्ट हुँ</button>
+                <button onclick="qzGoJoin()" class="flex-1 bg-slate-800 border border-slate-700 text-slate-200 py-3 rounded-xl font-black text-xs uppercase tracking-wider">म खेलाडी हुँ</button>
+            </div>
+        </div>
+
+        <!-- HOST: CREATE SESSION FROM QUESTION BANK -->
+        <div id="qz-view-host-create" class="hidden bg-brand-panel/70 border border-slate-800 p-6 rounded-3xl space-y-4">
+            <h3 class="text-sm font-black text-cyan-400 uppercase tracking-wider">नयाँ क्विज सत्र बनाउनुहोस्</h3>
+            <div>
+                <label class="block text-[11px] font-bold text-slate-400 mb-1 uppercase tracking-wider">क्विजको नाम</label>
+                <input type="text" id="qzTitle" placeholder="जस्तै: लोकसेवा साप्ताहिक क्विज" class="w-full p-3 bg-brand-input border border-slate-800 rounded-xl text-white text-sm outline-none focus:border-cyan-500">
+            </div>
+            <div>
+                <label class="block text-[11px] font-bold text-slate-400 mb-1 uppercase tracking-wider">प्रश्न बैंकबाट विषय छान्नुहोस्</label>
+                <select id="qzCategory" onchange="qzRefreshBankCount()" class="w-full p-3 bg-brand-input border border-slate-800 rounded-xl text-cyan-300 text-sm outline-none focus:border-cyan-500 font-bold">
+                    <option value="ALL">📂 सबै विषय</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-[11px] font-bold text-slate-400 mb-1 uppercase tracking-wider">कतिवटा प्रश्न चलाउने? (उपलब्ध: <span id="qzAvailCount">0</span>)</label>
+                <input type="number" id="qzCount" min="1" value="5" class="w-full p-3 bg-brand-input border border-slate-800 rounded-xl text-white text-sm outline-none focus:border-cyan-500">
+            </div>
+            <div>
+                <label class="block text-[11px] font-bold text-slate-400 mb-1 uppercase tracking-wider">प्रत्येक प्रश्नको समय (सेकेन्ड)</label>
+                <input type="number" id="qzDuration" min="5" max="60" value="10" class="w-full p-3 bg-brand-input border border-slate-800 rounded-xl text-white text-sm outline-none focus:border-cyan-500">
+            </div>
+            <button onclick="qzCreateSession()" class="w-full bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 text-white py-3.5 rounded-xl font-black text-xs uppercase tracking-wider">⚡ सत्र सिर्जना गरी लबीमा जानुहोस्</button>
+            <p id="qzCreateError" class="text-[11px] text-red-400"></p>
+            <button onclick="qzShowRole()" class="text-[11px] text-slate-500 hover:text-slate-300">← फिर्ता</button>
+        </div>
+
+        <!-- HOST: LOBBY -->
+        <div id="qz-view-host-lobby" class="hidden bg-brand-panel/70 border border-slate-800 p-6 rounded-3xl space-y-4">
+            <h3 id="qzLobbyTitle" class="text-sm font-black text-cyan-400 uppercase tracking-wider"></h3>
+            <p class="text-xs text-slate-400">यो कोड र लिंक खेलाडीहरूलाई पठाउनुहोस्:</p>
+            <div class="text-center">
+                <span id="qzGameCode" class="inline-block bg-slate-950 border border-emerald-500/30 text-emerald-400 font-black text-2xl tracking-[0.3em] px-6 py-2 rounded-xl">----</span>
+            </div>
+            <div class="flex items-center gap-2 bg-slate-950 border border-dashed border-slate-700 rounded-xl px-3 py-2.5">
+                <span id="qzJoinLink" class="text-[11px] text-slate-400 flex-1 break-all font-mono"></span>
+                <button onclick="qzCopyLink()" class="text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-200 px-2.5 py-1.5 rounded-lg font-bold">कपी</button>
+            </div>
+            <div>
+                <h4 class="text-[11px] font-black text-purple-400 uppercase tracking-wider mb-2">सामेल भएका खेलाडीहरू (<span id="qzPlayerCount">0</span>)</h4>
+                <div id="qzPlayerChips" class="flex flex-wrap gap-2 text-xs text-slate-500">कोही आइसकेको छैन...</div>
+            </div>
+            <button onclick="qzStartGame()" class="w-full bg-gradient-to-r from-emerald-600 to-cyan-600 text-white py-3.5 rounded-xl font-black text-xs uppercase tracking-wider">🎮 खेल स्टार्ट गर्नुहोस्</button>
+        </div>
+
+        <!-- HOST: LIVE QUESTION -->
+        <div id="qz-view-host-question" class="hidden bg-brand-panel/70 border border-slate-800 p-6 rounded-3xl space-y-3 text-center">
+            <p class="text-[11px] text-slate-500 font-mono">प्रश्न <span id="qzHQNum"></span> / <span id="qzHQTotal"></span></p>
+            <div id="qzHTimer" class="text-5xl font-black text-brand-gold font-mono">10</div>
+            <div id="qzHQText" class="text-lg font-black text-white leading-relaxed px-2"></div>
+            <p class="text-xs text-slate-400 font-mono"><span class="inline-block h-2 w-2 rounded-full bg-emerald-500 animate-pulse mr-1"></span><span id="qzHAnsweredCount">0</span> जनाले उत्तर दिइसक्नुभयो</p>
+        </div>
+
+        <!-- HOST: DASHBOARD -->
+        <div id="qz-view-host-dash" class="hidden bg-brand-panel/70 border border-slate-800 p-6 rounded-3xl space-y-3">
+            <h3 class="text-sm font-black text-cyan-400 uppercase tracking-wider">ड्यासबोर्ड</h3>
+            <p id="qzDashSub" class="text-xs text-slate-400"></p>
+            <div id="qzDashChart" class="space-y-1.5 py-1"></div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-xs font-mono">
+                    <thead><tr class="text-slate-500 text-left"><th class="py-1.5">क्रम</th><th>नाम</th><th>सही</th><th>गलत</th><th>अंक</th></tr></thead>
+                    <tbody id="qzDashTable"></tbody>
+                </table>
+            </div>
+            <div id="qzDashNextBtnWrap" class="pt-2"></div>
+        </div>
+
+        <!-- JOIN: ENTER CODE -->
+        <div id="qz-view-join-code" class="hidden bg-brand-panel/70 border border-slate-800 p-6 rounded-3xl space-y-4">
+            <h3 class="text-sm font-black text-cyan-400 uppercase tracking-wider">क्विजमा सामेल हुनुहोस्</h3>
+            <div>
+                <label class="block text-[11px] font-bold text-slate-400 mb-1 uppercase tracking-wider">गेम कोड</label>
+                <input type="text" id="qzJoinCode" placeholder="जस्तै: 4821" maxlength="6" class="w-full p-3 bg-brand-input border border-slate-800 rounded-xl text-white text-sm outline-none focus:border-cyan-500">
+            </div>
+            <div>
+                <label class="block text-[11px] font-bold text-slate-400 mb-1 uppercase tracking-wider">तपाईंको नाम</label>
+                <input type="text" id="qzJoinName" placeholder="तपाईंको नाम लेख्नुहोस्" class="w-full p-3 bg-brand-input border border-slate-800 rounded-xl text-white text-sm outline-none focus:border-cyan-500">
+            </div>
+            <button onclick="qzJoinSession()" class="w-full bg-gradient-to-r from-cyan-600 to-purple-600 text-white py-3.5 rounded-xl font-black text-xs uppercase tracking-wider">सामेल हुनुहोस्</button>
+            <p id="qzJoinError" class="text-[11px] text-red-400"></p>
+            <button onclick="qzShowRole()" class="text-[11px] text-slate-500 hover:text-slate-300">← फिर्ता</button>
+        </div>
+
+        <!-- PLAYER: WAITING -->
+        <div id="qz-view-player-wait" class="hidden bg-brand-panel/70 border border-slate-800 p-6 rounded-3xl space-y-3 text-center">
+            <h3 class="text-base font-black text-emerald-400">तपाईं भित्र हुनुहुन्छ! 🎉</h3>
+            <p class="text-xs text-slate-400"><span class="inline-block h-2 w-2 rounded-full bg-emerald-500 animate-pulse mr-1"></span>होस्टले खेल स्टार्ट गर्ने पर्खाइमा...</p>
+            <p class="text-sm text-slate-300">नाम: <strong id="qzPName" class="text-cyan-400"></strong></p>
+        </div>
+
+        <!-- PLAYER: QUESTION -->
+        <div id="qz-view-player-question" class="hidden bg-brand-panel/70 border border-slate-800 p-6 rounded-3xl space-y-3 text-center">
+            <p class="text-[11px] text-slate-500 font-mono">प्रश्न <span id="qzPQNum"></span> / <span id="qzPQTotal"></span></p>
+            <div id="qzPTimer" class="text-5xl font-black text-brand-gold font-mono">10</div>
+            <div id="qzPQText" class="text-lg font-black text-white leading-relaxed px-1"></div>
+            <div id="qzPChoices" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2"></div>
+            <p id="qzPAnswerStatus" class="text-xs text-slate-400 font-mono"></p>
+        </div>
+
+        <!-- PLAYER: WAITING FOR NEXT QUESTION (no per-question reveal) -->
+        <div id="qz-view-player-result" class="hidden bg-brand-panel/70 border border-slate-800 p-6 rounded-3xl space-y-3 text-center">
+            <div class="text-4xl">⏳</div>
+            <p class="text-sm text-slate-300">उत्तर सुरक्षित भयो। अर्को प्रश्नको पर्खाइमा...</p>
+            <p class="text-[11px] text-slate-500">सबै प्रश्नको नतिजा र अंक खेल सकिएपछि एकैचोटि देखिनेछ।</p>
+        </div>
+
+        <!-- PLAYER: FINAL (full question-by-question breakdown + total score) -->
+        <div id="qz-view-player-final" class="hidden bg-brand-panel/70 border border-slate-800 p-6 rounded-3xl space-y-4">
+            <h3 class="text-base font-black text-emerald-400 text-center">खेल सकियो! 🏁</h3>
+            <p class="text-sm text-center">तपाईंको जम्मा अंक: <strong id="qzPFinalScore" class="text-cyan-400 text-xl"></strong></p>
+
+            <div>
+                <h4 class="text-[11px] font-black text-purple-400 uppercase tracking-wider mb-2">प्रश्न अनुसार नतिजा</h4>
+                <div id="qzPFinalBreakdown" class="space-y-2 max-h-[260px] overflow-y-auto pr-1"></div>
+            </div>
+
+            <div>
+                <h4 class="text-[11px] font-black text-purple-400 uppercase tracking-wider mb-2">लिडरबोर्ड</h4>
+                <table class="w-full text-xs font-mono">
+                    <tbody id="qzPFinalTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<footer class="relative z-10 border-t border-slate-900 mt-4 pt-4 pb-4 text-center text-[10px] font-mono text-slate-600">
+    Loksewa Hub Live Quiz Engine • Verified 100% Client-Side Vectors Asset Layer.
+</footer>
+
+<!-- ==================================================================== -->
+<!-- DATA LAYER: SUPABASE CONNECTION + QUESTION BANK LOADER               -->
+<!-- ==================================================================== -->
+<script>
+    const DATABASE_ENDPOINT_URL = 'https://mqnbkhhigbjonjoomtue.supabase.co';
+    const DATABASE_ANON_PUBLIC_KEY = 'sb_publishable_RkL4SAfe63UYXvtYNLjSXw_QAXwk-lc';
+
+    let supabaseClusterInstance = null;
+
+    // Backs the live-quiz feature's window.storage.* calls with the qz_kv Supabase table,
+    // so the app works standalone (outside claude.ai, where window.storage isn't injected).
+    // Table: qz_kv(key text primary key, value text, updated_at timestamptz)
+    function initSupabaseBackedWindowStorage() {
+        if (window.storage) return; // already present (e.g. running inside a claude.ai artifact)
+        window.storage = {
+            async get(key /*, shared */) {
+                const { data, error } = await supabaseClusterInstance
+                    .from('qz_kv')
+                    .select('key, value')
+                    .eq('key', key)
+                    .maybeSingle();
+                if (error) { console.error('qz_kv get error:', error); return null; }
+                if (!data) return null;
+                return { key: data.key, value: data.value, shared: true };
+            },
+            async set(key, value /*, shared */) {
+                const { error } = await supabaseClusterInstance
+                    .from('qz_kv')
+                    .upsert({ key, value, updated_at: new Date().toISOString() }, { onConflict: 'key' });
+                if (error) { console.error('qz_kv set error:', error); return null; }
+                return { key, value, shared: true };
+            },
+            async delete(key /*, shared */) {
+                const { error } = await supabaseClusterInstance
+                    .from('qz_kv')
+                    .delete()
+                    .eq('key', key);
+                if (error) { console.error('qz_kv delete error:', error); return null; }
+                return { key, deleted: true, shared: true };
+            },
+            async list(prefix /*, shared */) {
+                let query = supabaseClusterInstance.from('qz_kv').select('key');
+                if (prefix) query = query.like('key', prefix + '%');
+                const { data, error } = await query;
+                if (error) { console.error('qz_kv list error:', error); return null; }
+                return { keys: (data || []).map(r => r.key), prefix, shared: true };
+            }
+        };
+    }
+
+    // Loads the question bank (gk_quiz table) into window.localMemoryQuestionCollection
+    // so the Live Quiz host can build a session from it.
+    async function pullQuestionCollectionRecordsFromCloud() {
+        if (!supabaseClusterInstance) return;
+        const { data, error } = await supabaseClusterInstance
+            .from('gk_quiz')
+            .select('*')
+            .order('id', { ascending: false });
+        if (error) {
+            console.error("Question bank load failed:", error);
+            return;
+        }
+        window.localMemoryQuestionCollection = data || [];
+    }
+
+    (function initSystemBootstrapGatewayEngine() {
+        try {
+            if (window.supabase) {
+                supabaseClusterInstance = window.supabase.createClient(DATABASE_ENDPOINT_URL, DATABASE_ANON_PUBLIC_KEY);
+                initSupabaseBackedWindowStorage();
+                pullQuestionCollectionRecordsFromCloud();
+            } else {
+                throw new Error("Supabase SDK missing.");
+            }
+        } catch (bootstrapInitializationError) {
+            console.error("System Boot Failure:", bootstrapInitializationError);
+        }
+    })();
+</script>
+
+<!-- ==================================================================== -->
+<!-- LIVE QUIZ MODULE SCRIPT: REAL-TIME SESSION ENGINE (window.storage)   -->
+<!-- ==================================================================== -->
+<script>
+(function(){
+    const QZ_PREFIX = 'quizlive:';
+    let qzRole = null;          // 'host' | 'player'
+    let qzSession = null;       // active session object
+    let qzGameCode = null;
+    let qzMyName = null;
+    let qzPollTimer = null;
+    let qzTimerInterval = null;
+    let qzHasAnswered = false;
+    let qzAutoNextTimer = null;
+    let qzAutoNextCountdown = null;
+    const QZ_AUTO_NEXT_SECONDS = 5;
+    let qzPollInFlight = false; // guards against a slow 3G response causing overlapping polls
+    let qzResumePollFn = null;  // restarts whichever poll loop was active, after the tab is unhidden
+
+    // Pause polling while the tab is backgrounded/minimized — saves data on metered/3G connections.
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            clearInterval(qzPollTimer);
+        } else if (qzResumePollFn) {
+            qzResumePollFn();
+        }
+    });
+
+    // Wraps a storage call with a timeout so a stalled request on a slow network
+    // doesn't hang forever and block the next poll cycle.
+    function qzWithTimeout(promise, ms = 5000) {
+        return Promise.race([
+            promise,
+            new Promise((_, reject) => setTimeout(() => reject(new Error('qz-timeout')), ms))
+        ]);
+    }
+
+    function qzShow(id){
+        ['qz-view-role','qz-view-host-create','qz-view-host-lobby','qz-view-host-question','qz-view-host-dash',
+         'qz-view-join-code','qz-view-player-wait','qz-view-player-question','qz-view-player-result','qz-view-player-final']
+            .forEach(x=>document.getElementById(x).classList.add('hidden'));
+        document.getElementById(id).classList.remove('hidden');
+    }
+
+    function qzEscape(s){
+        return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    window.qzShowRole = function(){ clearInterval(qzPollTimer); qzResumePollFn = null; qzShow('qz-view-role'); };
+
+    // ---------- HOST: CREATE FROM BANK ----------
+    window.qzGoHost = function(){
+        clearInterval(qzPollTimer); qzResumePollFn = null;
+        qzRole = 'host';
+        const sel = document.getElementById('qzCategory');
+        sel.innerHTML = '<option value="ALL">📂 सबै विषय</option>';
+        const cats = new Set();
+        (window.localMemoryQuestionCollection||[]).forEach(r=>{ if(r.category) cats.add(r.category); });
+        cats.forEach(c=>{
+            const o = document.createElement('option'); o.value = c; o.textContent = '📂 ' + c;
+            sel.appendChild(o);
+        });
+        qzShow('qz-view-host-create');
+        qzRefreshBankCount();
+    };
+
+    window.qzRefreshBankCount = function(){
+        const cat = document.getElementById('qzCategory').value;
+        const bank = window.localMemoryQuestionCollection||[];
+        const n = bank.filter(r=> cat==='ALL' || r.category===cat).length;
+        document.getElementById('qzAvailCount').textContent = n;
+    };
+
+    function qzOptionLetterToIndex(letter){
+        return {a:0,b:1,c:2,d:3}[String(letter||'a').toLowerCase()] ?? 0;
+    }
+
+    // True unbiased shuffle (Fisher-Yates) so a fresh, differently-ordered set of
+    // questions comes out every time a session is created — the old sort-based
+    // shuffle was biased and could favor the same few questions repeatedly.
+    function qzShuffleArray(arr){
+        const a = [...arr];
+        for(let i=a.length-1; i>0; i--){
+            const j = Math.floor(Math.random()*(i+1));
+            [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+    }
+
+    window.qzCreateSession = async function(){
+        const errEl = document.getElementById('qzCreateError');
+        errEl.textContent = '';
+        const title = document.getElementById('qzTitle').value.trim() || 'लाइभ क्विज';
+        const cat = document.getElementById('qzCategory').value;
+        const count = parseInt(document.getElementById('qzCount').value, 10) || 5;
+        const duration = parseInt(document.getElementById('qzDuration').value, 10) || 10;
+
+        const bank = (window.localMemoryQuestionCollection||[]).filter(r=> cat==='ALL' || r.category===cat);
+        if(bank.length === 0){ errEl.textContent = 'यो विषयमा प्रश्न बैंकमा कुनै रेकर्ड फेला परेन।'; return; }
+
+        const shuffled = qzShuffleArray(bank).slice(0, Math.min(count, bank.length));
+        const questions = shuffled.map(r=>({
+            q: r.question,
+            options: [r.a, r.b, r.c, r.d],
+            correct: qzOptionLetterToIndex(r.answer)
+        }));
+
+        const code = String(Math.floor(1000 + Math.random()*9000));
+        qzSession = {
+            code, title, duration,
+            questions,
+            status: 'lobby',
+            currentIndex: -1,
+            questionStartedAt: null,
+            createdAt: Date.now()
+        };
+        qzGameCode = code;
+        await qzSaveSession();
+        await window.storage.set(QZ_PREFIX+'players:'+code, JSON.stringify([]), true);
+
+        document.getElementById('qzLobbyTitle').textContent = title;
+        document.getElementById('qzGameCode').textContent = code;
+        document.getElementById('qzJoinLink').textContent = location.href.split('?')[0] + '?quizgame=' + code;
+        qzShow('qz-view-host-lobby');
+        qzPollLobby();
+    };
+
+    async function qzSaveSession(){
+        await window.storage.set(QZ_PREFIX+'session:'+qzSession.code, JSON.stringify(qzSession), true);
+    }
+
+    window.qzCopyLink = function(){
+        const link = document.getElementById('qzJoinLink').textContent;
+        navigator.clipboard.writeText(link).then(()=>alert('लिंक कपी भयो!'));
+    };
+
+    async function qzLobbyTick(){
+        if(qzPollInFlight) return; // previous request (slow network) still pending — skip this tick
+        qzPollInFlight = true;
+        try{
+            const res = await qzWithTimeout(window.storage.get(QZ_PREFIX+'players:'+qzSession.code, true));
+            const players = res ? JSON.parse(res.value) : [];
+            document.getElementById('qzPlayerCount').textContent = players.length;
+            const wrap = document.getElementById('qzPlayerChips');
+            wrap.innerHTML = players.length
+                ? players.map(p=>`<span class="bg-slate-800 border border-emerald-500/30 text-emerald-300 px-2.5 py-1 rounded-full font-bold">${qzEscape(p.name)}</span>`).join('')
+                : 'कोही आइसकेको छैन...';
+        }catch(e){}
+        finally{ qzPollInFlight = false; }
+    }
+    function qzPollLobby(){
+        clearInterval(qzPollTimer);
+        qzResumePollFn = qzPollLobby;
+        qzLobbyTick(); // fire immediately instead of waiting for the first interval tick
+        qzPollTimer = setInterval(qzLobbyTick, 1200);
+    }
+
+    // ---------- HOST: RUN GAME ----------
+    window.qzStartGame = async function(){
+        clearInterval(qzPollTimer);
+        qzSession.status = 'question';
+        qzSession.currentIndex = 0;
+        qzSession.questionStartedAt = Date.now();
+        await qzSaveSession();
+        await window.storage.set(QZ_PREFIX+'answers:'+qzSession.code+':0', JSON.stringify({}), true);
+        qzRunHostQuestionView();
+    };
+
+    function qzRunHostQuestionView(){
+        qzShow('qz-view-host-question');
+        const q = qzSession.questions[qzSession.currentIndex];
+        document.getElementById('qzHQNum').textContent = qzSession.currentIndex+1;
+        document.getElementById('qzHQTotal').textContent = qzSession.questions.length;
+        document.getElementById('qzHQText').textContent = q.q;
+        clearInterval(qzTimerInterval); clearInterval(qzPollTimer);
+        qzResumePollFn = qzRunHostQuestionView;
+
+        qzTimerInterval = setInterval(()=>{
+            const elapsed = (Date.now() - qzSession.questionStartedAt)/1000;
+            const remain = Math.max(0, Math.ceil(qzSession.duration - elapsed));
+            document.getElementById('qzHTimer').textContent = remain;
+            if(remain<=0){ clearInterval(qzTimerInterval); qzFinishQuestionAsHost(); }
+        }, 250);
+
+        const hostAnswerTick = async ()=>{
+            if(qzPollInFlight) return;
+            qzPollInFlight = true;
+            try{
+                const res = await qzWithTimeout(window.storage.get(QZ_PREFIX+'answers:'+qzSession.code+':'+qzSession.currentIndex, true));
+                const answers = res ? JSON.parse(res.value) : {};
+                document.getElementById('qzHAnsweredCount').textContent = Object.keys(answers).length;
+            }catch(e){}
+            finally{ qzPollInFlight = false; }
+        };
+        hostAnswerTick(); // fire immediately for a snappier first update
+        qzPollTimer = setInterval(hostAnswerTick, 900);
+    }
+
+    async function qzFinishQuestionAsHost(){
+        clearInterval(qzPollTimer);
+        qzSession.status = 'reveal';
+        await qzSaveSession();
+        await qzShowHostDashboard();
+    }
+
+    // Renders a vertical bar chart (axis + arrowheads + gridlines) like a classic stats chart.
+    // rows: [{name, score, ...}], maxScore: highest score among rows (for axis scaling).
+    const QZ_CHART_COLORS = [
+        ['#60a5fa', '#2563eb'], // blue
+        ['#1e3a8a', '#1e293b'], // navy
+        ['#be185d', '#831843'], // magenta
+        ['#059669', '#022c22'], // green
+        ['#c2703d', '#7c2d12'], // copper
+        ['#7c3aed', '#4c1d95'], // purple
+    ];
+    function qzRenderBarChart(rows, maxScore) {
+        if (!rows.length) return '<p class="text-[11px] text-slate-600 py-2">कुनै खेलाडी छैन</p>';
+
+        const W = 560, H = 220;
+        const padL = 40, padR = 16, padT = 14, padB = 30;
+        const chartW = W - padL - padR, chartH = H - padT - padB;
+
+        // round axis top up to a "nice" number above maxScore
+        const niceMax = Math.max(4, Math.ceil(maxScore / 4) * 4 || 4);
+        const steps = 4;
+        const gridLines = Array.from({length: steps + 1}, (_, i) => Math.round(niceMax * i / steps));
+
+        const barGap = 14;
+        const barW = Math.min(56, (chartW - barGap * (rows.length - 1)) / rows.length);
+        const usedW = barW * rows.length + barGap * (rows.length - 1);
+        const startX = padL + (chartW - usedW) / 2;
+
+        const gridSvg = gridLines.map(v => {
+            const y = padT + chartH - (v / niceMax) * chartH;
+            return `
+                <line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="#334155" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/>
+                <text x="${padL - 8}" y="${y + 4}" text-anchor="end" font-size="11" fill="#94a3b8" font-family="monospace">${v}</text>`;
+        }).join('');
+
+        const barsSvg = rows.map((r, i) => {
+            const x = startX + i * (barW + barGap);
+            const h = niceMax > 0 ? (r.score / niceMax) * chartH : 0;
+            const y = padT + chartH - h;
+            const [c1, c2] = QZ_CHART_COLORS[i % QZ_CHART_COLORS.length];
+            const gid = `qzBarGrad${i}`;
+            return `
+                <defs>
+                    <linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="${c1}"/>
+                        <stop offset="100%" stop-color="${c2}"/>
+                    </linearGradient>
+                </defs>
+                <text x="${x + barW/2}" y="${y - 6}" text-anchor="middle" font-size="11" font-weight="900" fill="#e2e8f0" font-family="monospace">${r.score}</text>
+                <rect x="${x}" y="${y}" width="${barW}" height="${Math.max(0,h)}" rx="3" fill="url(#${gid})"/>
+                <text x="${x + barW/2}" y="${padT + chartH + 16}" text-anchor="middle" font-size="10" fill="#cbd5e1" font-family="monospace">${qzEscape(qzTruncateName(r.name, 8))}</text>`;
+        }).join('');
+
+        return `
+            <svg viewBox="0 0 ${W} ${H}" class="w-full h-auto" preserveAspectRatio="xMidYMid meet">
+                ${gridSvg}
+                ${barsSvg}
+                <line x1="${padL}" y1="${padT - 6}" x2="${padL}" y2="${padT + chartH}" stroke="#94a3b8" stroke-width="2"/>
+                <polygon points="${padL-4},${padT-6} ${padL+4},${padT-6} ${padL},${padT-14}" fill="#94a3b8"/>
+                <line x1="${padL}" y1="${padT + chartH}" x2="${W - padR + 6}" y2="${padT + chartH}" stroke="#94a3b8" stroke-width="2"/>
+                <polygon points="${W-padR+6},${padT+chartH-4} ${W-padR+6},${padT+chartH+4} ${W-padR+14},${padT+chartH}" fill="#94a3b8"/>
+            </svg>`;
+    }
+    function qzTruncateName(name, max) {
+        return name.length > max ? name.slice(0, max - 1) + '…' : name;
+    }
+
+    async function qzShowHostDashboard(){
+        qzShow('qz-view-host-dash');
+        const isLast = qzSession.currentIndex === qzSession.questions.length - 1;
+        document.getElementById('qzDashSub').textContent = isLast ? 'अन्तिम नतिजा' : `प्रश्न ${qzSession.currentIndex+1} पछिको स्कोर`;
+
+        const playersRes = await window.storage.get(QZ_PREFIX+'players:'+qzSession.code, true);
+        const players = playersRes ? JSON.parse(playersRes.value) : [];
+        const scoreMap = {};
+        players.forEach(p=>{ scoreMap[p.name] = {correct:0, wrong:0, score:0}; });
+
+        for(let i=0;i<=qzSession.currentIndex;i++){
+            const res = await window.storage.get(QZ_PREFIX+'answers:'+qzSession.code+':'+i, true);
+            const answers = res ? JSON.parse(res.value) : {};
+            const correctIdx = qzSession.questions[i].correct;
+            Object.keys(answers).forEach(name=>{
+                if(!scoreMap[name]) scoreMap[name] = {correct:0,wrong:0,score:0};
+                const a = answers[name];
+                if(a.answerIndex === correctIdx){ scoreMap[name].correct++; scoreMap[name].score += 100; }
+                else { scoreMap[name].wrong++; }
+            });
+        }
+
+        const rows = Object.keys(scoreMap).map(name=>({name, ...scoreMap[name]}));
+        rows.sort((a,b)=> b.score - a.score);
+
+        document.getElementById('qzDashTable').innerHTML = rows.map((r,i)=>`
+            <tr class="border-t border-slate-800"><td class="py-1.5 text-emerald-400 font-black">${i+1}</td><td class="text-slate-200">${qzEscape(r.name)}</td><td class="text-slate-400">${r.correct}</td><td class="text-slate-500">${r.wrong}</td><td class="text-cyan-400 font-black">${r.score}</td></tr>
+        `).join('') || '<tr><td colspan="5" class="text-slate-600 py-2">कुनै खेलाडी छैन</td></tr>';
+
+        const maxScore = Math.max(1, ...rows.map(r=>r.score));
+        document.getElementById('qzDashChart').innerHTML = qzRenderBarChart(rows, maxScore);
+
+        await window.storage.set(QZ_PREFIX+'scores:'+qzSession.code, JSON.stringify(scoreMap), true);
+
+        clearTimeout(qzAutoNextTimer); clearInterval(qzAutoNextCountdown);
+        const btnWrap = document.getElementById('qzDashNextBtnWrap');
+        if(isLast){
+            qzSession.status = 'finished';
+            await qzSaveSession();
+            btnWrap.innerHTML = '<p class="text-xs text-slate-500">खेल सकियो। यो विन्डो बन्द गर्न सक्नुहुन्छ।</p>';
+        } else {
+            let secondsLeft = QZ_AUTO_NEXT_SECONDS;
+            btnWrap.innerHTML = `
+                <button onclick="qzNextQuestion()" class="w-full bg-gradient-to-r from-cyan-600 to-purple-600 text-white py-3 rounded-xl font-black text-xs uppercase tracking-wider">अर्को प्रश्न → (<span id="qzAutoNextSeconds">${secondsLeft}</span>)</button>`;
+            qzAutoNextCountdown = setInterval(()=>{
+                secondsLeft--;
+                const el = document.getElementById('qzAutoNextSeconds');
+                if(el) el.textContent = Math.max(0, secondsLeft);
+                if(secondsLeft<=0) clearInterval(qzAutoNextCountdown);
+            }, 1000);
+            qzAutoNextTimer = setTimeout(()=>{ qzNextQuestion(); }, QZ_AUTO_NEXT_SECONDS*1000);
+        }
+    }
+
+    window.qzNextQuestion = async function(){
+        clearTimeout(qzAutoNextTimer); clearInterval(qzAutoNextCountdown);
+        qzAutoNextTimer = null;
+        if(qzSession.status !== 'reveal') return; // guard against double-trigger (manual click + auto timer)
+        qzSession.currentIndex++;
+        qzSession.status = 'question';
+        qzSession.questionStartedAt = Date.now();
+        await qzSaveSession();
+        await window.storage.set(QZ_PREFIX+'answers:'+qzSession.code+':'+qzSession.currentIndex, JSON.stringify({}), true);
+        qzRunHostQuestionView();
+    };
+
+    // ---------- PLAYER: JOIN ----------
+    window.qzGoJoin = function(){
+        qzRole = 'player';
+        qzShow('qz-view-join-code');
+    };
+
+    window.qzJoinSession = async function(){
+        const code = document.getElementById('qzJoinCode').value.trim();
+        const name = document.getElementById('qzJoinName').value.trim();
+        const errEl = document.getElementById('qzJoinError');
+        errEl.textContent = '';
+        if(!code || !name){ errEl.textContent = 'कृपया कोड र नाम दुवै भर्नुहोस्।'; return; }
+
+        let sres;
+        try{ sres = await window.storage.get(QZ_PREFIX+'session:'+code, true); }
+        catch(e){ errEl.textContent = 'यो कोडको क्विज फेला परेन।'; return; }
+        if(!sres){ errEl.textContent = 'यो कोडको क्विज फेला परेन।'; return; }
+
+        const s = JSON.parse(sres.value);
+        if(s.status !== 'lobby'){ errEl.textContent = 'यो क्विज पहिले नै सुरु भइसकेको छ वा सकिएको छ।'; return; }
+
+        qzGameCode = code; qzMyName = name; qzSession = s;
+
+        const pres = await window.storage.get(QZ_PREFIX+'players:'+code, true);
+        let players = pres ? JSON.parse(pres.value) : [];
+        if(!players.find(p=>p.name===name)){
+            players.push({name, joinedAt:Date.now()});
+            await window.storage.set(QZ_PREFIX+'players:'+code, JSON.stringify(players), true);
+        }
+
+        document.getElementById('qzPName').textContent = name;
+        qzShow('qz-view-player-wait');
+        qzPollPlayerState();
+    };
+
+    // ---------- PLAYER: POLL LOOP ----------
+    async function qzPlayerStateTick(){
+            if(qzPollInFlight) return;
+            qzPollInFlight = true;
+            try{
+                const sres = await qzWithTimeout(window.storage.get(QZ_PREFIX+'session:'+qzGameCode, true));
+                if(!sres) return;
+                const s = JSON.parse(sres.value);
+                const prevStatus = qzSession ? qzSession.status : null;
+                const prevIndex = qzSession ? qzSession.currentIndex : -1;
+                qzSession = s;
+
+                if(s.status==='question'){
+                    if(prevStatus!=='question' || prevIndex!==s.currentIndex){
+                        qzHasAnswered = false;
+                        qzRenderPlayerQuestion();
+                    } else {
+                        qzUpdatePlayerTimer();
+                    }
+                } else if(s.status==='reveal'){
+                    if(prevStatus==='question'){ qzShowPlayerWaitingNext(); }
+                } else if(s.status==='finished'){
+                    await qzRenderPlayerFinal();
+                    clearInterval(qzPollTimer);
+                    qzResumePollFn = null;
+                }
+            }catch(e){}
+            finally{ qzPollInFlight = false; }
+    }
+    function qzPollPlayerState(){
+        clearInterval(qzPollTimer);
+        qzResumePollFn = qzPollPlayerState;
+        qzPlayerStateTick(); // fire immediately for a snappier first update
+        qzPollTimer = setInterval(qzPlayerStateTick, 900);
+    }
+
+    function qzRenderPlayerQuestion(){
+        qzShow('qz-view-player-question');
+        const q = qzSession.questions[qzSession.currentIndex];
+        document.getElementById('qzPQNum').textContent = qzSession.currentIndex+1;
+        document.getElementById('qzPQTotal').textContent = qzSession.questions.length;
+        document.getElementById('qzPQText').textContent = q.q;
+        document.getElementById('qzPAnswerStatus').textContent = '';
+        const wrap = document.getElementById('qzPChoices');
+        wrap.innerHTML = '';
+        const letters = ['क','ख','ग','घ'];
+        q.options.forEach((opt, oi)=>{
+            const btn = document.createElement('button');
+            btn.className = 'bg-slate-900 border-2 border-slate-700 hover:border-cyan-500 text-slate-100 font-bold text-sm py-3.5 px-3 rounded-xl transition-all text-left';
+            btn.innerHTML = `<span class="text-cyan-500 font-black">${letters[oi]})</span> ${qzEscape(opt)}`;
+            btn.onclick = ()=>qzSubmitAnswer(oi, btn);
+            wrap.appendChild(btn);
+        });
+        qzUpdatePlayerTimer();
+    }
+
+    function qzUpdatePlayerTimer(){
+        clearInterval(qzTimerInterval);
+        qzTimerInterval = setInterval(()=>{
+            if(!qzSession || qzSession.status!=='question'){ clearInterval(qzTimerInterval); return; }
+            const elapsed = (Date.now() - qzSession.questionStartedAt)/1000;
+            const remain = Math.max(0, Math.ceil(qzSession.duration - elapsed));
+            const tEl = document.getElementById('qzPTimer');
+            if(tEl) tEl.textContent = remain;
+            if(remain<=0){
+                clearInterval(qzTimerInterval);
+                if(!qzHasAnswered){
+                    document.getElementById('qzPAnswerStatus').textContent = '⏱ समय सकियो';
+                    document.querySelectorAll('#qzPChoices button').forEach(b=>b.disabled=true);
+                }
+            }
+        }, 250);
+    }
+
+    async function qzSubmitAnswer(optionIndex, btnEl){
+        if(qzHasAnswered) return;
+        qzHasAnswered = true;
+        document.querySelectorAll('#qzPChoices button').forEach(b=>b.disabled=true);
+        btnEl.classList.add('border-emerald-500','bg-emerald-950/50');
+        document.getElementById('qzPAnswerStatus').textContent = 'उत्तर पेश भयो ✓';
+
+        const key = QZ_PREFIX+'answers:'+qzGameCode+':'+qzSession.currentIndex;
+        try{
+            const res = await window.storage.get(key, true);
+            const answers = res ? JSON.parse(res.value) : {};
+            answers[qzMyName] = {answerIndex: optionIndex, ts: Date.now()};
+            await window.storage.set(key, JSON.stringify(answers), true);
+        }catch(e){}
+    }
+
+    // Called after each question closes (status → 'reveal'). No per-question
+    // correct/wrong reveal anymore — just a quiet waiting screen. Full results
+    // are shown only once, on qzRenderPlayerFinal, at the very end.
+    function qzShowPlayerWaitingNext(){
+        qzShow('qz-view-player-result');
+    }
+
+    async function qzRenderPlayerFinal(){
+        qzShow('qz-view-player-final');
+
+        // Pull every question's answers so we can show a full question-by-question breakdown.
+        const breakdownRows = [];
+        for(let i=0;i<qzSession.questions.length;i++){
+            const q = qzSession.questions[i];
+            const res = await window.storage.get(QZ_PREFIX+'answers:'+qzGameCode+':'+i, true);
+            const answers = res ? JSON.parse(res.value) : {};
+            const mine = answers[qzMyName];
+            const correct = mine && mine.answerIndex === q.correct;
+            breakdownRows.push({ i, q, mine, correct });
+        }
+
+        document.getElementById('qzPFinalBreakdown').innerHTML = breakdownRows.map(({i,q,mine,correct})=>`
+            <div class="p-3 rounded-xl border ${correct ? 'border-emerald-500/30 bg-emerald-950/20' : 'border-red-500/30 bg-red-950/20'}">
+                <p class="text-[11px] text-slate-500 font-mono mb-1">प्रश्न ${i+1}</p>
+                <p class="text-xs font-bold text-slate-100 mb-1.5">${qzEscape(q.q)}</p>
+                <p class="text-[11px] ${correct ? 'text-emerald-400' : 'text-red-400'} font-bold">
+                    ${correct ? '✔ सही जवाफ' : (mine ? '✘ गलत — तपाईंको जवाफ: ' + qzEscape(q.options[mine.answerIndex]) : '— तपाईंले उत्तर दिनुभएन')}
+                </p>
+                ${!correct ? `<p class="text-[11px] text-slate-400">सही उत्तर: ${qzEscape(q.options[q.correct])}</p>` : ''}
+            </div>
+        `).join('');
+
+        const sres = await window.storage.get(QZ_PREFIX+'scores:'+qzGameCode, true);
+        const scores = sres ? JSON.parse(sres.value) : {};
+        const rows = Object.keys(scores).map(name=>({name, ...scores[name]}));
+        rows.sort((a,b)=>b.score-a.score);
+        document.getElementById('qzPFinalTable').innerHTML = rows.map((r,i)=>`
+            <tr class="border-t border-slate-800"><td class="py-1.5 text-emerald-400 font-black">${i+1}</td><td class="text-slate-200">${qzEscape(r.name)}</td><td class="text-cyan-400 font-black text-right">${r.score} अंक</td></tr>
+        `).join('');
+        document.getElementById('qzPFinalScore').textContent = (scores[qzMyName]?scores[qzMyName].score:0) + ' अंक';
+    }
+
+    // auto-join if URL carries a quizgame code, otherwise show the role picker
+    document.addEventListener('DOMContentLoaded', function(){
+        const params = new URLSearchParams(location.search);
+        const code = params.get('quizgame');
+        if(code){
+            qzGoJoin();
+            document.getElementById('qzJoinCode').value = code;
+        } else {
+            qzShowRole();
+        }
+    });
+})();
+</script>
+</body>
+</html>
