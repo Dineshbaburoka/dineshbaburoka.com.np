@@ -695,6 +695,7 @@
         }
 
         localMemoryQuestionCollection = data || [];
+        window.localMemoryQuestionCollection = localMemoryQuestionCollection; // keep Live Quiz module in sync
         synchronizeFilterConfigurationSelectors(localMemoryQuestionCollection);
         dispatchUIRowRenderPipelineLoop();
     }
