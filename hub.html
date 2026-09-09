@@ -549,12 +549,54 @@
         integratedLogo: () => document.getElementById('ui-timer-integrated-logo')
     };
 
+    // Backs the live-quiz feature's window.storage.* calls with the qz_kv Supabase table,
+    // so the app works standalone (outside claude.ai, where window.storage isn't injected).
+    // Table: qz_kv(key text primary key, value text, updated_at timestamptz)
+    function initSupabaseBackedWindowStorage() {
+        if (window.storage) return; // already present (e.g. running inside a claude.ai artifact)
+        window.storage = {
+            async get(key /*, shared */) {
+                const { data, error } = await supabaseClusterInstance
+                    .from('qz_kv')
+                    .select('key, value')
+                    .eq('key', key)
+                    .maybeSingle();
+                if (error) { console.error('qz_kv get error:', error); return null; }
+                if (!data) return null;
+                return { key: data.key, value: data.value, shared: true };
+            },
+            async set(key, value /*, shared */) {
+                const { error } = await supabaseClusterInstance
+                    .from('qz_kv')
+                    .upsert({ key, value, updated_at: new Date().toISOString() }, { onConflict: 'key' });
+                if (error) { console.error('qz_kv set error:', error); return null; }
+                return { key, value, shared: true };
+            },
+            async delete(key /*, shared */) {
+                const { error } = await supabaseClusterInstance
+                    .from('qz_kv')
+                    .delete()
+                    .eq('key', key);
+                if (error) { console.error('qz_kv delete error:', error); return null; }
+                return { key, deleted: true, shared: true };
+            },
+            async list(prefix /*, shared */) {
+                let query = supabaseClusterInstance.from('qz_kv').select('key');
+                if (prefix) query = query.like('key', prefix + '%');
+                const { data, error } = await query;
+                if (error) { console.error('qz_kv list error:', error); return null; }
+                return { keys: (data || []).map(r => r.key), prefix, shared: true };
+            }
+        };
+    }
+
     // SYSTEM ENGINE ENTRY INITIALIZATION BOOTSTRAP PIPELINE
     (function initSystemBootstrapGatewayEngine() {
         try {
             if (window.supabase) {
                 supabaseClusterInstance = window.supabase.createClient(DATABASE_ENDPOINT_URL, DATABASE_ANON_PUBLIC_KEY);
                 console.log("Remote Supabase Data Network Layer connected securely.");
+                initSupabaseBackedWindowStorage();
                 pullQuestionCollectionRecordsFromCloud();
             } else {
                 throw new Error("Critical Dependency Exception: Supabase Core SDK verified missing.");
