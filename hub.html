@@ -117,10 +117,13 @@
                 <span class="text-slate-500">Total Rows:</span>
                 <span id="stat-total" class="text-cyan-400 font-bold">0</span>
             </div>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 border-r border-slate-800 pr-3">
                 <span class="text-slate-500">Active Node:</span>
                 <span id="stat-active-cat" class="text-purple-400 font-bold">सबै विषय</span>
             </div>
+            <button onclick="openQuizLiveModule()" class="flex items-center gap-1.5 bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white font-black text-[11px] uppercase tracking-wider px-3 py-1.5 rounded-lg transition-all shadow-lg shadow-emerald-900/30">
+                🎮 Live Quiz
+            </button>
         </div>
     </header>
 
@@ -349,6 +352,146 @@
         </div>
 
     </main>
+
+    <!-- ==================================================================== -->
+    <!-- LIVE QUIZ MODULE: REAL-TIME MULTIPLAYER SESSION OVERLAY              -->
+    <!-- ==================================================================== -->
+    <div id="quiz-live-overlay" class="fixed inset-0 z-50 hidden bg-brand-dark/98 backdrop-blur-2xl overflow-y-auto">
+        <div class="max-w-2xl mx-auto p-4 sm:p-8 min-h-screen flex flex-col">
+
+            <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
+                <div class="flex items-center gap-3">
+                    <span class="h-3 w-3 rounded-full bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,1)] animate-pulse"></span>
+                    <h2 class="text-xl font-black tracking-tight bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">LIVE QUIZ ARENA</h2>
+                </div>
+                <button onclick="closeQuizLiveModule()" class="text-slate-500 hover:text-white text-2xl leading-none px-2">×</button>
+            </div>
+
+            <!-- ROLE SELECT -->
+            <div id="qz-view-role" class="bg-brand-panel/70 border border-slate-800 p-6 rounded-3xl space-y-4">
+                <h3 class="text-sm font-black text-cyan-400 uppercase tracking-wider">तपाईं को हुनुहुन्छ?</h3>
+                <p class="text-xs text-slate-400">होस्टले प्रश्न बैंकबाट क्विज बनाएर स्टार्ट गर्नुहुन्छ। खेलाडीले कोड हालेर सामेल हुनुहुन्छ।</p>
+                <div class="flex gap-3 pt-2">
+                    <button onclick="qzGoHost()" class="flex-1 bg-gradient-to-r from-cyan-600 to-purple-600 text-white py-3 rounded-xl font-black text-xs uppercase tracking-wider">म होस्ट हुँ</button>
+                    <button onclick="qzGoJoin()" class="flex-1 bg-slate-800 border border-slate-700 text-slate-200 py-3 rounded-xl font-black text-xs uppercase tracking-wider">म खेलाडी हुँ</button>
+                </div>
+            </div>
+
+            <!-- HOST: CREATE SESSION FROM QUESTION BANK -->
+            <div id="qz-view-host-create" class="hidden bg-brand-panel/70 border border-slate-800 p-6 rounded-3xl space-y-4">
+                <h3 class="text-sm font-black text-cyan-400 uppercase tracking-wider">नयाँ क्विज सत्र बनाउनुहोस्</h3>
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-400 mb-1 uppercase tracking-wider">क्विजको नाम</label>
+                    <input type="text" id="qzTitle" placeholder="जस्तै: लोकसेवा साप्ताहिक क्विज" class="w-full p-3 bg-brand-input border border-slate-800 rounded-xl text-white text-sm outline-none focus:border-cyan-500">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-400 mb-1 uppercase tracking-wider">प्रश्न बैंकबाट विषय छान्नुहोस्</label>
+                    <select id="qzCategory" onchange="qzRefreshBankCount()" class="w-full p-3 bg-brand-input border border-slate-800 rounded-xl text-cyan-300 text-sm outline-none focus:border-cyan-500 font-bold">
+                        <option value="ALL">📂 सबै विषय</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-400 mb-1 uppercase tracking-wider">कतिवटा प्रश्न चलाउने? (उपलब्ध: <span id="qzAvailCount">0</span>)</label>
+                    <input type="number" id="qzCount" min="1" value="5" class="w-full p-3 bg-brand-input border border-slate-800 rounded-xl text-white text-sm outline-none focus:border-cyan-500">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-400 mb-1 uppercase tracking-wider">प्रत्येक प्रश्नको समय (सेकेन्ड)</label>
+                    <input type="number" id="qzDuration" min="5" max="60" value="10" class="w-full p-3 bg-brand-input border border-slate-800 rounded-xl text-white text-sm outline-none focus:border-cyan-500">
+                </div>
+                <button onclick="qzCreateSession()" class="w-full bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 text-white py-3.5 rounded-xl font-black text-xs uppercase tracking-wider">⚡ सत्र सिर्जना गरी लबीमा जानुहोस्</button>
+                <p id="qzCreateError" class="text-[11px] text-red-400"></p>
+                <button onclick="qzShowRole()" class="text-[11px] text-slate-500 hover:text-slate-300">← फिर्ता</button>
+            </div>
+
+            <!-- HOST: LOBBY -->
+            <div id="qz-view-host-lobby" class="hidden bg-brand-panel/70 border border-slate-800 p-6 rounded-3xl space-y-4">
+                <h3 id="qzLobbyTitle" class="text-sm font-black text-cyan-400 uppercase tracking-wider"></h3>
+                <p class="text-xs text-slate-400">यो कोड र लिंक खेलाडीहरूलाई पठाउनुहोस्:</p>
+                <div class="text-center">
+                    <span id="qzGameCode" class="inline-block bg-slate-950 border border-emerald-500/30 text-emerald-400 font-black text-2xl tracking-[0.3em] px-6 py-2 rounded-xl">----</span>
+                </div>
+                <div class="flex items-center gap-2 bg-slate-950 border border-dashed border-slate-700 rounded-xl px-3 py-2.5">
+                    <span id="qzJoinLink" class="text-[11px] text-slate-400 flex-1 break-all font-mono"></span>
+                    <button onclick="qzCopyLink()" class="text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-200 px-2.5 py-1.5 rounded-lg font-bold">कपी</button>
+                </div>
+                <div>
+                    <h4 class="text-[11px] font-black text-purple-400 uppercase tracking-wider mb-2">सामेल भएका खेलाडीहरू (<span id="qzPlayerCount">0</span>)</h4>
+                    <div id="qzPlayerChips" class="flex flex-wrap gap-2 text-xs text-slate-500">कोही आइसकेको छैन...</div>
+                </div>
+                <button onclick="qzStartGame()" class="w-full bg-gradient-to-r from-emerald-600 to-cyan-600 text-white py-3.5 rounded-xl font-black text-xs uppercase tracking-wider">🎮 खेल स्टार्ट गर्नुहोस्</button>
+            </div>
+
+            <!-- HOST: LIVE QUESTION -->
+            <div id="qz-view-host-question" class="hidden bg-brand-panel/70 border border-slate-800 p-6 rounded-3xl space-y-3 text-center">
+                <p class="text-[11px] text-slate-500 font-mono">प्रश्न <span id="qzHQNum"></span> / <span id="qzHQTotal"></span></p>
+                <div id="qzHTimer" class="text-5xl font-black text-brand-gold font-mono">10</div>
+                <div id="qzHQText" class="text-lg font-black text-white leading-relaxed px-2"></div>
+                <p class="text-xs text-slate-400 font-mono"><span class="inline-block h-2 w-2 rounded-full bg-emerald-500 animate-pulse mr-1"></span><span id="qzHAnsweredCount">0</span> जनाले उत्तर दिइसक्नुभयो</p>
+            </div>
+
+            <!-- HOST: DASHBOARD -->
+            <div id="qz-view-host-dash" class="hidden bg-brand-panel/70 border border-slate-800 p-6 rounded-3xl space-y-3">
+                <h3 class="text-sm font-black text-cyan-400 uppercase tracking-wider">ड्यासबोर्ड</h3>
+                <p id="qzDashSub" class="text-xs text-slate-400"></p>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs font-mono">
+                        <thead><tr class="text-slate-500 text-left"><th class="py-1.5">क्रम</th><th>नाम</th><th>सही</th><th>गलत</th><th>अंक</th></tr></thead>
+                        <tbody id="qzDashTable"></tbody>
+                    </table>
+                </div>
+                <div id="qzDashNextBtnWrap" class="pt-2"></div>
+            </div>
+
+            <!-- JOIN: ENTER CODE -->
+            <div id="qz-view-join-code" class="hidden bg-brand-panel/70 border border-slate-800 p-6 rounded-3xl space-y-4">
+                <h3 class="text-sm font-black text-cyan-400 uppercase tracking-wider">क्विजमा सामेल हुनुहोस्</h3>
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-400 mb-1 uppercase tracking-wider">गेम कोड</label>
+                    <input type="text" id="qzJoinCode" placeholder="जस्तै: 4821" maxlength="6" class="w-full p-3 bg-brand-input border border-slate-800 rounded-xl text-white text-sm outline-none focus:border-cyan-500">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-400 mb-1 uppercase tracking-wider">तपाईंको नाम</label>
+                    <input type="text" id="qzJoinName" placeholder="तपाईंको नाम लेख्नुहोस्" class="w-full p-3 bg-brand-input border border-slate-800 rounded-xl text-white text-sm outline-none focus:border-cyan-500">
+                </div>
+                <button onclick="qzJoinSession()" class="w-full bg-gradient-to-r from-cyan-600 to-purple-600 text-white py-3.5 rounded-xl font-black text-xs uppercase tracking-wider">सामेल हुनुहोस्</button>
+                <p id="qzJoinError" class="text-[11px] text-red-400"></p>
+                <button onclick="qzShowRole()" class="text-[11px] text-slate-500 hover:text-slate-300">← फिर्ता</button>
+            </div>
+
+            <!-- PLAYER: WAITING -->
+            <div id="qz-view-player-wait" class="hidden bg-brand-panel/70 border border-slate-800 p-6 rounded-3xl space-y-3 text-center">
+                <h3 class="text-base font-black text-emerald-400">तपाईं भित्र हुनुहुन्छ! 🎉</h3>
+                <p class="text-xs text-slate-400"><span class="inline-block h-2 w-2 rounded-full bg-emerald-500 animate-pulse mr-1"></span>होस्टले खेल स्टार्ट गर्ने पर्खाइमा...</p>
+                <p class="text-sm text-slate-300">नाम: <strong id="qzPName" class="text-cyan-400"></strong></p>
+            </div>
+
+            <!-- PLAYER: QUESTION -->
+            <div id="qz-view-player-question" class="hidden bg-brand-panel/70 border border-slate-800 p-6 rounded-3xl space-y-3 text-center">
+                <p class="text-[11px] text-slate-500 font-mono">प्रश्न <span id="qzPQNum"></span> / <span id="qzPQTotal"></span></p>
+                <div id="qzPTimer" class="text-5xl font-black text-brand-gold font-mono">10</div>
+                <div id="qzPQText" class="text-lg font-black text-white leading-relaxed px-1"></div>
+                <div id="qzPChoices" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2"></div>
+                <p id="qzPAnswerStatus" class="text-xs text-slate-400 font-mono"></p>
+            </div>
+
+            <!-- PLAYER: RESULT -->
+            <div id="qz-view-player-result" class="hidden bg-brand-panel/70 border border-slate-800 p-6 rounded-3xl space-y-2 text-center">
+                <div id="qzPResultBig" class="text-6xl font-black">✔</div>
+                <p id="qzPResultText" class="text-sm text-slate-300"></p>
+                <p class="text-xs text-slate-500">तपाईंको जम्मा अंक: <strong id="qzPScore" class="text-cyan-400"></strong></p>
+            </div>
+
+            <!-- PLAYER: FINAL -->
+            <div id="qz-view-player-final" class="hidden bg-brand-panel/70 border border-slate-800 p-6 rounded-3xl space-y-3">
+                <h3 class="text-base font-black text-emerald-400">खेल सकियो! 🏁</h3>
+                <table class="w-full text-xs font-mono">
+                    <tbody id="qzPFinalTable"></tbody>
+                </table>
+                <p class="text-sm">जम्मा अंक: <strong id="qzPFinalScore" class="text-cyan-400"></strong></p>
+            </div>
+
+        </div>
+    </div>
 
     <!-- FOOTER LICENSE COMPONENT PLATFORM META -->
     <footer class="border-t border-slate-900 mt-8 pt-4 text-center text-[10px] font-mono text-slate-600">
@@ -1177,6 +1320,388 @@
         }
         canvasContext2DTargetPointer.fillText(liveTrackingLineStringAccumulator, axisX, axisY);
     }
+</script>
+
+<!-- ==================================================================== -->
+<!-- LIVE QUIZ MODULE SCRIPT: REAL-TIME SESSION ENGINE (window.storage)   -->
+<!-- ==================================================================== -->
+<script>
+(function(){
+    const QZ_PREFIX = 'quizlive:';
+    let qzRole = null;          // 'host' | 'player'
+    let qzSession = null;       // active session object
+    let qzGameCode = null;
+    let qzMyName = null;
+    let qzPollTimer = null;
+    let qzTimerInterval = null;
+    let qzHasAnswered = false;
+
+    function qzShow(id){
+        ['qz-view-role','qz-view-host-create','qz-view-host-lobby','qz-view-host-question','qz-view-host-dash',
+         'qz-view-join-code','qz-view-player-wait','qz-view-player-question','qz-view-player-result','qz-view-player-final']
+            .forEach(x=>document.getElementById(x).classList.add('hidden'));
+        document.getElementById(id).classList.remove('hidden');
+    }
+
+    function qzEscape(s){
+        return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    window.openQuizLiveModule = function(){
+        document.getElementById('quiz-live-overlay').classList.remove('hidden');
+        qzShowRole();
+        const params = new URLSearchParams(location.search);
+        const code = params.get('quizgame');
+        if(code){
+            qzGoJoin();
+            document.getElementById('qzJoinCode').value = code;
+        }
+    };
+    window.closeQuizLiveModule = function(){
+        document.getElementById('quiz-live-overlay').classList.add('hidden');
+        clearInterval(qzPollTimer);
+        clearInterval(qzTimerInterval);
+    };
+    window.qzShowRole = function(){ qzShow('qz-view-role'); };
+
+    // ---------- HOST: CREATE FROM BANK ----------
+    window.qzGoHost = function(){
+        qzRole = 'host';
+        const sel = document.getElementById('qzCategory');
+        sel.innerHTML = '<option value="ALL">📂 सबै विषय</option>';
+        const cats = new Set();
+        (window.localMemoryQuestionCollection||[]).forEach(r=>{ if(r.category) cats.add(r.category); });
+        cats.forEach(c=>{
+            const o = document.createElement('option'); o.value = c; o.textContent = '📂 ' + c;
+            sel.appendChild(o);
+        });
+        qzShow('qz-view-host-create');
+        qzRefreshBankCount();
+    };
+
+    window.qzRefreshBankCount = function(){
+        const cat = document.getElementById('qzCategory').value;
+        const bank = window.localMemoryQuestionCollection||[];
+        const n = bank.filter(r=> cat==='ALL' || r.category===cat).length;
+        document.getElementById('qzAvailCount').textContent = n;
+    };
+
+    function qzOptionLetterToIndex(letter){
+        return {a:0,b:1,c:2,d:3}[String(letter||'a').toLowerCase()] ?? 0;
+    }
+
+    window.qzCreateSession = async function(){
+        const errEl = document.getElementById('qzCreateError');
+        errEl.textContent = '';
+        const title = document.getElementById('qzTitle').value.trim() || 'लाइभ क्विज';
+        const cat = document.getElementById('qzCategory').value;
+        const count = parseInt(document.getElementById('qzCount').value, 10) || 5;
+        const duration = parseInt(document.getElementById('qzDuration').value, 10) || 10;
+
+        const bank = (window.localMemoryQuestionCollection||[]).filter(r=> cat==='ALL' || r.category===cat);
+        if(bank.length === 0){ errEl.textContent = 'यो विषयमा प्रश्न बैंकमा कुनै रेकर्ड फेला परेन।'; return; }
+
+        const shuffled = [...bank].sort(()=>Math.random()-0.5).slice(0, Math.min(count, bank.length));
+        const questions = shuffled.map(r=>({
+            q: r.question,
+            options: [r.a, r.b, r.c, r.d],
+            correct: qzOptionLetterToIndex(r.answer)
+        }));
+
+        const code = String(Math.floor(1000 + Math.random()*9000));
+        qzSession = {
+            code, title, duration,
+            questions,
+            status: 'lobby',
+            currentIndex: -1,
+            questionStartedAt: null,
+            createdAt: Date.now()
+        };
+        qzGameCode = code;
+        await qzSaveSession();
+        await window.storage.set(QZ_PREFIX+'players:'+code, JSON.stringify([]), true);
+
+        document.getElementById('qzLobbyTitle').textContent = title;
+        document.getElementById('qzGameCode').textContent = code;
+        document.getElementById('qzJoinLink').textContent = location.href.split('?')[0] + '?quizgame=' + code;
+        qzShow('qz-view-host-lobby');
+        qzPollLobby();
+    };
+
+    async function qzSaveSession(){
+        await window.storage.set(QZ_PREFIX+'session:'+qzSession.code, JSON.stringify(qzSession), true);
+    }
+
+    window.qzCopyLink = function(){
+        const link = document.getElementById('qzJoinLink').textContent;
+        navigator.clipboard.writeText(link).then(()=>alert('लिंक कपी भयो!'));
+    };
+
+    function qzPollLobby(){
+        clearInterval(qzPollTimer);
+        qzPollTimer = setInterval(async ()=>{
+            try{
+                const res = await window.storage.get(QZ_PREFIX+'players:'+qzSession.code, true);
+                const players = res ? JSON.parse(res.value) : [];
+                document.getElementById('qzPlayerCount').textContent = players.length;
+                const wrap = document.getElementById('qzPlayerChips');
+                wrap.innerHTML = players.length
+                    ? players.map(p=>`<span class="bg-slate-800 border border-emerald-500/30 text-emerald-300 px-2.5 py-1 rounded-full font-bold">${qzEscape(p.name)}</span>`).join('')
+                    : 'कोही आइसकेको छैन...';
+            }catch(e){}
+        }, 1500);
+    }
+
+    // ---------- HOST: RUN GAME ----------
+    window.qzStartGame = async function(){
+        clearInterval(qzPollTimer);
+        qzSession.status = 'question';
+        qzSession.currentIndex = 0;
+        qzSession.questionStartedAt = Date.now();
+        await qzSaveSession();
+        await window.storage.set(QZ_PREFIX+'answers:'+qzSession.code+':0', JSON.stringify({}), true);
+        qzRunHostQuestionView();
+    };
+
+    function qzRunHostQuestionView(){
+        qzShow('qz-view-host-question');
+        const q = qzSession.questions[qzSession.currentIndex];
+        document.getElementById('qzHQNum').textContent = qzSession.currentIndex+1;
+        document.getElementById('qzHQTotal').textContent = qzSession.questions.length;
+        document.getElementById('qzHQText').textContent = q.q;
+        clearInterval(qzTimerInterval); clearInterval(qzPollTimer);
+
+        qzTimerInterval = setInterval(()=>{
+            const elapsed = (Date.now() - qzSession.questionStartedAt)/1000;
+            const remain = Math.max(0, Math.ceil(qzSession.duration - elapsed));
+            document.getElementById('qzHTimer').textContent = remain;
+            if(remain<=0){ clearInterval(qzTimerInterval); qzFinishQuestionAsHost(); }
+        }, 250);
+
+        qzPollTimer = setInterval(async ()=>{
+            try{
+                const res = await window.storage.get(QZ_PREFIX+'answers:'+qzSession.code+':'+qzSession.currentIndex, true);
+                const answers = res ? JSON.parse(res.value) : {};
+                document.getElementById('qzHAnsweredCount').textContent = Object.keys(answers).length;
+            }catch(e){}
+        }, 1000);
+    }
+
+    async function qzFinishQuestionAsHost(){
+        clearInterval(qzPollTimer);
+        qzSession.status = 'reveal';
+        await qzSaveSession();
+        await qzShowHostDashboard();
+    }
+
+    async function qzShowHostDashboard(){
+        qzShow('qz-view-host-dash');
+        const isLast = qzSession.currentIndex === qzSession.questions.length - 1;
+        document.getElementById('qzDashSub').textContent = isLast ? 'अन्तिम नतिजा' : `प्रश्न ${qzSession.currentIndex+1} पछिको स्कोर`;
+
+        const playersRes = await window.storage.get(QZ_PREFIX+'players:'+qzSession.code, true);
+        const players = playersRes ? JSON.parse(playersRes.value) : [];
+        const scoreMap = {};
+        players.forEach(p=>{ scoreMap[p.name] = {correct:0, wrong:0, score:0}; });
+
+        for(let i=0;i<=qzSession.currentIndex;i++){
+            const res = await window.storage.get(QZ_PREFIX+'answers:'+qzSession.code+':'+i, true);
+            const answers = res ? JSON.parse(res.value) : {};
+            const correctIdx = qzSession.questions[i].correct;
+            Object.keys(answers).forEach(name=>{
+                if(!scoreMap[name]) scoreMap[name] = {correct:0,wrong:0,score:0};
+                const a = answers[name];
+                if(a.answerIndex === correctIdx){ scoreMap[name].correct++; scoreMap[name].score += 100; }
+                else { scoreMap[name].wrong++; }
+            });
+        }
+
+        const rows = Object.keys(scoreMap).map(name=>({name, ...scoreMap[name]}));
+        rows.sort((a,b)=> b.score - a.score);
+
+        document.getElementById('qzDashTable').innerHTML = rows.map((r,i)=>`
+            <tr class="border-t border-slate-800"><td class="py-1.5 text-emerald-400 font-black">${i+1}</td><td class="text-slate-200">${qzEscape(r.name)}</td><td class="text-slate-400">${r.correct}</td><td class="text-slate-500">${r.wrong}</td><td class="text-cyan-400 font-black">${r.score}</td></tr>
+        `).join('') || '<tr><td colspan="5" class="text-slate-600 py-2">कुनै खेलाडी छैन</td></tr>';
+
+        await window.storage.set(QZ_PREFIX+'scores:'+qzSession.code, JSON.stringify(scoreMap), true);
+
+        const btnWrap = document.getElementById('qzDashNextBtnWrap');
+        if(isLast){
+            qzSession.status = 'finished';
+            await qzSaveSession();
+            btnWrap.innerHTML = '<p class="text-xs text-slate-500">खेल सकियो। यो विन्डो बन्द गर्न सक्नुहुन्छ।</p>';
+        } else {
+            btnWrap.innerHTML = '<button onclick="qzNextQuestion()" class="w-full bg-gradient-to-r from-cyan-600 to-purple-600 text-white py-3 rounded-xl font-black text-xs uppercase tracking-wider">अर्को प्रश्न →</button>';
+        }
+    }
+
+    window.qzNextQuestion = async function(){
+        qzSession.currentIndex++;
+        qzSession.status = 'question';
+        qzSession.questionStartedAt = Date.now();
+        await qzSaveSession();
+        await window.storage.set(QZ_PREFIX+'answers:'+qzSession.code+':'+qzSession.currentIndex, JSON.stringify({}), true);
+        qzRunHostQuestionView();
+    };
+
+    // ---------- PLAYER: JOIN ----------
+    window.qzGoJoin = function(){
+        qzRole = 'player';
+        qzShow('qz-view-join-code');
+    };
+
+    window.qzJoinSession = async function(){
+        const code = document.getElementById('qzJoinCode').value.trim();
+        const name = document.getElementById('qzJoinName').value.trim();
+        const errEl = document.getElementById('qzJoinError');
+        errEl.textContent = '';
+        if(!code || !name){ errEl.textContent = 'कृपया कोड र नाम दुवै भर्नुहोस्।'; return; }
+
+        let sres;
+        try{ sres = await window.storage.get(QZ_PREFIX+'session:'+code, true); }
+        catch(e){ errEl.textContent = 'यो कोडको क्विज फेला परेन।'; return; }
+        if(!sres){ errEl.textContent = 'यो कोडको क्विज फेला परेन।'; return; }
+
+        const s = JSON.parse(sres.value);
+        if(s.status !== 'lobby'){ errEl.textContent = 'यो क्विज पहिले नै सुरु भइसकेको छ वा सकिएको छ।'; return; }
+
+        qzGameCode = code; qzMyName = name; qzSession = s;
+
+        const pres = await window.storage.get(QZ_PREFIX+'players:'+code, true);
+        let players = pres ? JSON.parse(pres.value) : [];
+        if(!players.find(p=>p.name===name)){
+            players.push({name, joinedAt:Date.now()});
+            await window.storage.set(QZ_PREFIX+'players:'+code, JSON.stringify(players), true);
+        }
+
+        document.getElementById('qzPName').textContent = name;
+        qzShow('qz-view-player-wait');
+        qzPollPlayerState();
+    };
+
+    // ---------- PLAYER: POLL LOOP ----------
+    function qzPollPlayerState(){
+        clearInterval(qzPollTimer);
+        qzPollTimer = setInterval(async ()=>{
+            try{
+                const sres = await window.storage.get(QZ_PREFIX+'session:'+qzGameCode, true);
+                if(!sres) return;
+                const s = JSON.parse(sres.value);
+                const prevStatus = qzSession ? qzSession.status : null;
+                const prevIndex = qzSession ? qzSession.currentIndex : -1;
+                qzSession = s;
+
+                if(s.status==='question'){
+                    if(prevStatus!=='question' || prevIndex!==s.currentIndex){
+                        qzHasAnswered = false;
+                        qzRenderPlayerQuestion();
+                    } else {
+                        qzUpdatePlayerTimer();
+                    }
+                } else if(s.status==='reveal'){
+                    if(prevStatus==='question'){ await qzRenderPlayerResult(); }
+                } else if(s.status==='finished'){
+                    await qzRenderPlayerFinal();
+                    clearInterval(qzPollTimer);
+                }
+            }catch(e){}
+        }, 1000);
+    }
+
+    function qzRenderPlayerQuestion(){
+        qzShow('qz-view-player-question');
+        const q = qzSession.questions[qzSession.currentIndex];
+        document.getElementById('qzPQNum').textContent = qzSession.currentIndex+1;
+        document.getElementById('qzPQTotal').textContent = qzSession.questions.length;
+        document.getElementById('qzPQText').textContent = q.q;
+        document.getElementById('qzPAnswerStatus').textContent = '';
+        const wrap = document.getElementById('qzPChoices');
+        wrap.innerHTML = '';
+        const letters = ['क','ख','ग','घ'];
+        q.options.forEach((opt, oi)=>{
+            const btn = document.createElement('button');
+            btn.className = 'bg-slate-900 border-2 border-slate-700 hover:border-cyan-500 text-slate-100 font-bold text-sm py-3.5 px-3 rounded-xl transition-all text-left';
+            btn.innerHTML = `<span class="text-cyan-500 font-black">${letters[oi]})</span> ${qzEscape(opt)}`;
+            btn.onclick = ()=>qzSubmitAnswer(oi, btn);
+            wrap.appendChild(btn);
+        });
+        qzUpdatePlayerTimer();
+    }
+
+    function qzUpdatePlayerTimer(){
+        clearInterval(qzTimerInterval);
+        qzTimerInterval = setInterval(()=>{
+            if(!qzSession || qzSession.status!=='question'){ clearInterval(qzTimerInterval); return; }
+            const elapsed = (Date.now() - qzSession.questionStartedAt)/1000;
+            const remain = Math.max(0, Math.ceil(qzSession.duration - elapsed));
+            const tEl = document.getElementById('qzPTimer');
+            if(tEl) tEl.textContent = remain;
+            if(remain<=0){
+                clearInterval(qzTimerInterval);
+                if(!qzHasAnswered){
+                    document.getElementById('qzPAnswerStatus').textContent = '⏱ समय सकियो';
+                    document.querySelectorAll('#qzPChoices button').forEach(b=>b.disabled=true);
+                }
+            }
+        }, 250);
+    }
+
+    async function qzSubmitAnswer(optionIndex, btnEl){
+        if(qzHasAnswered) return;
+        qzHasAnswered = true;
+        document.querySelectorAll('#qzPChoices button').forEach(b=>b.disabled=true);
+        btnEl.classList.add('border-emerald-500','bg-emerald-950/50');
+        document.getElementById('qzPAnswerStatus').textContent = 'उत्तर पेश भयो ✓';
+
+        const key = QZ_PREFIX+'answers:'+qzGameCode+':'+qzSession.currentIndex;
+        try{
+            const res = await window.storage.get(key, true);
+            const answers = res ? JSON.parse(res.value) : {};
+            answers[qzMyName] = {answerIndex: optionIndex, ts: Date.now()};
+            await window.storage.set(key, JSON.stringify(answers), true);
+        }catch(e){}
+    }
+
+    async function qzRenderPlayerResult(){
+        qzShow('qz-view-player-result');
+        const q = qzSession.questions[qzSession.currentIndex];
+        const res = await window.storage.get(QZ_PREFIX+'answers:'+qzGameCode+':'+qzSession.currentIndex, true);
+        const answers = res ? JSON.parse(res.value) : {};
+        const mine = answers[qzMyName];
+        const correct = mine && mine.answerIndex === q.correct;
+
+        const bigEl = document.getElementById('qzPResultBig');
+        bigEl.textContent = correct ? '✔' : (mine ? '✘' : '—');
+        bigEl.className = 'text-6xl font-black ' + (correct ? 'text-emerald-400' : 'text-red-400');
+        document.getElementById('qzPResultText').textContent = correct
+            ? 'सही जवाफ!'
+            : (mine ? `गलत। सही उत्तर: ${q.options[q.correct]}` : 'तपाईंले उत्तर दिनुभएन।');
+
+        const sres = await window.storage.get(QZ_PREFIX+'scores:'+qzGameCode, true);
+        const scores = sres ? JSON.parse(sres.value) : {};
+        document.getElementById('qzPScore').textContent = scores[qzMyName] ? scores[qzMyName].score : 0;
+    }
+
+    async function qzRenderPlayerFinal(){
+        qzShow('qz-view-player-final');
+        const sres = await window.storage.get(QZ_PREFIX+'scores:'+qzGameCode, true);
+        const scores = sres ? JSON.parse(sres.value) : {};
+        const rows = Object.keys(scores).map(name=>({name, ...scores[name]}));
+        rows.sort((a,b)=>b.score-a.score);
+        document.getElementById('qzPFinalTable').innerHTML = rows.map((r,i)=>`
+            <tr class="border-t border-slate-800"><td class="py-1.5 text-emerald-400 font-black">${i+1}</td><td class="text-slate-200">${qzEscape(r.name)}</td><td class="text-cyan-400 font-black text-right">${r.score} अंक</td></tr>
+        `).join('');
+        document.getElementById('qzPFinalScore').textContent = (scores[qzMyName]?scores[qzMyName].score:0) + ' अंक';
+    }
+
+    // auto-open if URL carries a quizgame code
+    document.addEventListener('DOMContentLoaded', function(){
+        const params = new URLSearchParams(location.search);
+        if(params.get('quizgame')){
+            openQuizLiveModule();
+        }
+    });
+})();
 </script>
 </body>
 </html>
