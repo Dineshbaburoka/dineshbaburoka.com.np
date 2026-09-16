@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>गलकोट नगरपालिका - टिप्पणी र आदेश (घर कायम स्वीकृत)</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+
+<!-- Supabase JS SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+  :root {
+    --primary-color: #0c2461;
+    --secondary-color: #1e3799;
+    --bg-color: #f1f2f6;
+    --card-bg: #ffffff;
+    --border-color: #ced6e0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Noto Sans Devanagari', sans-serif; background: var(--bg-color); padding: 30px; color: #2f3542; }
+
+  /* ============ Search Section ============ */
+  .report-search-wrapper {
+    max-width: 800px; margin: 20px auto 30px auto; background: var(--card-bg);
+    padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    border: 2px solid var(--primary-color);
+  }
+  .system-title { text-align:center; color: var(--primary-color); font-size:22px; font-weight:bold; margin-bottom:20px; }
+  .report-search-box {
+    width:100%; padding:16px; border:2px solid var(--border-color); border-radius:8px;
+    font-size:15px; outline:none; font-weight:bold; text-align:center; color: var(--primary-color);
+  }
+  .report-search-box:focus { border-color: var(--secondary-color); box-shadow: 0 0 10px rgba(30,55,153,0.25); }
+  .search-hint { font-size:14px; color:#57606f; text-align:center; margin-top:12px; font-weight:600; }
+
+  .no-report-alert {
+    text-align:center; padding:60px 40px; color:#7f8c8d; font-size:16px; background:white;
+    max-width:800px; margin:0 auto; border-radius:12px; border:2px dashed #cbd5e1;
+  }
+
+  /* ============ टिप्पणी र आदेश Letter (matches scanned form) ============ */
+  .print-letter-container {
+    max-width: 850px; margin: 0 auto 40px auto; background: var(--card-bg);
+    padding: 55px 70px; border-radius: 8px; box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    border: 1px solid #ccc; position: relative; display: none; /* hidden until match found */
+  }
+
+  .letter-header-wrapper { display:grid; grid-template-columns: 100px 1fr; align-items:center; margin-bottom:6px; }
+  .logo-box { text-align:left; }
+  .logo-box img { width:95px; height:auto; }
+  .letter-header { text-align:center; font-weight:bold; color:#000; line-height:1.4; padding-right:95px; }
+  .letter-header .municipality-name { font-size:32px; font-weight:700; color: var(--primary-color); }
+  .letter-header .org-name { font-size:20px; margin:2px 0; font-weight:600; }
+  .letter-header .address-name { font-size:18px; font-weight:600; margin-top:5px; }
+  .letter-header .province-name { font-size:14px; font-weight:600; margin-top:2px; }
+
+  .meta-row-top { display:flex; justify-content:flex-end; font-size:14px; font-weight:600; margin-top:14px; }
+
+  .notice-title {
+    text-align:center; font-weight:bold; font-size:20px; margin:16px 0 10px 0;
+    text-decoration: underline; text-underline-offset:4px;
+  }
+  .notice-subject { text-align:center; font-weight:600; font-size:15px; margin-bottom:22px; }
+
+  .dynamic-value {
+    font-weight:700; border-bottom:1px dashed #222; padding:0 2px; display:inline;
+    outline:none; background-color:#fffde7; text-align:left; min-width:0;
+  }
+  .dynamic-value:focus { background-color:#fff9c4; border-bottom:1px solid #000; }
+  .dynamic-value.saving-field { background-color:#dfe4ea; }
+  .dynamic-value.saved-field { background-color:#c8f7d0; transition: background-color .3s; }
+  .dynamic-value.save-error-field { background-color:#ffd1d1; transition: background-color .3s; }
+  @media print {
+    .dynamic-value { border-bottom:none !important; background-color:transparent !important; padding:0 !important; }
+  }
+
+  .body-paragraph { font-size:14.5px; line-height:2.4; text-align:justify; margin-bottom:16px; }
+
+  .signature-line { text-align:right; font-weight:600; margin-top:20px; padding-right:10px; font-size:14.5px; }
+  .opinion-block { margin: 18px 0; }
+  .opinion-label { font-weight:700; font-size:14.5px; margin-bottom:8px; }
+  .opinion-fill { border-bottom:1px dotted #333; display:block; min-height:22px; margin-bottom:6px; }
+
+  .footer-decision { font-size:14.5px; line-height:2.3; text-align:justify; margin:22px 0; }
+  .footer-sign-block { text-align:right; font-weight:600; margin-top:60px; padding-right:10px; font-size:14.5px; }
+
+  .print-btn-wrapper { text-align:center; margin-top:30px; }
+  .btn-print {
+    background-color:#2ed573; color:white; border:none; padding:14px 35px; font-size:16px;
+    font-weight:bold; border-radius:6px; cursor:pointer; display:inline-flex; align-items:center;
+    gap:6px; transition:.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  }
+  .btn-print:hover { background-color:#26af5f; }
+
+  @media print {
+    body { background:#fff; padding:0; }
+    .report-search-wrapper, .print-btn-wrapper, .search-hint, .no-report-alert { display:none !important; }
+    .print-letter-container {
+      display:block !important; box-shadow:none !important; border:none !important;
+      padding:0 !important; margin:0 !important; width:100% !important; max-width:100% !important;
+    }
+    @page { size: A4; margin: 18mm 16mm; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="report-search-wrapper">
+    <div class="system-title">🏛️ गलकोट नगरपालिका - भूमि व्यवस्थापन (टिप्पणी र आदेश खोज प्रणाली)</div>
+    <input type="text" id="reportSearchBox" class="report-search-box" placeholder="🔍 दर्ता नं. / जग्गाधनीको नाम / नागरिकता नं. टाइप गर्नुहोस्..." oninput="searchReportDatabase()">
+    <div class="search-hint">डाटाबेसमा विवरण म्याच हुनासाथ "टिप्पणी र आदेश" पत्र मात्र यहाँ देखा पर्नेछ।</div>
+  </div>
+
+  <div id="reportNotFoundAlert" class="no-report-alert">
+    🔍 विवरण खोज्नका लागि माथिको कोठामा <b>दर्ता नं, नाम वा नागरिकता नम्बर</b> टाइप गर्नुहोस्। <br><br>
+    <span style="font-size:13px; color:#a4b0be;">(सुरक्षा र सहजताका लागि यहाँ कुनै पनि अनावश्यक विवरण वा फारम राखिएको छैन।)</span>
+  </div>
+
+  <div class="print-letter-container" id="noticeLetterPrintArea">
+
+    <div class="letter-header-wrapper">
+      <div class="logo-box">
+        <img src="Emblem_of_Nepal.svg.png" alt="गलकोट नगरपालिका लोगो">
+      </div>
+      <div class="letter-header">
+        <div class="municipality-name">गलकोट नगरपालिका</div>
+        <div class="org-name">नगर कार्यपालिकाको कार्यालय</div>
+        <div class="address-name">गलकोट, बागलुङ</div>
+        <div class="province-name">गण्डकी प्रदेश, नेपाल</div>
+      </div>
+    </div>
+
+    <div class="meta-row-top">
+      <div>मिति : <span id="lbl_date" class="dynamic-value" contenteditable="true">२०७७÷०६÷२९</span></div>
+    </div>
+
+    <div class="notice-title">टिप्पणी र आदेश</div>
+    <div class="notice-subject">विषय : घर कायम स्वीकृत सम्बन्धमा ।</div>
+
+    <div class="body-paragraph">
+      यस गलकोट न.पा. वडा नं. <span id="lbl_ward1" class="dynamic-value" contenteditable="true"></span> बस्ने श्री
+      <span id="lbl_owner" class="dynamic-value" contenteditable="true"></span> को यस गलकोट न.पा. वडा नं.
+      <span id="lbl_ward2" class="dynamic-value" contenteditable="true"></span> साविक
+      <span id="lbl_savik_gavis" class="dynamic-value" contenteditable="true"></span> गा.वि.स. वडा नं.
+      <span id="lbl_savik_ward" class="dynamic-value" contenteditable="true"></span> किता नं.
+      <span id="lbl_kitta" class="dynamic-value" contenteditable="true"></span> क्षेत्रफल
+      <span id="lbl_area" class="dynamic-value" contenteditable="true"></span> को पूर्व
+      <span id="lbl_east" class="dynamic-value" contenteditable="true"></span> पश्चिम
+      <span id="lbl_west" class="dynamic-value" contenteditable="true"></span> उत्तर
+      <span id="lbl_north" class="dynamic-value" contenteditable="true"></span> दक्षिण
+      <span id="lbl_south" class="dynamic-value" contenteditable="true"></span> यति चार किल्ला भित्रको जग्गामा लम्बाई
+      <span id="lbl_house_length" class="dynamic-value" contenteditable="true"></span> चौडाई
+      <span id="lbl_house_width" class="dynamic-value" contenteditable="true"></span> उचाई
+      <span id="lbl_house_height" class="dynamic-value" contenteditable="true"></span> को
+      <span id="lbl_house_type" class="dynamic-value" contenteditable="true"></span> कायमको लागि जग्गाको जग्गाधनी प्रमाणपत्रको प्रतिलिपी, जग्गाको बक्सा र चर्पी, सेप्टी टंकी, सकपिट समेत देखिने गरी नक्सा पेश गर्नुभएकोमा मिति
+      <span id="lbl_map_submit_date" class="dynamic-value" contenteditable="true"></span> मा ७ दिने सूचना प्रकाशित र मिति
+      <span id="lbl_notice_publish_date" class="dynamic-value" contenteditable="true"></span> मा सम्बन्धित ठाउँमा गई सर्जमिन मुचुल्का समेत भई आएकोमा कसैको पनि खिचोला सम्पत्तिसम्बन्ध सम्बन्धित बिवाद पर्न नआएको हुँदा सो
+      <span id="lbl_owner2" class="dynamic-value" contenteditable="true"></span> को घर कायम स्वीकृत गरिदिन उचित देखिएकोले निर्णयार्थ पेश गर्दछु ।
+    </div>
+
+    <div class="opinion-block">
+      <div class="opinion-label">क) स्थलगत निरीक्षण गर्ने प्राविधिक जु.ई.</div>
+      <div class="opinion-fill" id="lbl_ju_ei" contenteditable="true"></div>
+
+      <div class="opinion-label">कर्मचारीको राय</div>
+      <div class="opinion-fill" id="lbl_karmachari_rai" contenteditable="true"></div>
+
+      <div class="opinion-label">ख) प्राविधिक सव इन्जिनियर/इन्जिनियरको राय सिफारिस :</div>
+      <div class="opinion-fill" id="lbl_engineer_opinion" contenteditable="true"></div>
+    </div>
+
+    <div class="footer-decision">
+      श्रीमान् कार्यालय प्रमुखबाट घर कायमको स्वीकृतिको लागि भएको निर्णय :
+      उल्लेखित विवरण अनुसारको घर कायमको लागि पेश हुन आएको नक्सा समेतको दरखास्त निवेदन आदिमा प्राविधिक सव इन्जिनियर/इन्जिनियरबाट भएको राय र सिफारिस अनुसार स्वीकृत प्रदान गर्ने गरी सदर ।
+    </div>
+
+    <div class="footer-sign-block">
+      ......................<br>
+      प्रमुख प्रशासकीय अधिकृत
+    </div>
+
+    <div class="print-btn-wrapper">
+      <button class="btn-print" onclick="window.print()">🖨️ यो टिप्पणी र आदेश पत्र प्रिन्ट गर्नुस्</button>
+    </div>
+  </div>
+
+<script>
+  // ==== Supabase Settings ====
+  const SUPABASE_URL = "https://lyjokogftwtvnhwszqni.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_gxEL2-GVTVy8E0WxMBZHDQ_b5TzsDI9";
+  const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // ७ दिने सूचना पत्रमा प्रयोग भएकै ghar_kayam_applications table
+  const TABLE_NAME = "ghar_kayam_applications";
+
+  let recordsDb = [];
+  let currentRecordId = null; // हाल देखिइरहेको पत्रको database record id
+
+  // टिप्पणी र आदेश पत्रका कुन contenteditable id ले database को कुन column लाई represent गर्छ
+  const FIELD_TO_COLUMN = {
+    lbl_owner: 'landowner_name',
+    lbl_owner2: 'landowner_name',
+    lbl_ward2: 'ward_no',
+    lbl_savik_gavis: 'old_vdc',
+    lbl_savik_ward: 'old_ward_no',
+    lbl_kitta: 'kitta_no',
+    lbl_area: 'area',
+    lbl_east: 'east_boundary_name',
+    lbl_west: 'west_boundary_name',
+    lbl_north: 'north_boundary_name',
+    lbl_south: 'south_boundary_name',
+    lbl_house_type: 'house_type',
+    lbl_house_length: 'house_length',
+    lbl_house_width: 'house_width',
+    lbl_house_height: 'house_height',
+    lbl_notice_publish_date: 'notice_7day_published_date'
+  };
+
+  document.addEventListener("DOMContentLoaded", () => {
+    fetchFromSupabase();
+    enableEditableTrim();
+  });
+
+  // सम्पादन गर्न मिल्ने (contenteditable) सबै बक्सहरूको दायाँ-बायाँको स्पेस हटाउने अनि database मा auto-save गर्ने
+  function enableEditableTrim() {
+    document.querySelectorAll('[contenteditable="true"]').forEach(el => {
+      el.addEventListener('blur', () => {
+        el.innerText = el.innerText.trim();
+        const column = FIELD_TO_COLUMN[el.id];
+        if (column) {
+          saveFieldToSupabase(el, column);
+        }
+      });
+    });
+  }
+
+  // एउटा field मा भएको edit लाई Supabase database मा update गर्ने
+  async function saveFieldToSupabase(el, column) {
+    if (!currentRecordId) return; // अझै कुनै रेकर्ड सर्च गरी देखाइएको छैन भने केही नगर्ने
+
+    const newValue = el.innerText.trim();
+    el.classList.add('saving-field');
+
+    try {
+      const { error } = await _supabase
+        .from(TABLE_NAME)
+        .update({ [column]: newValue })
+        .eq('id', currentRecordId);
+
+      if (error) throw error;
+
+      // local cache पनि अद्यावधिक गर्ने ताकि पछि फेरि सर्च गर्दा पुरानो डाटा नदेखियोस्
+      const rec = recordsDb.find(r => r.id === currentRecordId);
+      if (rec) rec[column] = newValue;
+
+      el.classList.remove('saving-field');
+      el.classList.add('saved-field');
+      setTimeout(() => el.classList.remove('saved-field'), 1200);
+    } catch (err) {
+      console.error('अद्यावधिक गर्दा त्रुटि आयो:', err.message);
+      el.classList.remove('saving-field');
+      el.classList.add('save-error-field');
+      setTimeout(() => el.classList.remove('save-error-field'), 2000);
+    }
+  }
+
+  async function fetchFromSupabase() {
+    try {
+      const { data, error } = await _supabase
+        .from(TABLE_NAME)
+        .select('id, registration_no, registration_date, landowner_name, ward_no, old_vdc, old_ward_no, kitta_no, area, tole_marga, east_boundary_name, west_boundary_name, north_boundary_name, south_boundary_name, house_type, house_length, house_width, house_height, notice_7day_published_date, contact_phone');
+      if (error) throw error;
+      recordsDb = data || [];
+    } catch (err) {
+      console.error("प्रणाली लोड गर्दा समस्या आयो:", err.message);
+    }
+  }
+
+  // Convert English digits (0-9) inside a string to Nepali (Devanagari) digits (०-९)
+  function toNepaliDigits(value) {
+    const enToNe = { '0':'०','1':'१','2':'२','3':'३','4':'४','5':'५','6':'६','7':'७','8':'८','9':'९' };
+    return String(value).replace(/[0-9]/g, d => enToNe[d]);
+  }
+
+  function fillOrDots(id, value, dots) {
+    document.getElementById(id).innerText = (value !== null && value !== undefined && String(value).trim() !== "")
+      ? toNepaliDigits(value)
+      : (dots || "..........");
+  }
+
+  function searchReportDatabase() {
+    const query = document.getElementById('reportSearchBox').value.toLowerCase().trim();
+    const letterContainer = document.getElementById('noticeLetterPrintArea');
+    const alertBox = document.getElementById('reportNotFoundAlert');
+
+    if (query === "") {
+      letterContainer.style.display = "none";
+      alertBox.style.display = "block";
+      alertBox.innerHTML = `🔍 विवरण खोज्नका लागि माथिको कोठामा <b>दर्ता नं, नाम वा नागरिकता नम्बर</b> टाइप गर्नुहोस्। <br><br><span style="font-size:13px; color:#a4b0be;">(सुरक्षा र सहजताका लागि यहाँ कुनै पनि अनावश्यक विवरण वा फारम राखिएको छैन।)</span>`;
+      return;
+    }
+
+    const match = recordsDb.find(item =>
+      (item.registration_no && String(item.registration_no).toLowerCase().includes(query)) ||
+      (item.landowner_name && item.landowner_name.toLowerCase().includes(query)) ||
+      (item.contact_phone && String(item.contact_phone).toLowerCase().includes(query))
+    );
+
+    if (match) {
+      currentRecordId = match.id;
+      fillOrDots('lbl_ward1', match.ward_no ? ('वडा नं. ' + match.ward_no) : null);
+      fillOrDots('lbl_owner', match.landowner_name);
+      fillOrDots('lbl_owner2', match.landowner_name);
+      fillOrDots('lbl_ward2', match.ward_no);
+      fillOrDots('lbl_savik_gavis', match.old_vdc);
+      fillOrDots('lbl_savik_ward', match.old_ward_no);
+      fillOrDots('lbl_kitta', match.kitta_no);
+      fillOrDots('lbl_area', match.area);
+      fillOrDots('lbl_east', match.east_boundary_name);
+      fillOrDots('lbl_west', match.west_boundary_name);
+      fillOrDots('lbl_north', match.north_boundary_name);
+      fillOrDots('lbl_south', match.south_boundary_name);
+      fillOrDots('lbl_house_type', match.house_type);
+      fillOrDots('lbl_house_length', match.house_length);
+      fillOrDots('lbl_house_width', match.house_width);
+      fillOrDots('lbl_house_height', match.house_height);
+      fillOrDots('lbl_notice_publish_date', match.notice_7day_published_date);
+      fillOrDots('lbl_map_submit_date', match.registration_date);
+
+      alertBox.style.display = "none";
+      letterContainer.style.display = "block";
+    } else {
+      currentRecordId = null;
+      letterContainer.style.display = "none";
+      alertBox.style.display = "block";
+      alertBox.innerHTML = `❌ माफ गर्नुहोला, तपाईंले खोज्नुभएको विवरण डाटाबेसमा फेला परेन। कृपया हिज्जे वा नम्बर जाँच गर्नुहोस्।`;
+    }
+  }
+</script>
+
+</body>
+</html>
