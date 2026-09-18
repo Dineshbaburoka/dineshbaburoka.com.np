@@ -264,7 +264,7 @@
 
     <div class="official-meta-bottom-row">
       <div>चलानी नं: <span id="lbl_chalani" class="dynamic-value" contenteditable="true">.......</span></div>
-      <div>मिति (जारी भएको): <span id="lbl_date_top" class="dynamic-value" contenteditable="true">२०८३/......../........</span></div>
+      <div>मिति: <span id="lbl_date_top" class="dynamic-value" contenteditable="true">२०८३/......../........</span></div>
     </div>
 
     <div class="tippani-title-wrapper">
@@ -276,7 +276,7 @@
     </div>
 
     <div class="letter-body">
-      गलकोट नगरपालिका वडा नं. <span id="lbl_ward" class="dynamic-value">...</span> बस्ने श्री <span id="lbl_owner" class="dynamic-value">..........................................</span> ले यस कार्यालयमा नयाँ भवनको नक्शा पास गरीपाउँ भनि नक्शा एवं डिजाइन सहित मिति <span id="lbl_tem_issued_date" class="dynamic-value">......................</span> मा पहिलो चरणको अस्थायी इजाजत दिइएको । साथै उक्त भवनको प्लिन्थ लेभल सम्मको निर्माण कार्य संलग्न नक्सा एवं डिजाइन बमोजिम सम्पन्न गरेकोले गलकोट नगरपालिकाले जारी गरेको भवन निर्माण मापदण्डका सम्पुर्ण मापदण्डहरु पालना गर्ने गरि साविक <span id="lbl_savik_gavis" class="dynamic-value">........................</span> गाविस वडा नं. <span id="lbl_savik_ward" class="dynamic-value">...</span> हाल गलकोट नगरपालिका वडा नं. <span id="lbl_ward_two" class="dynamic-value">...</span> को कित्ता नं. <span id="lbl_kitta" class="dynamic-value">........</span> को <span id="lbl_area" class="dynamic-value">............</span> क्षेत्रफलमा निर्माण हुन लागेको उक्त भवनसंग संलग्न नक्शा एवं डिजाइन बमोजिम निर्माण सम्पन्न गर्न स्थायी इजाजत दिन मनासिब देखि निर्णयार्थ पेस गरेको छु।
+      गलकोट नगरपालिका वडा नं. <span id="lbl_ward" class="dynamic-value" contenteditable="true">...</span> बस्ने श्री <span id="lbl_owner" class="dynamic-value" contenteditable="true">..........................................</span> ले यस कार्यालयमा नयाँ भवनको नक्शा पास गरीपाउँ भनि नक्शा एवं डिजाइन सहित मिति <span id="lbl_tem_issued_date" class="dynamic-value" contenteditable="true">......................</span> मा पहिलो चरणको अस्थायी इजाजत दिइएको । साथै उक्त भवनको प्लिन्थ लेभल सम्मको निर्माण कार्य संलग्न नक्सा एवं डिजाइन बमोजिम सम्पन्न गरेकोले गलकोट नगरपालिकाले जारी गरेको भवन निर्माण मापदण्डका सम्पुर्ण मापदण्डहरु पालना गर्ने गरि साविक <span id="lbl_savik_gavis" class="dynamic-value" contenteditable="true">........................</span> गाविस वडा नं. <span id="lbl_savik_ward" class="dynamic-value" contenteditable="true">...</span> हाल गलकोट नगरपालिका वडा नं. <span id="lbl_ward_two" class="dynamic-value" contenteditable="true">...</span> को कित्ता नं. <span id="lbl_kitta" class="dynamic-value" contenteditable="true">........</span> को <span id="lbl_area" class="dynamic-value" contenteditable="true">............</span> क्षेत्रफलमा निर्माण हुन लागेको उक्त भवनसंग संलग्न नक्शा एवं डिजाइन बमोजिम निर्माण सम्पन्न गर्न स्थायी इजाजत दिन मनासिब देखि निर्णयार्थ पेस गरेको छु।
     </div>
 
     <div class="print-btn-wrapper">
@@ -295,7 +295,100 @@
     document.addEventListener("DOMContentLoaded", () => {
       fetchFromSupabase();
       setupLiveNepaliInputConversion();
+      setupAutoSaveOnEdit();
     });
+
+    // ---- Auto-save to Supabase whenever an editable field is changed ----
+    let autoSaveTimer = null;
+    function showAutoSaveStatus(msg, isError) {
+      let el = document.getElementById('autoSaveStatus');
+      if (!el) {
+        el = document.createElement('div');
+        el.id = 'autoSaveStatus';
+        el.style.position = 'fixed';
+        el.style.bottom = '16px';
+        el.style.right = '16px';
+        el.style.padding = '8px 14px';
+        el.style.borderRadius = '6px';
+        el.style.fontSize = '14px';
+        el.style.zIndex = '9999';
+        el.style.boxShadow = '0 2px 6px rgba(0,0,0,0.2)';
+        document.body.appendChild(el);
+      }
+      el.textContent = msg;
+      el.style.background = isError ? '#f8d7da' : '#d4edda';
+      el.style.color = isError ? '#721c24' : '#155724';
+      el.style.display = 'block';
+      clearTimeout(el._hideTimer);
+      el._hideTimer = setTimeout(() => { el.style.display = 'none'; }, 2500);
+    }
+
+    // Maps element id -> supabase column name
+    const AUTO_SAVE_FIELD_MAP = {
+      lbl_patra_sankhya: 'fiscal_year',
+      lbl_chalani: 'per_chalani_no',
+      lbl_date_top: 'per_issued_date',
+      lbl_ward: 'ward',
+      lbl_ward_two: 'ward',
+      lbl_owner: 'owner',
+      lbl_tem_issued_date: 'tem_issued_date',
+      lbl_savik_gavis: 'savik_gavis',
+      lbl_savik_ward: 'savik_ward',
+      lbl_kitta: 'kitta',
+      lbl_area: 'area'
+    };
+
+    // Fields shown twice on the page that must stay in sync (share one DB column)
+    const LINKED_FIELDS = {
+      lbl_ward: ['lbl_ward_two'],
+      lbl_ward_two: ['lbl_ward']
+    };
+
+    async function autoSaveField(elementId) {
+      if (!currentActiveRecord || !currentActiveRecord.id) return;
+      const column = AUTO_SAVE_FIELD_MAP[elementId];
+      if (!column) return;
+      const el = document.getElementById(elementId);
+      if (!el || el.getAttribute('contenteditable') !== 'true') return;
+
+      const value = el.textContent.trim();
+      const targetId = isNaN(currentActiveRecord.id) ? currentActiveRecord.id : Number(currentActiveRecord.id);
+
+      try {
+        const { error } = await _supabase
+          .from('g_map_branch1')
+          .update({ [column]: value })
+          .eq('id', targetId);
+
+        if (error) throw error;
+
+        currentActiveRecord[column] = value;
+
+        // keep duplicated fields (e.g. ward shown twice) in sync visually
+        (LINKED_FIELDS[elementId] || []).forEach(otherId => {
+          const otherEl = document.getElementById(otherId);
+          if (otherEl && otherEl.textContent.trim() !== value) {
+            otherEl.textContent = value;
+          }
+        });
+
+        showAutoSaveStatus("✔️ स्वतः सुरक्षित भयो (Auto-saved)", false);
+      } catch (err) {
+        console.error("Auto-save error:", err.message);
+        showAutoSaveStatus("❌ Auto-save असफल: " + err.message, true);
+      }
+    }
+
+    function setupAutoSaveOnEdit() {
+      Object.keys(AUTO_SAVE_FIELD_MAP).forEach(id => {
+        const element = document.getElementById(id);
+        if (!element) return;
+        element.addEventListener('blur', () => {
+          clearTimeout(autoSaveTimer);
+          autoSaveTimer = setTimeout(() => autoSaveField(id), 150);
+        });
+      });
+    }
 
     async function fetchFromSupabase() {
       try {
@@ -318,7 +411,7 @@
     }
 
     function setupLiveNepaliInputConversion() {
-      const targets = ['lbl_patra_sankhya', 'lbl_chalani', 'lbl_date_top'];
+      const targets = ['lbl_patra_sankhya', 'lbl_chalani', 'lbl_date_top', 'lbl_ward', 'lbl_ward_two', 'lbl_savik_ward', 'lbl_kitta', 'lbl_area', 'lbl_tem_issued_date'];
       targets.forEach(id => {
         const element = document.getElementById(id);
         if (element) {
