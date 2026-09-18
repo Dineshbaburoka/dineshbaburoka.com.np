@@ -402,8 +402,8 @@
             <div class="area-summary" id="areaHelperSummary"></div>
           </div>
           
-          <div class="field"><label>घरको कुल लम्बाई (फिट)</label><input type="text" id="tot_length" placeholder="उदा: ३५ वा ३०+१५"></div>
-          <div class="field"><label>घरको कुल चौडाई (फिट)</label><input type="text" id="tot_width" placeholder="उदा: २५ वा २०+१०"></div>
+          <div class="field"><label>घरको कुल लम्बाई (फिट)</label><input type="text" id="tot_length" placeholder="उदा:२० फि.११ इ"></div>
+          <div class="field"><label>घरको कुल चौडाई (फिट)</label><input type="text" id="tot_width" placeholder="उदा: २१८ फि.९ इ"></div>
           
           <div class="field"><label>घरको कुल उचाई (फिट)</label><input type="text" id="tot_height"></div>
           <div class="field"><label>कुल तल्ला संख्या</label><input type="text" id="total_floors"></div>
@@ -466,7 +466,7 @@
       <div class="form-section-card">
         <div class="section-subtitle">🏢 तल्लागत विस्तृत नाप र क्षेत्रफल विवरण (Floor Details)</div>
         
-        <div class="grid-5"><div class="floor-label">जमिन तल्ला (Ground)</div><input type="text" id="f_ground_l" placeholder="लम्बाई (उदा: ३०)" class="floor-input"><input type="text" id="f_ground_w" placeholder="चौडाई" class="floor-input"><input type="text" id="f_ground_h" placeholder="उचाई" class="floor-input"><input type="number" step="any" id="f_ground_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input"></div>
+        <div class="grid-5"><div class="floor-label">जमिन तल्ला (Ground)</div><input type="text" id="f_ground_l" placeholder="लम्बाई (उदा: ३० फि.)" class="floor-input"><input type="text" id="f_ground_w" placeholder="चौडाई" class="floor-input"><input type="text" id="f_ground_h" placeholder="उचाई" class="floor-input"><input type="number" step="any" id="f_ground_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input"></div>
         <div class="grid-5"><div class="floor-label">पहिलो तल्ला</div><input type="text" id="f_1st_l" placeholder="लम्बाई" class="floor-input"><input type="text" id="f_1st_w" placeholder="चौडाई" class="floor-input"><input type="text" id="f_1st_h" placeholder="उचाई" class="floor-input"><input type="number" step="any" id="f_1st_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input"></div>
         <div class="grid-5"><div class="floor-label">दोस्रो तल्ला</div><input type="text" id="f_2nd_l" placeholder="लम्बाई" class="floor-input"><input type="text" id="f_2nd_w" placeholder="चौडाई" class="floor-input"><input type="text" id="f_2nd_h" placeholder="उचाई" class="floor-input"><input type="number" step="any" id="f_2nd_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input"></div>
         <div class="grid-5"><div class="floor-label">तेस्रो तल्ला</div><input type="text" id="f_3rd_l" placeholder="लम्बाई" class="floor-input"><input type="text" id="f_3rd_w" placeholder="चौडाई" class="floor-input"><input type="text" id="f_3rd_h" placeholder="उचाई" class="floor-input"><input type="number" step="any" id="f_3rd_a" placeholder="क्षेत्रफल" class="floor-input floor-area-input"></div>
@@ -1356,14 +1356,16 @@
 
       if (cfg.type === 'measurement') {
         const sanitized = value.replace(/\s+/g,'');
-        if (!/^[0-9.+\-*/() ]+$/.test(sanitized)) {
-          setFieldState(id, 'invalid', 'मापनको format मिलेन। उदाहरण: ३०+१५ वा ४५'); hideFieldPreview(id); return false;
-        }
+        const isPureMathExpr = /^[0-9.+\-*/() ]+$/.test(sanitized);
         const result = parseTextToNumber(sanitized);
-        if (/[+\-*/]/.test(sanitized)) {
+        if (isPureMathExpr && /[+\-*/]/.test(sanitized)) {
+          // pure numeric expression जस्तै ३०+१५ — नतिजा preview मा देखाउने
           if (result <= 0) { setFieldState(id, 'invalid', 'मापनको नतिजा मान्य हुनुपर्छ (सकारात्मक संख्या)।'); hideFieldPreview(id); return false; }
           showFieldPreview(id, `= ${engToNepDigits(result.toFixed(2).replace(/\.00$/,''))} ${cfg.unit || 'फिट'}`);
-        } else { hideFieldPreview(id); }
+        } else {
+          hideFieldPreview(id);
+        }
+        // अब यहाँ text पनि स्वीकार्य छ (जस्तै "३० फि." वा "करिब ३०"); ऋणात्मक संख्या मात्र रोक्ने
         if (result < 0) { setFieldState(id, 'invalid', 'ऋणात्मक मान स्वीकार गरिँदैन।'); return false; }
         setFieldState(id, 'valid'); return true;
       }
