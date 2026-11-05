@@ -58,6 +58,8 @@
 }
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600;9..144,700;9..144,800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+Devanagari:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 
@@ -877,6 +879,46 @@ body.dark .conv-tab.active { background: var(--brass); color: var(--ink); border
   .gw-head { padding: 22px 18px 0; }
   .gw-body { padding: 18px 16px 22px; }
 }
+
+/* ===== NEW: interactive features ===== */
+.office-status{display:inline-flex;align-items:center;gap:8px;margin-top:12px;font-size:.78rem;font-weight:600;padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:var(--paper-2);color:var(--muted)}
+.office-status .pulse{width:8px;height:8px;border-radius:50%;background:#9aa596}
+.office-status.open{color:#2f8f57;border-color:#2f8f57}
+.office-status.open .pulse{background:#2f8f57;animation:pulseDot 1.6s ease-out infinite}
+@keyframes pulseDot{0%{box-shadow:0 0 0 0 rgba(47,143,87,.5)}100%{box-shadow:0 0 0 9px rgba(47,143,87,0)}}
+.svc-tools{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:24px}
+.svc-search{position:relative;flex:1;min-width:240px;max-width:420px}
+.svc-search i{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted)}
+.svc-search input{width:100%;padding:12px 14px 12px 40px;border:1px solid var(--border);border-radius:30px;background:var(--card);color:var(--ink-text);font:inherit;outline:none}
+.svc-search input:focus{border-color:var(--brass);box-shadow:0 0 0 3px rgba(185,139,62,.18)}
+.svc-count{font-family:var(--font-mono);font-size:.78rem;color:var(--muted)}
+.svc-empty{display:none;text-align:center;color:var(--muted);padding:30px}
+.plot-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;max-width:960px;margin:0 auto}
+.plot-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+.plot-bar select,.plot-bar button{padding:9px 14px;border:1px solid var(--border);border-radius:20px;background:var(--paper-2);color:var(--ink-text);font:600 .82rem var(--font-body);cursor:pointer}
+.plot-bar button:hover{border-color:var(--brass);color:var(--brass)}
+.plot-bar label{font-size:.82rem;color:var(--muted);display:flex;align-items:center;gap:6px;cursor:pointer}
+#plotSvg{width:100%;height:auto;display:block;background:var(--paper);border:1px solid var(--border);border-radius:4px;touch-action:none;cursor:crosshair}
+#plotSvg .g{stroke:var(--border);stroke-width:1}
+#plotSvg .poly{fill:rgba(76,122,88,.22);stroke:var(--contour);stroke-width:2.5;stroke-linejoin:round}
+#plotSvg .pt{fill:var(--brass);stroke:var(--ink);stroke-width:2;cursor:grab}
+#plotSvg .pt:active{cursor:grabbing}
+#plotSvg text{font:600 12px var(--font-mono);fill:var(--ink-text);pointer-events:none;paint-order:stroke;stroke:var(--paper);stroke-width:3px}
+.plot-hint{font-size:.78rem;color:var(--muted);margin-top:10px;font-family:var(--font-mono)}
+.plot-out{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:16px}
+.plot-out .conv-result-box span{font-size:1.25rem}
+.geo-box{margin-top:14px;padding:14px;border:1px dashed var(--border);border-radius:var(--radius);font-size:.85rem;color:var(--muted);line-height:1.7}
+.geo-box button{margin-top:6px;padding:9px 16px;border-radius:20px;border:1px solid var(--border);background:var(--paper-2);color:var(--ink-text);font:600 .82rem var(--font-body);cursor:pointer}
+.geo-box button:hover{border-color:var(--brass)}
+#toast{position:fixed;left:50%;bottom:30px;transform:translate(-50%,30px);background:var(--ink);color:var(--paper);padding:12px 20px;border-radius:30px;font-size:.88rem;z-index:10010;opacity:0;pointer-events:none;transition:all .35s}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+.input-group select{width:100%;padding:14px;border:1px solid var(--border);background:var(--paper);color:var(--ink-text);border-radius:6px;font:inherit;font-size:.95rem}
+.copy-btn{background:none;border:none;color:var(--brass);cursor:pointer;margin-left:6px}
+#plotMap{width:100%;height:440px;border:1px solid var(--border);border-radius:4px;z-index:1}
+.plot-search{flex:1;min-width:200px;padding:9px 14px;border:1px solid var(--border);border-radius:20px;background:var(--paper);color:var(--ink-text);font:inherit;font-size:.85rem}
+.pm-pt{background:var(--brass-bright);border:2px solid #101b16;border-radius:50%;color:#101b16;font:700 11px var(--font-mono);display:flex;align-items:center;justify-content:center;cursor:grab}
+.pm-len{background:rgba(16,27,22,.78);color:#fff;border-radius:10px;font:600 11px var(--font-mono);padding:1px 6px;white-space:nowrap;width:auto!important;height:auto!important;text-align:center}
+@media(max-width:768px){#plotMap{height:360px}}
 </style>
 </head>
 
@@ -1017,6 +1059,7 @@ body.dark .conv-tab.active { background: var(--brass); color: var(--ink); border
       <a href="#home" class="active">गृहपृष्ठ</a>
       <a href="#services">सेवाहरू</a>
       <a href="#converter">क्यालकुलेटर</a>
+      <a href="#plotter">नक्सा स्केच</a>
       <a href="#gallery">ग्यालरी</a>
       <a href="#experience">अनुभव</a>
       <a href="#contact">सम्पर्क</a>
@@ -1062,6 +1105,7 @@ body.dark .conv-tab.active { background: var(--brass); color: var(--ink); border
       <img src="brp.jpg" alt="Profile Picture of Dinesh Babu Roka">
       <h3>Dinesh Babu Roka</h3>
       <p>Surveyor · Galkot Municipality</p>
+      <div class="office-status" id="officeStatus"><span class="pulse"></span><span id="officeText">जाँच गर्दै…</span></div>
 
       <div class="social-icons">
         <a href="tel:+9779857626542" aria-label="Call Phone Number"><i class="fa fa-phone"></i></a>
@@ -1151,6 +1195,11 @@ body.dark .conv-tab.active { background: var(--brass); color: var(--ink); border
       <h2>डिजिटल तथा भूमिसम्बन्धी सेवाहरू</h2>
     </div>
 
+    <div class="svc-tools">
+      <div class="svc-search"><i class="fa fa-magnifying-glass"></i><input type="search" id="svcSearch" placeholder="सेवा खोज्नुहोस् (जस्तै: कर, नक्सा, जग्गा)" aria-label="सेवा खोज्नुहोस्"></div>
+      <span class="svc-count" id="svcCount"></span>
+    </div>
+    <p class="svc-empty" id="svcEmpty">कुनै सेवा भेटिएन। अर्को शब्दले खोज्नुहोस्।</p>
     <div class="service-grid">
        <div class="service-card">
         <i class="fa-solid fa-scroll"></i>
@@ -1287,6 +1336,34 @@ body.dark .conv-tab.active { background: var(--brass); color: var(--ink); border
   </div>
 </section>
 
+<section class="plot-section" id="plotter" style="padding:50px 0">
+  <div class="container">
+    <div class="section-title" data-reveal>
+      <h2>आफ्नो जग्गाको नक्सा बनाएर क्षेत्रफल हेर्नुहोस्</h2>
+      <p class="section-sub">कुनाहरू तान्नुहोस्। क्षेत्रफल रोपनी-आना-पैसा-दाम र वर्गमिटरमा तुरुन्तै बदलिन्छ।</p>
+    </div>
+    <div class="plot-card">
+      <div class="plot-bar">
+        <input type="search" id="plotSearch" class="plot-search" placeholder="ठाउँ खोज्नुहोस् (जस्तै: Galkot, Baglung)" aria-label="ठाउँ खोज्नुहोस्">
+        <select id="plotLayer" aria-label="नक्सा प्रकार"><option value="sat">स्याटेलाइट</option><option value="osm">सडक नक्सा</option></select>
+        <select id="plotPreset" aria-label="आकार"><option value="quad">चतुर्भुज</option><option value="rect">आयत</option><option value="tri">त्रिभुज</option><option value="L">L आकार</option></select>
+        <button type="button" id="plotLocate"><i class="fa fa-location-crosshairs"></i> मेरो स्थान</button>
+        <button type="button" id="plotReset"><i class="fa fa-rotate-left"></i> रिसेट</button>
+        <button type="button" id="plotCopy"><i class="fa fa-copy"></i> कपी</button>
+      </div>
+      <div id="plotMap" role="application" aria-label="जग्गा चिन्ह लगाउने नक्सा"></div>
+      <p class="plot-hint">कुना तान्दै आफ्नो जग्गामा मिलाउनुहोस् · सिमानामा थिच्दा नयाँ कुना थपिन्छ · कुनामा डबल क्लिक गरे हट्छ</p>
+      <div class="plot-out">
+        <div class="conv-result-box"><span id="poRopani">—</span><p>रोपनी-आना-पैसा-दाम</p></div>
+        <div class="conv-result-box"><span id="poSqm">—</span><p>वर्ग मिटर</p></div>
+        <div class="conv-result-box"><span id="poSqft">—</span><p>वर्ग फिट</p></div>
+        <div class="conv-result-box"><span id="poPer">—</span><p>परिमिति (मिटर)</p></div>
+      </div>
+      <p class="conv-note"><i class="fa-solid fa-circle-info"></i> नक्सा स्याटेलाइट तस्बिरमा आधारित अनुमान मात्र हो। आधिकारिक क्षेत्रफल नापी कार्यालयको नक्सा र फिल्ड नापबाट मात्र प्रमाणित हुन्छ।</p>
+    </div>
+  </div>
+</section>
+
 <section class="video-section container">
   <div class="section-title" data-reveal>
     <span class="field-tag">VISUAL TOUR</span>
@@ -1368,10 +1445,15 @@ body.dark .conv-tab.active { background: var(--brass); color: var(--ink); border
             <input type="email" id="contactEmail" placeholder="इमेल ठेगाना" required>
           </div>
           <div class="input-group">
+            <select id="contactTopic" aria-label="सेवाको प्रकार">
+              <option>जग्गा नापजाँच</option><option>भूउपयोग वर्गीकरण</option><option>सम्पत्तिकर / मूल्याङ्कन</option><option>नक्सा पास</option><option>अन्य</option>
+            </select>
+          </div>
+          <div class="input-group">
             <textarea id="contactMessage" rows="5" placeholder="तपाईंको जिज्ञासा वा सन्देश यहाँ लेख्नुहोस्..." required minlength="10"></textarea>
           </div>
           <button class="btn btn-primary" type="submit" style="width:100%; cursor:pointer;">
-            <i class="fa fa-paper-plane"></i> सन्देश पठाउनुहोस्
+            <i class="fa fa-brands fa-whatsapp"></i> WhatsApp मा पठाउनुहोस्
           </button>
         </form>
       </div>
@@ -1383,7 +1465,12 @@ body.dark .conv-tab.active { background: var(--brass); color: var(--ink); border
             <i class="fa fa-location-dot" style="color:var(--brass); width:20px;"></i> गलकोट नगरपालिका, बागलुङ<br>
             <i class="fa fa-phone" style="color:var(--brass); width:20px;"></i> +9779857626542<br>
             <i class="fa fa-envelope" style="color:var(--brass); width:20px;"></i> dineshbaburoka82@gmail.com
+            <button class="copy-btn" data-copy="+9779857626542" title="फोन नम्बर कपी"><i class="fa fa-copy"></i></button>
           </p>
+          <div class="geo-box">
+            <span id="geoText">तपाईं कार्यालयबाट कति टाढा हुनुहुन्छ भनेर हेर्न चाहनुहुन्छ?</span><br>
+            <button type="button" id="geoBtn"><i class="fa fa-location-crosshairs"></i> मेरो स्थान प्रयोग गर्नुहोस्</button>
+          </div>
         </div>
 
         <div style="width:100%; height:200px; margin-top:16px; border:1px solid var(--border); border-radius:4px; overflow:hidden; background:var(--paper-2); position:relative; display:flex; align-items:center; justify-content:center; text-align:center;">
@@ -1413,6 +1500,7 @@ body.dark .conv-tab.active { background: var(--brass); color: var(--ink); border
   </div>
 </footer>
 
+<div id="toast" role="status" aria-live="polite"></div>
 <button id="backToTop" title="Back to top" aria-label="Back to top"><i class="fa fa-arrow-up"></i></button>
 
 <div class="float-buttons">
@@ -1539,21 +1627,6 @@ darkToggle.onclick = () => {
     toggleIcon.classList.replace('fa-sun', 'fa-moon');
   }
 }
-
-/* VALIDATED FORM SUBMISSION */
-document.getElementById('contactForm').addEventListener('submit', function(e) {
-  e.preventDefault();
-  const name = document.getElementById('contactName').value.trim();
-  const email = document.getElementById('contactEmail').value.trim();
-  const message = document.getElementById('contactMessage').value.trim();
-
-  if(name && email && message) {
-    alert('धन्यवाद ' + name + ', तपाईंको सन्देश सफलतापूर्वक पठाइयो ।');
-    this.reset();
-  } else {
-    alert('कृपया सबै विवरणहरू सही रूपमा भर्नुहोस्।');
-  }
-});
 
 /* ACTIVE LINK ON SCROLL */
 const sections = document.querySelectorAll("section[id]");
@@ -1913,6 +1986,148 @@ revealTargets.forEach(el => revealObserver.observe(el));
   backBtn.addEventListener('click', function(){
     panelMuni.classList.remove('active');
     panelChoice.classList.add('active');
+  });
+})();
+
+/* ===== NEW: interactive features ===== */
+const toastEl=document.getElementById('toast');let toastT;
+function toast(m){toastEl.textContent=m;toastEl.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>toastEl.classList.remove('show'),2600);}
+
+/* Live converter: results update as you type */
+['ropani','aana','paisa','daam'].forEach(id=>document.getElementById(id).addEventListener('input',()=>document.getElementById('calcHilly').click()));
+['bigha','kattha','dhur'].forEach(id=>document.getElementById(id).addEventListener('input',()=>document.getElementById('calcTerai').click()));
+
+/* Office open/closed (Nepal time, Sun-Fri 10:00-17:00) */
+(function(){
+  const box=document.getElementById('officeStatus'),txt=document.getElementById('officeText');
+  function upd(){
+    const p=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Kathmandu',weekday:'short',hour:'numeric',minute:'numeric',hour12:false}).formatToParts(new Date());
+    const g=t=>p.find(x=>x.type===t).value;
+    const day=g('weekday'),mins=(parseInt(g('hour'))%24)*60+parseInt(g('minute'));
+    const open=day!=='Sat'&&mins>=600&&mins<1020;
+    box.classList.toggle('open',open);
+    txt.textContent=open?'कार्यालय खुला छ · ५ बजे बन्द हुन्छ':(day==='Sat'?'आज शनिबार · कार्यालय बन्द':'कार्यालय खुल्ने समय: १०:०० – ५:००');
+  }
+  upd();setInterval(upd,60000);
+})();
+
+/* Service search */
+(function(){
+  const input=document.getElementById('svcSearch'),cards=[...document.querySelectorAll('.service-card')];
+  const count=document.getElementById('svcCount'),empty=document.getElementById('svcEmpty');
+  function run(){
+    const q=input.value.trim().toLowerCase();let n=0;
+    cards.forEach(c=>{const ok=!q||c.textContent.toLowerCase().includes(q);c.style.display=ok?'':'none';if(ok)n++;});
+    count.textContent=n+' / '+cards.length+' सेवा';empty.style.display=n?'none':'block';
+  }
+  input.addEventListener('input',run);run();
+})();
+
+/* Plot on real map (Leaflet + Esri satellite / OpenStreetMap) */
+(function(){
+  const f=(n,d=2)=>n.toLocaleString('en-IN',{maximumFractionDigits:d});
+  const map=L.map('plotMap',{doubleClickZoom:false}).setView([28.25,83.24],18);
+  const sat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Imagery © Esri, Maxar, Earthstar Geographics'});
+  const osm=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap contributors'});
+  let layer=sat.addTo(map);
+  document.getElementById('plotLayer').addEventListener('change',e=>{map.removeLayer(layer);layer=e.target.value==='sat'?sat:osm;layer.addTo(map);});
+
+  const PRE={ // offsets in metres (east,north)
+    quad:[[-18,-10],[20,-14],[24,12],[-14,16]],
+    rect:[[-20,-12],[20,-12],[20,12],[-20,12]],
+    tri:[[-20,-12],[20,-12],[0,18]],
+    L:[[-20,-14],[0,-14],[0,0],[20,0],[20,14],[-20,14]]};
+  let pts=[],poly=L.polygon([],{color:'#d8a94f',weight:3,fillColor:'#4c7a58',fillOpacity:.3}).addTo(map);
+  let markers=[],lens=[],last='';
+  const off=(c,e,n)=>L.latLng(c.lat+n/110574,c.lng+e/(111320*Math.cos(c.lat*Math.PI/180)));
+  function xy(p,o){const k=111320*Math.cos(o.lat*Math.PI/180);return[(p.lng-o.lng)*k,(p.lat-o.lat)*110574];}
+  function ropani(sqft){
+    let r=Math.floor(sqft/5476);sqft-=r*5476;
+    let a=Math.floor(sqft/342.25);sqft-=a*342.25;
+    let pa=Math.floor(sqft/85.5625);sqft-=pa*85.5625;
+    return r+'-'+a+'-'+pa+'-'+f(sqft/21.390625);
+  }
+  function calc(){
+    poly.setLatLngs(pts);
+    lens.forEach(l=>map.removeLayer(l));lens=[];
+    const o=pts[0],m=pts.map(p=>xy(p,o));let area=0,per=0;
+    m.forEach((p,i)=>{
+      const q=m[(i+1)%m.length];area+=p[0]*q[1]-q[0]*p[1];
+      const d=Math.hypot(q[0]-p[0],q[1]-p[1]);per+=d;
+      const mid=L.latLng((pts[i].lat+pts[(i+1)%pts.length].lat)/2,(pts[i].lng+pts[(i+1)%pts.length].lng)/2);
+      lens.push(L.marker(mid,{interactive:false,icon:L.divIcon({className:'pm-len',html:f(d,1)+' मि'})}).addTo(map));
+    });
+    const sqm=Math.abs(area)/2,sqft=sqm*10.7639104167;
+    poSqm.textContent=f(sqm);poSqft.textContent=f(sqft);poRopani.textContent=ropani(sqft);poPer.textContent=f(per,1);
+    last='क्षेत्रफल: '+ropani(sqft)+' (रोपनी-आना-पैसा-दाम) | '+f(sqm)+' वर्ग मि. | '+f(sqft)+' वर्ग फिट | परिमिति '+f(per,1)+' मि. | केन्द्र: '+pts[0].lat.toFixed(5)+', '+pts[0].lng.toFixed(5);
+  }
+  function build(){
+    markers.forEach(mk=>map.removeLayer(mk));markers=[];
+    pts.forEach((p,i)=>{
+      const mk=L.marker(p,{draggable:true,icon:L.divIcon({className:'pm-pt',html:String.fromCharCode(65+i),iconSize:[22,22]})}).addTo(map);
+      mk.on('drag',()=>{pts[i]=mk.getLatLng();calc();});
+      mk.on('dblclick',()=>{if(pts.length>3){pts.splice(i,1);build();}else toast('कम्तीमा ३ कुना चाहिन्छ');});
+      markers.push(mk);
+    });
+    calc();
+  }
+  function load(name){const c=map.getCenter();pts=PRE[name].map(d=>off(c,d[0],d[1]));build();}
+  map.on('click',e=>{
+    if(pts.length>=12)return;
+    const o=pts[0],n=xy(e.latlng,o),m=pts.map(p=>xy(p,o));let best=0,bd=1e12;
+    m.forEach((p,i)=>{const q=m[(i+1)%m.length],dx=q[0]-p[0],dy=q[1]-p[1];
+      const t=Math.max(0,Math.min(1,((n[0]-p[0])*dx+(n[1]-p[1])*dy)/(dx*dx+dy*dy||1)));
+      const d=Math.hypot(p[0]+t*dx-n[0],p[1]+t*dy-n[1]);if(d<bd){bd=d;best=i;}});
+    pts.splice(best+1,0,e.latlng);build();
+  });
+  plotPreset.addEventListener('change',e=>load(e.target.value));
+  plotReset.addEventListener('click',()=>{load(plotPreset.value);toast('रिसेट भयो');});
+  plotCopy.addEventListener('click',()=>{navigator.clipboard?.writeText(last).then(()=>toast('नतिजा कपी भयो'),()=>toast('कपी गर्न सकिएन'));});
+  plotLocate.addEventListener('click',()=>{
+    if(!navigator.geolocation){toast('स्थान सेवा उपलब्ध छैन');return;}
+    navigator.geolocation.getCurrentPosition(pos=>{map.setView([pos.coords.latitude,pos.coords.longitude],19);load(plotPreset.value);},()=>toast('स्थान अनुमति दिइएन'),{timeout:10000});
+  });
+  plotSearch.addEventListener('keydown',async e=>{
+    if(e.key!=='Enter')return;e.preventDefault();
+    const q=plotSearch.value.trim();if(!q)return;
+    try{
+      const r=await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q='+encodeURIComponent(q+', Nepal'));
+      const j=await r.json();
+      if(!j.length){toast('ठाउँ भेटिएन');return;}
+      map.setView([+j[0].lat,+j[0].lon],18);load(plotPreset.value);
+    }catch(err){toast('खोज असफल भयो, इन्टरनेट जाँच्नुहोस्');}
+  });
+  // fix size when section scrolls into view / first render
+  new IntersectionObserver((en,ob)=>{if(en[0].isIntersecting){map.invalidateSize();ob.disconnect();}}).observe(document.getElementById('plotMap'));
+  load('quad');
+})();
+
+/* Contact form -> pre-filled WhatsApp message */
+document.getElementById('contactForm').addEventListener('submit',function(e){
+  e.preventDefault();
+  const n=contactName.value.trim(),em=contactEmail.value.trim(),m=contactMessage.value.trim(),t=contactTopic.value;
+  const msg='नमस्ते दिनेश जी,\nनाम: '+n+'\nइमेल: '+em+'\nविषय: '+t+'\n\n'+m;
+  window.open('https://wa.me/9779857626542?text='+encodeURIComponent(msg),'_blank','noopener');
+  toast('WhatsApp खुल्दैछ… त्यहाँबाट पठाउनुहोस्');this.reset();
+});
+
+/* Copy phone */
+document.querySelectorAll('[data-copy]').forEach(b=>b.addEventListener('click',()=>{
+  navigator.clipboard?.writeText(b.dataset.copy).then(()=>toast('नम्बर कपी भयो'),()=>toast('कपी गर्न सकिएन'));
+}));
+
+/* Distance from visitor to office (approximate coordinates, edit OFFICE to refine) */
+(function(){
+  const OFFICE={lat:28.25,lng:83.24},btn=document.getElementById('geoBtn'),out=document.getElementById('geoText');
+  btn.addEventListener('click',()=>{
+    if(!navigator.geolocation){out.textContent='तपाईंको ब्राउजरले स्थान सेवा समर्थन गर्दैन।';return;}
+    out.textContent='स्थान खोज्दै…';
+    navigator.geolocation.getCurrentPosition(pos=>{
+      const R=6371,rad=d=>d*Math.PI/180,dLat=rad(OFFICE.lat-pos.coords.latitude),dLng=rad(OFFICE.lng-pos.coords.longitude);
+      const a=Math.sin(dLat/2)**2+Math.cos(rad(pos.coords.latitude))*Math.cos(rad(OFFICE.lat))*Math.sin(dLng/2)**2;
+      const d=2*R*Math.asin(Math.sqrt(a));
+      out.innerHTML='तपाईंको स्थान: '+pos.coords.latitude.toFixed(4)+'°N, '+pos.coords.longitude.toFixed(4)+'°E<br>गलकोट कार्यालयबाट करिब <strong>'+d.toFixed(1)+' कि.मि.</strong> (हवाई दूरी)';
+    },()=>{out.textContent='स्थान अनुमति दिइएन। ब्राउजरमा अनुमति खोलेर फेरि प्रयास गर्नुहोस्।';},{timeout:10000});
   });
 })();
 </script>
